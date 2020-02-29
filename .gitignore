@@ -11,9 +11,8 @@ $RECYCLE.BIN/
 # OSX
 .DS_Store
 
-**/themes/
+# **/themes/
+# resources
 demo/
 .hugo/*
 !.hugo/version
-
-# resources
