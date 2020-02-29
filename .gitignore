@@ -16,4 +16,4 @@ demo/
 .hugo/*
 !.hugo/version
 
-resources
+# resources
