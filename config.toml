@@ -1,0 +1,81 @@
+baseurl = "https://kakkoyun.me"
+title = "Kemal Akkoyun"
+theme = "hugo-coder"
+languagecode = "en"
+defaultcontentlanguage = "en"
+
+paginate = 20
+canonifyurls = true
+
+pygmentsstyle = "bw"
+pygmentscodefences = true
+pygmentscodefencesguesssyntax = true
+
+googleAnalytics = "UA-135893796-1"
+disqusShortname = "kakkoyun"
+
+[params]
+    author = "Kemal Akkoyun"
+    info = "Average Infrastructure Engineer"
+    description = "John Doe's personal website"
+    keywords = "blog,developer,personal,software,engineer,monitoring,observability,infrastructure"
+    avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
+
+    favicon_32 = "/img/favicon-32x32.png"
+    favicon_16 = "/img/favicon-16x16.png"
+
+    footercontent = "Average Software Engineer. FOSS Enthusiast. Too many things to learn. Distributed systems. Observability. Monitoring. Reliability. My stars are bookmarks."
+
+    hidecredits = false
+    hidecopyright = false
+
+    rtl = false
+
+    math = true
+    custom_css = ["css/custom.css"]
+
+# Social links
+[[params.social]]
+    name = "Github"
+    icon = "fab fa-github fa-2x"
+    weight = 1
+    url = "https://github.com/kakkoyun/"
+[[params.social]]
+    name = "Twitter"
+    icon = "fab fa-twitter fa-2x"
+    weight = 3
+    url = "https://twitter.com/kkakkoyun/"
+[[params.social]]
+    name = "LinkedIn"
+    icon = "fab fa-linkedin fa-2x"
+    weight = 2
+    url = "https://linkedin.com/in/kakkoyun/"
+[[params.social]]
+    name = "Stack Overflow"
+    icon = "fab fa-stack-overflow fa-2x"
+    weight = 2
+    url = "https://stackoverflow.com/u/1113525/"
+[[params.social]]
+    name = "Medium"
+    icon = "fab fa-medium fa-2x"
+    weight = 2
+    url = "https://medium.com/@kakkoyun/"
+[[params.social]]
+    name = "YouTube"
+    icon = "fab fa-youtube fa-2x"
+    weight = 2
+    url = "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
+
+# Menu links
+[[menu.main]]
+    name = "Blog"
+    weight = 1
+    url  = "/posts/"
+[[menu.main]]
+    name = "About"
+    weight = 2
+    url = "/about/"
+[[menu.main]]
+    name = "Stats"
+    weight = 3
+    url = "/stats/"
