@@ -1,4 +1,4 @@
-baseurl = "https://kakkoyun.me"
+baseurl = "https://kakkoyun.netlify.com"
 title = "Kemal Akkoyun"
 theme = "hugo-coder"
 languagecode = "en"
