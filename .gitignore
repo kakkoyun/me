@@ -12,7 +12,7 @@ $RECYCLE.BIN/
 .DS_Store
 
 # **/themes/
-# resources
+resources
 demo/
 .hugo/*
 !.hugo/version

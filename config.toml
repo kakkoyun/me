@@ -17,12 +17,12 @@ disqusShortname = "kakkoyun"
 [params]
     author = "Kemal Akkoyun"
     info = "Average Infrastructure Engineer"
-    description = "John Doe's personal website"
+    description = "Kemal Akkoyun's personal website"
     keywords = "blog,developer,personal,software,engineer,monitoring,observability,infrastructure"
     avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
 
-    favicon_32 = "/img/favicon-32x32.png"
-    favicon_16 = "/img/favicon-16x16.png"
+    favicon_32 = "/img/favicon-32x32.png" # TODO
+    favicon_16 = "/img/favicon-16x16.png" # TODO
 
     footercontent = "Average Software Engineer. FOSS Enthusiast. Too many things to learn. Distributed systems. Observability. Monitoring. Reliability. My stars are bookmarks."
 
