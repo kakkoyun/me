@@ -24,7 +24,7 @@ disqusShortname = "kakkoyun"
     favicon_32 = "/img/favicon-32x32.png" # TODO
     favicon_16 = "/img/favicon-16x16.png" # TODO
 
-    footercontent = "Average Software Engineer. FOSS Enthusiast. Too many things to learn. Distributed systems. Observability. Monitoring. Reliability. My stars are bookmarks."
+    footercontent = "Average Software Engineer. FOSS Enthusiast. Distributed systems. Reliability. Observability. Monitoring."
 
     hidecredits = false
     hidecopyright = false
@@ -104,8 +104,20 @@ disqusShortname = "kakkoyun"
     weight = 2
     url = "/about/"
 [[menu.main]]
-    name = "Stats"
+    name = "Projects"
     weight = 3
+    url = "/projects/"
+[[menu.main]]
+    name = "Talks"
+    weight = 4
+    url = "/talks/"
+[[menu.main]]
+    name = "CV"
+    weight = 5
+    url = "/cv/"
+[[menu.main]]
+    name = "Stats"
+    weight = 6
     url = "/stats/"
 
 [taxonomies]
