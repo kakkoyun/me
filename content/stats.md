@@ -1,7 +1,7 @@
 ---
 title: "Stats"
 date: 2020-02-29T21:59:27+01:00
-draft: true
+draft: false
 ---
 
 ![Last year](https://wakatime.com/share/@kemal/863d64ce-fadb-4599-a52c-a43763aefeda.svg)
