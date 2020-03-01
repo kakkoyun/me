@@ -11,7 +11,7 @@ pygmentsstyle = "bw"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
 
-googleAnalytics = "UA-135893796-1"
+googleAnalytics = "UA-135893796-2"
 disqusShortname = "kakkoyun"
 
 [params]
