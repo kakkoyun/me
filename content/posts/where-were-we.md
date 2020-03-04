@@ -2,7 +2,6 @@
 categories = []
 date = 2020-03-03T23:00:00Z
 description = ""
-draft = true
 externalLink = ""
 series = []
 slug = "where-were-we"
