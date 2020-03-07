@@ -75,7 +75,7 @@ disqusShortname = "kakkoyun"
     name = "Stack Overflow"
     icon = "fab fa-stack-overflow fa-2x"
     weight = 4
-    url = "https://stackoverflow.com/u/1113525/"
+    url = "https://stackoverflow.com/story/kakkoyun"
 [[params.social]]
     name = "Medium"
     icon = "fab fa-medium fa-2x"
