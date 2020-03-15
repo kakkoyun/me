@@ -4,3 +4,59 @@ date: 2020-03-15T12:54:45+01:00
 draft: false
 ---
 
+==================================================================
+https://keybase.io/kemal
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://kakkoyun.me
+  * I am kemal (https://keybase.io/kemal) on keybase.
+  * I have a public key ASCdnnJmNQAplmyKzlP2k-SmfORSobYoqTL1KXlhSd50zAo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120376c113bf781545c398b680a1a90d7897b4f7a65d5c4a486990307da7f933ad70a",
+      "host": "keybase.io",
+      "kid": "01209d9e7266350029966c8ace53f693e4a67ce452a1b628a932f529796149de74cc0a",
+      "uid": "b48a87db21aa4757f3c073c4c8ec9d19",
+      "username": "kemal"
+    },
+    "merkle_root": {
+      "ctime": 1584274216,
+      "hash": "a28dd75684b8028302eb83699f1e5d465f31b23f10397bc8500c787f1a79ceae19b719922e42083208f31f98447765d52e753343409d83630c221490bdf34da1",
+      "hash_meta": "5aae7464d4ef6313cf77246bbb8987ca45865dec7da6a0d03b92bced55d1e2ef",
+      "seqno": 15379326
+    },
+    "service": {
+      "entropy": "IEVlcs/ynViSj1LKF/LXL5m0",
+      "hostname": "kakkoyun.me",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "5.3.0"
+  },
+  "ctime": 1584274239,
+  "expire_in": 504576000,
+  "prev": "0fd27430bb476d7564f244c828703437d80e2c65d7fbebf9b16ea79d62bcd6ee",
+  "seqno": 24,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgnZ5yZjUAKZZsis5T9pPkpnzkUqG2KKky9Sl5YUnedMwKp3BheWxvYWTESpcCGMQgD9J0MLtHbXVk8kTIKHA0N9gOLGXX++v5sW6nnWK81u7EIMNzzUrM0tcQeCyDWmRLwDX9fMQQ7vNwmRl4gIuQ8liOAgHCo3NpZ8RAAw6O99uLopMi5TgTXKc6/3RwhEd7kOwnCUo1tWeNZrbmVuSi1MjrZvsR+X6QyzLrNlQJOdkZFXGWAujxB0hgC6hzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIKhu7I938Nd9z+HuNSI/ZDc5kTZYLqStFoYcgyYg6qNPo3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/kemal
+
+==================================================================
