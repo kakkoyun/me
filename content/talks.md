@@ -16,7 +16,6 @@ Among many other observability signals like logs and traces, the metrics signal 
 
 During this talk, we discuss valuable patterns and best practices for instrumenting your Go application. The speakers will go through common pitfalls and failure cases while sharing valuable insights and methods to avoid those mistakes. Also, this talk demonstrates, how to leverage Go unit testing to verify the correctness of your observability signals. How it helps and why it is important. Last but not least, the talk covers a demo of the example instrumented Go application based on the experience and projects we maintain.
 
-
 **Slides**
 
 * [https://github.com/kakkoyun/are-you-testing-your-observability](https://github.com/kakkoyun/are-you-testing-your-observability)
