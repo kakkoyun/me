@@ -16,7 +16,7 @@ disqusShortname = "kakkoyun"
 
 [params]
     author = "Kemal Akkoyun"
-    info = "Average Infrastructure Engineer"
+    info = "Medium-rare Infrastructure Engineer"
     description = "Kemal Akkoyun's personal website"
     keywords = "blog,developer,personal,software,engineer,monitoring,observability,infrastructure"
     avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
@@ -24,7 +24,7 @@ disqusShortname = "kakkoyun"
     favicon_32 = "/img/favicon-32x32.png" # TODO
     favicon_16 = "/img/favicon-16x16.png" # TODO
 
-    footercontent = "Average Software Engineer. FOSS Enthusiast. Distributed systems. Reliability. Observability. Monitoring."
+    footercontent = "Medium-rare SWE/SRE. Distributed systems. Databases. Reliability. Observability. Monitoring."
 
     hidecredits = true
     hidecopyright = false
