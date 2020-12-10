@@ -1,33 +1,33 @@
 ---
-title: "About"
-date: 2020-02-29T21:45:25+01:00
-draft: false
+title: About
+date: 2020-02-29T21:45:25.000+01:00
+
 ---
+Reasoned Cloud-Native Infrastructure Engineer. Site Reliability Engineer. (SWE/SRE). Mentor. Speaker. Blogger "wannabe". Introverted Human (not Cylon, but who actually knows?). Open Source Software Developer. Thanos Maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher.
 
-Reasoned Software Infrastructure Engineer. Programmer. Observability, Reliability and Performance Engineer (a.k.a SRE).
-Slow thinker. Open Source Enthusiast. Blogger and speaker wannabe.
-Introverted Human (not Cylon, I guess)
+Learning (by building) about Distributed Systems and Databases. Focusing on Observability, Reliability, Instrumentation and Performance. 
 
-I help to build large scale, distributed systems, real-time data processing pipelines, observability infrastructure, and real-time data storage systems.
+In my previous lives, I was born in Planet of Lisp (Racket/Scheme) and I had been a rebel Pythonista, a Java brewer, a paranoid Android, C# reshaper, an iOS NSHipster, a well-grounded Rubyist, an Elixir alchemist but I always lived in the Cloud.
 
-You may find me in other mediums under the handle `kakkoyun` (except twitter, someone has squatted my nickname 🤬).
+You may find me in other mediums under the handle `kakkoyun` (except Twitter, someone has squatted my nickname 🤬).
 
-## Personal stuff
+### Besides work...
 
-I enjoy sci-fi and fantasy stuff, politics and programming.
-I like traveling and cooking good vegan and vegetarian food.
+In my free time, I'm a bookworm, a dog whisperer, a metal model and lego builder, a single malt taster and a coffee connoisseur in training (peer pressure).
+
+I enjoy sci-fi and fantasy stuff, politics and programming. I like travelling and cooking good vegan and vegetarian food.
 
 I live with my wife and dog in Berlin, Germany.
 
-## CV
+### CV
 
 It's 2020, so just visit: [linkedin.com/in/kakkoyun](https://linkedin.com/in/kakkoyun/)
 
-## Contact
+### Contact
 
 If you wish to contact me, you may email me: **_kakkoyun`_at_`gmail`_dot_`com_**
 
-## PGP public key
+### PGP public key
 
 ```text
 -----BEGIN PGP PUBLIC KEY BLOCK-----
