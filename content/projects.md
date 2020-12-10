@@ -1,23 +1,21 @@
 ---
 title: Projects
-date: 2020-03-01T00:57:53+00:00
+date: 2020-03-01T00:57:53.000+00:00
 
 ---
-This section describes a selection of my favorite side projects. _All of these are side-projects, which means they were developed in my spare time._
+This section describes a selection of my favourite side projects. _All of these are side-projects, which means they were developed in my spare time._
 
 # Open Source Projects that I maintain
 
-## [thanos](https://github.com/thanos-io/thanos)
+## CNCF Projects
+
+### [thanos](https://github.com/thanos-io/thanos)
 
 Highly available Prometheus setup with long term storage capabilities. CNCF Sandbox project. https://thanos.io
 
-## [kube-thanos](https://github.com/thanos-io/kube-thanos)
+### [kube-thanos](https://github.com/thanos-io/kube-thanos)
 
 Kubernetes specific configuration for deploying Thanos.
-
-# Open Source Projects that I contribute
-
-This section describes a selection of the open-source projects that I contribute to.
 
 ## Go Projects
 
