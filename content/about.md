@@ -5,11 +5,11 @@ date: 2020-02-29T21:45:25.000+01:00
 ---
 Reasoned Cloud-Native Infrastructure Engineer. Site Reliability Engineer. (SWE/SRE). Mentor. Speaker. Blogger "wannabe". Introverted Human (not Cylon, but who actually knows?). Open Source Software Developer. Thanos Maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher.
 
-Learning (by building) about Distributed Systems and Databases. Focusing on Observability, Reliability, Instrumentation and Performance. 
+Learning (by building) about Distributed Systems and Databases. Focusing on Observability, Reliability, Instrumentation and Performance.
 
 In my previous lives, I was born in Planet of Lisp (Racket/Scheme) and I had been a rebel Pythonista, a Java brewer, a paranoid Android, C# reshaper, an iOS NSHipster, a well-grounded Rubyist, an Elixir alchemist but I always lived in the Cloud.
 
-You may find me in other mediums under the handle `kakkoyun` (except Twitter, someone has squatted my nickname 🤬).
+You may find me in other mediums under the handle `kakkoyun` (except Twitter).
 
 ### Besides work...
 
@@ -21,7 +21,7 @@ I live with my wife and dog in Berlin, Germany.
 
 ### CV
 
-It's 2020, so just visit: [linkedin.com/in/kakkoyun](https://linkedin.com/in/kakkoyun/)
+It's 202x, so just visit: [linkedin.com/in/kakkoyun](https://linkedin.com/in/kakkoyun/)
 
 ### Contact
 
