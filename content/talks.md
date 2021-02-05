@@ -7,6 +7,17 @@ This page lists the recorded talks that I have given so far. Not much but it's a
 
 For a more up-to-date list, check [https://github.com/kakkoyun/talks](https://github.com/kakkoyun/talks)
 
+## [Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry](https://kccncna20.sched.com/event/ekHk/absorbing-thanos-infinite-powers-for-multi-cluster-telemetry-bartlomiej-plotka-kemal-akkoyun-red-hat-frederic-branczyk-independent)
+
+Thanos is an open-source, CNCF’s Incubated project that horizontally scales Prometheus to create a global-scale highly available monitoring system. It seamlessly extends Prometheus in a few simple steps and it is already used in production by hundreds of companies that aim for high multi-cloud scale for metrics while keeping low maintenance cost. During this talk, core Thanos (and Prometheus) maintainers, will briefly introduce basic ideas behind Thanos and deployment models and use cases. After that, to satisfy more experienced users, they will explain more advanced concepts, tips for running on the scale, and the latest shiny usability improvements. Thanks to the growing community there is much to talk about!
+
+**Slides**
+* [Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry](https://docs.google.com/presentation/d/1gMBQ7wLqAae45uGOcaYex-_9s675yzgexW705D7KM1Y/edit#slide=id.ga47ea1e9a6_0_13)
+
+**Events**
+* [KubeConNA 2020](https://kccncna20.sched.com/event/ekHk/absorbing-thanos-infinite-powers-for-multi-cluster-telemetry-bartlomiej-plotka-kemal-akkoyun-red-hat-frederic-branczyk-independent)
+	* [Recording](https://www.youtube.com/watch?v=6Nx2BFyr7qQ)
+
 ## [Are you testing your observability?](http://are-you-testing-your-observability.now.sh)
 
 Observability is the key to understand how your application runs and behaves in action. This is especially vital for distributed environments like Kubernetes, where users run Cloud-Native microservices often written in Go.
@@ -25,9 +36,8 @@ During this talk, we discuss valuable patterns and best practices for instrument
   * [Recording](https://youtu.be/LU6D5cNeHks)
 * [FOSDEM 2020](https://fosdem.org/2020/schedule/event/testing_observability/)
   * [Recording](https://www.youtube.com/watch?v=-jF4nWfrY3w)
-  
-  
- ## [The Zen of Prometheus](https://gitpitch.com/kakkoyun/the-zen-of-prometheus/master?p=presentation#/)
+
+## [The Zen of Prometheus](https://gitpitch.com/kakkoyun/the-zen-of-prometheus/master?p=presentation#/)
 
 Live Website: [The Zen of Prometheus](https://the-zen-of-prometheus.netlify.app/)
 
@@ -46,8 +56,7 @@ During this talk, Kemal will present several valuable patterns, best practices a
 * [PromCon Online 2020](https://promcon.io/2020-online/)
   * [Recording](https://www.youtube.com/watch?v=Nqp4fjw_omU)
 
-
- ## [Building Observable Go Services](https://gitpitch.com/kakkoyun/building-observable-go-applications)
+## [Building Observable Go Services](https://gitpitch.com/kakkoyun/building-observable-go-applications)
 
 In modern days, we run our applications as loosely coupled micro-services on distributed, elastic infrastructure as (mostly) stateless workloads. Under these circumstances, observability has become a key attribute to understand how our applications run and behave in action, in order to provide highly available and resilient service.
 
