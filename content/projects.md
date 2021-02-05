@@ -7,7 +7,7 @@ This section describes a selection of my favourite side projects. _All of these 
 
 # Open Source Projects that I maintain
 
-## CNCF Projects
+## Cloud-Native Projects
 
 ### [thanos](https://github.com/thanos-io/thanos)
 
@@ -17,18 +17,12 @@ Highly available Prometheus setup with long term storage capabilities. CNCF Sand
 
 Kubernetes specific configuration for deploying Thanos.
 
-## Go Projects
+### [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus)
+
+Use Prometheus to monitor Kubernetes and applications running on Kubernetes.
+
+## Other Projects
 
 ### [drone-cache](https://github.com/meltwater/drone-cache)
 
 A Drone plugin for caching current workspace files between builds to reduce your build times. drone-cache is a small CLI program, written in Go without any external OS dependencies (such as tar, etc).
-
-## Kubernetes Projects
-
-### [kluster](https://github.com/kakkoyun/kluster)
-
-Still baking...
-
-## Prometheus Projects
-
-Still baking...
