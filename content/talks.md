@@ -5,7 +5,7 @@ date: 2020-03-01T01:57:45.000+01:00
 ---
 This page lists the recorded talks that I have given so far. Not much but it's a start.
 
-For a more up-to-date list, check [https://github.com/kakkoyun/talks](https://github.com/kakkoyun/talks)
+### For a more up-to-date list, check [this YouTube playlist](https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB) or [https://github.com/kakkoyun/talks](https://github.com/kakkoyun/talks). 
 
 ## [Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry](https://kccncna20.sched.com/event/ekHk/absorbing-thanos-infinite-powers-for-multi-cluster-telemetry-bartlomiej-plotka-kemal-akkoyun-red-hat-frederic-branczyk-independent)
 
