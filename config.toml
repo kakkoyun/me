@@ -95,7 +95,7 @@ disqusShortname = "kakkoyun"
     type = "application/rss+xml"
 [[params.social]]
     name = "SuperPeer"
-    icon = "fab fa-comments"
+    icon = "fas fa-microphone"
     weight = 8
     url = "https://superpeer.com/kakkoyun"
 
