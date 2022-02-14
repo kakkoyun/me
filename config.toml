@@ -93,6 +93,11 @@ disqusShortname = "kakkoyun"
     url = "https://kakkoyun.me/index.xml"
     rel = "alternate"
     type = "application/rss+xml"
+[[params.social]]
+    name = "SuperPeer"
+    icon = "fab fa-comments"
+    weight = 8
+    url = "https://superpeer.com/kakkoyun"
 
 # Menu links
 [[menu.main]]
