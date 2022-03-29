@@ -24,7 +24,7 @@ disqusShortname = "kakkoyun"
     favicon_32 = "/img/favicon-32x32.png" # TODO
     favicon_16 = "/img/favicon-16x16.png" # TODO
 
-    footercontent = "Medium-rare SWE/SRE. Observability. Reliability. Monitoring. Distributed systems. Databases. Go. Linux. eBPF."
+    footercontent = "Medium-rare SWE/SRE. Observability. Reliability. Monitoring. Distributed systems. Databases. Debuggers. Profilers. Go. Rust. eBPF. Linux."
 
     hidecredits = true
     hidecopyright = false
