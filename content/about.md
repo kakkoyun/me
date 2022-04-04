@@ -17,7 +17,7 @@ You may find me in other mediums under the handle `kakkoyun` (except Twitter, [`
 
 In my free time, I'm a custom keyboard builder, a bookworm, a dog whisperer, a metal model and Lego builder, a single malt taster and a coffee connoisseur in training (peer pressure).
 
-I enjoy sci-fi and fantasy literature, politics and programming. I like travelling and cooking good vegan and vegetarian food.
+I enjoy sci-fi and fantasy literature, board games, and programming (fun things aside from work related topics: hardware, functional programming etc.). I like travelling, cooking good vegan and vegetarian food. Furthermore, I always try to learn a new language, I dream to be a proper polyglot. Last but not the least, I want to retire early and spend most of my time outside (maybe Over landing with a Land Rover? Who knows?)
 
 Right now, I live with my wife and dog in Berlin, Germany.
 
@@ -27,7 +27,7 @@ It's 202x, so just visit: [linkedin.com/in/kakkoyun](https://linkedin.com/in/kak
 
 ### Contact
 
-If you wish to contact me, you may email me: **_kakkoyun`_at_`gmail`_dot_`com_**
+If you wish to reach out and chit-chat, you may email me: **_kakkoyun`_at_`gmail`_dot_`com_**
 
 ### PGP public key
 
