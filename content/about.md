@@ -3,23 +3,23 @@ title: About
 date: 2020-02-29T21:45:25.000+01:00
 
 ---
-Reasoned Cloud-Native Software Infrastructure Engineer. Site Reliability Engineer. Observability, Monitoring and Performance Engineering. Mentor. Speaker. Blogger "wannabe". Introverted Human (not Cylon, but who actually knows?). Open Source Software Developer. Thanos Maintainer. Prometheus client_golang maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher.
+Reasoned Cloud-Native Software Infrastructure Engineer (currently [@PolarSignals](https://www.polarsignals.com/)). Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger "wannabe". Introverted Human (not Cylon, but who actually knows?). Open Source Software Developer and Maintainer. Thanos Maintainer. Prometheus client_golang maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher. Angel investor.
 
-Building tools for SWEs and SREs. Learning (by building) about Distributed Systems, Databases and Operating Systems. Focusing on Observability, Reliability, Instrumentation and Performance. Nowadays, I'm deeply invested in profiling, eBPF based observability, performance and time-series databases.
+Building tools for SWEs and SREs. Learning (by building) about Distributed Systems, Databases and Operating Systems. Focusing on Observability, Reliability, Instrumentation, and Performance. Nowadays, I'm deeply invested in profiling, eBPF based observability, performance and time-series databases.
 
-In my free time, I'm tinker (I open things up, check what's inside and fix them), I'm a bookworm, a dog whisperer, a mechanical keyboard and lego builder, a single malt taster and a coffee drinker in training (peer pressure).
+In my free time, I'm a tinker (I open things up, check what's inside and fix them), I'm a bookworm, a dog whisperer, a mechanical keyboard and Lego builder, a single malt taster and a coffee drinker in training (peer pressure).
 
 In my previous lives, I was born in Planet of Lisp (Racket/Scheme) and I had been a rebel Pythonista, a Java brewer, a paranoid Android, C# reshaper, an iOS NSHipster, a well-grounded Rubyist, an Elixir alchemist but I ever lived in the Cloud and evermore been on-call since the beginning of my career (circa 2012).
 
 You may find me in other mediums under the handle `kakkoyun` (except Twitter, [`kkakkoyun`](https://twitter.com/kkakkoyun)).
 
-### Besides work...
+### Besides work…
 
-In my free time, I'm a bookworm, a dog whisperer, a metal model and lego builder, a single malt taster and a coffee connoisseur in training (peer pressure).
+In my free time, I'm a custom keyboard builder, a bookworm, a dog whisperer, a metal model and Lego builder, a single malt taster and a coffee connoisseur in training (peer pressure).
 
-I enjoy sci-fi and fantasy stuff, politics and programming. I like travelling and cooking good vegan and vegetarian food.
+I enjoy sci-fi and fantasy literature, politics and programming. I like travelling and cooking good vegan and vegetarian food.
 
-I live with my wife and dog in Berlin, Germany.
+Right now, I live with my wife and dog in Berlin, Germany.
 
 ### CV
 
