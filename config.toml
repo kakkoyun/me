@@ -83,7 +83,7 @@ disqusShortname = "kakkoyun"
     url = "https://news.ycombinator.com/user?id=kakkoyun"
 [[params.social]]
     name = "Lobster"
-    icon = "fab fa-lobster fa-2x"
+    icon = "fas fa-book-reader fa-2x"
     weight = 4
     url = "https://lobste.rs/u/kakkoyun"
 [[params.social]]
