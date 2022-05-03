@@ -24,7 +24,7 @@ disqusShortname = "kakkoyun"
     favicon_32 = "/img/favicon-32x32.png" # TODO
     favicon_16 = "/img/favicon-16x16.png" # TODO
 
-    footercontent = "Medium-rare SWE/SRE@polarsignals.com | Observability | Reliability | Monitoring | Distributed Systems | Databases | Debuggers and Profilers | eBPF | Linux Go | Rust | Elixir"
+    footercontent = "Medium-rare SWE/SRE@polarsignals.com | Observability | Reliability | Monitoring | Distributed Systems | Databases | Debuggers and Profilers | eBPF | Linux | Go | Rust | Elixir"
 
     hidecredits = true
     hidecopyright = false
