@@ -13,6 +13,7 @@ pygmentscodefencesguesssyntax = true
 
 disqusShortname = "kakkoyun"
 
+# From hugo-coder
 [params.plausibleAnalytics]
   domain = "kakkoyun.me"
 
