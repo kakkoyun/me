@@ -1,8 +1,8 @@
 ---
 title: Talks
 date: 2020-03-01T01:57:45.000+01:00
-
 ---
+
 This page lists the recorded talks that I have given so far. Not much but it's a start.
 
 ### For a more up-to-date list, check [this YouTube playlist](https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB) or [https://github.com/kakkoyun/talks](https://github.com/kakkoyun/talks).
@@ -50,13 +50,13 @@ Attendees will learn how to continuously profile their code, guide themselves in
 * [GopherCon Turkey 2021](https://gophercon.ist/#schedule)
   * [Recording](https://youtu.be/-miC_jnQ_Yk)
 
-## [~~Conprof~~ Parca - Profiling in the Cloud-Native Era](https://youtu.be/ficc6_6RYQk)
+## [Parca - Profiling in the Cloud-Native Era](https://youtu.be/ficc6_6RYQk)
 
 For years Google has consistently been able to cut down multiple percentage points in their fleet-wide resource usage every quarter, using techniques described in their “Google-Wide Profiling” paper. Ad-hoc profiling has long been part of the developer’s toolbox to analyze CPU and memory usage of a running process, however, through continuous profiling, the systematic collection of profiles, entirely new workflows suddenly become possible. Matthias and Kemal will start this talk with an introduction to profiling with Go and demonstrate via Conprof - an open-source continuous profiling project - how continuous profiling allows for an unprecedented fleet-wide understanding of code at runtime. Attendees will learn how to continuously profile Go code to help guide building robust, reliable, and performant software and reduce cloud spend systematically.
 
 **Slides**
 
-* [~~Conprof~~ Parca - Profiling in the Cloud-Native Era](https://docs.google.com/presentation/d/1cPdcLLSc_OzlLOnh1vuUaTuVOFjuJ7-NFbC599Pll2I/edit?usp=sharing)
+* [Parca - Profiling in the Cloud-Native Era](https://docs.google.com/presentation/d/1cPdcLLSc_OzlLOnh1vuUaTuVOFjuJ7-NFbC599Pll2I/edit?usp=sharing)
 
 **Events**
 
