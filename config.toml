@@ -24,8 +24,8 @@ disqusShortname = "kakkoyun"
     keywords = "blog,developer,personal,software,engineer,monitoring,observability,infrastructure,database,reliability,ebpf,profilling,linux,go,rust,elixir"
     avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
 
-    favicon_32 = "/img/favicon-32x32.png" # TODO
-    favicon_16 = "/img/favicon-16x16.png" # TODO
+    favicon_32 = "/img/favicon-32x32.png"
+    favicon_16 = "/img/favicon-16x16.png"
 
     hidecredits = true
     hidecopyright = false
@@ -75,42 +75,42 @@ disqusShortname = "kakkoyun"
     weight = 3
     url = "https://linkedin.com/in/kakkoyun/"
 [[params.social]]
+    name = "YouTube"
+    icon = "fa fa-youtube fa-2x"
+    weight = 4
+    url = "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
+[[params.social]]
     name = "Stack Overflow"
     icon = "fa fa-stack-overflow fa-2x"
     weight = 4
     url = "https://stackoverflow.com/users/1113525/kemal-akkoyun"
-[[params.social]]
-    name = "HackerNews"
-    icon = "fa fa-hacker-news fa-2x"
-    weight = 4
-    url = "https://news.ycombinator.com/user?id=kakkoyun"
-[[params.social]]
-    name = "Lobster"
-    icon = "fa fa-bookmark fa-2x"
-    weight = 4
-    url = "https://lobste.rs/u/kakkoyun"
-[[params.social]]
-    name = "Medium"
-    icon = "fa fa-medium fa-2x"
-    weight = 5
-    url = "https://medium.com/@kakkoyun/"
-[[params.social]]
-    name = "YouTube"
-    icon = "fa fa-youtube fa-2x"
-    weight = 6
-    url = "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
+# [[params.social]]
+#     name = "HackerNews"
+#     icon = "fa fa-hacker-news fa-2x"
+#     weight = 5
+#     url = "https://news.ycombinator.com/user?id=kakkoyun"
+# [[params.social]]
+#     name = "Lobster"
+#     icon = "fa fa-bookmark fa-2x"
+#     weight = 6
+#     url = "https://lobste.rs/u/kakkoyun"
+# [[params.social]]
+#     name = "Medium"
+#     icon = "fa fa-medium fa-2x"
+#     weight = 7
+#     url = "https://medium.com/@kakkoyun/"
+# [[params.social]]
+#     name = "SuperPeer"
+#     icon = "fa fa-solid fa-microphone fa-2x"
+#     weight = 8
+#     url = "https://superpeer.com/kakkoyun"
 [[params.social]]
     name = "RSS"
     icon = "fa fa-solid fa-rss fa-2x"
-    weight = 7
+    weight = 9
     url = "https://kakkoyun.me/index.xml"
     rel = "alternate"
     type = "application/rss+xml"
-[[params.social]]
-    name = "SuperPeer"
-    icon = "fa fa-solid fa-microphone fa-2x"
-    weight = 8
-    url = "https://superpeer.com/kakkoyun"
 
 # Menu links
 [[menu.main]]
