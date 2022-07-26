@@ -19,15 +19,13 @@ disqusShortname = "kakkoyun"
 
 [params]
     author = "Kemal Akkoyun"
-    info = "Medium-rare Infrastructure Engineer"
+    info =  ["Medium-rare Cloud Infrastructure Engineer","", "Observability | Reliability | Monitoring", "Distributed Systems | Databases | Profilers | Debuggers", "eBPF | Linux | Go | Rust | Elixir", ""]
     description = "Kemal Akkoyun's personal website"
     keywords = "blog,developer,personal,software,engineer,monitoring,observability,infrastructure,database,reliability,ebpf,profilling,linux,go,rust,elixir"
     avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
 
     favicon_32 = "/img/favicon-32x32.png" # TODO
     favicon_16 = "/img/favicon-16x16.png" # TODO
-
-    footercontent = "Medium-rare SWE/SRE@polarsignals.com | Observability | Reliability | Monitoring | Distributed Systems | Databases | Debuggers and Profilers | eBPF | Linux | Go | Rust | Elixir"
 
     hidecredits = true
     hidecopyright = false
