@@ -19,7 +19,7 @@ disqusShortname = "kakkoyun"
 
 [params]
     author = "Kemal Akkoyun"
-    info =  ["Medium-rare Cloud Infrastructure Engineer","", "Observability | Reliability | Monitoring", "Distributed Systems | Databases | Profilers | Debuggers", "eBPF | Linux | Go | Rust | Elixir", ""]
+    info =  ["Reasoned Cloud Infrastructure Engineer","", "Observability | Reliability | Performance", "Distributed Systems | Databases | Profilers | Debuggers", "eBPF | Linux | Go | Rust", ""]
     description = "Kemal Akkoyun's personal website"
     keywords = "blog,developer,personal,software,engineer,monitoring,observability,infrastructure,database,reliability,ebpf,profilling,linux,go,rust,elixir"
     avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
