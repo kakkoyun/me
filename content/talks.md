@@ -7,9 +7,9 @@ This page lists the recorded talks that I have given so far. Not much but it's a
 
 ### For a more up-to-date list, check [this YouTube playlist](https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB).
 
-https://github.com/kakkoyun/tiny-profiler
+## [Building a Go profiler Using Go](https://docs.google.com/presentation/d/1VNx98laKlhRFfzY9o23N5OHpBBJnuYAmZf5l7Mr-CE0/edit?usp=sharing)
 
-## [Building a Go profiler Using Go]([https://docs.google.com/presentation/d/1hKqxAC9aaWLPM4xwXyXuK5cp2LBAewOVqZ05qjLNnK8/edit?usp=sharing](https://docs.google.com/presentation/d/1VNx98laKlhRFfzY9o23N5OHpBBJnuYAmZf5l7Mr-CE0/edit?usp=sharing))
+https://github.com/kakkoyun/tiny-profiler
 
 Profiling has long been part of the Go developer’s toolbox to analyze the resource usage of a running process. But do you ever wonder how profilers built? In this talk, I will bring eBPF (a promising Kernel technology) and Go together to build a profiler for understanding Go code at runtime.
 
@@ -25,7 +25,7 @@ In this talk, we will bring these two concepts together, and explain how to writ
 
 **Slides**
 
-* [Building a Go profiler Using Go]([https://docs.google.com/presentation/d/1hKqxAC9aaWLPM4xwXyXuK5cp2LBAewOVqZ05qjLNnK8/edit?usp=sharing](https://docs.google.com/presentation/d/1VNx98laKlhRFfzY9o23N5OHpBBJnuYAmZf5l7Mr-CE0/edit?usp=sharing))
+* [Building a Go profiler Using Go](https://docs.google.com/presentation/d/1hKqxAC9aaWLPM4xwXyXuK5cp2LBAewOVqZ05qjLNnK8/edit?usp=sharing)
 
 **Events**
 
