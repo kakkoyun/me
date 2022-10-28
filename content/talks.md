@@ -9,7 +9,7 @@ This page lists the recorded talks that I have given so far. Not much but it's a
 
 ## 2022
 
-### [Achieving Zero-Instrumentation Monitoring with eBPF](https://docs.google.com/presentation/d/1sMxVo6PVbKxiePgZNtt58xRsvysnFXdCeeVwqLLvwzM/edit?usp=sharing)
+### [Achieving Zero-Instrumentation Monitoring with eBPF](https://youtu.be/g6B9Vbr88HM)
 
 Metrics are powerful tools that exist in the cloud-native ecosystem using Prometheus. However, using facilities to enable monitoring requires instrumenting the code. Everyone wants observability, but nobody wants to go the extra mile to instrument their clusters or applications. This is where eBPF comes in. eBPF, a promising technology for observability tooling, is not news. To observe the infrastructure and applications, eBPF-based system-wide agents can help us to capture events without requiring recompilation or redeployment of applications. In this talk, attendees will discover alternative ways to collect metrics from applications and infrastructure using system-wide eBPF agents. The presenters will demonstrate what level of observability could be accomplished without instrumentation.
 
@@ -20,6 +20,7 @@ Metrics are powerful tools that exist in the cloud-native ecosystem using Promet
 **Events**
 
 * [PrometheusDay North America 2022](https://prometheusdayna22.sched.com/event/1AsMR)
+  * [Recording](https://youtu.be/g6B9Vbr88HM) 	
 	
 	
 ### [Building a Go profiler Using Go](https://docs.google.com/presentation/d/1VNx98laKlhRFfzY9o23N5OHpBBJnuYAmZf5l7Mr-CE0/edit?usp=sharing)
