@@ -142,12 +142,6 @@ disqusShortname = "kakkoyun"
     name = "About"
     weight = 6
     url = "/about/"
-[[menu.main]]
-    name = "Mastodon"
-    weight = 7
-    url  = "https://hachyderm.io/@kakkoyun"
-    rel = "me"
-    target = "_blank"
 
 [taxonomies]
   category = "categories"
