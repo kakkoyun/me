@@ -70,6 +70,11 @@ disqusShortname = "kakkoyun"
     weight = 2
     url = "https://twitter.com/kkakkoyun/"
 [[params.social]]
+    name = "Mastodon"
+    icon = "fa fa-mastodon fa-2x"
+    weight = 2
+    url = "https://hachyderm.io/@kakkoyun"
+[[params.social]]
     name = "LinkedIn"
     icon = "fa fa-linkedin fa-2x"
     weight = 3
@@ -137,6 +142,12 @@ disqusShortname = "kakkoyun"
     name = "About"
     weight = 6
     url = "/about/"
+[[menu.main]]
+    name = "Mastodon"
+    weight = 7
+    url  = "https://hachyderm.io/@kakkoyun"
+    rel = "me"
+    target = "_blank"
 
 [taxonomies]
   category = "categories"
