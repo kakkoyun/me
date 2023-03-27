@@ -7,6 +7,7 @@ series = []
 slug = "where-were-we"
 tags = []
 title = "Where were we?"
+published = false
 
 +++
 > tl;dr
