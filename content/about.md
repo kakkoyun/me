@@ -6,7 +6,7 @@ date: 2020-02-29T21:45:25.000+01:00
 
 Reasoned Cloud-Native Open-Source Software Infrastructure Engineer (currently [@PolarSignals](https://www.polarsignals.com/)). Site Reliability Engineer. Observability, Monitoring and Performance Engineering. Mentor. Speaker. Blogger. Introverted Human (not Cylon, but who knows?). Open Source Software Developer. Thanos Maintainer. Prometheus client_golang maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher. Rustecean.
 
-Learning (by building) about Distributed Systems, Databases and Operating Systems. Focused on Observability, Reliability, Instrumentation, System Programming and Performance. 
+Learning (by building) about Distributed Systems, Databases and Operating Systems. Focused on Observability, Reliability, Instrumentation, System Programming and Performance.
 
 For the past few years, I've built Linux observability tools for software and reliability engineers. I'm deeply invested in profiling, eBPF, performance, time-series and columnar databases. And currently, hyper-focused on building an eBPF-based whole-system performance profiler.
 

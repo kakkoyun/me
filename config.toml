@@ -15,11 +15,11 @@ disqusShortname = "kakkoyun"
 
 # From hugo-coder
 [params.plausibleAnalytics]
-  domain = "kakkoyun.me"
+    domain = "kakkoyun.me"
 
 [params]
     author = "Kemal Akkoyun"
-    info =  ["Reasoned Cloud Infrastructure Engineer","", "Observability | Reliability | Performance", "eBPF | Linux", "Profiling | Debugging", "", "Distributed Systems | Databases", "Go | Zig", ""]
+    info =  ["Reasoned Cloud Infrastructure Engineer", "", "Observability | Performance | Reliability", "Linux | eBPF", "Profiling | Debugging", "", "Compilers | Distributed Systems | Databases", "", "System Programming", "Go | Rust | Zig", ""]
     description = "Kemal Akkoyun's personal website"
     keywords = "ebpf,profilling,linux,monitoring,observability,infrastructure,database,reliability,go,rust,elixir,zig,programming,blog,developer,software,engineering"
     avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
@@ -144,7 +144,7 @@ disqusShortname = "kakkoyun"
     url = "/about/"
 
 [taxonomies]
-  category = "categories"
-  series = "series"
-  tag = "tags"
-  author = "authors"
+    category = "categories"
+    series = "series"
+    tag = "tags"
+    author = "authors"

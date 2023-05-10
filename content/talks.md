@@ -20,9 +20,9 @@ Metrics are powerful tools that exist in the cloud-native ecosystem using Promet
 **Events**
 
 * [PrometheusDay North America 2022](https://prometheusdayna22.sched.com/event/1AsMR)
-  * [Recording](https://youtu.be/g6B9Vbr88HM) 	
-	
-	
+  * [Recording](https://youtu.be/g6B9Vbr88HM)
+
+
 ### [Building a Go profiler Using Go](https://docs.google.com/presentation/d/1VNx98laKlhRFfzY9o23N5OHpBBJnuYAmZf5l7Mr-CE0/edit?usp=sharing)
 
 https://github.com/kakkoyun/tiny-profiler
@@ -47,7 +47,7 @@ In this talk, we will bring these two concepts together, and explain how to writ
 
 * [GopherCon EU 2022](https://gophercon.eu)
   * [Recording](#building-a-go-profiler-using-go)
-	
+
 ### [eBPF? Safety First!](https://youtu.be/oWHQrlE2-G8)
 
 eBPF being a promising technology is no news. And C is the defacto choice for writing eBPF programs. The act of writing C programs in an error-prone process. Even the eBPF verifier makes life a lot easier; it is still possible to write unsafe programs and make trivial mistakes that elude the compiler but are detected by the verifier in the load time, which are preventable with compile-time checks. It is where Rust comes in. Rust is a language designed for safety. Recently the Rust compiler gained the ability to compile to the eBPF virtual machine, and Rust became an official language for Linux. We discover more and more use cases where eBPF can be helpful. We find more efficient ways to build safe eBPF programs that are parallel to these developments. We will demonstrate how we made applications combined with Rust in the data plane for more safety and Go in the control plane for a higher development pace to target Kubernetes for security, observability and performance tuning.
@@ -77,7 +77,7 @@ The CNCF Incubated Thanos project with the large open-source community continues
 ## 2021
 
 ### [Profiling Go Applications in the Cloud-Native Era](https://youtu.be/-miC_jnQ_Yk)
-	
+
 For years Google has consistently been able to cut down multiple percentage points in their fleet-wide resource usage every quarter, using techniques described in their “Google-Wide Profiling” paper. Ad-hoc profiling has long been part of the developer’s toolbox to analyze the CPU and memory usage of a running process. However, through continuous profiling, and the systematic collection of profiles, entirely new workflows suddenly become possible.
 
 The presenter will start this talk with an introduction to profiling applications, and demonstrate how one can practice it using open-source continuous profiling tools, and how continuous profiling allows for an unprecedented fleet-wide understanding of code at production runtime.
@@ -94,7 +94,7 @@ Attendees will learn how to continuously profile their code, guide themselves in
   * [Recording](https://youtu.be/-miC_jnQ_Yk)
 
 ### [Parca - Profiling in the Cloud-Native Era](https://youtu.be/ficc6_6RYQk)
-	
+
 For years Google has consistently been able to cut down multiple percentage points in their fleet-wide resource usage every quarter, using techniques described in their “Google-Wide Profiling” paper. Ad-hoc profiling has long been part of the developer’s toolbox to analyze CPU and memory usage of a running process, however, through continuous profiling, the systematic collection of profiles, entirely new workflows suddenly become possible. Matthias and Kemal will start this talk with an introduction to profiling with Go and demonstrate via Conprof - an open-source continuous profiling project - how continuous profiling allows for an unprecedented fleet-wide understanding of code at runtime. Attendees will learn how to continuously profile Go code to help guide building robust, reliable, and performant software and reduce cloud spend systematically.
 
 **Slides**
@@ -107,7 +107,7 @@ For years Google has consistently been able to cut down multiple percentage poin
   * [Recording](https://youtu.be/ficc6_6RYQk)
 
 ### [Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry](https://kccncna20.sched.com/event/ekHk/absorbing-thanos-infinite-powers-for-multi-cluster-telemetry-bartlomiej-plotka-kemal-akkoyun-red-hat-frederic-branczyk-independent)
-	
+
 Thanos is an open-source, CNCF’s Incubated project that horizontally scales Prometheus to create a global-scale highly available monitoring system. It seamlessly extends Prometheus in a few simple steps and it is already used in production by hundreds of companies that aim for high multi-cloud scale for metrics while keeping low maintenance cost. During this talk, core Thanos (and Prometheus) maintainers, will briefly introduce basic ideas behind Thanos and deployment models and use cases. After that, to satisfy more experienced users, they will explain more advanced concepts, tips for running on the scale, and the latest shiny usability improvements. Thanks to the growing community there is much to talk about!
 
 **Slides**
