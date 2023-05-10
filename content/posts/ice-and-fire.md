@@ -1,21 +1,22 @@
 ---
 canonical_url: https://www.polarsignals.com/blog/posts/2023/03/28/how-to-read-icicle-and-flame-graphs
 categories:
-- 'Continuous profiling'
-- 'Profiling'
-- 'Icicle graphs'
-- 'Flame graphs'
-- 'Performance'
-- 'Performance monitoring'
-- 'Performance profiling'
-- 'Performance Analysis'
-- 'Data Visualization'
+- continuous profiling
+- profiling
+- icicle graphs
+- flame graphs
+- performance
+- performance monitoring
+- performance profiling
+- performance analysis
+- data visualization
 date: "2023-03-28T00:00:00Z"
+image: https://www.polarsignals.com/blog/posts/2023/03/28/images/ice_and_fire.svg
 published: true
-title: Ice and Fire: How to read icicle and flame graphs
+title: 'Ice and Fire: How to read icicle and flame graphs'
 ---
 
-I'm too lazy now a days to clone the blog post with all its assests and animations here. So until I get to it, I'm putting a link to it here. Enjoy :)
+I'm too lazy now a days to clone the blog post with all its assets and animations here. So until I get to it, I'm putting a link to it here. Enjoy :)
 
 _Originally published on polarsignals.com/blog on 28.03.2023_
 
