@@ -16,7 +16,7 @@ published: true
 title: 'Ice and Fire: How to read icicle and flame graphs'
 ---
 
-I'm too lazy now a days to clone the blog post with all its assets and animations here. So until I get to it, I'm putting a link to it here. Enjoy :)
+I am too lazy now a days to clone the blog post with all its assets and animations here. So until I get to it, I have put a link to it here. Enjoy :)
 
 _Originally published on polarsignals.com/blog on 28.03.2023_
 
