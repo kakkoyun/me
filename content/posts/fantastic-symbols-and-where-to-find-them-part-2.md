@@ -19,7 +19,7 @@ categories:
 - .Net
 - Erlang
 date: "2022-01-27T00:00:00Z"
-published: true
+published: false
 title: Fantastic Symbols and Where to Find Them - Part 2
 ---
 
