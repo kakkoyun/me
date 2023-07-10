@@ -12,7 +12,7 @@ categories:
 - data visualization
 date: "2023-03-28T00:00:00Z"
 image: https://www.polarsignals.com/blog/posts/2023/03/28/images/ice_and_fire.svg
-published: true
+published: false
 title: 'Ice and Fire: How to read icicle and flame graphs'
 ---
 
