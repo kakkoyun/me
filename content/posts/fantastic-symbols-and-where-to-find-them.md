@@ -1,5 +1,5 @@
 ---
-canonical_url: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them
+canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them
 categories:
 - symbolization
 - binary
@@ -10,7 +10,7 @@ categories:
 - binutils
 - symbols
 date: "2022-01-13T00:00:00Z"
-published: false
+published: true
 title: Fantastic Symbols and Where to Find Them - Part 1
 ---
 

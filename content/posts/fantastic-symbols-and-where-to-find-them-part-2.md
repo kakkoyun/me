@@ -1,5 +1,5 @@
 ---
-canonical_url: https://www.polarsignals.comhttps://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them-part-2
+canonicalUrl: https://www.polarsignals.comhttps://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them-part-2
 categories:
 - symbolization
 - debugging
@@ -19,7 +19,7 @@ categories:
 - .Net
 - Erlang
 date: "2022-01-27T00:00:00Z"
-published: false
+published: true
 title: Fantastic Symbols and Where to Find Them - Part 2
 ---
 
