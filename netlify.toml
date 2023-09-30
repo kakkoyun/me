@@ -28,3 +28,9 @@ HUGO_VERSION = "0.101.0"
 
 [context.next.environment]
 HUGO_ENABLEGITINFO = "true"
+
+[[redirects]]
+  from = "https://kakkoyun.me/notes/*"
+  to = "https://publish.obsidian.md/serve?url=kakkoyun.me/notes/:splat"
+  status = 200
+  force = true
