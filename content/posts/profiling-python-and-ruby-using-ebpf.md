@@ -1,18 +1,18 @@
 ---
 blogpost: true
-title: 'Profiling Python and Ruby using eBPF'
+title: "Profiling Python and Ruby using eBPF"
 description: Dive into the internals of profiling interpreted Python and Ruby code using eBPF
 canonicalUrl: https://www.polarsignals.com/blog/posts/2023/10/04/profiling-python-and-ruby-with-ebpf/
-categories:
-- continuous profiling
-- profiling
-- icicle graphs
-- flame graphs
-- performance
-- performance monitoring
-- performance profiling
-- performance analysis
-- data visualization
+tags:
+  - continuous profiling
+  - profiling
+  - icicle graphs
+  - flame graphs
+  - performance
+  - performance monitoring
+  - performance profiling
+  - performance analysis
+  - data visualization
 date: "2023-10-04T00:00:00Z"
 published: true
 shortRepo: me

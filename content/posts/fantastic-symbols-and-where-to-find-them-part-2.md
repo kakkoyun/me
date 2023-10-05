@@ -1,23 +1,23 @@
 ---
 canonicalUrl: https://www.polarsignals.comhttps://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them-part-2
-categories:
-- symbolization
-- debugging
-- profiling
-- analysis
-- perf
-- symbols
-- interpreters
-- JIT
-- just-in-time-compiler
-- python
-- ruby
-- NodeJS
-- JavaScript
-- JVM
-- Java
-- .Net
-- Erlang
+tags:
+  - symbolization
+  - debugging
+  - profiling
+  - analysis
+  - perf
+  - symbols
+  - interpreters
+  - JIT
+  - just-in-time-compiler
+  - python
+  - ruby
+  - NodeJS
+  - JavaScript
+  - JVM
+  - Java
+  - .Net
+  - Erlang
 date: "2022-01-27T00:00:00Z"
 published: true
 title: Fantastic Symbols and Where to Find Them - Part 2

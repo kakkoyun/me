@@ -1,12 +1,12 @@
 ---
 canonicalUrl: https://underthehood.meltwater.com/blog/2019/04/10/making-drone-builds-10-times-faster/
-categories:
-- Infrastructure
-- Berlin
-- CI/CD
-- Drone
-- drone.io
-- Open Source
+tags:
+  - Infrastructure
+  - Berlin
+  - CI/CD
+  - Drone
+  - drone.io
+  - Open Source
 date: "2020-04-10T00:00:00Z"
 image: https://raw.githubusercontent.com/meltwater/drone-cache/master/images/drone_gopher.png
 published: true
@@ -43,7 +43,7 @@ Our Drone deployment runs on [AWS][aws], hence we looked for plugins that use [S
 
 ## Why did we decide to build our own caching plugin?
 
-After using *drone-s3-cache* for a couple of weeks, we needed to add another parameter to pass to S3. To do so we forked [drone-s3-cache][drone-s3-cache] and modified it. We thought that nobody would need those minor changes. So rather than contributing back to upstream, we built a docker image of our own and pushed it to our private registry to use as a custom Drone plugin.
+After using _drone-s3-cache_ for a couple of weeks, we needed to add another parameter to pass to S3. To do so we forked [drone-s3-cache][drone-s3-cache] and modified it. We thought that nobody would need those minor changes. So rather than contributing back to upstream, we built a docker image of our own and pushed it to our private registry to use as a custom Drone plugin.
 
 ![Feature request for drone-cache from a colleague](https://raw.githubusercontent.com/meltwater/drone-cache/master/images/slack_comment.png)
 
@@ -53,7 +53,6 @@ I received this message when I was looking for a problem to solve during our [in
 
 I had not worked with Go much, but I always wanted to learn. Thanks to this plugin, I have also achieved this goal of mine. I changed, refactored and churned a lot of code. I experimented with a lot of different ideas. I have added features that nobody has asked for. I tried different things just for the sake of trying. That’s why when I decided to open source my changes, I realised I had re-written the plugin. So rather than sending a pull-request, I created a new repository. [drone-cache][drone-cache] has born!
 
-
 ![Standards](https://imgs.xkcd.com/comics/standards.png)
 
 ## How does it work?
@@ -62,11 +61,11 @@ What does a Drone cache plugin actually have to accomplish? In Drone, each step 
 
 With drone-cache, after your initial pipeline run, a snapshot of your current workspace will be stored. Then you can restore that snapshot in your next build, which saves you time.
 
-The best example would be to use this plugin with your package managers such as [npm][npm], [Mix][mix], [Bundler][bundler] or [Maven][maven]. With restored dependencies from a cache, commands such as *npm install* would only need to download new dependencies, rather than re-download every package on each build.
+The best example would be to use this plugin with your package managers such as [npm][npm], [Mix][mix], [Bundler][bundler] or [Maven][maven]. With restored dependencies from a cache, commands such as _npm install_ would only need to download new dependencies, rather than re-download every package on each build.
 
 ## What makes drone-cache different from other Drone caching solutions?
 
-The most useful feature of drone-cache is that you can provide [your own custom cache key templates][your-own-custom-cache-key-templates]. This means you can store your cached files under keys which prescribes your use cases. For example, with a custom key generated from a checksum of a file (say *package.json*), you keep your cached files until you actually touch that file again.
+The most useful feature of drone-cache is that you can provide [your own custom cache key templates][your-own-custom-cache-key-templates]. This means you can store your cached files under keys which prescribes your use cases. For example, with a custom key generated from a checksum of a file (say _package.json_), you keep your cached files until you actually touch that file again.
 
 All other caching solutions for drone offer only a single storage form for your cache. drone-cache in contrast offers 2 storage forms out of the box: an **S3 bucket** or a **mounted volume**. Even better, drone-cache provides a pluggable backend system, so you can implement your own storage backend.
 
@@ -81,7 +80,7 @@ Building a caching solution is hard. Especially, if every team in your company u
 
 What could we have done better? As I have mentioned before, rather than forking and modifying a new code base, we could have contributed back to the original project. We could have applied "release early and often" philosophy to open sourcing this repository, and we would have collected feedback from the outside world as well. However we didn’t, that’s mostly on me. This is the first time I actually open sourced a project and contributed back to the community. So next time I will know better :)
 
-In Meltwater we are using *drone-cache* in 20 teams and 120 components now. It works and gets things done for us. We have learned a lot while we build it. We hope this also solves similar problems of yours.
+In Meltwater we are using _drone-cache_ in 20 teams and 120 components now. It works and gets things done for us. We have learned a lot while we build it. We hope this also solves similar problems of yours.
 
 Please [try it][drone-cache] in your pipeline, give us feedback, feel free to open issues and send us pull-requests. Personally, I am also very interested to discuss your experiences with open sourcing in general, so if you have any thoughts on that, please share them in the comments below.
 
