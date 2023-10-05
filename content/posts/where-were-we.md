@@ -1,4 +1,4 @@
-+++
+---
 categories = []
 date = 2020-03-03T23:00:00Z
 description = ""
@@ -8,8 +8,8 @@ slug = "where-were-we"
 tags = []
 title = "Where were we?"
 published = false
+---
 
-+++
 > tl;dr
 >
 > _After a considerable amount of break (like that I’ve ever blogged regularly), I’m going to try blogging (again). So stay tuned!_

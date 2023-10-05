@@ -1,6 +1,5 @@
 ---
-author: <a href="https://www.linkedin.com/in/kakkoyun/">Kemal Akkoyun</a>
-canonical_url: https://underthehood.meltwater.com/blog/2019/04/10/making-drone-builds-10-times-faster/
+canonicalUrl: https://underthehood.meltwater.com/blog/2019/04/10/making-drone-builds-10-times-faster/
 categories:
 - Infrastructure
 - Berlin
@@ -8,7 +7,6 @@ categories:
 - Drone
 - drone.io
 - Open Source
-comments: true
 date: "2020-04-10T00:00:00Z"
 image: https://raw.githubusercontent.com/meltwater/drone-cache/master/images/drone_gopher.png
 published: true
