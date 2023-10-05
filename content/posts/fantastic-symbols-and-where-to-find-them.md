@@ -1,14 +1,14 @@
 ---
 canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them
-categories:
-- symbolization
-- binary
-- debugging
-- profiling
-- analysis
-- perf
-- binutils
-- symbols
+tags:
+  - symbolization
+  - binary
+  - debugging
+  - profiling
+  - analysis
+  - perf
+  - binutils
+  - symbols
 date: "2022-01-13T00:00:00Z"
 published: true
 title: Fantastic Symbols and Where to Find Them - Part 1
