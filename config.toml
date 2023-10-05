@@ -15,80 +15,93 @@ pygmentscodefencesguesssyntax = true
 
 # From hugo-coder
 [params.plausibleAnalytics]
-    domain = "kakkoyun.me"
+domain = "kakkoyun.me"
+outboundLinksTracking = true
 
 [params]
-    author = "Kemal Akkoyun"
-    info =  ["Reasoned Cloud Infrastructure Engineer", "", "Observability | Performance | Reliability", "Linux | eBPF", "Profiling | Debugging", "", "Compilers | Distributed Systems | Databases", "", "System Programming", "Go | Rust | Zig", ""]
-    description = "Kemal Akkoyun's personal website"
-    keywords = "ebpf,profilling,linux,monitoring,observability,infrastructure,database,reliability,go,rust,elixir,zig,programming,blog,developer,software,engineering"
-    avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
+author = "Kemal Akkoyun"
+info = [
+    "Reasoned Cloud Infrastructure Engineer",
+    "",
+    "Observability | Performance | Reliability",
+    "Linux | eBPF",
+    "Profiling | Debugging",
+    "",
+    "Compilers | Distributed Systems | Databases",
+    "",
+    "System Programming",
+    "Go | Rust | Zig",
+    "",
+]
+description = "Kemal Akkoyun's personal website"
+keywords = "ebpf,profilling,linux,monitoring,observability,infrastructure,database,reliability,go,rust,elixir,zig,programming,blog,developer,software,engineering"
+avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
 
-    favicon_32 = "/img/favicon-32x32.png"
-    favicon_16 = "/img/favicon-16x16.png"
+favicon_32 = "/img/favicon-32x32.png"
+favicon_16 = "/img/favicon-16x16.png"
 
-    hidecredits = true
-    hidecopyright = false
+hidecredits = true
+hidecopyright = false
 
-    rtl = false
-    math = true
+rtl = false
+math = true
 
-    dateformat = "January 2, 2006"
+dateformat = "January 2, 2006"
 
-    since = 2019
+since = 2019
 
-    enableTwemoji = true
+enableTwemoji = true
 
-    # Git Commit in Footer, uncomment the line below to enable it.
-    # commit = "https://github.com/kakkoyun/me/tree/"
+# Git Commit in Footer, uncomment the line below to enable it.
+# commit = "https://github.com/kakkoyun/me/tree/"
 
-    # Specify light/dark colorscheme
-    # Supported values:
-    # "auto" (use preference set by browser)
-    # "dark" (dark background, light foreground)
-    # "light" (light background, dark foreground) (default)
-    colorscheme = "auto"
+# Specify light/dark colorscheme
+# Supported values:
+# "auto" (use preference set by browser)
+# "dark" (dark background, light foreground)
+# "light" (light background, dark foreground) (default)
+colorscheme = "auto"
 
-    # Series see also post count
-    maxSeeAlsoItems = 5
+# Series see also post count
+maxSeeAlsoItems = 5
 
-    # # Custom CSS
-    # custom_css = []
+# # Custom CSS
+# custom_css = []
 
-    # # Custom JS
-    # custom_js = []
+# # Custom JS
+# custom_js = []
 
 # Social links
 [[params.social]]
-    name = "Github"
-    icon = "fa fa-github fa-2x"
-    weight = 1
-    url = "https://github.com/kakkoyun/"
+name = "Github"
+icon = "fa fa-github fa-2x"
+weight = 1
+url = "https://github.com/kakkoyun/"
 [[params.social]]
-    name = "Twitter"
-    icon = "fa fa-twitter fa-2x"
-    weight = 2
-    url = "https://twitter.com/kkakkoyun/"
+name = "Twitter"
+icon = "fa fa-twitter fa-2x"
+weight = 2
+url = "https://twitter.com/kkakkoyun/"
 [[params.social]]
-    name = "Mastodon"
-    icon = "fa fa-mastodon fa-2x"
-    weight = 2
-    url = "https://hachyderm.io/@kakkoyun"
+name = "Mastodon"
+icon = "fa fa-mastodon fa-2x"
+weight = 2
+url = "https://hachyderm.io/@kakkoyun"
 [[params.social]]
-    name = "LinkedIn"
-    icon = "fa fa-linkedin fa-2x"
-    weight = 3
-    url = "https://linkedin.com/in/kakkoyun/"
+name = "LinkedIn"
+icon = "fa fa-linkedin fa-2x"
+weight = 3
+url = "https://linkedin.com/in/kakkoyun/"
 [[params.social]]
-    name = "YouTube"
-    icon = "fa fa-youtube fa-2x"
-    weight = 4
-    url = "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
+name = "YouTube"
+icon = "fa fa-youtube fa-2x"
+weight = 4
+url = "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
 [[params.social]]
-    name = "Stack Overflow"
-    icon = "fa fa-stack-overflow fa-2x"
-    weight = 4
-    url = "https://stackoverflow.com/users/1113525/kemal-akkoyun"
+name = "Stack Overflow"
+icon = "fa fa-stack-overflow fa-2x"
+weight = 4
+url = "https://stackoverflow.com/users/1113525/kemal-akkoyun"
 # [[params.social]]
 #     name = "HackerNews"
 #     icon = "fa fa-hacker-news fa-2x"
@@ -110,41 +123,41 @@ pygmentscodefencesguesssyntax = true
 #     weight = 8
 #     url = "https://superpeer.com/kakkoyun"
 [[params.social]]
-    name = "RSS"
-    icon = "fa fa-solid fa-rss fa-2x"
-    weight = 9
-    url = "https://kakkoyun.me/index.xml"
-    rel = "alternate"
-    type = "application/rss+xml"
+name = "RSS"
+icon = "fa fa-solid fa-rss fa-2x"
+weight = 9
+url = "https://kakkoyun.me/index.xml"
+rel = "alternate"
+type = "application/rss+xml"
 
 # Menu links
 [[menu.main]]
-    name = "Blog"
-    weight = 1
-    url  = "/posts/"
+name = "Blog"
+weight = 1
+url = "/posts/"
 [[menu.main]]
-    name = "Open-Source"
-    weight = 2
-    url = "/projects/"
+name = "Open-Source"
+weight = 2
+url = "/projects/"
 [[menu.main]]
-    name = "Talks"
-    weight = 3
-    url = "/talks/"
+name = "Talks"
+weight = 3
+url = "/talks/"
 [[menu.main]]
-    name = "Stats"
-    weight = 4
-    url = "/stats/"
+name = "Stats"
+weight = 4
+url = "/stats/"
 [[menu.main]]
-    name = "Notes"
-    weight = 5
-    url = "/notes/"
+name = "Notes"
+weight = 5
+url = "/notes/"
 [[menu.main]]
-    name = "About"
-    weight = 6
-    url = "/about/"
+name = "About"
+weight = 6
+url = "/about/"
 
 [taxonomies]
-    category = "categories"
-    series = "series"
-    tag = "tags"
-    author = "authors"
+category = "categories"
+series = "series"
+tag = "tags"
+author = "authors"
