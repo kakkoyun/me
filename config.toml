@@ -21,21 +21,21 @@ outboundLinksTracking = true
 [params]
 author = "Kemal Akkoyun"
 info = [
-    "Reasoned Cloud Infrastructure Engineer",
+    "Cloud Infrastructure Engineer",
     "",
     "Observability | Performance | Reliability",
+    "",
+    "Distributed Systems | Machine Learning | HPC",
+    "",
+    "System Programming",
+    "Go | Python | Zig",
     "",
     "Profiling",
     "Linux | eBPF",
     "",
-    "Distributed Systems | Databases | Machine Learning",
-    "",
-    "System Programming",
-    "Go | Rust | Zig",
-    "",
 ]
 description = "Kemal Akkoyun's personal website"
-keywords = "ebpf,profilling,linux,monitoring,observability,infrastructure,database,reliability,go,rust,elixir,zig,programming,blog,developer,software,engineering"
+keywords = "linux,infrastructure,database,reliability,go,zig,python,rust,elixir,programming,blog,developer,software,engineering,monitoring,observability,ebpf,profiling,high-performance-computing,HPC,performance"
 avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
 
 favicon_32 = "/img/favicon-32x32.png"
