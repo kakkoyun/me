@@ -28,14 +28,13 @@ info = [
     "Distributed Systems | Machine Learning | HPC",
     "",
     "System Programming",
-    "Go | Python | Zig",
     "",
-    "Profiling",
     "Linux | eBPF",
+    "Profiling",
     "",
 ]
 description = "Kemal Akkoyun's personal website"
-keywords = "linux,infrastructure,database,reliability,go,zig,python,rust,elixir,programming,blog,developer,software,engineering,monitoring,observability,ebpf,profiling,high-performance-computing,HPC,performance"
+keywords = "linux,infrastructure,database,reliability,go,zig,python,rust,c,elixir,programming,blog,developer,software,engineering,monitoring,observability,ebpf,profiling,high-performance-computing,HPC,performance"
 avatarurl = "https://avatars1.githubusercontent.com/u/536449?v=4"
 
 favicon_32 = "/img/favicon-32x32.png"
