@@ -4,7 +4,7 @@ date: 2020-02-29T21:45:25.000+01:00
 
 ---
 
-Reasoned Cloud-Native Open-Source Software Infrastructure Engineer (currently [@PolarSignals](https://www.polarsignals.com/)). Site Reliability Engineer. Observability, Monitoring and Performance Engineering. Mentor. Speaker. Blogger. Introverted Human (not Cylon, but who knows?). Open Source Software Developer. Thanos Maintainer. Prometheus client_golang maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher. Rustecean.
+Reasoned Cloud-Native Open-Source Software Infrastructure Engineer. Site Reliability Engineer. Observability, Monitoring and Performance Engineering. Mentor. Speaker. Blogger. Introverted Human (not Cylon, but who knows?). Open Source Software Developer. Thanos Maintainer. Prometheus client_golang maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher. Rustecean.
 
 Learning (by building) about Distributed Systems, Databases and Operating Systems. Focused on Observability, Reliability, Instrumentation, System Programming and Performance.
 
