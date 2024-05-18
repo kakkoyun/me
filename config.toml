@@ -28,7 +28,7 @@ info = [
     "Distributed Systems | Machine Learning | HPC",
     "",
     "System Programming",
-    "Go | C | Python | Rust",
+    "Go | C | Zig | Python",
     "",
     "Linux | eBPF",
     "Profiling",
