@@ -4,7 +4,7 @@ date: 2020-02-29T21:45:25.000+01:00
 
 ---
 
-Reasoned Cloud-Native Open-Source Software Infrastructure Engineer. Site Reliability Engineer. Observability, Monitoring and Performance Engineering. Mentor. Speaker. Blogger. Introverted Human (not Cylon, but who knows?). Open Source Software Developer. Thanos Maintainer. Prometheus client_golang maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher. Rustecean.
+Reasoned Cloud-Native Open-Source Software Infrastructure Engineer. Site Reliability Engineer. Observability, Monitoring and Performance Engineering. Mentor. Speaker. Blogger. Introverted Human (not Cylon, but who knows?). Open Source Software Developer. Thanos Maintainer. Prometheus client_golang maintainer. CNCF and Prometheus Ecosystem Contributor. Gopher.
 
 Learning (by building) about Distributed Systems, Databases and Operating Systems. Focused on Observability, Reliability, Instrumentation, System Programming and Performance.
 
@@ -18,7 +18,7 @@ You may find me in other mediums under the handle `kakkoyun` (except Twitter, [`
 
 In my free time, I'm a tinker (I open things up, check what's inside and fix them), a bookworm, a dog whisperer, a mechanical keyboard and lego builder, a single malt taster and a coffee drinker in training (peer pressure).
 
-I enjoy sci-fi and fantasy literature, board games, and programming (fun things aside from work-related topics: hardware, functional programming etc.). I like travelling and cooking good vegan and vegetarian food. Furthermore, I always try to learn a new language; I dream of being a proper polyglot. Last but not least, I want to retire early and spend most of my time outside (maybe Over landing with a Land Rover? Who knows?)
+I enjoy sci-fi and fantasy literature, board games, and programming (fun things aside from work-related topics: hardware, functional programming etc.). I like traveling and cooking good vegan and vegetarian food. Furthermore, I always try to learn a new language; I dream of being a proper polyglot. Last but not least, I want to retire early and spend most of my time outside (maybe Over landing with a Land Rover? Who knows?)
 
 I currently live with my beloved significant other and dog (the one you see as my avatar) in Berlin, Germany.
 
