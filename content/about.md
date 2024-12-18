@@ -4,7 +4,7 @@ date: 2020-02-29T21:45:25.000+01:00
 
 ---
 Reasoned Cloud-Native Open-Source Software Infrastructure Engineer.
-Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger.
+Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger. Angel Investor.
 Introverted human (not a Cylon, but who knows?). Open Source Software Developer. Thanos maintainer. Prometheus maintainer. Prometheus Operator maintainer. CNCF Ecosystem Contributor. Gopher.
 
 Learning (by building) about Distributed Systems, Databases, and Operating Systems. Focused on Observability, Reliability, Instrumentation, System Programming, and Performance.
@@ -12,6 +12,8 @@ Learning (by building) about Distributed Systems, Databases, and Operating Syste
 For the past year, I explored Python tooling, ML inference infrastructure, MLOps, and container runtimes, building systems to optimize ML workflows. While the journey broadened my understanding of machine learning infrastructure, I realized that my passion and expertise remain in Observability. Moving forward, I’m refocusing on performance monitoring, profiling, and instrumentation, with a deep commitment to building tools that empower engineers to observe and optimize systems at scale.
 
 For the past few years, I’ve built Linux observability tools for software and reliability engineers. My work has been deeply rooted in profiling, eBPF, performance engineering, time-series, and columnar databases. Currently, I’m hyper-focused on building an eBPF-based whole-system performance profiler, optimizing Python-based ML workloads.
+
+I’m also passionate about the Zig programming language, which aligns with my interests in systems programming, performance, and simplicity.
 
 In my previous life, I was born on the Planet of Lisp (Racket/Scheme). I’ve been a rebel Pythonista, a Java brewer, a paranoid Android, a C# reshaper, an iOS NSHipster, a well-grounded Rubyist, and an Elixir alchemist. Throughout it all, I’ve lived in the Cloud and been on-call since the beginning of my career (circa 2012).
 
@@ -22,6 +24,8 @@ Besides work…
 In my free time, I’m a tinkerer (I open things up, inspect what’s inside, and fix them), a bookworm, a dog whisperer, a mechanical keyboard and LEGO builder, a single malt taster, and a coffee drinker in training (peer pressure).
 
 I enjoy sci-fi and fantasy literature, board games, and programming fun side projects (e.g., hardware or functional programming experiments). I’m passionate about traveling, cooking vegan and vegetarian dishes, and constantly challenging myself to learn new languages. I dream of becoming a proper polyglot one day.
+
+As an angel investor, I’ve had the privilege of investing in two promising companies, helping support innovation and growth in the tech ecosystem.
 
 One of my long-term goals is to retire early, spending most of my time outdoors—maybe overlanding with a Land Rover? Who knows?
 
