@@ -9,7 +9,7 @@ tags:
   - Open Source
 date: "2020-04-10T00:00:00Z"
 image: https://raw.githubusercontent.com/meltwater/drone-cache/master/images/drone_gopher.png
-published: true
+publishDate: "2020-04-10T00:00:00Z"
 title: Making Drone Builds 10 Times Faster!
 ---
 

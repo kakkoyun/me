@@ -7,7 +7,7 @@ series: []
 slug: "where-were-we"
 tags: []
 title: "Where were we?"
-published: false
+publishDate: "2020-03-03T23:00:00Z"
 ---
 
 > tl;dr

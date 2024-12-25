@@ -5,7 +5,7 @@ tags:
   - career
   - beginnings
 date: "2024-03-18T00:00:00Z"
-published: true
+publishDate: "2024-03-18T00:00:00Z"
 title: I left Polar Signals or A new chapter in my professional journey
 ---
 

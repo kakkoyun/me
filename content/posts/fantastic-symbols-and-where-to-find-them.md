@@ -10,7 +10,7 @@ tags:
   - binutils
   - symbols
 date: "2022-01-13T00:00:00Z"
-published: true
+publishDate: "2022-01-27T00:00:00Z"
 title: Fantastic Symbols and Where to Find Them - Part 1
 ---
 

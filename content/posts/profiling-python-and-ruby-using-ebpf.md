@@ -14,7 +14,7 @@ tags:
   - performance analysis
   - data visualization
 date: "2023-10-04T00:00:00Z"
-published: true
+publishDate: "2023-10-04T00:00:00Z"
 shortRepo: me
 folder: posts
 file: profiling-python-and-ruby-using-ebpf

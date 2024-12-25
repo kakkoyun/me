@@ -29,8 +29,8 @@ info = [
     "Go | C | Zig",
     "",
     "Linux | eBPF | Instrumentation",
-    "Profiling | Tracing | Monitorinh",
-    "",
+    "Profiling | Tracing | Monitoring",
+    ""
 ]
 description = "Kemal Akkoyun's personal website"
 keywords = "linux,infrastructure,database,reliability,go,zig,c,elixir,programming,blog,developer,software,engineering,monitoring,observability,ebpf,profiling,high-performance-computing,HPC,performance"
@@ -77,24 +77,29 @@ icon = "fa fa-github fa-2x"
 weight = 1
 url = "https://github.com/kakkoyun/"
 [[params.social]]
-name = "Twitter"
-icon = "fa fa-twitter fa-2x"
+name = "Bluesky"
+icon = "fa-brands fa-bluesky fa-2x"
+weight = 2
+url = "https://bsky.app/profile/kakkoyun.me"
+[[params.social]]
+name = "X/Twitter"
+icon = "fa-brands fa-x-twitter fa-2x"
 weight = 2
 url = "https://twitter.com/kkakkoyun/"
 [[params.social]]
 name = "Mastodon"
-icon = "fa fa-mastodon fa-2x"
+icon = "fa-brands fa-mastodon fa-2x"
 weight = 2
 url = "https://hachyderm.io/@kakkoyun"
 [[params.social]]
 name = "LinkedIn"
 icon = "fa fa-linkedin fa-2x"
-weight = 3
+weight = 2
 url = "https://linkedin.com/in/kakkoyun/"
 [[params.social]]
 name = "YouTube"
 icon = "fa fa-youtube fa-2x"
-weight = 4
+weight = 3
 url = "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
 [[params.social]]
 name = "Stack Overflow"
@@ -108,7 +113,7 @@ url = "https://stackoverflow.com/users/1113525/kemal-akkoyun"
 #     url = "https://news.ycombinator.com/user?id=kakkoyun"
 # [[params.social]]
 #     name = "Lobster"
-#     icon = "fa fa-bookmark fa-2x"
+#     icon = "fa-regular fa-lobster fa-2x"
 #     weight = 6
 #     url = "https://lobste.rs/u/kakkoyun"
 # [[params.social]]
