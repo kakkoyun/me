@@ -25,13 +25,11 @@ info = [
     "",
     "Observability | Performance | Reliability",
     "",
-    "Distributed Systems | Databases | HPC",
-    "",
     "System Programming",
     "Go | C | Zig",
     "",
-    "Linux | eBPF",
-    "Profiling",
+    "Linux | eBPF | Instrumentation",
+    "Profiling | Tracing | Monitorinh",
     "",
 ]
 description = "Kemal Akkoyun's personal website"
