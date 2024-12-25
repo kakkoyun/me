@@ -16,3 +16,6 @@ resources
 demo/
 .hugo/*
 !.hugo/version
+
+# Local Netlify folder
+.netlify
