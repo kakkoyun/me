@@ -152,7 +152,7 @@ url = "/posts/"
 [[menu.main]]
 name = "Talks"
 weight = 3
-url = "/talks/"
+url = "/tags/talks"
 # [[menu.main]]
 # name = "Stats"
 # weight = 4
