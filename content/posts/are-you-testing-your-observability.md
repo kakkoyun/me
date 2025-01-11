@@ -2,7 +2,7 @@
 tags:
   - talks
   - observability
-  - Go
+  - go
   - testing
 date: "2020-02-15T00:00:00Z"
 publishDate: "2020-02-15T00:00:00Z"

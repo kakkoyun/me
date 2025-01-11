@@ -2,8 +2,8 @@
 tags:
   - talks
   - eBPF
-  - Rust
-  - Go
+  - rust
+  - go
 date: "2022-05-10T00:00:00Z"
 publishDate: "2022-05-10T00:00:00Z"
 title: eBPF? Safety First!

@@ -1,12 +1,12 @@
 ---
 tags:
   - talks
-  - Thanos
+  - thanos
   - observability
-  - Kubernetes
+  - kubernetes
 date: "2022-06-15T00:00:00Z"
 publishDate: "2022-06-15T00:00:00Z"
-title: Story of Correlation: Integrating Thanos Metrics with Observability Signals
+title: "Story of Correlation: Integrating Thanos Metrics with Observability Signals"
 ---
 
 The CNCF Incubated Thanos project with the large open-source community continues to push boundaries regarding observability and monitoring using Prometheus-based metrics...

@@ -1,12 +1,12 @@
 ---
 canonicalUrl: https://underthehood.meltwater.com/blog/2019/04/10/making-drone-builds-10-times-faster/
 tags:
-  - Infrastructure
-  - Berlin
+  - infrastructure
+  - berlin
   - CI/CD
-  - Drone
+  - drone
   - drone.io
-  - Open Source
+  - open-source
 date: "2020-04-10T00:00:00Z"
 image: https://raw.githubusercontent.com/meltwater/drone-cache/master/images/drone_gopher.png
 publishDate: "2020-04-10T00:00:00Z"

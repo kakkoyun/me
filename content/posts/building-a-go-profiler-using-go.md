@@ -1,7 +1,7 @@
 ---
 tags:
   - talks
-  - Go
+  - go
   - profiling
   - eBPF
 date: "2022-03-20T00:00:00Z"

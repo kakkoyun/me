@@ -1,8 +1,8 @@
 ---
 tags:
   - talks
-  - Thanos
-  - Kubernetes
+  - thanos
+  - kubernetes
   - observability
 date: "2020-11-10T00:00:00Z"
 publishDate: "2020-11-10T00:00:00Z"

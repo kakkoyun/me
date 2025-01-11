@@ -1,7 +1,7 @@
 ---
 tags:
   - talks
-  - Go
+  - go
   - observability
   - cloud-native
 date: "2020-12-01T00:00:00Z"

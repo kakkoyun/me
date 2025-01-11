@@ -1,7 +1,7 @@
 ---
 tags:
   - talks
-  - Go
+  - go
   - profiling
   - observability
 date: "2021-04-20T00:00:00Z"
