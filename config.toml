@@ -138,8 +138,12 @@ type = "application/rss+xml"
 
 # Menu links
 [[menu.main]]
-name = "Blog"
+name = "About"
 weight = 1
+url = "/about/"
+[[menu.main]]
+name = "Blog"
+weight = 2
 url = "/posts/"
 # [[menu.main]]
 # name = "Open-Source"
@@ -149,18 +153,14 @@ url = "/posts/"
 name = "Talks"
 weight = 3
 url = "/talks/"
-[[menu.main]]
-name = "Stats"
-weight = 4
-url = "/stats/"
+# [[menu.main]]
+# name = "Stats"
+# weight = 4
+# url = "/stats/"
 [[menu.main]]
 name = "Notes"
-weight = 5
+weight = 4
 url = "/notes/"
-[[menu.main]]
-name = "About"
-weight = 6
-url = "/about/"
 
 [taxonomies]
 category = "categories"
