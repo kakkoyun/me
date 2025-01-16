@@ -6,7 +6,7 @@ tags:
   - eBPF
 date: "2022-03-20T00:00:00Z"
 publishDate: "2022-03-20T00:00:00Z"
-title: Building a Go Profiler Using Go
+title: "talk: Building a Go Profiler Using Go"
 ---
 
 Profiling has long been part of the Go developer’s toolbox to analyze the resource usage of a running process. But do you ever wonder how profilers built? In this talk, I will bring eBPF (a promising Kernel technology) and Go together to build a profiler for understanding Go code at runtime.

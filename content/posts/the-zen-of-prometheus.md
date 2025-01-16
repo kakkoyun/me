@@ -5,7 +5,7 @@ tags:
   - observability
 date: "2020-09-20T00:00:00Z"
 publishDate: "2020-09-20T00:00:00Z"
-title: The Zen of Prometheus
+title: "talk: The Zen of Prometheus"
 ---
 
 Live Website: [The Zen of Prometheus](https://the-zen-of-prometheus.netlify.app/)

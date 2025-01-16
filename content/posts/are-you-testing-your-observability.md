@@ -6,7 +6,7 @@ tags:
   - testing
 date: "2020-02-15T00:00:00Z"
 publishDate: "2020-02-15T00:00:00Z"
-title: Are you testing your observability?
+title: "talk: Are you testing your observability?"
 ---
 
 Observability is the key to understand how your application runs and behaves in action. This is especially vital for distributed environments like Kubernetes, where users run Cloud-Native microservices often written in Go.

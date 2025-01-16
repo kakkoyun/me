@@ -6,7 +6,7 @@ tags:
   - cloud-native
 date: "2020-12-01T00:00:00Z"
 publishDate: "2020-12-01T00:00:00Z"
-title: Building Observable Go Services
+title: "talk: Building Observable Go Services"
 ---
 
 In modern days, we run our applications as loosely coupled micro-services on distributed, elastic infrastructure as (mostly) stateless workloads. Under these circumstances, observability has become a key attribute to understand how our applications run and behave in action, in order to provide highly available and resilient service.
