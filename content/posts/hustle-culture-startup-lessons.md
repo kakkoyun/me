@@ -3,7 +3,12 @@ title: "When Hustle Culture and Personal Values Collide: Lessons from My Startup
 publishDate: "2024-10-16T00:00:00Z"
 date: "2024-10-16T00:00:00Z"
 description: "Reflections on navigating misaligned priorities, overwork, and personal growth during a brief stint at a fast-paced startup."
-tags: ["startup life", "work-life balance", "engineering culture", "career growth"]
+tags: 
+  - "startup life"
+  - "work-life balance"
+  - "engineering culture"
+  - "career growth"
+  - "reflection"
 ---
 
 Startups can be exciting arenas of innovation, filled with ambitious goals, rapid development cycles, and the allure of shaping the future. 
