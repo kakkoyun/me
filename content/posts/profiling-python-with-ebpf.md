@@ -9,7 +9,7 @@ description: "Discover how eBPF and Parca are transforming Python profiling, ena
 
 # Profiling Python with eBPF: A New Frontier in Performance Analysis
 
-Profiling Python applications can be challenging, especially in scenarios involving high-performance requirements or complex workloads. Existing tools often require code instrumentation, making them impractical for certain use cases. Enter eBPF (Extended Berkeley Packet Filter)—a revolutionary Linux technology—and the open-source project Parca, which together are reshaping the landscape of Python profiling.
+Profiling Python applications can be challenging, especially in scenarios involving high-performance requirements or complex workloads. Existing tools often require code instrumentation, making them impractical for certain use cases. Enter [eBPF](https://ebpf.io/) (Extended Berkeley Packet Filter)—a revolutionary Linux technology—and the open-source project [Parca](https://parca.dev), which together are reshaping the landscape of Python profiling.
 
 In this post, I’ll explore how eBPF enables continuous profiling, discuss challenges like stack unwinding in Python, and demonstrate the power of modern profiling tools.
 
@@ -24,16 +24,31 @@ Profiling helps optimize performance and troubleshoot issues, such as CPU spikes
 - **Performance optimization:** Identifying bottlenecks in code.
 - **Incident resolution:** Determining which function or component caused a memory spike or CPU overload.
 
-Traditional Python profiling tools, like `cProfile` or `py-spy`, require application instrumentation, which isn't always feasible—especially in production environments where code access might be restricted. This is where eBPF shines, offering non-intrusive, external profiling.
+Traditional Python profiling tools, like [`cProfile`](https://docs.python.org/3/library/profile.html) or [`py-spy`](https://github.com/benfred/py-spy), require application instrumentation, which isn't always feasible—especially in production environments where code access might be restricted. This is where eBPF shines, offering non-intrusive, external profiling.
+
+---
+
+## Existing Profiling Solutions in Python
+
+The Python ecosystem offers several profiling tools, each with unique strengths:
+
+- [`cProfile`](https://docs.python.org/3/library/profile.html): A built-in module for deterministic profiling.
+- [`pyinstrument`](https://github.com/joerick/pyinstrument): A call stack profiler for Python.
+- [`py-spy`](https://github.com/benfred/py-spy): A sampling profiler for Python programs.
+- [`yappi`](https://github.com/sumerc/yappi): Yet Another Python Profiler, supports multithreaded programs.
+- [`Pyflame`](https://pyflame.readthedocs.io/en/latest/): A ptracing profiler for Python.
+- [`Scalene`](https://github.com/plasma-umass/scalene): A high-performance CPU and memory profiler.
+
+While these tools are valuable, many require code instrumentation or introduce significant overhead, making them less suitable for continuous profiling in production environments.
 
 ---
 
 ## What Is eBPF?
 
-Originally designed for network packet filtering, eBPF has evolved into a versatile event-driven system. It enables safe execution of custom programs inside the Linux kernel, using:
+Originally designed for network packet filtering, [eBPF](https://ebpf.io/) has evolved into a versatile event-driven system. It enables safe execution of custom programs inside the Linux kernel, using:
 
-- **Performance Monitoring Units (PMUs):** Efficient hardware units that track CPU cycles and other metrics.
-- **Perf subsystem:** A Linux facility for hooking into kernel and user-space events, such as CPU activity, memory allocation, or I/O.
+- **[Performance Monitoring Units (PMUs)](https://en.wikipedia.org/wiki/Performance_monitoring_unit):** Efficient hardware units that track CPU cycles and other metrics.
+- **[Perf subsystem](https://perf.wiki.kernel.org/index.php/Main_Page):** A Linux facility for hooking into kernel and user-space events, such as CPU activity, memory allocation, or I/O.
 
 By leveraging eBPF with PMUs, profiling becomes faster and more efficient than traditional approaches.
 
@@ -41,7 +56,7 @@ By leveraging eBPF with PMUs, profiling becomes faster and more efficient than t
 
 ## Continuous Profiling with Parca
 
-[Parca](https://github.com/parca-dev/parca) is an open-source project enabling continuous profiling. Its eBPF agent hooks into perf events, collects stack traces, and aggregates data for visualization. The process involves:
+[Parca](https://parca.dev) is an open-source project enabling continuous profiling. Its eBPF agent hooks into [perf events](https://perf.wiki.kernel.org/index.php/Tutorial), collects stack traces, and aggregates data for visualization. The process involves:
 
 1. **Hooking into CPU events** to monitor active functions.
 2. **Stack unwinding** to trace function calls.
@@ -55,7 +70,7 @@ Unlike traditional profilers, Parca introduces minimal runtime overhead, making 
 
 ### Native Code
 
-Profiling native code is straightforward: we unwind the stack by reading memory addresses from the CPU and resolving them into human-readable symbols using debug information (e.g., DWARF).
+Profiling native code is straightforward: we unwind the stack by reading memory addresses from the CPU and resolving them into human-readable symbols using debug information (e.g., [DWARF](https://dwarfstd.org/)).
 
 ### Python Code
 
@@ -75,10 +90,10 @@ Here’s how Parca handles Python profiling:
 
 1. **Reverse Engineering the Python Runtime:** 
    - Analyze Python’s internal structures (e.g., thread and frame states).
-   - Identify offsets and symbols using tools like GDB or DWARF debuggers.
+   - Identify offsets and symbols using tools like [GDB](https://www.gnu.org/software/gdb/) or DWARF debuggers.
 
 2. **Unwinding Python Stacks:**
-   - Traverse thread states to locate the active Global Interpreter Lock (GIL) holder.
+   - Traverse thread states to locate the active [Global Interpreter Lock (GIL)](https://wiki.python.org/moin/GlobalInterpreterLock) holder.
    - Walk through execution frames to collect function call data.
 
 3. **Mapping Symbols:**
