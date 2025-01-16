@@ -4,8 +4,7 @@ author: "Kemal Akkoyun"
 date: "2024-02-12"
 categories: ["Python", "eBPF", "Performance"]
 tags: ["Profiling", "Observability", "Parca", "eBPF", "Performance Analysis"]
-summary: "Discover how eBPF and Parca are transforming Python profiling, enabling continuous, efficient, and non-intrusive performance analysis directly in production."
-draft: true
+description: "Discover how eBPF and Parca are transforming Python profiling, enabling continuous, efficient, and non-intrusive performance analysis directly in production."
 ---
 
 # Profiling Python with eBPF: A New Frontier in Performance Analysis
@@ -13,6 +12,8 @@ draft: true
 Profiling Python applications can be challenging, especially in scenarios involving high-performance requirements or complex workloads. Existing tools often require code instrumentation, making them impractical for certain use cases. Enter eBPF (Extended Berkeley Packet Filter)—a revolutionary Linux technology—and the open-source project Parca, which together are reshaping the landscape of Python profiling.
 
 In this post, I’ll explore how eBPF enables continuous profiling, discuss challenges like stack unwinding in Python, and demonstrate the power of modern profiling tools.
+
+You can also watch my [full talk here](https://youtu.be/nNbU26CoMWA?si=t3Mh1z6XfNwa5r7M) or refer to the [slides from the presentation](https://kakkoyun.me/notes/presentations/FOSDEM24+-+Profiling+Python+with+eBPF+-+A+New+Frontier+in+Performance+Analysis).
 
 ---
 
@@ -120,4 +121,4 @@ Profiling Python applications with eBPF and Parca represents a new frontier in p
 
 ### Get Started
 
-Explore Parca on [GitHub](https://github.com/parca-dev/parca) and join the community. Your feedback helps improve the tooling and shape the future of observability.
+Watch my [full talk](https://youtu.be/nNbU26CoMWA?si=t3Mh1z6XfNwa5r7M) or check out the [presentation slides](https://kakkoyun.me/notes/presentations/FOSDEM24+-+Profiling+Python+with+eBPF+-+A+New+Frontier+in+Performance+Analysis). Explore Parca on [GitHub](https://github.com/parca-dev/parca) and join the community. Your feedback helps improve the tooling and shape the future of observability.
