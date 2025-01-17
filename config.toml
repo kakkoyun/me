@@ -87,7 +87,7 @@ url = "https://bsky.app/profile/kakkoyun.me"
 name = "X/Twitter"
 icon = "fa-brands fa-x-twitter fa-2x"
 weight = 2
-url = "https://twitter.com/kkakkoyun/"
+url = "https://x.com/kakkoyun_me"
 [[params.social]]
 name = "Mastodon"
 icon = "fa-brands fa-mastodon fa-2x"
@@ -97,7 +97,7 @@ url = "https://hachyderm.io/@kakkoyun"
 name = "LinkedIn"
 icon = "fa fa-linkedin fa-2x"
 weight = 2
-url = "https://linkedin.com/in/kakkoyun/"
+url = "https://linkedin.com/in/kakkoyun"
 [[params.social]]
 name = "YouTube"
 icon = "fa fa-youtube fa-2x"
