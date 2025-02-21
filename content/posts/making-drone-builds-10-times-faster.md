@@ -7,9 +7,10 @@ tags:
   - drone
   - drone.io
   - open-source
-date: "2019-04-10T00:00:00Z"
+  - blog
+date: 2019-04-10T00:00:00Z
 image: https://raw.githubusercontent.com/meltwater/drone-cache/master/images/drone_gopher.png
-publishDate: "2019-04-10T00:00:00Z"
+publishDate: 2019-04-10T00:00:00Z
 title: Making Drone Builds 10 Times Faster!
 ---
 

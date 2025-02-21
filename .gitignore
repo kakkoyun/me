@@ -19,3 +19,6 @@ demo/
 
 # Local Netlify folder
 .netlify
+
+# Obsidian
+.obsidian/

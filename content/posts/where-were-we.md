@@ -1,13 +1,13 @@
 ---
-tags: []
-date: "2020-03-03T23:00:00Z"
-description: ""
+tags:
+  - blog
+date: 2020-03-03T23:00:00Z
+description: 
 externalLink: ""
-series: []
-slug: "where-were-we"
-tags: []
-title: "Where were we?"
-publishDate: "2020-03-03T23:00:00Z"
+series: 
+slug: where-were-we
+title: Where were we?
+publishDate: 2020-03-03T23:00:00Z
 draft: true
 ---
 

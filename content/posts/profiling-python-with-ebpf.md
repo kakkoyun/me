@@ -1,10 +1,20 @@
 ---
 title: "Profiling Python with eBPF: A New Frontier in Performance Analysis"
-author: "Kemal Akkoyun"
-date: "2024-02-12"
-categories: ["Python", "eBPF", "Performance"]
-tags: ["Profiling", "Observability", "Parca", "eBPF", "Performance Analysis"]
-description: "Discover how eBPF and Parca are transforming Python profiling, enabling continuous, efficient, and non-intrusive performance analysis directly in production."
+author: Kemal Akkoyun
+date: 2024-02-12
+categories:
+  - Python
+  - eBPF
+  - Performance
+tags:
+  - Profiling
+  - Observability
+  - Parca
+  - eBPF
+  - Performance
+  - Analysis
+  - blog
+description: Discover how eBPF and Parca are transforming Python profiling, enabling continuous, efficient, and non-intrusive performance analysis directly in production.
 ---
 
 # Profiling Python with eBPF: A New Frontier in Performance Analysis

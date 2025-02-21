@@ -4,8 +4,8 @@ tags:
   - thanos
   - kubernetes
   - observability
-date: "2020-11-10T00:00:00Z"
-publishDate: "2020-11-10T00:00:00Z"
+date: 2020-11-10T00:00:00Z
+publishDate: 2020-11-10T00:00:00Z
 title: "talk: Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry"
 ---
 

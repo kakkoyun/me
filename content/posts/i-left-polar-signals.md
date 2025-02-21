@@ -5,8 +5,9 @@ tags:
   - career
   - beginnings
   - reflection
-date: "2024-03-18T00:00:00Z"
-publishDate: "2024-03-18T00:00:00Z"
+  - blog
+date: 2024-03-18T00:00:00Z
+publishDate: 2024-03-18T00:00:00Z
 title: I left Polar Signals or A new chapter in my professional journey
 ---
 

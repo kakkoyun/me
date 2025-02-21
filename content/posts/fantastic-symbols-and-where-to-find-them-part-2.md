@@ -18,8 +18,9 @@ tags:
   - java
   - .Net
   - erlang
-date: "2022-01-27T00:00:00Z"
-publishDate: "2022-01-27T00:00:00Z"
+  - blog
+date: 2022-01-27T00:00:00Z
+publishDate: 2022-01-27T00:00:00Z
 title: Fantastic Symbols and Where to Find Them - Part 2
 ---
 

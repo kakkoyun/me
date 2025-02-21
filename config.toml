@@ -144,7 +144,7 @@ url = "/about/"
 [[menu.main]]
 name = "Blog"
 weight = 2
-url = "/posts/"
+url = "/tags/blog"
 # [[menu.main]]
 # name = "Open-Source"
 # weight = 2

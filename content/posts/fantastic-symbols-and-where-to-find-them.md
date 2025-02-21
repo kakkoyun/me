@@ -9,8 +9,9 @@ tags:
   - perf
   - binutils
   - symbols
-date: "2022-01-13T00:00:00Z"
-publishDate: "2022-01-27T00:00:00Z"
+  - blog
+date: 2022-01-13T00:00:00Z
+publishDate: 2022-01-27T00:00:00Z
 title: Fantastic Symbols and Where to Find Them - Part 1
 ---
 
