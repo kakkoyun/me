@@ -5,14 +5,16 @@
 
 Source for [kakkoyun.me](https://kakkoyun.me) personal website including blog posts.
 
-Once cloned, make sure to run `git submodule update --init --recursive`
+Once cloned, make sure to run: 
+
+```shell
+git submodule update --init --recursive
+```
 
 ## What does it include?
 
 * Overview page
 * Blogposts
-
-git submodule update --init --recursive
 
 ## What open source tools I have used to build this?
 
