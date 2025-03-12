@@ -98,7 +98,7 @@ To unwind Python stacks, we must traverse these structures, extract relevant inf
 
 Here’s how Parca handles Python profiling:
 
-1. **Reverse Engineering the Python Runtime:** 
+1. **Reverse Engineering the Python Runtime:**
    - Analyze Python’s internal structures (e.g., thread and frame states).
    - Identify offsets and symbols using tools like [GDB](https://www.gnu.org/software/gdb/) or DWARF debuggers.
 
