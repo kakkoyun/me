@@ -22,3 +22,6 @@ demo/
 
 # Obsidian
 .obsidian/
+
+# Hugo
+.hugo_build.lock

@@ -6,6 +6,7 @@ tags:
 date: 2025-02-04T00:00:00Z
 publishDate: 2025-02-04T00:00:00Z
 title: "FOSDEM 2025: Blimey, What a Weekend!"
+# featuredImage: http://localhost:1313/uploads/fosdem25_train.jpeg
 ---
 
 ### Another Year, Another FOSDEM
