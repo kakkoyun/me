@@ -1,45 +1,50 @@
 ---
 title: About
 date: 2020-02-29T21:45:25.000+01:00
+---
+
+## Reasoned Cloud-Native Open-Source Software Infrastructure Engineer
+
+Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger. Angel Investor.
+Introverted human (not a Cylon, but who knows?). Open Source Software Developer. Gopher. CNCF Ecosystem Contributor.
+Maintainer of Thanos, Prometheus, and Prometheus Operator.
+
+### What I Do
+
+I work at **Datadog - APM**, building **Go for Go**—instrumenting and optimizing performance in Go applications at scale. My focus is on **instrumentation, profiling, performance monitoring, and observability tooling** that helps engineers understand and optimize their systems.
+
+In **2024**, I explored **Python tooling, ML inference infrastructure, MLOps, and container runtimes**, designing systems to optimize ML workflows. While this broadened my understanding of ML infrastructure, I realized that **my passion remains in observability**. Now, I’m doubling down on **instrumentation, performance monitoring, and profiling**, ensuring that engineers have the tools they need to build and operate high-performance systems.
+
+Before that, I was **the monitoring and profiling guy**—building Linux observability tools for software and reliability engineers. My work was deeply rooted in **profiling, eBPF, performance engineering, time-series, and columnar databases**.
+
+I also have a keen interest in the **Zig programming language**, which aligns with my systems programming, performance, and simplicity philosophy.
+
+### Beyond Professional Life
+
+In my free time, I’m a **tinkerer**—I open things up, inspect what’s inside, and fix them. I’m also a **bookworm, a dog whisperer, a mechanical keyboard and LEGO builder, a single malt taster, and a coffee drinker in training** (peer pressure).
+
+I enjoy **sci-fi and fantasy literature, board games, and programming fun side projects** (from hardware tinkering to functional programming experiments). I'm passionate about **traveling, cooking vegan and vegetarian dishes**, and constantly **challenging myself to learn new languages**—one day, I hope to become a proper polyglot.
+
+As an **angel investor**, I’ve had the privilege of investing in two promising companies, helping support innovation and growth in the tech ecosystem.
+
+One of my long-term goals is **early retirement**, spending most of my time outdoors—maybe overlanding with a Land Rover? Who knows?
+
+### Home
+
+I currently live in **Berlin, Germany**, with my beloved significant other, **Rüya**, and our one-year-old son, **Atlas Robin**. Our home is often filled with toys and creative projects. Though we recently lost our beloved dog, she lives on in spirit—and through the tattoo on my left forearm.
 
 ---
-Reasoned Cloud-Native Open-Source Software Infrastructure Engineer.
-Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger. Angel Investor.
-Introverted human (not a Cylon, but who knows?). Open Source Software Developer. Thanos maintainer. Prometheus maintainer. Prometheus Operator maintainer. CNCF Ecosystem Contributor. Gopher.
 
-Learning (by building) about Distributed Systems, Databases, and Operating Systems. Focused on Observability, Reliability, Instrumentation, System Programming, and Performance.
-
-For the past year, I explored Python tooling, ML inference infrastructure, MLOps, and container runtimes, building systems to optimize ML workflows. While the journey broadened my understanding of machine learning infrastructure, I realized that my passion and expertise remain in Observability. Moving forward, I’m refocusing on performance monitoring, profiling, and instrumentation, with a deep commitment to building tools that empower engineers to observe and optimize systems at scale.
-
-For the past few years, I’ve built Linux observability tools for software and reliability engineers. My work has been deeply rooted in profiling, eBPF, performance engineering, time-series, and columnar databases. Currently, I’m hyper-focused on building an eBPF-based whole-system performance profiler, optimizing Python-based ML workloads.
-
-I’m also passionate about the Zig programming language, which aligns with my interests in systems programming, performance, and simplicity.
-
-In my previous life, I was born on the Planet of Lisp (Racket/Scheme). I’ve been a rebel Pythonista, a Java brewer, a paranoid Android, a C# reshaper, an iOS NSHipster, a well-grounded Rubyist, and an Elixir alchemist. Throughout it all, I’ve lived in the Cloud and been on-call since the beginning of my career (circa 2012).
-
-You can find me in other mediums under the handle kakkoyun, except on Twitter/X: kkakkoyun.
-
-Besides work…
-
-In my free time, I’m a tinkerer (I open things up, inspect what’s inside, and fix them), a bookworm, a dog whisperer, a mechanical keyboard and LEGO builder, a single malt taster, and a coffee drinker in training (peer pressure).
-
-I enjoy sci-fi and fantasy literature, board games, and programming fun side projects (e.g., hardware or functional programming experiments). I’m passionate about traveling, cooking vegan and vegetarian dishes, and constantly challenging myself to learn new languages. I dream of becoming a proper polyglot one day.
-
-As an angel investor, I’ve had the privilege of investing in two promising companies, helping support innovation and growth in the tech ecosystem.
-
-One of my long-term goals is to retire early, spending most of my time outdoors—maybe overlanding with a Land Rover? Who knows?
-
-Currently, I live in Berlin, Germany, with my beloved significant other, Rüya, and our one-year-old son, Atlas Robin. Our home is often filled with toys and creative projects. Though we recently lost our beloved dog, she lives on in spirit and through the tattoo on my left forearm.
-
-### CV
+## CV
 
 It's 202x, so just visit: [linkedin.com/in/kakkoyun](https://linkedin.com/in/kakkoyun/)
 
-### Contact
+## Where to Find Me
 
+You can find me across various platforms under the handle **kakkoyun**, except on Twitter/X: **kakkoyun_me**.
 If you wish to reach out and chit-chat, you may email me: **_kakkoyun`_at_`gmail`_dot_`com_**
 
-### PGP public key
+## PGP public key
 
 ```text
 -----BEGIN PGP PUBLIC KEY BLOCK-----
