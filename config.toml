@@ -7,6 +7,9 @@ defaultcontentlanguage = "en"
 [pagination]
 pagerSize = 20
 
+[outputs]
+    home = ['html', 'rss', 'json']
+
 canonifyurls = true
 
 pygmentsstyle = "bw"

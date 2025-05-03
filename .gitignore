@@ -25,3 +25,9 @@ demo/
 
 # Hugo
 .hugo_build.lock
+
+# Node
+node_modules/
+
+# tmp
+tmp/
