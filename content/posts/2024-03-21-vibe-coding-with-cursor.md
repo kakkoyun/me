@@ -7,10 +7,9 @@ type: "posts"
 categories: ["technical-findings"]
 tags: ["tools", "productivity", "cursor", "second-brain", "blog"]
 description: "Discovering the joy of AI-powered development and note-taking with Cursor during R&D week"
-toc: true
+showToc: true
+tocOpen: false
 ---
-
-# Vibe Coding with Cursor: My R&D Week Adventure 🚀
 
 > TL;DR: Spent a week building cool stuff with [Cursor](https://cursor.com), an AI-powered IDE. Found it surprisingly effective for both coding and managing my [second brain](https://www.buildingasecondbrain.com/). When your requirements are clear, it's almost magical! ✨
 

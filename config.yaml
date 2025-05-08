@@ -1,0 +1,138 @@
+baseurl: "https://kakkoyun.me"
+title: "kakkoyun"
+theme: "PaperMod"
+
+languageCode: "en"
+defaultContentLanguage: "en"
+buildDrafts: false
+
+pagination:
+  pagerSize: 5
+
+canonifyUrls: true
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
+markup:
+  highlight:
+    # anchorLineNos: true
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
+    # noClasses: false
+    style: monokai
+
+menu:
+  main:
+    - name: "About"
+      weight: 10
+      url: "/about/"
+    # - name: "Now"
+    #   weight: 11
+    #   url: "/now/"
+    # - name: "Uses"
+    #   weight: 12
+    #   url: "/uses/"
+    # - name: "Blog"
+    #   weight: 20
+    #   url: "/tags/blog"
+    # - name: "Open-Source"
+    #   weight: 30
+    #   url: "/projects/"
+    - name: "Talks"
+      weight: 40
+      url: "/tags/talks"
+    # - name: "Stats"
+    #   weight: 50
+    #   url: "/stats/"
+    - name: "Archives"
+      weight: 60
+      url: "/archives/"
+    - name: "Search"
+      weight: 70
+      url: "/search/"
+    - name: "Notes"
+      weight: 80
+      url: "/notes/"
+
+taxonomies:
+  category: "categories"
+  series: "series"
+  tag: "tags"
+  author: "authors"
+
+
+params:
+  title: "Kemal Akkoyun"
+  copyright: "© 2021-2025 Kemal Akkoyun"
+  description: "Kemal Akkoyun's personal website"
+  keywords: ["linux", "infrastructure", "database", "reliability", "go", "zig", "c", "rust", "programming", "blog", "developer", "software", "engineering", "monitoring", "observability", "ebpf", "profiling", "high-performance-computing", "HPC", "performance"]
+  defaultTheme: "auto"
+  disableThemeToggle: false
+  disableSpecial1stPost: false
+  disableScrollToTop: false
+  disableAnchoredHeadings: false
+  hideMetadata: false
+  hideSummary: false
+  dateFormat: "January 2, 2006"
+  homeInfoParams:
+    title: "Kemal Akkoyun"
+    content: |-
+      As a Cloud Infrastructure Engineer, I'm passionate about building and maintaining systems that excel in Observability, Performance, and Reliability.
+      My expertise lies in System Programming, where I primarily work with Go, C, and a little bit of Rust.
+      I delve deep into the Linux ecosystem, leveraging eBPF and advanced instrumentation techniques like Profiling, Tracing, and Monitoring to understand and optimize complex software.
+  mainSections:
+    - posts
+    - notes
+  tocOpen: false
+  showToc: true
+  showShareButtons: true
+  showReadingTime: true
+  showBreadCrumbs: false
+  showCodeCopyButtons: true
+  showWordCount: true
+  showFullTextinRSS: true
+  comments: true
+  giscus:
+    repoId: "MDEwOlJlcG9zaXRvcnkyMzM4MDg0NjQ="
+    category: "General"
+    categoryId: "DIC_kwDODe-iUM4Cp6Wj"
+    mapping: "title"
+    strict: "0"
+    reactionsEnabled: "1"
+    theme: "preferred_color_scheme"
+  editPost:
+    URL: "https://github.com/kakkoyun/me/edit/master/content"
+    Text: "Suggest Changes"
+    appendFilePath: true
+  socialIcons:
+    - name: "Github"
+      url: "https://github.com/kakkoyun"
+    - name: "LinkedIn"
+      url: "https://linkedin.com/in/kakkoyun"
+    - name: "Bluesky"
+      url: "https://bsky.app/profile/kakkoyun.me"
+    - name: "X"
+      url: "https://x.com/kakkoyun_me"
+    - name: "Mastodon"
+      url: "https://hachyderm.io/@kakkoyun"
+    - name: "YouTube"
+      url: "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
+    - name: "Medium"
+      url: "https://medium.com/@kakkoyun/"
+    - name: "stackoverflow"
+      url: "https://stackoverflow.com/users/1113525/kemal-akkoyun"
+    - name: "ycombinator"
+      url: "https://news.ycombinator.com/user?id=kakkoyun"
+    - name: "RSS"
+      url: "https://kakkoyun.me/index.xml"
+      rel: "alternate"
+      type: "application/rss+xml"
+  analytics:
+    plausible:
+      domain: "kakkoyun.me"
+      outboundLinksTracking: true

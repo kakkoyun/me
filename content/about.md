@@ -1,9 +1,9 @@
 ---
 title: About
 date: 2020-02-29T21:45:25.000+01:00
+showToc: false
+showTitle: false
 ---
-
-## Reasoned Cloud-Native Open-Source Software Infrastructure Engineer
 
 Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger. Angel Investor.
 Introverted human (not a Cylon, but who knows?). Open Source Software Developer. Gopher. CNCF Ecosystem Contributor.
