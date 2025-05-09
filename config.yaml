@@ -71,7 +71,7 @@ params:
   description: "Kemal Akkoyun's personal website"
   keywords: ["linux", "infrastructure", "database", "reliability", "go", "zig", "c", "rust", "programming", "blog", "developer", "software", "engineering", "monitoring", "observability", "ebpf", "profiling", "high-performance-computing", "HPC", "performance"]
   defaultTheme: "auto"
-  disableThemeToggle: false
+  disableThemeToggle: true
   disableSpecial1stPost: false
   disableScrollToTop: false
   disableAnchoredHeadings: false

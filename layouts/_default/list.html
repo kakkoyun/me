@@ -54,12 +54,28 @@
 {{- if site.Params.showRecentNotes }}
 {{- $recentNotes := site.GetPage "_recent_notes.md" }}
 {{- if $recentNotes }}
+<div>
+  <style>
+    .recent-notes-container > p:first-child {
+      margin-bottom: 0.5rem;
+    }
+    .recent-notes-container ul {
+      list-style-type: none;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+    .recent-notes-container ul li {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+  </style>
 <header class="page-header">
   <h2>Recent Notes</h2>
-  <div class="entry-content">
-    {{ $recentNotes.Content | markdownify }}
-  </div>
 </header>
+<div class="post-content recent-notes-container">
+  {{ $recentNotes.Content }}
+</div>
+</div>
 {{- end }}
 {{- end }}
 
