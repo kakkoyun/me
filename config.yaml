@@ -4,7 +4,7 @@ theme: "PaperMod"
 
 languageCode: "en"
 defaultContentLanguage: "en"
-buildDrafts: false
+buildDrafts: true
 
 pagination:
   pagerSize: 5
@@ -65,13 +65,7 @@ taxonomies:
   tag: "tags"
   author: "authors"
 
-
-
 params:
-  author:
-    name: "Kemal Akkoyun"
-    email: "kakkoyun@gmail.com"
-    link: "https://kakkoyun.me"
   title: "Kemal Akkoyun"
   copyright: "© 2021-2025 Kemal Akkoyun"
   description: "Kemal Akkoyun's personal website"
@@ -85,14 +79,11 @@ params:
   hideSummary: false
   dateFormat: "January 2, 2006"
   homeInfoParams:
-    title: "Kemal Akkoyun"
-    content: |-
-      As a Cloud Infrastructure Engineer, I'm passionate about building and maintaining systems that excel in Observability, Performance, and Reliability.
-      My expertise lies in System Programming, where I primarily work with Go, C, and a little bit of Rust.
-      I delve deep into the Linux ecosystem, leveraging eBPF and advanced instrumentation techniques like Profiling, Tracing, and Monitoring to understand and optimize complex software.
+    title: "If you like my work, let's stay in touch!"
+    # content: "If you like my work, let's stay in touch!"
   mainSections:
     - posts
-    - notes
+    # - notes
   tocOpen: false
   showToc: true
   showShareButtons: true
@@ -101,6 +92,7 @@ params:
   showCodeCopyButtons: true
   showWordCount: true
   showFullTextinRSS: true
+  showRssButtonInSectionTermList: true
   comments: true
   giscus:
     repoId: "MDEwOlJlcG9zaXRvcnkyMzM4MDg0NjQ="

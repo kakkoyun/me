@@ -1,0 +1,24 @@
+name: Update Readme
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs at 12am UTC
+    - cron: '0 0 * * *'
+permissions:
+  contents: write # To write the generated contents to the readme
+
+jobs:
+  update-readme-with-notes:
+    name: Notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: gautamkrishnar/blog-post-workflow@v1
+        with:
+          comment_tag_name: "NOTE-LIST"
+          feed_list: "https://kakkoyun.me/notes/rss.xml"
+          max_post_count: 5
+          remove_duplicates: true
+          disable_sort: true
+          template: "$newline - [$title]($url) $newline"
