@@ -1,7 +1,7 @@
 ---
 title: Projects
 date: 2020-03-01T00:57:53.000+00:00
-
+comments: false
 ---
 This section describes a selection of my favourite open-source projects. _Most of these are side-projects, which means they were developed in my spare time._
 

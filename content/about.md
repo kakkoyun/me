@@ -3,6 +3,8 @@ title: About
 date: 2020-02-29T21:45:25.000+01:00
 showToc: false
 showTitle: false
+comments: false
+disableShare: true
 ---
 
 Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger. Angel Investor.

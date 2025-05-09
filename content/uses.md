@@ -1,5 +1,6 @@
 ---
 title: Uses
+comments: false
 ---
 
 # Uses

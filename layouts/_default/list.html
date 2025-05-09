@@ -49,8 +49,6 @@
 
 {{- if and .IsHome site.Params.homeInfoParams (eq $paginator.PageNumber 1) }}
 {{- partial "home_info.html" . }}
-{{- end }}
-
 {{- if site.Params.showRecentNotes }}
 {{- $recentNotes := site.GetPage "_recent_notes.md" }}
 {{- if $recentNotes }}
@@ -78,10 +76,13 @@
 </div>
 {{- end }}
 {{- end }}
+{{- end }}
 
+{{- if and .IsHome (eq $paginator.PageNumber 1) }}
 <header class="page-header">
   <h2>Recent Posts</h2>
 </header>
+{{- end }}
 
 {{- $term := .Data.Term }}
 {{- range $index, $page := $paginator.Pages }}
@@ -94,6 +95,7 @@
 {{- else if $term }}
 {{- $class = "post-entry tag-entry" }}
 {{- end }}
+
 
 <article class="{{ $class }}">
   {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
@@ -125,6 +127,7 @@
 </article>
 {{- end }}
 
+{{- if not .IsHome }}
 {{- if gt $paginator.TotalPages 1 }}
 <footer class="page-footer">
   <nav class="pagination">
@@ -147,7 +150,7 @@
   </nav>
 </footer>
 {{- end }}
-
+{{- end }}
 {{- end }}{{/* end profileMode */}}
 
 {{- end }}{{- /* end main */ -}}

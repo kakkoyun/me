@@ -2,6 +2,7 @@
 title: Talks
 date: 2020-03-01T01:57:45.000+01:00
 draft: true
+comments: false
 ---
 
 This page lists the recorded talks that I have given so far. Not much but it's a start.
