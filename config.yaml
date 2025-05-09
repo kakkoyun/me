@@ -79,13 +79,13 @@ params:
   hideSummary: false
   dateFormat: "January 2, 2006"
   homeInfoParams:
-    title: "If you like my work, let's stay in touch!"
-    # content: "If you like my work, let's stay in touch!"
+    content: "If you like my work, let's stay in touch!"
   mainSections:
     - posts
     # - notes
   tocOpen: false
   showToc: true
+  showRecentNotes: true
   showShareButtons: true
   showReadingTime: true
   showBreadCrumbs: false

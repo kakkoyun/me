@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: gautamkrishnar/blog-post-workflow@v1
         with:
-          readme_path: 'content/_index.md'
+          readme_path: 'content/_recent_notes.md'
           comment_tag_name: "NOTE-LIST"
           feed_list: "https://kakkoyun.me/notes/rss.xml"
           max_post_count: 5
