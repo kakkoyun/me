@@ -1,0 +1,30 @@
+{{- define "main" }}
+<div style="text-align: center; max-width: 500px; margin: 0 auto; padding: 20px;">
+    <h1 style="font-size: 2rem; margin-bottom: 10px;">404 ¯\_(ツ)_/¯</h1>
+    <p style="margin-bottom: 20px;">Oops! Page not found</p>
+
+    <div style="margin: 25px 0; text-align: left;">
+        <p>You can <a href="{{ .Site.Home.RelPermalink }}" style="color: #1f6feb; text-decoration: underline;">return to the home page</a>,
+        check if <a id="wayback-link" href="#" style="color: #1f6feb; text-decoration: underline;">the Internet Archive has a copy</a>,
+        or <a href="javascript:history.back()" style="color: #1f6feb; text-decoration: underline;">go back to the previous page</a>.</p>
+    </div>
+
+    {{- with site.Params.socialIcons }}
+    {{- range . }}
+    {{- if eq .name "email" }}
+    <p style="font-size: 0.9rem; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+        If you arrived here by following a link on the site, please <a href="{{ .url }}" style="color: #1f6feb; text-decoration: underline;">let me know</a> so I can fix it.
+    </p>
+    {{- end }}
+    {{- end }}
+    {{- end }}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var waybackLink = document.getElementById('wayback-link');
+    var currentUrl = window.location.href;
+    waybackLink.href = 'https://web.archive.org/web/*/' + encodeURIComponent(currentUrl);
+  });
+</script>
+{{- end }}
