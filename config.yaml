@@ -45,7 +45,7 @@ menu:
     #   url: "/projects/"
     - name: "Talks"
       weight: 40
-      url: "/tags/talks"
+      url: "/categories/talks"
     # - name: "Stats"
     #   weight: 50
     #   url: "/stats/"
