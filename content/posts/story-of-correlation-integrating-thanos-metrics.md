@@ -1,6 +1,7 @@
 ---
-tags:
+categories:
   - talks
+tags:
   - thanos
   - observability
   - kubernetes

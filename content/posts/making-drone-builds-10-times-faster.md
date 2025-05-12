@@ -1,5 +1,7 @@
 ---
 canonicalUrl: https://underthehood.meltwater.com/blog/2019/04/10/making-drone-builds-10-times-faster/
+categories:
+  - blogmentation
 tags:
   - infrastructure
   - berlin

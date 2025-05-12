@@ -1,10 +1,11 @@
 ---
+categories:
+  - journal
 tags:
   - blog
 date: 2020-03-03T23:00:00Z
-description: 
+description:
 externalLink: ""
-series: 
 slug: where-were-we
 title: Where were we?
 publishDate: 2020-03-03T23:00:00Z

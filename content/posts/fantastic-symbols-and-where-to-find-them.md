@@ -1,5 +1,9 @@
 ---
 canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them
+categories:
+  - deep-dive
+series:
+  - Fantastic Symbols and Where to Find Them
 tags:
   - symbolization
   - binary

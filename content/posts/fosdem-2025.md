@@ -1,4 +1,6 @@
 ---
+categories:
+  - journal
 tags:
   - blog
   - fosdem

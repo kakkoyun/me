@@ -1,5 +1,7 @@
 ---
 canonicalUrl: https://www.polarsignals.com/blog/posts/2023/03/28/how-to-read-icicle-and-flame-graphs
+categories:
+  - deep-dive
 tags:
   - continuous
   - profiling

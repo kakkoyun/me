@@ -3,9 +3,7 @@ title: "Profiling Python with eBPF: A New Frontier in Performance Analysis"
 author: Kemal Akkoyun
 date: 2024-02-12
 categories:
-  - Python
-  - eBPF
-  - Performance
+  - deep-dive
 tags:
   - Profiling
   - Observability

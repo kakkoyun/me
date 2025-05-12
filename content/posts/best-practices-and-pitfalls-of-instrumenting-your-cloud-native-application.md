@@ -1,4 +1,6 @@
 ---
+categories:
+  - talks
 tags:
   - talks
   - observability

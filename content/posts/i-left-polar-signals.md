@@ -1,4 +1,6 @@
 ---
+categories:
+  - reflection
 tags:
   - personal
   - news
