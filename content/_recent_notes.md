@@ -7,7 +7,7 @@ Hot out of my brain unfiltered! See [notes](/notes/) for more.
 
  - [Profiling Python with eBPF](https://kakkoyun.me/notes/presentations/Profiling+Python+with+eBPF) 
 
- - [CachyOS - My New Dev Machine Distro](https://kakkoyun.me/notes/ramblings/CachyOS+-+My+New+Dev+Machine+Distro) 
+ - [About this page](https://kakkoyun.me/notes/About+this+page) 
 
- - [GPU Profiling](https://kakkoyun.me/notes/learning/GPU+Profiling) 
+ - [Tweets From Kakkoyun](https://kakkoyun.me/notes/curation/readwise/tweets/Tweets+From+Kakkoyun) 
 <!-- NOTE-LIST:END -->
