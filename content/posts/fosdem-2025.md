@@ -1,14 +1,17 @@
 ---
+title: "FOSDEM 2025: Blimey, What a Weekend!"
+date: 2025-02-04T00:00:00Z
+publishDate: 2025-02-04T00:00:00Z
 categories:
   - journal
 tags:
   - blog
   - fosdem
   - open-source
-date: 2025-02-04T00:00:00Z
-publishDate: 2025-02-04T00:00:00Z
-title: "FOSDEM 2025: Blimey, What a Weekend!"
-# featuredImage: http://localhost:1313/uploads/fosdem25_train.jpeg
+cover:
+  image: /uploads/fosdem25_train.jpeg
+  alt: FOSDEM 2025
+  caption: FOSDEM 2025
 ---
 
 ### Another Year, Another FOSDEM

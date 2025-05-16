@@ -82,7 +82,8 @@ params:
     content: "If you like my work, let's stay in touch!"
   mainSections:
     - posts
-    # - notes
+    - notes
+    - talks
   tocOpen: false
   showToc: true
   showRecentNotes: true

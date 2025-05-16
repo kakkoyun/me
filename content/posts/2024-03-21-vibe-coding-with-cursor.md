@@ -1,15 +1,23 @@
 ---
 title: "Vibe Coding with Cursor: My R&D Week Adventure 🚀"
+description: "Discovering the joy of AI-powered development and note-taking with Cursor during R&D week"
 publishDate: "2025-03-12T00:00:00Z"
 date: "2025-03-12T00:00:00Z"
 draft: false
-type: "posts"
-categories: ["technical-findings"]
-tags: ["tools", "productivity", "cursor", "second-brain", "blog"]
-description: "Discovering the joy of AI-powered development and note-taking with Cursor during R&D week"
+categories:
+  - "technical-findings"
+tags:
+  - "tools"
+  - "productivity"
+  - "cursor"
+  - "second-brain"
+  - "blog"
 showToc: true
 tocOpen: false
-weight: 1
+cover:
+  image: /uploads/cursor_400x400.jpg
+  alt: Cursor
+  caption: Cursor
 ---
 
 > TL;DR: Spent a week building cool stuff with [Cursor](https://cursor.com), an AI-powered IDE. Found it surprisingly effective for both coding and managing my [second brain](https://www.buildingasecondbrain.com/). When your requirements are clear, it's almost magical! ✨
@@ -18,7 +26,7 @@ weight: 1
 
 You know that feeling when R&D week rolls around, and you're caught between "I should learn something useful" and "I want to have fun"? Well, this time I decided to combine both by diving deep into [Cursor](https://cursor.com), an AI-powered code editor that's been making waves in the developer community.
 
-The mission was simple: Use Cursor for **everything** - from managing my notes to building small task-specific projects. And by everything, I mean *everything*.
+The mission was simple: Use Cursor for    **everything** - from managing my notes to building small task-specific projects. And by everything, I mean *everything*.
 
 ## What Makes Cursor Different?
 

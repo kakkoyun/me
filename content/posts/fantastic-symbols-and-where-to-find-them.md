@@ -1,5 +1,7 @@
 ---
-canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them
+title: Fantastic Symbols and Where to Find Them - Part 1
+date: 2022-01-13T00:00:00Z
+publishDate: 2022-01-27T00:00:00Z
 categories:
   - deep-dive
 series:
@@ -14,12 +16,9 @@ tags:
   - binutils
   - symbols
   - blog
-date: 2022-01-13T00:00:00Z
-publishDate: 2022-01-27T00:00:00Z
-title: Fantastic Symbols and Where to Find Them - Part 1
+showCanonicalLink: true
+canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them
 ---
-
-_Originally published on [polarsignals.com/blog](https://www.polarsignals.com/blog/) on 13.01.2022_
 
 Symbolization is a technique that allows you to translate machine memory addresses to human-readable symbol information (symbols).
 

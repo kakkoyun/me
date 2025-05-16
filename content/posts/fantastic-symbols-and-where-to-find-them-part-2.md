@@ -1,5 +1,7 @@
 ---
-canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them-part-2
+title: Fantastic Symbols and Where to Find Them - Part 2
+date: 2022-01-27T00:00:00Z
+publishDate: 2022-01-27T00:00:00Z
 categories:
   - deep-dive
 series:
@@ -23,14 +25,11 @@ tags:
   - .Net
   - erlang
   - blog
-date: 2022-01-27T00:00:00Z
-publishDate: 2022-01-27T00:00:00Z
-title: Fantastic Symbols and Where to Find Them - Part 2
+showCanonicalLink: true
+canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them-part-2
 ---
 
 > This is a blog post series. If you haven’t read [Part 1](https://www.polarsignals.com/blog/posts/2022/01/13/fantastic-symbols-and-where-to-find-them) we recommend you to do so first!
-
-_Originally published on polarsignals.com/blog on 27.01.2022_
 
 In [the first blog post](https://www.polarsignals.com/blog/posts/2022/01/13/fantastic-symbols-and-where-to-find-them), we learned about the fantastic symbols ([debug symbols](https://en.wikipedia.org/wiki/Debug_symbol)), how the symbolization process works and lastly, how to find the symbolic names of addresses in a compiled binary.
 
