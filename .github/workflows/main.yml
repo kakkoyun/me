@@ -22,5 +22,5 @@ jobs:
           max_post_count: 5
           remove_duplicates: true
           disable_sort: true
-          reverse_feed_order: true
+          sort_order: 'desc'
           template: "$newline - [$title]($url) $newline"
