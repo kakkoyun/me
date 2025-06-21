@@ -134,3 +134,10 @@ params:
     plausible:
       domain: "kakkoyun.me"
       outboundLinksTracking: true
+  assets:
+    favicon: "img/favicon.ico"
+    theme_color: "#000000"
+  label:
+    text: "kakkoyun"
+    icon: "img/favicon-64x64.png"
+    icon_height: "64"
