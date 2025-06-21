@@ -25,7 +25,9 @@ markup:
     lineNos: true
     # noClasses: false
     style: monokai
-
+  goldmark:
+    renderer:
+      unsafe: true
 menu:
   main:
     - name: "About"
