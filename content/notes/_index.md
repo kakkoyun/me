@@ -1,13 +1,13 @@
 Hot out of my brain unfiltered! See [notes](/notes/) for more.
 
 <!-- NOTE-LIST:START -->
- - [Tsundoku - Wikipedia](https://kakkoyun.me/notes/resources/clippings/articles/books/Tsundoku+-+Wikipedia) 
+ - [books](https://kakkoyun.me/notes/curation/books/books) 
 
- - [Open Telemetry - Go](https://kakkoyun.me/notes/curation/bookmarks/Open+Telemetry+-+Go) 
+ - [CachyOS - My New Dev Machine Distro 1](https://kakkoyun.me/notes/creation/ramblings/cachy-os-my-new-dev-machine-distro-1) 
 
- - [Go - Advance Static Checks](https://kakkoyun.me/notes/curation/bookmarks/Go+-+Advance+Static+Checks) 
+ - [Tsundoku - Wikipedia](https://kakkoyun.me/notes/curation/clippings/articles/books/tsundoku-wikipedia) 
 
- - [Go - Talks](https://kakkoyun.me/notes/curation/bookmarks/Go+-+Talks) 
+ - [Open Telemetry - Go](https://kakkoyun.me/notes/resources/bookmarks/open-telemetry-go) 
 
- - [Learning Zig](https://kakkoyun.me/notes/curation/bookmarks/Learning+Zig) 
+ - [Go - Advance Static Checks](https://kakkoyun.me/notes/curation/bookmarks/go-advance-static-checks) 
 <!-- NOTE-LIST:END -->
