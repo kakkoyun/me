@@ -1,5 +1,5 @@
 ---
-title: "When Hustle Culture and Personal Values Collide: Lessons from My Startup Journey"
+title: "When Hustle Culture and Personal Values Collide: Lessons from My AI/ML Startup Journey"
 publishDate: 2024-10-16T00:00:00Z
 date: 2024-10-16T00:00:00Z
 description: Reflections on navigating misaligned priorities, overwork, and personal growth during a brief stint at a fast-paced startup.
