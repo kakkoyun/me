@@ -20,8 +20,10 @@ During this talk, Kemal will present several valuable patterns, best practices a
 #### [Recording](https://www.youtube.com/watch?v=Nqp4fjw_omU)
 
 **Slides**
+
 * [The Zen of Prometheus](https://github.com/kakkoyun/the-zen-of-prometheus)
 
 **Events**
+
 * [PromCon Online 2020](https://promcon.io/2020-online/)
   * [Recording](https://www.youtube.com/watch?v=Nqp4fjw_omU)

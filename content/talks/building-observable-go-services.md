@@ -17,12 +17,13 @@ There exist several observability signals, such as “log”, “metric”, “t
 
 During this talk, Kemal will first introduce the tools that can be embedded in the services to make critical services observable, and share the patterns that will enable them to be used efficiently in the applications and services. Moreover,  he will demonstrate how to use these collected signals in real-life scenarios, using tools within the CNCF ecosystem (Loki, Prometheus, OpenTelemetry, Jaeger, Conprof). He also aims to share the methods that are used to build and run applications running under heavy-traffic, and to understand the origin of the problems encountered in running systems.
 
-
 #### [Recording](https://www.youtube.com/watch?v=xkLyM1Gnaus)
 
 **Slides**
+
 * [Building Observable Go Services](https://github.com/kakkoyun/building-observable-go-services)
 
 **Events**
+
 * [GopherCon Turkey 2020](https://gophercon.ist/en)
   * [Recording](https://www.youtube.com/watch?v=xkLyM1Gnaus)

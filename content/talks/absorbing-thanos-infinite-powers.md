@@ -16,8 +16,10 @@ Thanos is an open-source, CNCF’s Incubated project that horizontally scales Pr
 #### [Recording](https://youtu.be/6Nx2BFyr7qQ)
 
 **Slides**
+
 * [Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry](https://docs.google.com/presentation/d/1gMBQ7wLqAae45uGOcaYex-_9s675yzgexW705D7KM1Y/edit#slide=id.ga47ea1e9a6_0_13)
 
 **Events**
+
 * [KubeConNA 2020](https://sched.co/zrPZ)
   * [Recording](https://youtu.be/6Nx2BFyr7qQ)

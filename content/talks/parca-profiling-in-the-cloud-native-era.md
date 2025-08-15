@@ -16,8 +16,10 @@ For years Google has consistently been able to cut down multiple percentage poin
 #### [Recording](https://youtu.be/ficc6_6RYQk)
 
 **Slides**
+
 * [Parca - Profiling in the Cloud-Native Era](https://docs.google.com/presentation/d/1cPdcLLSc_OzlLOnh1vuUaTuVOFjuJ7-NFbC599Pll2I/edit?usp=sharing)
 
 **Events**
+
 * [KubeCon NA 2021](https://sched.co/zrPZ)
   * [Recording](https://youtu.be/ficc6_6RYQk)

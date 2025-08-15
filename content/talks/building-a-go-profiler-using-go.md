@@ -22,8 +22,10 @@ In this talk, we will bring these two concepts together, and explain how to writ
 #### [Demo Application](https://github.com/kakkoyun/tiny-profiler)
 
 **Slides**
+
 * [Building a Go Profiler Using Go](https://docs.google.com/presentation/d/1hKqxAC9aaWLPM4xwXyXuK5cp2LBAewOVqZ05qjLNnK8/edit?usp=sharing)
 
 **Events**
+
 * [GopherCon EU 2022](https://gophercon.eu)
   * [Recording](#building-a-go-profiler-using-go)

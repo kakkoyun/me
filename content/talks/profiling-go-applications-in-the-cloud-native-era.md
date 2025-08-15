@@ -20,8 +20,10 @@ Attendees will learn how to continuously profile their code, guide themselves in
 #### [Recording](https://youtu.be/-miC_jnQ_Yk)
 
 **Slides**
+
 * [Profiling Go Applications in the Cloud-Native Era](https://docs.google.com/presentation/d/1uue-Mpyw5zSuWfe1qphyhBtrCX4TmBWhN3iMcdYlnek/edit?usp=sharing)
 
 **Events**
+
 * [GopherCon Turkey 2021](https://gophercon.ist/#schedule)
   * [Recording](https://youtu.be/-miC_jnQ_Yk)
