@@ -4,7 +4,7 @@
 # Variables
 HUGO_SITE_DIR := .
 PUBLIC_DIR := public
-HUGO_VERSION := 0.140.1  # Match netlify.toml HUGO_VERSION
+HUGO_VERSION := 0.148.2  # Match netlify.toml HUGO_VERSION
 
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all
 

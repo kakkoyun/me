@@ -11,12 +11,14 @@ This documentation provides a reference for using the [Hugo](https://gohugo.io/)
 There are several ways to install the PaperMod theme:
 
 1. **As Git Submodule (recommended)**:
+
    ```bash
    git submodule add --depth=1 https://github.com/adityatelange/hugo-PaperMod.git themes/PaperMod
    git submodule update --init --recursive
    ```
 
 2. **To update the theme**:
+
    ```bash
    git submodule update --remote --merge
    ```
@@ -63,6 +65,7 @@ params:
 ```
 
 Example profile content:
+
 ```yaml
 homeInfoParams:
   Title: "Your Name"
@@ -343,6 +346,7 @@ Common files to override for customization:
 ## Tips for Future Development
 
 1. **Keep theme updated**: Regularly update the theme to get new features and bug fixes
+
    ```bash
    git submodule update --remote --merge
    ```
