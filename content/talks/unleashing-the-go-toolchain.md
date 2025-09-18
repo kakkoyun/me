@@ -18,6 +18,8 @@ Along the way we’ll spotlight real projects—such as Datadog’s Orchestrion�
 
 If you’re curious about bending the Go compiler to your will—and doing so responsibly—this talk will equip you with the concepts, examples, and inspiration to start experimenting the moment you’re back at your editor.
 
+#### [Recording](https://www.youtube.com/watch?v=8Rw-fVEjihw)
+
 **Slides**
 
 * [Unleashing the Go Toolchain](https://github.com/kakkoyun/public-content/blob/main/media/export/GopherCon%20UK%202025%20-%20Unleashing%20the%20Go%20Toolchain.pdf)
@@ -30,4 +32,4 @@ If you’re curious about bending the Go compiler to your will—and doing so re
 **Events**
 
 * [GopherCon UK 2025](https://www.gophercon.co.uk/)
-  * [Recording](#tba)
+  * [Recording](https://www.youtube.com/watch?v=8Rw-fVEjihw)
