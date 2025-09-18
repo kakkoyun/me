@@ -136,6 +136,8 @@ params:
     plausible:
       domain: "kakkoyun.me"
       outboundLinksTracking: true
+    hakanai:
+      site: "d59129ee-cdfa-47a5-8908-5a017caf60c7"
   assets:
     favicon: "img/favicon.ico"
     theme_color: "#000000"
