@@ -4,19 +4,23 @@
 # Variables
 HUGO_SITE_DIR := .
 PUBLIC_DIR := public
-HUGO_VERSION := 0.148.2  # Match netlify.toml HUGO_VERSION
+HUGO_VERSION := $(shell cat .hugo-version)
 
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all
 
 # Default target
 help:
 	@echo "Hugo Blog Makefile Commands:"
+	@echo ""
+	@echo "Build Commands:"
 	@echo "  make build              - Build the site"
 	@echo "  make serve              - Run local development server"
 	@echo "  make serve-draft        - Run local server with drafts enabled"
 	@echo "  make clean              - Remove generated files"
 	@echo "  make minify             - Build with minification enabled"
 	@echo "  make production         - Build for production with all optimizations"
+	@echo ""
+	@echo "Netlify Commands:"
 	@echo "  make netlify-deploy     - Deploy to Netlify production"
 	@echo "  make netlify-preview    - Create Netlify deploy preview"
 	@echo "  make netlify-open       - Open Netlify site dashboard"
@@ -25,11 +29,20 @@ help:
 	@echo "  make netlify-logs       - Show Netlify deployment logs"
 	@echo "  make netlify-build      - Run Netlify production build locally"
 	@echo "  make netlify-build-preview - Run Netlify preview build locally"
+	@echo "  make netlify-build-branch - Run Netlify branch deploy build locally"
 	@echo "  make netlify-init       - Initialize Netlify CLI"
 	@echo "  make netlify-env        - Show Netlify environment variables"
 	@echo "  make netlify-redirects  - Show Netlify redirect rules"
 	@echo "  make netlify-validate-config - Validate netlify.toml configuration"
 	@echo "  make netlify-update     - Update Netlify CLI"
+	@echo ""
+	@echo "Update Commands:"
+	@echo "  make hugo-update        - Update Hugo to latest version"
+	@echo "  make theme-update       - Update PaperMod theme"
+	@echo "  make update-version     - Update Hugo to latest and sync version files"
+	@echo "  make update             - Run all update commands"
+	@echo ""
+	@echo "Utility Commands:"
 	@echo "  make deploy-all         - Validate config, build, and deploy to production"
 	@echo "  make list               - List all content in the site"
 	@echo "  make version            - Check Hugo version"
@@ -142,3 +155,29 @@ list:
 # Check Hugo version
 version:
 	hugo version
+
+hugo-update:
+	go install github.com/gohugoio/hugo@latest
+
+theme-update:
+	git submodule update --remote --merge
+
+update: update-version netlify-update theme-update
+
+# Update Hugo to latest version and sync version across all files
+update-version:
+	@echo "🔄 Updating Hugo to the latest version..."
+	@$(MAKE) hugo-update
+	@echo "📖 Reading installed Hugo version..."
+	@INSTALLED_VERSION=$$(hugo version 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/v//' || echo "unknown"); \
+	if [ "$$INSTALLED_VERSION" = "unknown" ]; then \
+		echo "❌ Could not detect Hugo version. Please ensure Hugo is installed and in PATH."; \
+		exit 1; \
+	fi; \
+	echo "✅ Detected Hugo version: $$INSTALLED_VERSION"; \
+	echo "🔄 Updating version files from $$(cat .hugo-version 2>/dev/null || echo 'unknown') to $$INSTALLED_VERSION"; \
+	echo "$$INSTALLED_VERSION" > .hugo-version; \
+	sed -i "s/HUGO_VERSION = \"[^\"]*\"/HUGO_VERSION = \"$$INSTALLED_VERSION\"/g" netlify.toml; \
+	echo "✅ Updated Hugo version to $$INSTALLED_VERSION in:"; \
+	echo "  - .hugo-version"; \
+	echo "  - netlify.toml (all contexts)"
