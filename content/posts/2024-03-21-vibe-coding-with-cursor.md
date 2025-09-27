@@ -20,13 +20,13 @@ cover:
   caption: Cursor
 ---
 
-> TL;DR: Spent a week building cool stuff with [Cursor](https://cursor.com), an AI-powered IDE. Found it surprisingly effective for both coding and managing my [second brain](https://www.buildingasecondbrain.com/). When your requirements are clear, it's almost magical! ✨ {{< sidenote >}}"Magic" here = fast iteration because the AI had unambiguous intent + cohesive context windows.{{< /sidenote >}}
+> TL;DR: Spent a week building cool stuff with [Cursor](https://cursor.com), an AI-powered IDE. Found it surprisingly effective for both coding and managing my [second brain](https://www.buildingasecondbrain.com/). When your requirements are clear, it's almost magical! ✨ {{< sidenote side="alternate" >}}"Magic" here = fast iteration because the AI had unambiguous intent + cohesive context windows.{{< /sidenote >}}
 
 ## The Setup: R&D Week Vibes
 
 You know that feeling when R&D week rolls around, and you're caught between "I should learn something useful" and "I want to have fun"? Well, this time I decided to combine both by diving deep into [Cursor](https://cursor.com), an AI-powered code editor that's been making waves in the developer community.
 
-The mission was simple: Use Cursor for    **everything** - from managing my notes to building small task-specific projects. And by everything, I mean *everything*. {{< sidenote label="why" >}}Deliberate constraint: forcing one environment exposes friction you normally gloss over.{{< /sidenote >}}
+The mission was simple: Use Cursor for    **everything** - from managing my notes to building small task-specific projects. And by everything, I mean *everything*. {{< sidenote side="alternate" label="why" >}}Deliberate constraint: forcing one environment exposes friction you normally gloss over.{{< /sidenote >}}
 
 ## What Makes Cursor Different?
 
@@ -34,11 +34,11 @@ Unlike traditional IDEs that just help you write code, Cursor feels more like ha
 
 ### The Good Parts
 
-1. **Context-Aware AI**: The AI understands your project structure and can help with everything from code completion to refactoring. For example, when working on a React component, it automatically suggested appropriate hooks and state management patterns based on my component's purpose. When your requirements are clear, it's almost magical how it can {{< tooltip term="scaffold" >}}Generate initial file / function structures & boilerplate quickly.{{< /tooltip >}} projects and implement patterns! {{< sidenote >}}High leverage = spend 5 min articulating intent; save 30+ min of boilerplate churn.{{< /sidenote >}}
+1. **Context-Aware AI**: The AI understands your project structure and can help with everything from code completion to refactoring. For example, when working on a React component, it automatically suggested appropriate hooks and state management patterns based on my component's purpose. When your requirements are clear, it's almost magical how it can {{< tooltip term="scaffold" >}}Generate initial file / function structures & boilerplate quickly.{{< /tooltip >}} projects and implement patterns! {{< sidenote side="alternate" >}}High leverage = spend 5 min articulating intent; save 30+ min of boilerplate churn.{{< /sidenote >}}
 
 2. **[Rules Feature](https://docs.cursor.com/context/rules-for-ai)**: This is where things get interesting. You can create custom rules and context for different types of work, both at the project and global level. Think project-specific coding standards, documentation patterns, and even architecture guidelines. {{< tooltip term="Rules" placement="right" >}}Small YAML/Markdown-like spec files in `.cursor/rules` shaping AI behavior & attached context.{{< /tooltip >}}
 
-3. **[Notepads](https://docs.cursor.com/beta/notepads)**: Quick thoughts? Code snippets? The notepad feature is like having a smart scratchpad that understands code and can share context between different parts of your development workflow. {{< sidenote >}}They become living design docs when you link them with @ mentions.{{< /sidenote >}}
+3. **[Notepads](https://docs.cursor.com/beta/notepads)**: Quick thoughts? Code snippets? The notepad feature is like having a smart scratchpad that understands code and can share context between different parts of your development workflow. {{< sidenote side="alternate" >}}They become living design docs when you link them with @ mentions.{{< /sidenote >}}
 
 ## Second Brain Management: A Pleasant Surprise
 
@@ -71,7 +71,7 @@ The rules feature deserves its own spotlight. Cursor offers two powerful ways to
    - Control output language and response style
    - Set universal development guidelines {{< tooltip term="universal" placement="bottom" >}}Baseline defaults before project-specific specialization.{{< /tooltip >}}
 
-Pro tip: Use project rules whenever possible - they're more flexible, can be version controlled, and provide better granular control over different parts of your project. {{< sidenote >}}Global rules = broad tone; project rules = domain-specific precision.{{< /sidenote >}}
+Pro tip: Use project rules whenever possible - they're more flexible, can be version controlled, and provide better granular control over different parts of your project. {{< sidenote side="alternate" >}}Global rules = broad tone; project rules = domain-specific precision.{{< /sidenote >}}
 
 I've set up different contexts for various types of work:
 
@@ -101,7 +101,7 @@ The Notepads feature (currently in beta) has been a revelation. Think of them as
    - Best practices
    - Project-specific rules {{< tooltip term="scaffolding" placement="left" >}}Automated generation of repeatable structure so humans focus on edge cases & design.{{< /tooltip >}}
 
-The ability to share context between composers and chat interactions makes them incredibly powerful. Plus, you can attach files and use @ mentions to create a web of connected knowledge. {{< sidenote >}}This starts resembling a lightweight knowledge graph.{{< /sidenote >}}
+The ability to share context between composers and chat interactions makes them incredibly powerful. Plus, you can attach files and use @ mentions to create a web of connected knowledge. {{< sidenote side="alternate" >}}This starts resembling a lightweight knowledge graph.{{< /sidenote >}}
 
 ## Small Projects, Big Impact
 
@@ -112,7 +112,7 @@ During the week, I worked on several small, task-specific projects. The workflow
 3. Let the AI handle boilerplate and routine coding
 4. Focus on architecture and edge cases
 
-The AI handled a lot of the repetitive work, letting me focus on the creative aspects of each project. The clearer my requirements were, the more magical the results became. ✨ {{< sidenote >}}Clarity compounds: every precise artifact feeds back into higher-quality suggestions.{{< /sidenote >}}
+The AI handled a lot of the repetitive work, letting me focus on the creative aspects of each project. The clearer my requirements were, the more magical the results became. ✨ {{< sidenote side="alternate" >}}Clarity compounds: every precise artifact feeds back into higher-quality suggestions.{{< /sidenote >}}
 
 ## Lessons Learned
 
@@ -124,7 +124,7 @@ The AI handled a lot of the repetitive work, letting me focus on the creative as
 
 4. **Second Brain Benefits**: It's not just for coding; it's a genuine knowledge management tool.
 
-5. **Clear Requirements = Magic**: The more precise your task definition, the better the results. {{< sidenote >}}Most "AI failed" stories trace back to vague prompts, not model limits.{{< /sidenote >}}
+5. **Clear Requirements = Magic**: The more precise your task definition, the better the results. {{< sidenote side="alternate" >}}Most "AI failed" stories trace back to vague prompts, not model limits.{{< /sidenote >}}
 
 ## What's Next?
 

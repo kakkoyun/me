@@ -27,12 +27,11 @@
 /* Wide layout: float or position to the side */
 @media (min-width: 1100px) {
   .post-content, .content, .single .content { position: relative; }
-  .sidenote {
-    max-width: 22ch;
-    position: absolute;
-    right: -26ch;
-    /* Align roughly with first line of referencing paragraph */
-  }
+  .sidenote { max-width: 24ch; position: absolute; }
+  .sidenote--right { right: -28ch; }
+  .sidenote--left { left: -28ch; }
+  /* Provide a subtle transition if switching sides */
+  .sidenote--left, .sidenote--right { transition: transform 0.15s ease, opacity 0.15s ease; }
   /* Avoid collision when container too narrow */
   .post-content p, .content p { position: relative; }
 }

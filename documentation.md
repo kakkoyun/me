@@ -372,7 +372,15 @@ Common files to override for customization:
 
 These project-specific shortcodes enhance readability and annotation without adding JavaScript. Implemented in `layouts/shortcodes/` with styles in `assets/css/extended/sidenotes-tooltips.css`.
 
-### Sidenotes
+### Sidenotes (Update: side support)
+You can control margin placement:
+```markdown
+{{< sidenote >}}Defaults to right margin.{{< /sidenote >}}
+{{< sidenote side="left" >}}Force left margin placement.{{< /sidenote >}}
+{{< sidenote side="alternate" >}}First alternates left/right automatically.{{< /sidenote >}}
+```
+Class applied: `sidenote--left` or `sidenote--right`. `alternate` cycles per page instance.
+
 Auto‑numbered per page using `Page.Scratch`.
 
 Basic usage:
