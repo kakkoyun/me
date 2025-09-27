@@ -9,6 +9,10 @@ tags:
 date: "2022-02-15T00:00:00Z"
 publishDate: "2022-02-15T00:00:00Z"
 title: "talk: Achieving Zero-Instrumentation Monitoring with eBPF"
+cover:
+  image: https://img.youtube.com/vi/g6B9Vbr88HM/maxresdefault.jpg
+  alt: Achieving Zero-Instrumentation Monitoring with eBPF
+  caption: Achieving Zero-Instrumentation Monitoring with eBPF
 ---
 
 Metrics are powerful tools that exist in the cloud-native ecosystem using Prometheus. However, using facilities to enable monitoring requires instrumenting the code. Everyone wants observability, but nobody wants to go the extra mile to instrument their clusters or applications. This is where eBPF comes in. eBPF, a promising technology for observability tooling, is not news. To observe the infrastructure and applications, eBPF-based system-wide agents can help us to capture events without requiring recompilation or redeployment of applications. In this talk, attendees will discover alternative ways to collect metrics from applications and infrastructure using system-wide eBPF agents. The presenters will demonstrate what level of observability could be accomplished without instrumentation.

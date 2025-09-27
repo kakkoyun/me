@@ -8,6 +8,10 @@ tags:
 date: "2025-08-14T00:00:00Z"
 publishDate: "2025-08-15T00:00:00Z"
 title: "talk: Unleashing the Go Toolchain"
+cover:
+  image: https://img.youtube.com/vi/8Rw-fVEjihw/maxresdefault.jpg
+  alt: Unleashing the Go Toolchain
+  caption: Unleashing the Go Toolchain
 ---
 
 The -toolexec flag hides a super-power in the Go toolchain: it lets you turn every go build into a programmable pipeline. In this session we’ll reveal how a simple wrapper command can inject custom analysis, code generation, and instrumentation—without changing a line of application code.

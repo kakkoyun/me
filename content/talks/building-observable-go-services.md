@@ -9,6 +9,10 @@ tags:
 date: "2020-12-01T00:00:00Z"
 publishDate: "2020-12-01T00:00:00Z"
 title: "talk: Building Observable Go Services"
+cover:
+  image: https://img.youtube.com/vi/xkLyM1Gnaus/maxresdefault.jpg
+  alt: Building Observable Go Services
+  caption: Building Observable Go Services
 ---
 
 In modern days, we run our applications as loosely coupled micro-services on distributed, elastic infrastructure as (mostly) stateless workloads. Under these circumstances, observability has become a key attribute to understand how our applications run and behave in action, in order to provide highly available and resilient service.

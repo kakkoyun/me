@@ -9,6 +9,10 @@ tags:
 date: "2021-04-20T00:00:00Z"
 publishDate: "2021-04-20T00:00:00Z"
 title: "talk: Profiling Go Applications in the Cloud-Native Era"
+cover:
+  image: https://img.youtube.com/vi/-miC_jnQ_Yk/maxresdefault.jpg
+  alt: Profiling Go Applications in the Cloud-Native Era
+  caption: Profiling Go Applications in the Cloud-Native Era
 ---
 
 For years Google has consistently been able to cut down multiple percentage points in their fleet-wide resource usage every quarter, using techniques described in their “Google-Wide Profiling” paper. Ad-hoc profiling has long been part of the developer’s toolbox to analyze the CPU and memory usage of a running process. However, through continuous profiling, and the systematic collection of profiles, entirely new workflows suddenly become possible.

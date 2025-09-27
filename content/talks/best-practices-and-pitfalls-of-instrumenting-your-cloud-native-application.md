@@ -10,6 +10,10 @@ tags:
 date: "2022-11-08T00:00:00Z"
 publishDate: "2022-11-08T00:00:00Z"
 title: "talk: Best Practices and Pitfalls of Instrumenting Your Cloud-Native Application"
+cover:
+  image: https://img.youtube.com/vi/B6Ds2myOIRc/maxresdefault.jpg
+  alt: Best Practices and Pitfalls of Instrumenting Your Cloud-Native Application
+  caption: Best Practices and Pitfalls of Instrumenting Your Cloud-Native Application
 ---
 
 Observability is crucial for understanding how your application operates in real-time. Among various observability signals—such as logs, traces, and continuous profiling—metrics play a significant role. They provide sampled measurements throughout the system, essential for ensuring service quality, improving performance, scalability, debuggability, security, and enabling real-time, actionable alerting.
