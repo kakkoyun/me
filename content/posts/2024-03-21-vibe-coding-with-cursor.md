@@ -30,11 +30,11 @@ The mission was simple: Use Cursor for    **everything** - from managing my note
 
 ## What Makes Cursor Different?
 
-Unlike traditional IDEs that just help you write code, Cursor feels more like having a pair programmer who actually gets your context. It's built on top of VSCode (so you get all the good stuff you're used to) but adds a layer of AI-powered features that make development feel more... vibey? 😎 {{< tooltip "context awareness" >}}Maintains multi-file + rules-based state to tailor suggestions, not just autocomplete next tokens.{{< /tooltip >}}
+Unlike traditional IDEs that just help you write code, Cursor feels more like having a pair programmer who actually gets your {{< tooltip "context" >}}The active project knowledge the AI leverages (rules, open files, repo structure).{{< /tooltip >}}. It's built on top of VSCode (so you get all the good stuff you're used to) but adds a layer of {{< tooltip term="AI-powered" >}}Augmented by model-assisted completions, edits, refactors, and semantic search.{{< /tooltip >}} features that make development feel more... vibey? 😎
 
 ### The Good Parts
 
-1. **Context-Aware AI**: The AI understands your project structure and can help with everything from code completion to refactoring. For example, when working on a React component, it automatically suggested appropriate hooks and state management patterns based on my component's purpose. When your requirements are clear, it's almost magical how it can scaffold projects and implement patterns! {{< sidenote >}}High leverage = spend 5 min articulating intent; save 30+ min of boilerplate churn.{{< /sidenote >}}
+1. **Context-Aware AI**: The AI understands your project structure and can help with everything from code completion to refactoring. For example, when working on a React component, it automatically suggested appropriate hooks and state management patterns based on my component's purpose. When your requirements are clear, it's almost magical how it can {{< tooltip term="scaffold" >}}Generate initial file / function structures & boilerplate quickly.{{< /tooltip >}} projects and implement patterns! {{< sidenote >}}High leverage = spend 5 min articulating intent; save 30+ min of boilerplate churn.{{< /sidenote >}}
 
 2. **[Rules Feature](https://docs.cursor.com/context/rules-for-ai)**: This is where things get interesting. You can create custom rules and context for different types of work, both at the project and global level. Think project-specific coding standards, documentation patterns, and even architecture guidelines. {{< tooltip term="Rules" placement="right" >}}Small YAML/Markdown-like spec files in `.cursor/rules` shaping AI behavior & attached context.{{< /tooltip >}}
 
