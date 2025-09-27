@@ -1,0 +1,26 @@
+{{/* Tooltip shortcode
+Usage:
+  Positional: {{< tooltip "Term" >}}Definition text{{< /tooltip >}}
+  Named: {{< tooltip term="Term" placement="right" >}}Definition{{< /tooltip >}}
+Params:
+  term        Visible trigger text (positional or named)
+  placement   top|right|bottom|left (default top)
+Accessibility:
+  Adds unique id & aria-describedby linking for screen readers.
+*/}}
+{{- $term := "" -}}
+{{- if .IsNamedParams -}}
+  {{- $term = .Get "term" -}}
+{{- else if gt (len .Params) 0 -}}
+  {{- $term = index .Params 0 -}}
+{{- end -}}
+{{- if not $term }}{{ $term = "?" }}{{ end -}}
+{{- $placement := .Get "placement" | default "top" -}}
+{{- $count := .Page.Scratch.Get "tooltipCount" | default 0 -}}
+{{- $count = add $count 1 -}}
+{{- .Page.Scratch.Set "tooltipCount" $count -}}
+{{- $id := printf "tt-%d" $count -}}
+<span class="tooltip" data-placement="{{ $placement }}">
+  <span class="tooltip-term" tabindex="0" aria-describedby="{{ $id }}">{{ $term }}</span>
+  <span role="tooltip" id="{{ $id }}" class="tooltip-bubble">{{ .Inner | markdownify }}</span>
+</span>

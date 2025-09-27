@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo
 
 # Default target
 help:
@@ -47,16 +47,39 @@ help:
 	@echo "  make list               - List all content in the site"
 	@echo "  make version            - Check Hugo version"
 
+# Ensure Hugo exists & (optionally) matches pinned version
+check-hugo:
+	@command -v hugo >/dev/null 2>&1 || { \
+	  echo "❌ Hugo not found in PATH."; \
+	  V=$$(cat .hugo-version 2>/dev/null || echo ''); \
+	  echo "Expected version: $${V}"; \
+	  if [ -n "$$V" ]; then \
+	    echo "Install (Linux, extended binary):"; \
+	    echo "  curl -sSL https://github.com/gohugoio/hugo/releases/download/v$$V/hugo_extended_$$V_Linux-64bit.tar.gz | tar -xz hugo && chmod +x hugo && sudo mv hugo /usr/local/bin/"; \
+	    echo "Alternative (local without sudo):"; \
+	    echo "  mkdir -p $$HOME/.local/bin && curl -sSL https://github.com/gohugoio/hugo/releases/download/v$$V/hugo_extended_$$V_Linux-64bit.tar.gz | tar -xz hugo && mv hugo $$HOME/.local/bin/ && export PATH=\"$$HOME/.local/bin:$$PATH\""; \
+	    echo "From source (may take longer):"; \
+	    echo "  go install github.com/gohugoio/hugo@v$$V"; \
+	  else \
+	    echo "Set desired version in .hugo-version then rerun."; \
+	  fi; \
+	  exit 127; \
+	}
+	@REQ=$$(cat .hugo-version 2>/dev/null || echo ""); CUR=$$(hugo version 2>/dev/null | sed -n 's/.*v\([0-9][^ ]*\).*/\1/p'); \
+	if [ -n "$$REQ" ] && [ -n "$$CUR" ] && [ "$$REQ" != "$$CUR" ]; then \
+	  echo "⚠️  Hugo version mismatch: expected $$REQ, found $$CUR"; \
+	fi
+
 # Build the site
-build:
+build: check-hugo
 	hugo --source $(HUGO_SITE_DIR)
 
 # Run development server (without drafts)
-serve:
+serve: check-hugo
 	hugo server --source $(HUGO_SITE_DIR) --disableFastRender
 
 # Run development server with drafts
-serve-draft:
+serve-draft: check-hugo
 	hugo server --source $(HUGO_SITE_DIR) --buildDrafts --buildFuture --disableFastRender
 
 # Clean generated files
@@ -65,20 +88,20 @@ clean:
 	hugo --cleanDestinationDir --source $(HUGO_SITE_DIR)
 
 # Build with minification
-minify:
+minify: check-hugo
 	hugo --minify --source $(HUGO_SITE_DIR)
 
 # Production build with all optimizations (matches netlify.toml production command)
-production:
+production: check-hugo
 	hugo --gc --minify --enableGitInfo --source $(HUGO_SITE_DIR)
 
 # Deploy to Netlify production
-netlify-deploy:
+netlify-deploy: check-hugo
 	hugo --gc --minify --enableGitInfo --source $(HUGO_SITE_DIR)
 	netlify deploy --prod
 
 # Create Netlify deploy preview
-netlify-preview:
+netlify-preview: check-hugo
 	hugo --gc --minify --buildFuture --source $(HUGO_SITE_DIR)
 	netlify deploy
 
@@ -149,11 +172,11 @@ netlify-build-branch:
 	HUGO_VERSION=$(HUGO_VERSION) netlify build --context branch-deploy
 
 # List all content in the site
-list:
+list: check-hugo
 	hugo list all
 
 # Check Hugo version
-version:
+version: check-hugo
 	hugo version
 
 hugo-update:

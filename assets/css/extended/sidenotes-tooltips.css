@@ -1,0 +1,100 @@
+/* Sidenotes & Tooltips Styles
+   These rely on minimal additional markup and pure CSS behavior.
+   They should cascade after theme styles (PaperMod loads extended assets automatically if piped).
+*/
+
+/* --- Sidenotes --- */
+.sidenote-ref { font-size: 0.8em; }
+.sidenote-ref a { text-decoration: none; }
+
+.sidenote {
+  display: block;
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.75rem;
+  background: var(--note-bg, rgba(0,0,0,0.03));
+  border-left: 3px solid var(--note-accent, #888);
+  font-size: 0.9em;
+  line-height: 1.35;
+  position: relative;
+  border-radius: 4px;
+}
+.sidenote .sidenote-label {
+  font-weight: 600;
+  margin-right: 0.4rem;
+}
+.sidenote-back { font-size: 0.75em; margin-left: 0.5rem; text-decoration: none; }
+
+/* Wide layout: float or position to the side */
+@media (min-width: 1100px) {
+  .post-content, .content, .single .content { position: relative; }
+  .sidenote {
+    max-width: 22ch;
+    position: absolute;
+    right: -26ch;
+    /* Align roughly with first line of referencing paragraph */
+  }
+  /* Avoid collision when container too narrow */
+  .post-content p, .content p { position: relative; }
+}
+
+/* --- Tooltips --- */
+.tooltip { position: relative; cursor: help; }
+.tooltip-term { border-bottom: 1px dotted currentColor; }
+.tooltip-term:focus { outline: 2px solid var(--accent, #6aa0ff); outline-offset: 2px; }
+
+.tooltip-bubble {
+  --tooltip-bg: var(--tooltip-bg-color, #222);
+  --tooltip-fg: var(--tooltip-fg-color, #fff);
+  position: absolute;
+  z-index: 40;
+  background: var(--tooltip-bg);
+  color: var(--tooltip-fg);
+  padding: 0.45rem 0.6rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  min-width: 10ch;
+  max-width: 38ch;
+  box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25);
+}
+
+.tooltip[data-placement="top"] .tooltip-bubble { bottom: 100%; left: 50%; transform: translate(-50%, -6px); }
+.tooltip[data-placement="right"] .tooltip-bubble { left: 100%; top: 50%; transform: translate(6px, -50%); }
+.tooltip[data-placement="bottom"] .tooltip-bubble { top: 100%; left: 50%; transform: translate(-50%, 6px); }
+.tooltip[data-placement="left"] .tooltip-bubble { right: 100%; top: 50%; transform: translate(-6px, -50%); }
+
+.tooltip:hover .tooltip-bubble,
+.tooltip:focus-within .tooltip-bubble {
+  opacity: 0.97;
+  transform: translate(0,0);
+  pointer-events: auto;
+}
+
+/* Basic arrow */
+.tooltip-bubble::after {
+  content: "";
+  position: absolute;
+  width: 8px; height: 8px;
+  background: var(--tooltip-bg);
+  transform: rotate(45deg);
+}
+.tooltip[data-placement="top"] .tooltip-bubble::after { top: 100%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); }
+.tooltip[data-placement="right"] .tooltip-bubble::after { left: -4px; top: 50%; transform: translate(-50%, -50%) rotate(45deg); }
+.tooltip[data-placement="bottom"] .tooltip-bubble::after { bottom: 100%; left: 50%; transform: translate(-50%, 50%) rotate(45deg); }
+.tooltip[data-placement="left"] .tooltip-bubble::after { right: -4px; top: 50%; transform: translate(50%, -50%) rotate(45deg); }
+
+/* Dark mode adjustments if theme sets body.dark */
+body.dark .sidenote { background: rgba(255,255,255,0.06); border-left-color: #aaa; }
+body.dark .tooltip-bubble { --tooltip-bg: #111; --tooltip-fg: #eee; }
+
+/* Print: show sidenotes inline */
+@media print {
+  .sidenote { position: static !important; max-width: 100%; border-left-color: #444; }
+  .sidenote-back { display: none; }
+  .tooltip-bubble { position: static; opacity: 1; transform: none; box-shadow: none; background: none; color: inherit; padding: 0; }
+  .tooltip-term { border-bottom: none; }
+}

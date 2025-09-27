@@ -1,0 +1,23 @@
+{{/* Sidenote shortcode
+Usage:
+{{< sidenote >}}Your sidenote content{{< /sidenote >}}
+Optional named params:
+  id: custom id suffix (for linking)
+  label: override automatic number label
+Auto-numbering uses Page Scratch so numbers increment per page.
+*/}}
+{{- $count := .Page.Scratch.Get "sidenoteCount" | default 0 -}}
+{{- $count = add $count 1 -}}
+{{- .Page.Scratch.Set "sidenoteCount" $count -}}
+{{- $id := printf "sn-%d" $count -}}
+{{- with .Get "id" }}{{ $id = . }}{{ end -}}
+{{- $label := printf "%d" $count -}}
+{{- with .Get "label" }}{{ $label = . }}{{ end -}}
+<span class="sidenote-ref" id="ref-{{ $id }}" role="doc-noteref">
+  <sup><a href="#{{ $id }}" aria-describedby="{{ $id }}">{{ $label }}</a></sup>
+</span>
+<aside class="sidenote" id="{{ $id }}" role="note" aria-label="Sidenote {{ $label }}">
+  <span class="sidenote-label">{{ $label }}</span>
+  <span class="sidenote-content">{{ .Inner | markdownify }}</span>
+  <a class="sidenote-back" href="#ref-{{ $id }}" aria-label="Back to reference">↩</a>
+</aside>

@@ -365,3 +365,81 @@ Common files to override for customization:
 - [PaperMod Wiki: Features](https://github.com/adityatelange/hugo-PaperMod/wiki/Features)
 - [PaperMod Wiki: Installation](https://github.com/adityatelange/hugo-PaperMod/wiki/Installation)
 - [PaperMod Wiki: FAQs](https://github.com/adityatelange/hugo-PaperMod/wiki/FAQs)
+
+---
+
+## Custom Shortcodes: Sidenotes & Tooltips
+
+These project-specific shortcodes enhance readability and annotation without adding JavaScript. Implemented in `layouts/shortcodes/` with styles in `assets/css/extended/sidenotes-tooltips.css`.
+
+### Sidenotes
+Auto‑numbered per page using `Page.Scratch`.
+
+Basic usage:
+```markdown
+This is a sentence with a sidenote. {{< sidenote >}}Supporting thought or citation here.{{< /sidenote >}}
+```
+
+Custom label & id:
+```markdown
+{{< sidenote id="sn-star" label="★" >}}A highlighted annotation.{{< /sidenote >}}
+```
+
+Output structure (simplified):
+```html
+<span class="sidenote-ref"><sup><a href="#sn-1">1</a></sup></span>
+<aside class="sidenote" id="sn-1" role="note">
+  <span class="sidenote-label">1</span>
+  <span class="sidenote-content">…</span>
+  <a class="sidenote-back" href="#ref-sn-1">↩</a>
+</aside>
+```
+
+Behavior:
+- Inline block on mobile / narrow viewports.
+- On wide screens (≥1100px) positioned in right gutter.
+- Prints inline (no loss of context).
+
+### Tooltips
+Contextual inline definitions; pure CSS hover + focus (keyboard accessible).
+
+Basic positional usage:
+```markdown
+Understanding {{< tooltip "eBPF" >}}Extended Berkeley Packet Filter: in-kernel programmable instrumentation.{{< /tooltip >}} changes everything.
+```
+
+Named params with placement (top|right|bottom|left):
+```markdown
+{{< tooltip term="L3 Cache" placement="right" >}}Last-level CPU cache shared by cores in a package.{{< /tooltip >}}
+```
+
+Generated markup (simplified):
+```html
+<span class="tooltip" data-placement="top">
+  <span class="tooltip-term" tabindex="0">eBPF</span>
+  <span role="tooltip" class="tooltip-bubble">Extended Berkeley …</span>
+</span>
+```
+
+### Accessibility Notes
+- Sidenotes use `role="note"` and provide a return link (↩) to reference.
+- Tooltip trigger gets `tabindex="0"`; bubble has `role="tooltip"` for assistive tech.
+- Dark mode styles adjust automatically.
+- Print media: tooltips render inline text; sidenote layout becomes linear.
+
+### Performance & Theming
+- No JavaScript; minimal additional CSS.
+- Styles isolated in a single extended stylesheet; safe to adjust color variables via custom properties if needed.
+
+### Customization Ideas
+- Change breakpoint or width in `.sidenote` media query.
+- Add ARIA `describedby` linking (assign id to bubble) if stricter accessibility needed.
+- Provide alternate left-margin layout by adjusting `right: -26ch;` to `left: -26ch;`.
+
+### Quick Reference
+| Feature | Shortcode | Key Params | Notes |
+|---------|-----------|------------|-------|
+| Sidenote | `sidenote` | `id`, `label` | Auto-numbering; margin on wide screens |
+| Tooltip | `tooltip` | positional term OR `term`, `placement` | Pure CSS; accessible focus |
+
+If adding new semantic annotation types, follow this pattern: shortcode template + minimal CSS in `assets/css/extended/` + accessible roles.
