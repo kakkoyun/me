@@ -10,7 +10,7 @@ date: "2022-03-20T00:00:00Z"
 publishDate: "2022-03-20T00:00:00Z"
 title: "talk: Building a Go Profiler Using Go"
 cover:
-  image: https://img.youtube.com/vi/OlHQ6gkwqyA/maxresdefault.jpg
+  image: https://img.youtube.com/vi/OlHQ6gkwqyA/hqdefault.jpg
   alt: Building a Go Profiler Using Go
   caption: Building a Go Profiler Using Go
 ---

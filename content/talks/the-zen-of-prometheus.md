@@ -8,7 +8,7 @@ date: "2020-09-20T00:00:00Z"
 publishDate: "2020-09-20T00:00:00Z"
 title: "talk: The Zen of Prometheus"
 cover:
-  image: https://img.youtube.com/vi/Nqp4fjw_omU/maxresdefault.jpg
+  image: https://img.youtube.com/vi/Nqp4fjw_omU/hqdefault.jpg
   alt: The Zen of Prometheus
   caption: The Zen of Prometheus
 ---
