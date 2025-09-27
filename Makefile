@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup
 
 # Default target
 help:
@@ -46,29 +46,7 @@ help:
 	@echo "  make deploy-all         - Validate config, build, and deploy to production"
 	@echo "  make list               - List all content in the site"
 	@echo "  make version            - Check Hugo version"
-
-# Ensure Hugo exists & (optionally) matches pinned version
-check-hugo:
-	@command -v hugo >/dev/null 2>&1 || { \
-	  echo "❌ Hugo not found in PATH."; \
-	  V=$$(cat .hugo-version 2>/dev/null || echo ''); \
-	  echo "Expected version: $${V}"; \
-	  if [ -n "$$V" ]; then \
-	    echo "Install (Linux, extended binary):"; \
-	    echo "  curl -sSL https://github.com/gohugoio/hugo/releases/download/v$$V/hugo_extended_$$V_Linux-64bit.tar.gz | tar -xz hugo && chmod +x hugo && sudo mv hugo /usr/local/bin/"; \
-	    echo "Alternative (local without sudo):"; \
-	    echo "  mkdir -p $$HOME/.local/bin && curl -sSL https://github.com/gohugoio/hugo/releases/download/v$$V/hugo_extended_$$V_Linux-64bit.tar.gz | tar -xz hugo && mv hugo $$HOME/.local/bin/ && export PATH=\"$$HOME/.local/bin:$$PATH\""; \
-	    echo "From source (may take longer):"; \
-	    echo "  go install github.com/gohugoio/hugo@v$$V"; \
-	  else \
-	    echo "Set desired version in .hugo-version then rerun."; \
-	  fi; \
-	  exit 127; \
-	}
-	@REQ=$$(cat .hugo-version 2>/dev/null || echo ""); CUR=$$(hugo version 2>/dev/null | sed -n 's/.*v\([0-9][^ ]*\).*/\1/p'); \
-	if [ -n "$$REQ" ] && [ -n "$$CUR" ] && [ "$$REQ" != "$$CUR" ]; then \
-	  echo "⚠️  Hugo version mismatch: expected $$REQ, found $$CUR"; \
-	fi
+	@echo "  make local-setup        - Install/verify Hugo + initialize theme submodule"
 
 # Build the site
 build: check-hugo
@@ -179,13 +157,14 @@ list: check-hugo
 version: check-hugo
 	hugo version
 
+# Update commands
+update: update-version theme-update
+
 hugo-update:
 	go install github.com/gohugoio/hugo@latest
 
 theme-update:
 	git submodule update --remote --merge
-
-update: update-version netlify-update theme-update
 
 # Update Hugo to latest version and sync version across all files
 update-version:
@@ -204,3 +183,50 @@ update-version:
 	echo "✅ Updated Hugo version to $$INSTALLED_VERSION in:"; \
 	echo "  - .hugo-version"; \
 	echo "  - netlify.toml (all contexts)"
+
+# Ensure Hugo exists & (optionally) matches pinned version
+check-hugo:
+	@V=$$(cat .hugo-version 2>/dev/null || echo ''); \
+	if ! command -v hugo >/dev/null 2>&1; then \
+	  echo "❌ Hugo not found"; \
+	  if [ -n "$$V" ]; then \
+	    echo "➡️  Installing Hugo via Go toolchain (version $$V)"; \
+	    GO111MODULE=on go install github.com/gohugoio/hugo@v$$V || echo "⚠️ go install failed"; \
+	  else \
+	    echo "➡️  Installing latest Hugo via Go (no .hugo-version)"; \
+	    GO111MODULE=on go install github.com/gohugoio/hugo@latest || echo "⚠️ go install failed"; \
+	  fi; \
+	fi; \
+	if ! command -v hugo >/dev/null 2>&1; then \
+	  if [ -n "$$V" ]; then \
+	    echo "Manual install (extended Linux) options:"; \
+	    echo "  curl -sSL https://github.com/gohugoio/hugo/releases/download/v$$V/hugo_extended_$$V_Linux-64bit.tar.gz | tar -xz hugo && chmod +x hugo && sudo mv hugo /usr/local/bin/"; \
+	    echo "User-local:"; \
+	    echo "  mkdir -p $$HOME/.local/bin && curl -sSL https://github.com/gohugoio/hugo/releases/download/v$$V/hugo_extended_$$V_Linux-64bit.tar.gz | tar -xz hugo && mv hugo $$HOME/.local/bin/"; \
+	  else \
+	    echo ".hugo-version not set; create it with desired version (e.g. echo 0.150.1 > .hugo-version)."; \
+	  fi; \
+	  exit 127; \
+	fi; \
+	REQ=$$(cat .hugo-version 2>/dev/null || echo ""); CUR=$$(hugo version 2>/dev/null | sed -n 's/.*v\([0-9][^ ]*\).*/\1/p'); \
+	if [ -n "$$REQ" ] && [ -n "$$CUR" ] && [ "$$REQ" != "$$CUR" ]; then \
+	  echo "⚠️  Hugo version mismatch: expected $$REQ, found $$CUR"; \
+	else \
+	  echo "✅ Hugo OK: $$(hugo version | awk '{print $$1,$$2}')"; \
+	fi
+
+local-setup: check-hugo ## Initialize local dev environment (Hugo + theme submodule + dry run)
+	@echo "🔧 Local development environment setup"
+	@echo "➡️  Ensuring theme submodule present..."
+	@if [ ! -f themes/PaperMod/theme.toml ]; then \
+	  git submodule update --init --recursive; \
+	  echo "✅ Theme initialized"; \
+	else \
+	  echo "✅ Theme already present"; \
+	fi
+	@echo "➡️  Verifying Hugo can build (dry run)..."
+	@hugo --quiet --renderToMemory || { echo "❌ Hugo build failed"; exit 1; }
+	@echo "✅ Basic build succeeded"
+	@echo "Next steps:"; \
+	 echo "  make serve        # start dev server"; \
+	 echo "  make serve-draft  # include drafts & future posts";

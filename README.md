@@ -5,13 +5,35 @@
 
 Source for [kakkoyun.me](https://kakkoyun.me) personal website including blog posts.
 
-Once cloned, make sure to run:
+## Quick Start
+
+Clone the repo and run the one-shot setup (wraps `check-hugo` for auto-install + theme init):
+
+```shell
+make local-setup
+```
+
+Then start the dev server:
+
+```shell
+make serve
+```
+
+Or include drafts & future-dated content:
+
+```shell
+make serve-draft
+```
+
+### Manual (alternative) setup
+
+If you prefer manual steps:
 
 ```shell
 git submodule update --init --recursive
 ```
 
-To update the theme:
+Update the theme later with:
 
 ```shell
 git submodule update --remote --merge
@@ -46,6 +68,40 @@ make netlify-deploy
 ```
 
 Run `make help` to see all available commands.
+
+## Troubleshooting Local Preview
+
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| Blank site / theme templates missing | Theme submodule not initialized | `make local-setup` or `git submodule update --init --recursive` |
+| Broken styles / missing CSS | Using non-extended Hugo build | Install extended binary matching `.hugo-version` (see `make check-hugo` output) |
+| Base URL links point to production domain when testing | `baseurl` + `canonifyUrls: true` in `config.yaml` | Run with a local override: `hugo server -D --baseURL http://localhost:1313 --canonifyURLs=false` if needed |
+| 404s for newly added content | Draft or future-dated content | Use `make serve-draft` |
+| Version mismatch warning | Installed Hugo != `.hugo-version` | Reinstall correct version or run `make update-version` |
+
+### Verifying Hugo & Theme
+
+Check Hugo version & theme presence:
+
+```shell
+hugo version
+test -f themes/PaperMod/theme.toml && echo THEME_OK || echo THEME_MISSING
+```
+
+### Clean Rebuild
+
+Sometimes caches cause confusion:
+
+```shell
+make clean && make serve
+```
+
+## Updating Hugo Version
+
+```shell
+make update-version
+```
+This updates `.hugo-version` and synchronizes `netlify.toml`.
 
 ## What open source tools I have used to build this?
 
