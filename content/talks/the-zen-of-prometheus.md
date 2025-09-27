@@ -21,7 +21,9 @@ Prometheus is born in such an atmosphere as a solution to satisfy the observabil
 
 During this talk, Kemal will present several valuable patterns, best practices and idiomatic methods for instrumenting critical services. He will discuss common pitfalls and failure cases while sharing useful insights and methods to avoid those mistakes. Last but not least, he will give tips for writing simple, maintainable and robust alerts that derived from real-life experiences. By doing so he will propose “The Zen of Prometheus”.
 
-#### [Recording](https://www.youtube.com/watch?v=Nqp4fjw_omU)
+#### Recording
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Nqp4fjw_omU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 **Slides**
 

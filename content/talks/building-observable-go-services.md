@@ -21,7 +21,9 @@ There exist several observability signals, such as “log”, “metric”, “t
 
 During this talk, Kemal will first introduce the tools that can be embedded in the services to make critical services observable, and share the patterns that will enable them to be used efficiently in the applications and services. Moreover,  he will demonstrate how to use these collected signals in real-life scenarios, using tools within the CNCF ecosystem (Loki, Prometheus, OpenTelemetry, Jaeger, Conprof). He also aims to share the methods that are used to build and run applications running under heavy-traffic, and to understand the origin of the problems encountered in running systems.
 
-#### [Recording](https://www.youtube.com/watch?v=xkLyM1Gnaus)
+#### Recording
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xkLyM1Gnaus" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 **Slides**
 

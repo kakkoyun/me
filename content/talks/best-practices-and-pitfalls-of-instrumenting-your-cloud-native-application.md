@@ -22,6 +22,10 @@ Building observable applications begins with proper instrumentation. While the P
 
 In this talk, Jéssica Lins and Kemal Akkoyun present several useful patterns, best practices, and idiomatic methods for instrumenting critical services. They discuss common pitfalls, failure cases, and instrumentation strategies, sharing valuable insights and methods to avoid these mistakes. Additionally, they provide tips for writing simple, maintainable, and robust instrumentation facilities using real-life examples. The talk also demonstrates how to enrich metrics by correlating them with other observability signals and discusses how to best utilize recent changes in `client_golang`, the Go client library for Prometheus.
 
+#### Recording
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/B6Ds2myOIRc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 **Slides**
 
 * [Best Practices and Pitfalls of Instrumenting Your Cloud-Native Application](https://docs.google.com/presentation/d/1uRyWxPGTTfn9_UnX4sWyUd5Lcf7MKg-qvi3hajFtLZI/edit?usp=sharing)

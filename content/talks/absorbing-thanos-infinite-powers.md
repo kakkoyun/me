@@ -17,7 +17,9 @@ cover:
 
 Thanos is an open-source, CNCF’s Incubated project that horizontally scales Prometheus to create a global-scale highly available monitoring system. It seamlessly extends Prometheus in a few simple steps and it is already used in production by hundreds of companies that aim for high multi-cloud scale for metrics while keeping low maintenance cost. During this talk, core Thanos (and Prometheus) maintainers, will briefly introduce basic ideas behind Thanos and deployment models and use cases. After that, to satisfy more experienced users, they will explain more advanced concepts, tips for running on the scale, and the latest shiny usability improvements. Thanks to the growing community there is much to talk about!
 
-#### [Recording](https://youtu.be/6Nx2BFyr7qQ)
+#### Recording
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/6Nx2BFyr7qQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 **Slides**
 

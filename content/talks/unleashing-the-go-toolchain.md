@@ -22,7 +22,9 @@ Along the way we’ll spotlight real projects—such as Datadog’s Orchestrion�
 
 If you’re curious about bending the Go compiler to your will—and doing so responsibly—this talk will equip you with the concepts, examples, and inspiration to start experimenting the moment you’re back at your editor.
 
-#### [Recording](https://www.youtube.com/watch?v=8Rw-fVEjihw)
+#### Recording
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/8Rw-fVEjihw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 **Slides**
 
