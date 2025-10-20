@@ -1,12 +1,16 @@
 ![Kemal Akkoyun](/img/banner.jpeg)
 
-## Hey, I'm Kemal!
+## Hey, I'm Kemal
 
-Software Infrastructure Engineer | System Programmer | Performance Engineer. Obsessed with Observability, Instrumentation, and low-level programming. 🤔 Slow thinker. Open Source Enthusiast. Mentor (CNCF LFX, Google Summer of Code, CommunityBridge, GoBridge). Blogger and speaker. Introverted Human (not Cylon, I guess). 😄 Pronouns: He/Him
+> Me in 5 seconds:
 
-🔭 Deep in the trenches of Go compile-time magic, runtime eBPF trickery, and tracing wizardry. Keeping a soft spot for profiling while tinkering with Go and its toolchain. 🌱 Still exploring distributed systems, time-series (Prometheus) sorcery, and making machines sing in harmony.
+Software Infrastructure Engineer | System Programmer | Performance Engineer. Obsessed with observability, instrumentation, and low-level programming. Slow thinker. Open Source Enthusiast. Mentor. Blogger and speaker. Introverted human (not Cylon, I guess). Pronouns: He/Him.
 
-Learn more at [about](https://kakkoyun.me/about)
+Deep in the trenches of Go compile-time magic, runtime eBPF trickery, and tracing wizardry. Keeping a soft spot for profiling while tinkering with Go and its toolchain. Still exploring distributed systems, time-series (Prometheus) sorcery, and making machines sing in harmony.
+
+Currently building Go instrumentation and profiling at Datadog. Based in Berlin with my partner and our son.
+
+[Me in 5 minutes](/about/) | [What I'm doing now](/now/) | [Everything else](/misc/)
 
 <div style="display: flex; gap: 10px; align-items: center;">
 

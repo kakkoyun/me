@@ -7,9 +7,21 @@ comments: false
 disableShare: true
 ---
 
+## Me in 10 minutes
+
+I'm a software infrastructure engineer obsessed with understanding how systems behave in production. My work centers on observability, instrumentation, profiling, and performance engineering—helping engineers build and operate reliable, fast software.
+
+### Professional Journey
+
+I started tinkering with computers early, drawn to the idea of making machines do useful things. Over time, that curiosity evolved into a career focused on systems programming, low-level tooling, and observability. I've worked across distributed systems, time-series databases, continuous profiling, and eBPF-based instrumentation.
+
+Before Datadog, I helped build Parca (continuous profiling) and Thanos (Prometheus at scale). I've been a maintainer and contributor across the CNCF ecosystem—Prometheus, Prometheus Operator, and various observability projects. I've mentored through CNCF LFX, Google Summer of Code, CommunityBridge, and GoBridge, helping others find their way into open source.
+
+I've also had the privilege of angel investing in two promising companies, supporting innovation in the tech ecosystem.
+
 Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger. Angel Investor.
 Introverted human (not a Cylon, but who knows?). Open Source Software Developer. Gopher. CNCF Ecosystem Contributor.
-Maintainer of Thanos, Prometheus, and Prometheus Operator.
+Formerly a maintainer of Thanos, Prometheus, and Prometheus Operator.
 
 ### What I Do
 
@@ -23,17 +35,23 @@ I also have a keen interest in the **Zig programming language**, which aligns wi
 
 ### Beyond Professional Life
 
-In my free time, I’m a **tinkerer**—I open things up, inspect what’s inside, and fix them. I’m also a **bookworm, a dog whisperer, a mechanical keyboard and LEGO builder, a single malt taster, and a coffee drinker in training** (peer pressure).
+In my free time, I'm a **tinkerer**—I open things up, inspect what's inside, and fix them. I'm also a **bookworm, a mechanical keyboard and LEGO builder, a single malt taster, and a coffee drinker in training** (peer pressure).
 
-I enjoy **sci-fi and fantasy literature, board games, and programming fun side projects** (from hardware tinkering to functional programming experiments). I'm passionate about **traveling, cooking vegan and vegetarian dishes**, and constantly **challenging myself to learn new languages**—one day, I hope to become a proper polyglot.
+I enjoy **sci-fi and fantasy literature, board games, and programming fun side projects** (from Raspberry Pi cluster experiments to Flipper Zero hardware hacking). I'm passionate about **traveling, cooking vegan and vegetarian dishes**, and constantly **challenging myself to learn new languages**—one day, I hope to become a proper polyglot.
 
-As an **angel investor**, I’ve had the privilege of investing in two promising companies, helping support innovation and growth in the tech ecosystem.
+**Gravel cycling** is my escape. I'm dreaming of camping and bikepacking adventures—trips I want to take with my son when he's grown up enough to join me on two wheels.
 
-One of my long-term goals is **early retirement**, spending most of my time outdoors—maybe overlanding with a Land Rover? Who knows?
+As an **angel investor**, I've had the privilege of investing in two promising companies, helping support innovation and growth in the tech ecosystem.
+
+One of my long-term goals is **early retirement**, spending most of my time outdoors—maybe overlanding with a Land Rover, bikepacking through mountains, or camping under the stars. Who knows?
 
 ### Home
 
 I currently live in **Berlin, Germany**, with my beloved significant other, **Rüya**, and our one-year-old son, **Atlas Robin**. Our home is often filled with toys and creative projects. Though we recently lost our beloved dog, she lives on in spirit—and through the tattoo on my left forearm.
+
+### More
+
+[What I'm doing now](/now/) | [Tools I use](/uses/) | [Everything else](/misc/)
 
 ---
 

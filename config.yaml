@@ -30,36 +30,46 @@ markup:
       unsafe: true
 menu:
   main:
-    - name: "About"
+    - name: "Now"
       weight: 10
+      url: "/now/"
+    - name: "About"
+      weight: 11
       url: "/about/"
-    # - name: "Now"
-    #   weight: 11
-    #   url: "/now/"
     # - name: "Uses"
     #   weight: 12
     #   url: "/uses/"
     # - name: "Blog"
     #   weight: 20
     #   url: "/tags/blog"
-    # - name: "Open-Source"
+    # - name: "Open Source"
     #   weight: 30
-    #   url: "/projects/"
+    #   url: "/open_source/"
     - name: "Talks"
       weight: 40
       url: "/categories/talks"
     # - name: "Stats"
     #   weight: 50
     #   url: "/stats/"
-    - name: "Archives"
-      weight: 60
-      url: "/archives/"
-    - name: "Search"
-      weight: 70
-      url: "/search/"
+    # - name: "Newsletter"
+    #   weight: 70
+    #   url: "/newsletter/"
     - name: "Notes"
       weight: 80
       url: "/notes/"
+    # - name: "Sponsorship"
+    #   weight: 90
+    #   url: "/sponsorship/"
+    - name: "Misc"
+      weight: 100
+      url: "/misc/"
+    # - name: "Archives"
+    #   weight: 101
+    #   url: "/archives/"
+    - name: "Search"
+      weight: 102
+      url: "/search/"
+
 
 taxonomies:
   category: "categories"
