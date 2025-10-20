@@ -3,6 +3,7 @@
 ## Content Types and Structure
 
 ### Technical Findings
+
 ```yaml
 ---
 title: "How I Accidentally DDoS'd My Own Service 🤦‍♂️"
@@ -22,6 +23,7 @@ toc: true
 - End with lessons learned (and maybe self-deprecating humor)
 
 ### Tutorials
+
 ```yaml
 ---
 title: "Surviving Kubernetes: A Guide for the Perpetually Confused 🎯"
@@ -42,6 +44,7 @@ difficulty: "beginner|intermediate|advanced"
 - Add "War Story" sidebars with real-world examples
 
 ### Engineering Ramblings
+
 ```yaml
 ---
 title: "Why Do We Keep Reinventing the Wheel? 🎡"
@@ -62,6 +65,7 @@ description: "Musings on our collective inability to learn from history"
 ## Writing Style Guide
 
 ### Tone and Voice
+
 - Be technically accurate but conversationally casual
 - Use analogies that make complex topics relatable
 - Include occasional pop culture references
@@ -69,12 +73,14 @@ description: "Musings on our collective inability to learn from history"
 - Share personal failures/mistakes with humor
 
 ### Structure Elements
+
 - Use subheadings as setup for jokes
 - Include "TL;DR" sections with a twist
 - Add "Plot Twist" or "Reality Check" boxes
 - Use footnotes for extra snarky comments
 
 ### Code Examples
+
 ```go
 // What you think the code does
 func perfectlyGoodCode() {
@@ -91,6 +97,7 @@ func realityCheck() error {
 ## Quick Start Templates
 
 ### "I Found a Bug" Template
+
 ```markdown
 # The Day I Learned That [Technology] Hates Me
 
@@ -113,6 +120,7 @@ func realityCheck() error {
 ```
 
 ### "How-To Guide" Template
+
 ```markdown
 # A Somewhat Reliable Guide to [Technology]
 
@@ -133,6 +141,7 @@ func realityCheck() error {
 ```
 
 ## Quality Checklist
+
 - [ ] Technical accuracy maintained despite humor
 - [ ] Code examples are actually runnable
 - [ ] Analogies make sense and add value
@@ -145,6 +154,7 @@ func realityCheck() error {
 - [ ] Proofread while caffeinated
 
 ## Writing Process
+
 1. Start with a brain dump (don't edit yet!)
 2. Organize into sections with funny headings
 3. Add code examples and technical details

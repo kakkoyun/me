@@ -5,23 +5,26 @@
 When creating or modifying content for this Hugo website, follow these guidelines:
 
 ### Directory Structure
+
 ```
 content/
 ├── posts/          # Blog posts (technical findings, tutorials, ramblings)
 ├── about.md        # About page
 ├── talks.md        # Talks and presentations
-├── projects.md     # Project showcase
-├── stats.md        # Site statistics
-├── cv.md          # Curriculum vitae
-└── keybase.txt    # Keybase verification
+├── open_source.md  # Open source projects
+├── now.md          # Now page
+├── uses.md         # Uses page
+└── keybase.txt     # Keybase verification
 ```
 
 ### File Naming
+
 - Blog posts: `YYYY-MM-DD-title.md` (e.g., `2024-03-21-kubernetes-adventures.md`)
 - Static pages: `page-name.md` (e.g., `about.md`, `talks.md`)
 - Use kebab-case for all filenames
 
 ### Front Matter Template
+
 ```yaml
 ---
 title: "Your Witty Title Here"
@@ -38,6 +41,7 @@ toc: true  # For longer technical posts
 ## Content Guidelines
 
 ### Markdown Standards
+
 - Headers: Use ATX-style (`#` for H1, `##` for H2)
 - Links: Use reference-style for better readability
 - Images: Always include alt text and captions
@@ -45,6 +49,7 @@ toc: true  # For longer technical posts
 - Emojis: Use strategically to add personality
 
 ### Hugo-Specific
+
 - Use page bundles for posts with multiple resources
 - Implement shortcodes appropriately:
   - `{{< figure >}}` for images
@@ -54,6 +59,7 @@ toc: true  # For longer technical posts
   - `{{< gist >}}` for GitHub gists
 
 ### SEO & Performance
+
 - Write engaging meta descriptions
 - Use descriptive URLs and titles
 - Maintain proper heading hierarchy
@@ -61,6 +67,7 @@ toc: true  # For longer technical posts
 - Optimize images before upload
 
 ### Quality Checklist
+
 - [ ] Engaging title that hints at content
 - [ ] Front matter complete and valid
 - [ ] Grammar and spelling checked
@@ -74,6 +81,7 @@ toc: true  # For longer technical posts
 ## Example Usage
 
 ### Blog Post Template
+
 ```markdown
 ---
 title: "That Time I Broke Production (And Lived to Tell About It) 🔥"
@@ -110,7 +118,6 @@ func whatCouldGoWrong() {
 
 [How I fixed it, and what I learned]
 
-[reference-link-id]: https://example.com
 ```
 
 ### Image Implementation
@@ -123,6 +130,7 @@ func whatCouldGoWrong() {
 ```
 
 ### Code Block Example
+
 ```markdown
 {{< highlight go "linenos=table,hl_lines=8 15-17" >}}
 // The code that actually worked

@@ -1,7 +1,5 @@
 ---
 title: Talks
-date: 2020-03-01T01:57:45.000+01:00
-draft: true
 comments: false
 ---
 
@@ -96,7 +94,7 @@ Attendees will learn how to continuously profile their code, guide themselves in
 
 ### [Parca - Profiling in the Cloud-Native Era](https://youtu.be/ficc6_6RYQk)
 
-For years Google has consistently been able to cut down multiple percentage points in their fleet-wide resource usage every quarter, using techniques described in their “Google-Wide Profiling” paper. Ad-hoc profiling has long been part of the developer’s toolbox to analyze CPU and memory usage of a running process, however, through continuous profiling, the systematic collection of profiles, entirely new workflows suddenly become possible. Matthias and Kemal will start this talk with an introduction to profiling with Go and demonstrate via Conprof - an open-source continuous profiling project - how continuous profiling allows for an unprecedented fleet-wide understanding of code at runtime. Attendees will learn how to continuously profile Go code to help guide building robust, reliable, and performant software and reduce cloud spend systematically.
+For years Google has consistently been able to cut down multiple percentage points in their fleet-wide resource usage every quarter, using techniques described in their “Google-Wide Profiling” paper. Ad-hoc profiling has long been part of the developer’s toolbox to analyze the CPU and memory usage of a running process, however, through continuous profiling, the systematic collection of profiles, entirely new workflows suddenly become possible. Matthias and Kemal will start this talk with an introduction to profiling with Go and demonstrate via Conprof - an open-source continuous profiling project - how continuous profiling allows for an unprecedented fleet-wide understanding of code at runtime. Attendees will learn how to continuously profile Go code to help guide building robust, reliable, and performant software and reduce cloud spend systematically.
 
 **Slides**
 
@@ -118,7 +116,7 @@ Thanos is an open-source, CNCF’s Incubated project that horizontally scales Pr
 **Events**
 
 * [KubeConNA 2020](https://kccncna20.sched.com/event/ekHk/absorbing-thanos-infinite-powers-for-multi-cluster-telemetry-bartlomiej-plotka-kemal-akkoyun-red-hat-frederic-branczyk-independent)
- 	* [Recording](https://www.youtube.com/watch?v=6Nx2BFyr7qQ)
+  	* [Recording](https://www.youtube.com/watch?v=6Nx2BFyr7qQ)
 
 ## 2020
 
@@ -176,3 +174,5 @@ During this talk, Kemal will first introduce the tools that can be embedded in t
 
 * [GopherCon Turkey 2020](https://gophercon.ist/en)
   * [Recording](https://www.youtube.com/watch?v=xkLyM1Gnaus)
+
+

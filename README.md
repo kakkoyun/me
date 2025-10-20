@@ -101,6 +101,7 @@ make clean && make serve
 ```shell
 make update-version
 ```
+
 This updates `.hugo-version` and synchronizes `netlify.toml`.
 
 ## What open source tools I have used to build this?
