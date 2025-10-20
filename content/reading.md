@@ -5,7 +5,7 @@ tocOpen: false
 showToc: false
 ---
 
-Books I'm currently reading and have read. For a more comprehensive list, check my [Goodreads profile](goodreads.com/kakkoyun).
+Books I'm currently reading and have read. For a more comprehensive list, check my [Goodreads profile](https://www.goodreads.com/kakkoyun).
 
 ## Currently Reading
 
@@ -29,6 +29,6 @@ I tend to gravitate toward:
 - Philosophy and human behavior
 - Distributed systems and databases
 
-I track everything on [Goodreads](goodreads.com/kakkoyun) and occasionally share notes on interesting reads in the [Notes](/notes/) section of this site.
+I track everything on [Goodreads](https://www.goodreads.com/kakkoyun) and occasionally share notes on interesting reads in the [Notes](/notes/) section of this site.
 
 If you have recommendations, especially in systems engineering or sci-fi, [reach out](/misc/)!
