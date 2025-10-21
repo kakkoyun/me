@@ -1,7 +1,11 @@
 ---
 title: "Stats"
-date: 2020-02-29T21:59:27+01:00
+comments: false
+tocOpen: false
+showToc: false
 disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
 
 It is an occupatioanl hazard (working on observability) to know how many hours do you spend while doing anything. In this case it is programming.

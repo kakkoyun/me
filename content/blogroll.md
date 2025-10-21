@@ -1,8 +1,12 @@
 ---
 title: Blogroll
+date: 2022-10-21T21:45:25.000+01:00
 comments: false
 tocOpen: false
 showToc: false
+disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
 
 If you like some of my blog posts, I'd recommend reading some of the following blogs, which I read regularly.

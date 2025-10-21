@@ -1,8 +1,12 @@
 ---
 title: Sponsorship
+date: 2022-10-21T21:45:25.000+01:00
 comments: false
 tocOpen: false
 showToc: false
+disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
 
 I’m working toward spending more time building open‑source tooling for observability, instrumentation, and performance engineering.

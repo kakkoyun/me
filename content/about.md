@@ -1,37 +1,34 @@
 ---
 title: About
-date: 2020-02-29T21:45:25.000+01:00
+date: 2022-10-21T21:45:25.000+01:00
 showToc: false
 showTitle: false
 comments: false
 disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
 
-## Me in 10 minutes
-
-I'm a software infrastructure engineer obsessed with understanding how systems behave in production. My work centers on observability, instrumentation, profiling, and performance engineering—helping engineers build and operate reliable, fast software.
+I'm a software infrastructure engineer obsessed with understanding how systems behave in production.
+My work centers on observability, instrumentation, profiling, and performance engineering—helping engineers build and operate reliable, fast software.
 
 ### Professional Journey
 
-I started tinkering with computers early, drawn to the idea of making machines do useful things. Over time, that curiosity evolved into a career focused on systems programming, low-level tooling, and observability. I've worked across distributed systems, time-series databases, continuous profiling, and eBPF-based instrumentation.
+I started tinkering with computers early, drawn to the idea of making machines do useful things. Over time, that curiosity evolved into a career focused on systems programming, low-level tooling, and observability.
+I've worked across distributed systems, time-series databases, continuous profiling, and eBPF-based instrumentation.
 
 Before Datadog, I helped build Parca (continuous profiling) and Thanos (Prometheus at scale). I've been a maintainer and contributor across the CNCF ecosystem—Prometheus, Prometheus Operator, and various observability projects. I've mentored through CNCF LFX, Google Summer of Code, CommunityBridge, and GoBridge, helping others find their way into open source.
 
 I've also had the privilege of angel investing in two promising companies, supporting innovation in the tech ecosystem.
 
-Site Reliability Engineer. Observability, Monitoring, and Performance Engineering. Mentor. Speaker. Blogger. Angel Investor.
-Introverted human (not a Cylon, but who knows?). Open Source Software Developer. Gopher. CNCF Ecosystem Contributor.
-Formerly a maintainer of Thanos, Prometheus, and Prometheus Operator.
-
-### What I Do
+#### What I Do recently
 
 I work at **Datadog - APM**, building **Go for Go**—instrumenting and optimizing performance in Go applications at scale. My focus is on **instrumentation, profiling, performance monitoring, and observability tooling** that helps engineers understand and optimize their systems.
 
 In **2024**, I explored **Python tooling, ML inference infrastructure, MLOps, and container runtimes**, designing systems to optimize ML workflows. While this broadened my understanding of ML infrastructure, I realized that **my passion remains in observability**. Now, I’m doubling down on **instrumentation, performance monitoring, and profiling**, ensuring that engineers have the tools they need to build and operate high-performance systems.
 
-Before that, I was **the monitoring and profiling guy**—building Linux observability tools for software and reliability engineers. My work was deeply rooted in **profiling, eBPF, performance engineering, time-series, and columnar databases**.
-
-I also have a keen interest in the **Zig programming language**, which aligns with my systems programming, performance, and simplicity philosophy.
+Before that, I was **the monitoring and profiling guy**—building Linux observability tools for software and reliability engineers.
+My work was deeply rooted in **profiling, eBPF, performance engineering, time-series, and columnar databases**.
 
 ### Beyond Professional Life
 
@@ -45,7 +42,7 @@ As an **angel investor**, I've had the privilege of investing in two promising c
 
 One of my long-term goals is **early retirement**, spending most of my time outdoors—maybe overlanding with a Land Rover, bikepacking through mountains, or camping under the stars. Who knows?
 
-### Home
+#### Home
 
 I currently live in **Berlin, Germany**, with my beloved significant other, **Rüya**, and our one-year-old son, **Atlas Robin**. Our home is often filled with toys and creative projects. Though we recently lost our beloved dog, she lives on in spirit—and through the tattoo on my left forearm.
 

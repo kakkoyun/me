@@ -1,12 +1,13 @@
 ---
 title: Now
-draft: false
+date: 2022-10-21T21:45:25.000+01:00
 comments: false
 tocOpen: false
 showToc: false
+disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
-
-> Last updated: October 20, 2025
 
 What I'm focused on now. Learn more about the Now page idea at <https://sive.rs/now>.
 
@@ -34,4 +35,6 @@ Gravel cycling whenever I can. Dreaming of camping and bikepacking trips—somet
 
 ## Reading & Writing
 
-Reading a mix of systems papers, engineering leadership books, and sci-fi. Check my [reading page](/reading/) for current books. Notes and insights land in the [Notes](/notes/) section when useful.
+Reading a mix of systems papers, engineering leadership books, and sci-fi. Check my [reading page](/reading/) for current books.
+
+Notes and insights land in the **[notes](/notes/)** section when useful.

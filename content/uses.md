@@ -1,11 +1,13 @@
 ---
 title: Uses
+date: 2022-10-21T21:45:25.000+01:00
 comments: false
 tocOpen: false
 showToc: false
+disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
-
-> Last reviewed: October 2025
 
 Updated occasionally; this is what I actually use day-to-day.
 

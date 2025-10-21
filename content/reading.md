@@ -3,6 +3,9 @@ title: Reading
 comments: false
 tocOpen: false
 showToc: false
+disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
 
 Books I'm currently reading and have read. For a more comprehensive list, check my [Goodreads profile](https://www.goodreads.com/kakkoyun).

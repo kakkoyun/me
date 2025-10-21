@@ -1,9 +1,12 @@
 ---
 title: Open Source
-date: 2020-03-01T00:57:53.000+00:00
+date: 2022-10-21T21:45:25.000+01:00
 comments: false
 tocOpen: false
 showToc: false
+disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
 
 This section highlights selected open-source projects I contribute to or helped maintain.

@@ -3,6 +3,9 @@ title: Misc
 comments: false
 tocOpen: false
 showToc: false
+disableShare: true
+showWordCount: false
+showReadingTime: false
 ---
 
 Sometimes I write something that's not a blog post. Or create a page that's not a blog post. You can find that here.
@@ -20,6 +23,10 @@ Support my work on open-source observability, instrumentation, and performance t
 ### [Uses](/uses/)
 
 Hardware, software, and tools I use daily. Updated occasionally.
+
+### [Stats](/stats/)
+
+It is an occupatioanl hazard (working on observability) to know how many hours do you spend while doing anything. In this case it is programming.
 
 ### [Newsletter](/newsletter/)
 
