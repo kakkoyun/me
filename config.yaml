@@ -11,11 +11,27 @@ pagination:
 
 canonifyUrls: true
 
+outputFormats:
+  markdown:
+    name: markdown
+    baseName: index
+    mediaType: text/markdown
+    isPlainText: true
+
 outputs:
   home:
     - HTML
     - RSS
     - JSON
+  page:
+    - HTML
+    - MARKDOWN
+  section:
+    - HTML
+    - MARKDOWN
+  term:
+    - HTML
+    - MARKDOWN
 
 markup:
   highlight:
@@ -70,7 +86,6 @@ menu:
       weight: 102
       url: "/search/"
 
-
 taxonomies:
   category: "categories"
   series: "series"
@@ -81,7 +96,29 @@ params:
   title: "Kemal Akkoyun"
   copyright: "© 2021-2025 Kemal Akkoyun"
   description: "Kemal Akkoyun's personal website"
-  keywords: ["linux", "infrastructure", "database", "reliability", "go", "zig", "c", "rust", "programming", "blog", "developer", "software", "engineering", "monitoring", "observability", "ebpf", "profiling", "high-performance-computing", "HPC", "performance"]
+  keywords:
+    [
+      "linux",
+      "infrastructure",
+      "database",
+      "reliability",
+      "go",
+      "zig",
+      "c",
+      "rust",
+      "programming",
+      "blog",
+      "developer",
+      "software",
+      "engineering",
+      "monitoring",
+      "observability",
+      "ebpf",
+      "profiling",
+      "high-performance-computing",
+      "HPC",
+      "performance",
+    ]
   defaultTheme: "auto"
   disableThemeToggle: true
   disableSpecial1stPost: false

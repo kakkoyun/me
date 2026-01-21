@@ -1,0 +1,41 @@
+# Kemal Akkoyun
+
+> Software Infrastructure Engineer, System Programmer, and Performance Engineer writing about observability, profiling, eBPF, Go, and performance engineering.
+> For every page, you can add `index.md` to the URL to get a markdown version in plain text that you can use as context for calls to LLMs.
+
+You can find [more information about Kemal on this page](/about/index.md).
+
+## About
+
+- [About Kemal](/about/index.md) - Professional background, journey, and expertise
+- [What I'm doing now](/now/index.md) - Current activities and focus areas
+- [Uses](/uses/index.md) - Tools and software in use
+- [Misc](/misc/index.md) - Everything else
+
+## Key Topics
+
+- [Observability](/tags/observability/index.md) - Monitoring, instrumentation, and system visibility
+- [Profiling](/tags/profiling/index.md) - Performance profiling and continuous profiling
+- [eBPF](/tags/ebpf/index.md) - Linux kernel observability and instrumentation
+- [Go](/tags/go/index.md) - Go programming, toolchain, and runtime
+- [Performance](/tags/performance/index.md) - Performance engineering and optimization
+- [Open Source](/tags/open-source/index.md) - Open source contributions and projects
+- [Blog](/tags/blog/index.md) - General blog posts and reflections
+
+## Content Sections
+
+- [Posts](/posts/index.md) - Technical blog posts
+- [Notes](/notes/index.md) - Short-form notes and thoughts
+- [Talks](/categories/talks/index.md) - Conference talks and presentations
+
+## Recent Posts
+
+- [FOSDEM 2025: Blimey, What a Weekend!](/posts/fosdem-2025/index.md)
+- [I left Polar Signals or A new chapter in my professional journey](/posts/i-left-polar-signals/index.md)
+- [Hustle Culture Startup Lessons](/posts/hustle-culture-startup-lessons/index.md)
+- [Vibe Coding with Cursor](/posts/2024-03-21-vibe-coding-with-cursor/index.md)
+- [Profiling Python and Ruby using eBPF](/posts/profiling-python-and-ruby-using-ebpf/index.md)
+- [Profiling Python with eBPF](/posts/profiling-python-with-ebpf/index.md)
+- [Fantastic Symbols and Where to Find Them (Part 2)](/posts/fantastic-symbols-and-where-to-find-them-part-2/index.md)
+- [Fantastic Symbols and Where to Find Them](/posts/fantastic-symbols-and-where-to-find-them/index.md)
+- [Making Drone Builds 10 Times Faster](/posts/making-drone-builds-10-times-faster/index.md)
