@@ -55,7 +55,7 @@ While these tools are valuable, many require code instrumentation or introduce s
 
 Originally designed for network packet filtering, [eBPF](https://ebpf.io/) has evolved into a versatile event-driven system. It enables safe execution of custom programs inside the Linux kernel, using:
 
-- **[Performance Monitoring Units (PMUs)](https://en.wikipedia.org/wiki/Performance_monitoring_unit):** Efficient hardware units that track CPU cycles and other metrics.
+- **Performance Monitoring Units (PMUs):** Efficient hardware units built into CPUs that track performance events like CPU cycles, cache misses, and branch predictions.
 - **[Perf subsystem](https://perf.wiki.kernel.org/index.php/Main_Page):** A Linux facility for hooking into kernel and user-space events, such as CPU activity, memory allocation, or I/O.
 
 By leveraging eBPF with PMUs, profiling becomes faster and more efficient than traditional approaches.

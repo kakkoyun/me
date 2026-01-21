@@ -16,7 +16,7 @@ draft: true
 >
 > _After a considerable amount of break (like that I’ve ever blogged regularly), I’m going to try blogging (again). So stay tuned!_
 
-At the beginning of the last year (2019), I promised myself that I would contribute more to the Free and Open source software world, in any form or shape (like start a blog perhaps). To do that, _and of course, for my mundane needs as well,_ I started working on a small project called [drone-cache](https://github.com/meltwater/drone-cache). While I was working on that project, I also wanted to give a try to my long awaiting hobby-to-be _blogging_. So I managed to write [my first ever blog post](https://kakkoyun.github.io/2019/04/10/making-drone-builds-10-times-faster/), where I told the story of how I built the drone-cache.
+At the beginning of the last year (2019), I promised myself that I would contribute more to the Free and Open source software world, in any form or shape (like start a blog perhaps). To do that, _and of course, for my mundane needs as well,_ I started working on a small project called [drone-cache](https://github.com/meltwater/drone-cache). While I was working on that project, I also wanted to give a try to my long awaiting hobby-to-be _blogging_. So I managed to write [my first ever blog post](/posts/making-drone-builds-10-times-faster/), where I told the story of how I built the drone-cache.
 
 ![](/uploads/i_see_waht_you_did_there.jpg)
 
