@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /search/
+
+Sitemap: {{ "sitemap.xml" | absURL }}
+
+# AI/LLM crawlers - see llms.txt for structured content
+# {{ "llms.txt" | absURL }}
