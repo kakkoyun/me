@@ -57,9 +57,9 @@ menu:
     # - name: "Uses"
     #   weight: 12
     #   url: "/uses/"
-    # - name: "Blog"
-    #   weight: 20
-    #   url: "/tags/blog"
+    - name: "Blog"
+      weight: 20
+      url: "/posts/"
     # - name: "Open Source"
     #   weight: 30
     #   url: "/open_source/"
