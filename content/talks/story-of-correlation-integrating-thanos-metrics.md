@@ -1,13 +1,14 @@
 ---
+title: "talk: Story of Correlation - Integrating Thanos Metrics with Observability Signals"
+description: "How to correlate Thanos metrics with logs, traces, and continuous profiling for enhanced observability, demonstrating end-to-end integration patterns across multiple backends."
+date: "2022-06-15T00:00:00Z"
+publishDate: "2022-06-15T00:00:00Z"
 categories:
   - talks
 tags:
   - thanos
   - observability
   - kubernetes
-date: "2022-06-15T00:00:00Z"
-publishDate: "2022-06-15T00:00:00Z"
-title: "talk: Story of Correlation - Integrating Thanos Metrics with Observability Signals"
 cover:
   image: https://img.youtube.com/vi/rWFb01GW0mQ/maxresdefault.jpg
   alt: Story of Correlation - Integrating Thanos Metrics with Observability Signals

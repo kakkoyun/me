@@ -1,5 +1,6 @@
 ---
 title: Fantastic Symbols and Where to Find Them - Part 2
+description: "Part 2 explores symbolization in interpreted and JIT-compiled languages including Python, Ruby, JavaScript, JVM, and .NET, covering how each runtime handles symbol information differently."
 date: 2022-01-27T00:00:00Z
 publishDate: 2022-01-27T00:00:00Z
 categories:

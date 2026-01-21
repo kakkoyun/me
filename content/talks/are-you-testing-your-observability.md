@@ -1,4 +1,8 @@
 ---
+title: "talk: Are you testing your observability?"
+description: "Best practices and patterns for instrumenting Go applications with metrics, including how to use unit tests to verify the correctness of your observability signals and avoid common pitfalls."
+date: "2020-02-15T00:00:00Z"
+publishDate: "2020-02-15T00:00:00Z"
 categories:
   - talks
 tags:
@@ -6,9 +10,6 @@ tags:
   - observability
   - go
   - testing
-date: "2020-02-15T00:00:00Z"
-publishDate: "2020-02-15T00:00:00Z"
-title: "talk: Are you testing your observability?"
 cover:
   image: https://img.youtube.com/vi/LU6D5cNeHks/maxresdefault.jpg
   alt: Are you testing your observability?

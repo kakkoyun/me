@@ -1,4 +1,6 @@
 ---
+title: Making Drone Builds 10 Times Faster!
+description: "How we built and open-sourced drone-cache, a Drone CI plugin for caching dependencies and interim files between builds to dramatically reduce build times."
 canonicalUrl: https://underthehood.meltwater.com/blog/2019/04/10/making-drone-builds-10-times-faster/
 categories:
   - blogmentation
@@ -13,7 +15,6 @@ tags:
 date: 2019-04-10T00:00:00Z
 image: https://raw.githubusercontent.com/meltwater/drone-cache/master/images/drone_gopher.png
 publishDate: 2019-04-10T00:00:00Z
-title: Making Drone Builds 10 Times Faster!
 ---
 
 We open sourced [drone-cache][drone-cache], a plugin for the popular Continuous Delivery platform [Drone][drone]. It allows you to cache dependencies and interim files between builds to reduce your build times. This post explains why we are using Drone, why we needed a cache plugin, and what I learned while trying to release drone-cache as open source software.

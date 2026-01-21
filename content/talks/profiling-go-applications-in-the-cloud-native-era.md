@@ -1,4 +1,8 @@
 ---
+title: "talk: Profiling Go Applications in the Cloud-Native Era"
+description: "Introduction to continuous profiling for Go applications using open-source tools, demonstrating how systematic profile collection enables fleet-wide code understanding and cloud cost reduction."
+date: "2021-04-20T00:00:00Z"
+publishDate: "2021-04-20T00:00:00Z"
 categories:
   - talks
 tags:
@@ -6,9 +10,6 @@ tags:
   - go
   - profiling
   - observability
-date: "2021-04-20T00:00:00Z"
-publishDate: "2021-04-20T00:00:00Z"
-title: "talk: Profiling Go Applications in the Cloud-Native Era"
 cover:
   image: https://img.youtube.com/vi/-miC_jnQ_Yk/maxresdefault.jpg
   alt: Profiling Go Applications in the Cloud-Native Era

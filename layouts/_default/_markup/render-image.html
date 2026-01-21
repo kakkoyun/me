@@ -1,0 +1,44 @@
+{{- $img := .Page.Resources.GetMatch .Destination -}}
+{{- $alt := .Text -}}
+{{- $title := .Title -}}
+
+{{- if $img -}}
+  {{- /* Image is a page resource */ -}}
+  {{- $formats := slice "webp" -}}
+  {{- $sizes := slice "480" "768" "1024" "1366" "1920" -}}
+
+  {{- /* Generate responsive images */ -}}
+  {{- $srcset := slice -}}
+  {{- range $sizes -}}
+    {{- $size := printf "%sx" . -}}
+    {{- $resized := $img.Resize $size -}}
+    {{- $srcset = $srcset | append (printf "%s %sw" $resized.RelPermalink .) -}}
+  {{- end -}}
+
+  {{- /* Generate WebP srcset */ -}}
+  {{- $srcsetWebP := slice -}}
+  {{- range $sizes -}}
+    {{- $size := printf "%sx webp" . -}}
+    {{- $resized := $img.Resize $size -}}
+    {{- $srcsetWebP = $srcsetWebP | append (printf "%s %sw" $resized.RelPermalink .) -}}
+  {{- end -}}
+
+  <picture>
+    <source type="image/webp" srcset="{{ delimit $srcsetWebP ", " }}">
+    <source srcset="{{ delimit $srcset ", " }}">
+    <img src="{{ $img.RelPermalink }}"
+      alt="{{ $alt }}"
+      {{- with $title }} title="{{ . }}"{{ end }}
+      loading="lazy"
+      decoding="async"
+      width="{{ $img.Width }}"
+      height="{{ $img.Height }}">
+  </picture>
+{{- else -}}
+  {{- /* External image or not a page resource */ -}}
+  <img src="{{ .Destination | safeURL }}"
+    alt="{{ $alt }}"
+    {{- with $title }} title="{{ . }}"{{ end }}
+    loading="lazy"
+    decoding="async">
+{{- end -}}

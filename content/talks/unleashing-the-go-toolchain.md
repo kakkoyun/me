@@ -1,13 +1,14 @@
 ---
+title: "talk: Unleashing the Go Toolchain"
+description: "Discover how the -toolexec flag unlocks programmable build pipelines in Go, enabling custom analysis, code generation, and instrumentation at compile time for organization-wide practices."
+date: "2025-08-14T00:00:00Z"
+publishDate: "2025-08-15T00:00:00Z"
 categories:
   - talks
 tags:
   - talks
   - go
   - toolchain
-date: "2025-08-14T00:00:00Z"
-publishDate: "2025-08-15T00:00:00Z"
-title: "talk: Unleashing the Go Toolchain"
 cover:
   image: https://img.youtube.com/vi/8Rw-fVEjihw/maxresdefault.jpg
   alt: Unleashing the Go Toolchain

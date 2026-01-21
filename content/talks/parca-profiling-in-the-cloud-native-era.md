@@ -1,4 +1,8 @@
 ---
+title: "talk: Parca - Profiling in the Cloud-Native Era"
+description: "Introduction to continuous profiling with Parca, demonstrating how systematic profile collection enables fleet-wide code understanding at runtime and systematic cloud cost reduction."
+date: "2021-09-25T00:00:00Z"
+publishDate: "2021-09-25T00:00:00Z"
 categories:
   - talks
 tags:
@@ -6,9 +10,6 @@ tags:
   - Parca
   - profiling
   - observability
-date: "2021-09-25T00:00:00Z"
-publishDate: "2021-09-25T00:00:00Z"
-title: "talk: Parca - Profiling in the Cloud-Native Era"
 cover:
   image: https://img.youtube.com/vi/ficc6_6RYQk/maxresdefault.jpg
   alt: Parca - Profiling in the Cloud-Native Era

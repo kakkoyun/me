@@ -1,14 +1,14 @@
 ---
+title: Where were we?
+description: "A brief update on my journey from writing my first blog post about drone-cache to joining Red Hat's OpenShift Observability team and overcoming my fear of public speaking."
+date: 2020-03-03T23:00:00Z
+publishDate: 2020-03-03T23:00:00Z
+slug: where-were-we
 categories:
   - journal
 tags:
   - blog
-date: 2020-03-03T23:00:00Z
-description:
 externalLink: ""
-slug: where-were-we
-title: Where were we?
-publishDate: 2020-03-03T23:00:00Z
 draft: true
 ---
 

@@ -1,4 +1,8 @@
 ---
+title: "talk: Best Practices and Pitfalls of Instrumenting Your Cloud-Native Application"
+description: "Patterns and best practices for instrumenting cloud-native services with Prometheus metrics, covering common pitfalls, correlation with other observability signals, and client_golang improvements."
+date: "2022-11-08T00:00:00Z"
+publishDate: "2022-11-08T00:00:00Z"
 categories:
   - talks
 tags:
@@ -7,9 +11,6 @@ tags:
   - instrumentation
   - cloud-native
   - Prometheus
-date: "2022-11-08T00:00:00Z"
-publishDate: "2022-11-08T00:00:00Z"
-title: "talk: Best Practices and Pitfalls of Instrumenting Your Cloud-Native Application"
 cover:
   image: https://img.youtube.com/vi/B6Ds2myOIRc/maxresdefault.jpg
   alt: Best Practices and Pitfalls of Instrumenting Your Cloud-Native Application

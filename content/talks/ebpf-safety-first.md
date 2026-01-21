@@ -1,4 +1,8 @@
 ---
+title: "talk: eBPF? Safety First!"
+description: "Building safe eBPF programs by combining Rust in the data plane for compile-time safety and Go in the control plane for rapid development, targeting Kubernetes workloads."
+date: "2022-05-10T00:00:00Z"
+publishDate: "2022-05-10T00:00:00Z"
 categories:
   - talks
 tags:
@@ -6,9 +10,6 @@ tags:
   - eBPF
   - rust
   - go
-date: "2022-05-10T00:00:00Z"
-publishDate: "2022-05-10T00:00:00Z"
-title: "talk: eBPF? Safety First!"
 cover:
   image: https://img.youtube.com/vi/oWHQrlE2-G8/maxresdefault.jpg
   alt: eBPF? Safety First!

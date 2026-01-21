@@ -1,5 +1,6 @@
 ---
 title: "Ice and Fire: How to read icicle and flame graphs"
+description: "A comprehensive guide to reading and understanding icicle and flame graphs for performance profiling and analysis. Learn the differences, when to use each, and how to interpret them effectively."
 publishDate: 2023-03-28T00:00:00Z
 date: 2023-03-28T00:00:00Z
 cover:

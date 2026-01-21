@@ -1,5 +1,6 @@
 ---
 title: Fantastic Symbols and Where to Find Them - Part 1
+description: "Deep dive into symbolization: how debuggers and profilers translate memory addresses to human-readable function names using ELF, DWARF, and symbol tables in compiled languages."
 date: 2022-01-13T00:00:00Z
 publishDate: 2022-01-27T00:00:00Z
 categories:

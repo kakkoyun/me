@@ -1,5 +1,6 @@
 ---
 title: "FOSDEM 2025: Blimey, What a Weekend!"
+description: "FOSDEM 2025 highlights from the Go and Observability devrooms, featuring talks on Swiss Maps, GC-friendly code, and Prometheus 3. Plus the inevitable hallway track conversations and travel chaos."
 date: 2025-02-04T00:00:00Z
 publishDate: 2025-02-04T00:00:00Z
 categories:

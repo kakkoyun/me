@@ -2,7 +2,16 @@ User-agent: *
 Allow: /
 Disallow: /search/
 
+# AI/LLM crawlers - explicitly welcomed
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: Google-Extended
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Claude-Web
+Allow: /
+
 Sitemap: {{ "sitemap.xml" | absURL }}
 
-# AI/LLM crawlers - see llms.txt for structured content
+# LLM-friendly content index
 # {{ "llms.txt" | absURL }}

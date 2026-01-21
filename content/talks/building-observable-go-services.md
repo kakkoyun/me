@@ -1,4 +1,8 @@
 ---
+title: "talk: Building Observable Go Services"
+description: "Comprehensive guide to the four pillars of observability (logs, metrics, traces, profiling) in Go services, using CNCF tools like Prometheus, Loki, OpenTelemetry, Jaeger, and Conprof."
+date: "2020-12-01T00:00:00Z"
+publishDate: "2020-12-01T00:00:00Z"
 categories:
   - talks
 tags:
@@ -6,9 +10,6 @@ tags:
   - go
   - observability
   - cloud-native
-date: "2020-12-01T00:00:00Z"
-publishDate: "2020-12-01T00:00:00Z"
-title: "talk: Building Observable Go Services"
 cover:
   image: https://img.youtube.com/vi/xkLyM1Gnaus/maxresdefault.jpg
   alt: Building Observable Go Services

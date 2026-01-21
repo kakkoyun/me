@@ -1,4 +1,8 @@
 ---
+title: "talk: Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry"
+description: "Introduction to Thanos, the CNCF project that horizontally scales Prometheus for global-scale highly available monitoring across multiple clusters and clouds with low maintenance cost."
+date: 2020-11-10T00:00:00Z
+publishDate: 2020-11-10T00:00:00Z
 categories:
   - talks
 tags:
@@ -6,9 +10,6 @@ tags:
   - thanos
   - kubernetes
   - observability
-date: 2020-11-10T00:00:00Z
-publishDate: 2020-11-10T00:00:00Z
-title: "talk: Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry"
 cover:
   image: https://img.youtube.com/vi/6Nx2BFyr7qQ/maxresdefault.jpg
   alt: Absorbing Thanos Infinite Powers for Multi-Cluster Telemetry

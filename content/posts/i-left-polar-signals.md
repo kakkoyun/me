@@ -1,4 +1,8 @@
 ---
+title: I left Polar Signals or A new chapter in my professional journey
+description: "Reflections on leaving Polar Signals as the second employee and joining Datadog to continue working on observability, profiling, and performance engineering in a new environment."
+date: 2024-03-18T00:00:00Z
+publishDate: 2024-03-18T00:00:00Z
 categories:
   - reflection
 tags:
@@ -8,9 +12,6 @@ tags:
   - beginnings
   - reflection
   - blog
-date: 2024-03-18T00:00:00Z
-publishDate: 2024-03-18T00:00:00Z
-title: I left Polar Signals or A new chapter in my professional journey
 ---
 
 A new chapter in my professional journey

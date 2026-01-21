@@ -98,6 +98,11 @@ params:
   title: "Kemal Akkoyun"
   copyright: "© 2021-2025 Kemal Akkoyun"
   description: "Kemal Akkoyun's personal website"
+  author:
+    name: "Kemal Akkoyun"
+    email: "kakkoyun@gmail.com"
+  schema:
+    publisherType: "Person"
   keywords:
     [
       "linux",
@@ -140,7 +145,7 @@ params:
   showRecentNotes: true
   showShareButtons: true
   showReadingTime: true
-  showBreadCrumbs: false
+  showBreadCrumbs: true
   showCodeCopyButtons: true
   showWordCount: true
   showFullTextinRSS: true

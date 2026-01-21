@@ -1,12 +1,13 @@
 ---
+title: "talk: The Zen of Prometheus"
+description: "Best practices, patterns, and common pitfalls for instrumenting cloud-native applications with Prometheus metrics, covering instrumentation, alerting, and monitoring strategies."
+date: "2020-09-20T00:00:00Z"
+publishDate: "2020-09-20T00:00:00Z"
 categories:
   - talks
 tags:
   - prometheus
   - observability
-date: "2020-09-20T00:00:00Z"
-publishDate: "2020-09-20T00:00:00Z"
-title: "talk: The Zen of Prometheus"
 cover:
   image: https://img.youtube.com/vi/Nqp4fjw_omU/hqdefault.jpg
   alt: The Zen of Prometheus
