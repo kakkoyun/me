@@ -12,16 +12,18 @@ tags:
   - vpn
   - tooling
   - blog
+showToc: true
+tocOpen: false
 ---
 
-If you work at a company that runs its own Go module proxy and you connect through a VPN, you have probably seen this:
+If you work at a company that runs its own Go module proxy and you connect through a VPN, you've probably seen this:
 
 ```
 Get "https://binaries.example.com/google.golang.org/grpc/@v/v1.77.0.mod":
   dial tcp 172.27.5.36:443: i/o timeout
 ```
 
-The module has nothing to do with your company. It is a public dependency. Yet Go refuses to fetch it from the public proxy and just dies with a timeout. The frustrating part: you know `proxy.golang.org` has the module, and your config lists it as a fallback. So why does it not fall through?
+The module has nothing to do with your company. It's a public dependency. Yet Go refuses to fetch it from the public proxy and just dies with a timeout. The frustrating part: you know `proxy.golang.org` has the module, and your config lists it as a fallback. So why doesn't it fall through?
 
 ## The comma trap
 
@@ -31,9 +33,9 @@ A typical corporate Go setup looks like this:
 export GOPROXY=corp-proxy.internal,https://proxy.golang.org,direct
 ```
 
-The comma separator between proxies looks harmless, but it controls exactly when Go tries the next proxy in the chain. With commas, Go only falls through on **HTTP 404 or 410** — meaning the proxy responded and said "I do not have this module." Any other error, including TCP timeouts, DNS failures, and 5xx server errors, is treated as a **hard failure**. Go stops and reports the error.
+The comma separator between proxies looks harmless, but it controls exactly when Go tries the next proxy in the chain. With commas, Go only falls through on **HTTP 404 or 410** — meaning the proxy responded and said "I don't have this module." Any other error, including TCP timeouts, DNS failures, and 5xx server errors, is treated as a **hard failure**. Go stops and reports the error.
 
-When your VPN is disconnected, the corporate proxy is unreachable. That is a TCP timeout, not a 404. Go never tries `proxy.golang.org`.
+When your VPN is disconnected, the corporate proxy is unreachable. That's a TCP timeout, not a 404. Go never tries `proxy.golang.org`.
 
 ## The pipe fix
 
@@ -62,7 +64,7 @@ With this setup, private modules never touch any proxy. Public modules try the c
 
 ## The full picture
 
-Here is how Go resolves a module with this configuration:
+Here's how Go resolves a module with this configuration:
 
 ```
 go get google.golang.org/grpc@v1.77.0
@@ -87,7 +89,7 @@ go get github.com/your-company/secret-service@latest
 
 ## One-line fix
 
-If you are in this situation, the fix is a single character change in your shell config:
+If you're in this situation, the fix is a single character change in your shell config:
 
 ```diff
 - export GOPROXY=corp-proxy.internal,https://proxy.golang.org,direct
