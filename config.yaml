@@ -145,7 +145,7 @@ params:
   showRecentNotes: true
   showShareButtons: true
   showReadingTime: true
-  showBreadCrumbs: true
+  showBreadCrumbs: false
   showCodeCopyButtons: true
   showWordCount: true
   showFullTextinRSS: true
