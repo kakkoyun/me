@@ -117,24 +117,53 @@ The tradeoff: a misconfigured vault path also fails silently. Test it once after
 
 The eager approach above runs `op read` at shell init, which means every new terminal triggers a 1Password biometric prompt. If you open terminals frequently, this gets old fast.
 
-The fix is lazy loading — defer the `op read` calls until you actually run a command. In zsh, the `preexec` hook fires right before a command executes, which is the perfect place:
+The fix is lazy loading with command-specific triggers. In zsh, the `preexec` hook fires right before a command executes and receives the command string — perfect for deciding *which* secrets to load *when*:
 
 ```bash
-# Lazy-load 1Password secrets: prompted on first command, not at shell startup
-_load_op_secrets() {
-  export OPENAI_API_KEY=$(op read "op://Private/OpenAI API Key/credential" --no-newline 2>/dev/null)
-  export GEMINI_API_KEY=$(op read "op://Private/Gemini API Key/credential" --no-newline 2>/dev/null)
-  # Only self-remove if secrets were actually loaded (user didn't cancel biometric)
-  [[ -n "$OPENAI_API_KEY" ]] && preexec_functions=(${preexec_functions:#_load_op_secrets})
+# Map: env var → 1Password secret reference
+typeset -A _op_refs=(
+  OPENAI_API_KEY  "op://Private/OpenAI API Key/credential"
+  GEMINI_API_KEY  "op://Private/Gemini API Key/credential"
+)
+
+# Map: command → which keys it needs
+typeset -A _op_cmd_keys=(
+  codex   "OPENAI_API_KEY"
+  aider   "OPENAI_API_KEY GEMINI_API_KEY"
+  gemini  "GEMINI_API_KEY"
+)
+
+_maybe_load_op_secrets() {
+  local cmd="${1%% *}"     # extract first word
+  cmd="${cmd##*/}"         # strip path prefix
+  local keys="${_op_cmd_keys[$cmd]}"
+  [[ -z "$keys" ]] && return
+  for key in ${=keys}; do
+    [[ -n "${(P)key}" ]] && continue   # already loaded
+    export "$key=$(op read "${_op_refs[$key]}" --no-newline 2>/dev/null)"
+  done
 }
-preexec_functions+=(_load_op_secrets)
+preexec_functions+=(_maybe_load_op_secrets)
+
+# Manual fallback: load everything
+load-secrets() {
+  for key ref in "${(@kv)_op_refs}"; do
+    export "$key=$(op read "$ref" --no-newline 2>/dev/null)"
+  done
+}
 ```
 
-Your terminal opens instantly with no prompts. The first time you run any command, 1Password asks for biometric once, and the secrets are available for the rest of the session. If you cancel the biometric, it'll retry on the next command.
+This gives you three properties:
 
-Note: zsh can't intercept *which* env vars a subprocess reads — there's no "on access" hook for environment variables. The `preexec` approach loads all secrets before the first command, not per-variable. For truly per-command injection, see the options below.
+- **No startup cost** — terminal opens instantly, no biometric prompt
+- **Least privilege** — `codex` only loads `OPENAI_API_KEY`, not every secret you have
+- **Load once** — each key is fetched at most once per session (the `${(P)key}` guard skips keys that are already set)
 
-If you want more granularity:
+Adding a new tool is one line in `_op_cmd_keys`. Adding a new key is one line in `_op_refs`.
+
+If you have multiple 1Password accounts (personal + work), add `--account=my.1password.com` to the `op read` calls to avoid vault name collisions.
+
+For even more granularity:
 
 1. **`op run`** — inject secrets into a specific command rather than the global environment:
 
@@ -157,7 +186,7 @@ export ANTHROPIC_API_KEY={{ op://Private/Anthropic API Key/credential }}
 eval "$(op inject --in-file ~/.env.op)"
 ```
 
-This is substantially faster than N individual `op read` calls — the CLI resolves all references in a single authentication round-trip. Combine with the `preexec` pattern above for lazy + batch loading.
+This is substantially faster than N individual `op read` calls — the CLI resolves all references in a single authentication round-trip.
 
 3. **Scoped injection** — skip the global environment entirely and inject a key for exactly one command's lifetime:
 
@@ -197,13 +226,25 @@ We should normalize showing the secure version in documentation. Until that happ
 # Before: plain text keys in .zshrc
 export OPENAI_API_KEY=sk-proj-...
 
-# After: lazy-loaded from 1Password on first command
-_load_op_secrets() {
-  export OPENAI_API_KEY=$(op read "op://Private/OpenAI API Key/credential" --no-newline 2>/dev/null)
-  export GEMINI_API_KEY=$(op read "op://Private/Gemini API Key/credential" --no-newline 2>/dev/null)
-  [[ -n "$OPENAI_API_KEY" ]] && preexec_functions=(${preexec_functions:#_load_op_secrets})
+# After: lazy-loaded from 1Password, per-command per-key
+typeset -A _op_refs=(
+  OPENAI_API_KEY  "op://Private/OpenAI API Key/credential"
+  GEMINI_API_KEY  "op://Private/Gemini API Key/credential"
+)
+typeset -A _op_cmd_keys=(
+  codex  "OPENAI_API_KEY"
+  aider  "OPENAI_API_KEY GEMINI_API_KEY"
+)
+_maybe_load_op_secrets() {
+  local cmd="${1%% *}"; cmd="${cmd##*/}"
+  local keys="${_op_cmd_keys[$cmd]}"
+  [[ -z "$keys" ]] && return
+  for key in ${=keys}; do
+    [[ -n "${(P)key}" ]] && continue
+    export "$key=$(op read "${_op_refs[$key]}" --no-newline 2>/dev/null)"
+  done
 }
-preexec_functions+=(_load_op_secrets)
+preexec_functions+=(_maybe_load_op_secrets)
 ```
 
 Install `op`, store your keys, replace the exports, rotate the old keys. Five minutes. Zero excuses.
