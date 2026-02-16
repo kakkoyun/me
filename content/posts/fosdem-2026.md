@@ -57,7 +57,7 @@ We covered the full stack of what it takes to measure reliably. **Environment co
 
 The Performance Devroom had a strong lineup all day. The audience was deeply technical — people who care about p99 latencies and can argue for an hour about whether your benchmark harness is introducing measurement bias. My kind of crowd.
 
-The [technical blog post](/posts/fosdem-2026-measuring-software-performance/) goes deeper, and the [talk page](/talks/how-to-reliably-measure-software-performance/) has the slides.
+The [technical blog post](/posts/fosdem-2026-measuring-software-performance/) goes deeper, and the [talk page](/talks/how-to-reliably-measure-software-performance/) has the slides and recording.
 
 Then I crossed campus to the **Go Devroom**. My kind of room.
 

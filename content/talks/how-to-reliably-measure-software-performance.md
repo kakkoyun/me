@@ -11,7 +11,7 @@ tags:
   - benchmarking
   - observability
 cover:
-  image: /uploads/fosdem26_perf_talk.jpeg
+  image: https://img.youtube.com/vi/8211fNI_nc4/maxresdefault.jpg
   alt: How to Reliably Measure Software Performance
   caption: FOSDEM 2026 — Software Performance Devroom
 ---
@@ -26,7 +26,7 @@ Co-presented with [Augusto de Oliveira](https://github.com/igoragoli).
 
 #### Recording
 
-<!-- Recording will be added when available -->
+<iframe width="560" height="315" src="https://www.youtube.com/embed/8211fNI_nc4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 **Slides**
 
@@ -40,7 +40,7 @@ Co-presented with [Augusto de Oliveira](https://github.com/igoragoli).
 **Events**
 
 * [FOSDEM 2026 — Software Performance Devroom](https://fosdem.org/2026/schedule/track/software_performance/)
-  * Recording (coming soon)
+  * [Recording](https://www.youtube.com/watch?v=8211fNI_nc4)
 
 **Related**
 

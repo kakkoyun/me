@@ -316,6 +316,7 @@ And don't shout in the datacenter.
 ### Resources
 
 - [Slides and experiments (GitHub)](https://github.com/igoragoli/fosdem-2026-software-performance)
+- [Talk recording (YouTube)](https://www.youtube.com/watch?v=8211fNI_nc4)
 - [Talk page](/talks/how-to-reliably-measure-software-performance/)
 - [FOSDEM 2026 recap](/posts/fosdem-2026/)
 - [OTel Unplugged EU 2026: Field Notes](/posts/otel-unplugged-eu-2026/)
