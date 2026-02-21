@@ -127,7 +127,7 @@ params:
       "performance",
     ]
   defaultTheme: "auto"
-  disableThemeToggle: true
+  disableThemeToggle: false
   disableSpecial1stPost: false
   disableScrollToTop: false
   disableAnchoredHeadings: false
@@ -141,7 +141,7 @@ params:
     - notes
     - talks
   tocOpen: false
-  showToc: true
+  showToc: false
   showRecentNotes: true
   showShareButtons: true
   showReadingTime: true
