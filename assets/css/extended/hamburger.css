@@ -46,6 +46,12 @@
         position: relative;
     }
 
+    /* Make logo row span full width so hamburger is pushed to the far right */
+    .logo {
+        flex: 1;
+        justify-content: space-between;
+    }
+
     #menu {
         display: none;
         position: absolute;
