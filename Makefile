@@ -122,13 +122,19 @@ netlify-redirects:
 # Validate netlify.toml configuration
 netlify-validate-config:
 	@echo "Validating netlify.toml configuration..."
+	@PINNED=$$(cat .hugo-version 2>/dev/null | tr -d '[:space:]'); \
+	TOML=$$(grep 'HUGO_VERSION' netlify.toml | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1); \
+	if [ "$$PINNED" != "$$TOML" ]; then \
+	  echo "❌ Version mismatch: .hugo-version=$$PINNED but netlify.toml=$$TOML"; \
+	  echo "   Run: make update-version"; \
+	  exit 1; \
+	fi; \
+	echo "✅ Hugo version consistent: $$PINNED (.hugo-version matches netlify.toml)"
 	@cat netlify.toml
-	@echo "\nChecking Hugo version in netlify.toml matches local setup:"
-	@grep -A 1 "HUGO_VERSION" netlify.toml | head -2
-	@echo "Local Hugo version:"
+	@echo "\nLocal Hugo version:"
 	@hugo version
 	@netlify sites:list
-	@echo "\nConfig validation complete. If no errors appeared, your configuration is valid."
+	@echo "\nConfig validation complete."
 
 # Post-build SEO/analytics smoke test
 verify:
