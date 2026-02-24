@@ -30,8 +30,7 @@ Co-presented with [Augusto de Oliveira](https://github.com/igoragoli).
 
 **Slides**
 
-* [How to Reliably Measure Software Performance (PDF)](https://github.com/igoragoli/fosdem-2026-software-performance/blob/main/presentation.pdf)
-  * [Slides - Markdown](https://github.com/igoragoli/fosdem-2026-software-performance/blob/main/presentation.md)
+* [Slides - Markdown](https://github.com/igoragoli/fosdem-2026-software-performance/blob/main/presentation.md)
 
 **Demo/Code**
 
@@ -39,7 +38,7 @@ Co-presented with [Augusto de Oliveira](https://github.com/igoragoli).
 
 **Events**
 
-* [FOSDEM 2026 — Software Performance Devroom](https://fosdem.org/2026/schedule/track/software_performance/)
+* [FOSDEM 2026 — Software Performance Devroom](https://fosdem.org/2026/schedule/track/software-performance/)
   * [Recording](https://www.youtube.com/watch?v=8211fNI_nc4)
 
 **Related**

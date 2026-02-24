@@ -306,7 +306,7 @@ Several threads from the talk and surrounding conversations point forward:
 
 The instrumentation tax is real and unavoidable. The question is not whether to pay it, but how to manage it. For Go, the answer is increasingly "you have options" — and those options are getting better.
 
-The slides are available as [PDF](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.pdf) and [Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md). The demo code, Docker setup, and benchmark scripts are all in the [fosdem-2026 repository](https://github.com/kakkoyun/fosdem-2026). The [recording is on YouTube](https://www.youtube.com/watch?v=0TvrSebuDPk).
+The slides are available as [Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md) in the repository. The demo code, Docker setup, and benchmark scripts are all in the [fosdem-2026 repository](https://github.com/kakkoyun/fosdem-2026). The [recording is on YouTube](https://www.youtube.com/watch?v=0TvrSebuDPk).
 
 If you want to get involved: the [OTel Compile-Time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://slack.cncf.io/) are where the discussions happen.
 

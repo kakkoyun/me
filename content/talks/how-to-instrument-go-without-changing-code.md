@@ -32,8 +32,7 @@ Throughout the talk, we use benchmark results and small, realistic services to c
 
 **Slides**
 
-* [How to Instrument Go Without Changing a Single Line of Code (PDF)](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.pdf)
-  * [Slides - Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md)
+* [Slides - Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md)
 
 **Demo/Code**
 
