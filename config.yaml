@@ -6,12 +6,11 @@ enableRobotsTXT: true
 
 languageCode: "en"
 defaultContentLanguage: "en"
-buildDrafts: true
+buildDrafts: false
 
 pagination:
   pagerSize: 5
 
-canonifyUrls: true
 
 outputFormats:
   markdown:
@@ -96,7 +95,7 @@ taxonomies:
 
 params:
   title: "Kemal Akkoyun"
-  copyright: "© 2021-2025 Kemal Akkoyun"
+  copyright: "© 2021-2026 Kemal Akkoyun"
   description: "Kemal Akkoyun's personal website"
   author:
     name: "Kemal Akkoyun"

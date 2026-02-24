@@ -1,9 +1,9 @@
 {{ if .OutputFormats.Get "MARKDOWN" }}
-<link href="{{ with .OutputFormats.Get " MARKDOWN" }}{{ .Permalink }}{{ end }}" rel="alternate" type="text/markdown"
+<link href="{{ with .OutputFormats.Get "MARKDOWN" }}{{ .Permalink }}{{ end }}" rel="alternate" type="text/markdown"
     title="{{ .Title }}" />
 {{ end }}
 <script async defer data-domain="{{ .Site.Params.analytics.plausible.domain }}"
-    src="https://{{ .Site.Params.analytics.plausible.serverURL | default " plausible.io" }}/js/script{{if
+    src="https://{{ .Site.Params.analytics.plausible.serverURL | default "plausible.io" }}/js/script{{if
     .Site.Params.analytics.plausible.fileDownloadsTracking}}.file-downloads{{end}}{{if
     .Site.Params.analytics.plausible.outboundLinksTracking}}.outbound-links{{end}}.js"></script>
 <script defer async src="https://tracker.hakanai.io/hakanai.min.js"

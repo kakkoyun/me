@@ -1,0 +1,30 @@
+name: Build & Verify
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.154.5'
+          extended: true
+
+      - name: Build (production)
+        run: hugo --gc --minify --enableGitInfo
+        env:
+          HUGO_ENV: production
+
+      - name: Verify build output
+        run: bash scripts/verify-build.sh public

@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify
 
 # Default target
 help:
@@ -43,7 +43,8 @@ help:
 	@echo "  make update             - Run all update commands"
 	@echo ""
 	@echo "Utility Commands:"
-	@echo "  make deploy-all         - Validate config, build, and deploy to production"
+	@echo "  make verify             - Run post-build SEO/analytics smoke tests"
+	@echo "  make deploy-all         - Validate config, build, verify, and deploy to production"
 	@echo "  make list               - List all content in the site"
 	@echo "  make version            - Check Hugo version"
 	@echo "  make local-setup        - Install/verify Hugo + initialize theme submodule"
@@ -129,8 +130,12 @@ netlify-validate-config:
 	@netlify sites:list
 	@echo "\nConfig validation complete. If no errors appeared, your configuration is valid."
 
+# Post-build SEO/analytics smoke test
+verify:
+	@bash scripts/verify-build.sh $(PUBLIC_DIR)
+
 # All-in-one deployment command
-deploy-all: netlify-validate-config clean production
+deploy-all: netlify-validate-config clean production verify
 	@echo "\n=== Starting deployment to Netlify ==="
 	netlify deploy --prod --message "Deploy via Makefile deploy-all"
 	@echo "\n=== Deployment complete ==="
