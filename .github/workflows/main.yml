@@ -13,7 +13,7 @@ jobs:
     name: Notes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - uses: gautamkrishnar/blog-post-workflow@v1
         with:
           readme_path: 'content/notes/_index.md'
