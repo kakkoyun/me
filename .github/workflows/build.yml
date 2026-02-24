@@ -15,10 +15,14 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - name: Read Hugo version
+        id: hugo-version
+        run: echo "version=$(cat .hugo-version)" >> $GITHUB_OUTPUT
+
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: '0.154.5'
+          hugo-version: ${{ steps.hugo-version.outputs.version }}
           extended: true
 
       - name: Build (production)
@@ -40,10 +44,14 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - name: Read Hugo version
+        id: hugo-version
+        run: echo "version=$(cat .hugo-version)" >> $GITHUB_OUTPUT
+
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: '0.154.5'
+          hugo-version: ${{ steps.hugo-version.outputs.version }}
           extended: true
 
       - name: Build (production)
