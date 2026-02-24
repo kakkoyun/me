@@ -28,3 +28,72 @@ jobs:
 
       - name: Verify build output
         run: bash scripts/verify-build.sh public
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: build-verify
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.154.5'
+          extended: true
+
+      - name: Build (production)
+        run: hugo --gc --minify --enableGitInfo
+        env:
+          HUGO_ENV: production
+
+      - name: Run Lighthouse CI
+        id: lhci
+        uses: treosh/lighthouse-ci-action@v11
+        continue-on-error: true
+        with:
+          configPath: .lighthouserc.yml
+          uploadArtifacts: true
+
+      - name: Open issue on score drop
+        if: steps.lhci.outcome == 'failure' && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Lighthouse score drop detected';
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['lighthouse'],
+            });
+            if (issues.some(i => i.title === title)) {
+              console.log('Issue already open, skipping duplicate.');
+              return;
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              labels: ['lighthouse'],
+              body: [
+                '## Lighthouse score drop',
+                '',
+                `One or more scores dropped below thresholds on commit ${context.sha}.`,
+                '',
+                '| Category | Threshold |',
+                '|----------|-----------|',
+                '| Performance | ≥ 85 |',
+                '| Accessibility | ≥ 90 |',
+                '| Best Practices | ≥ 90 |',
+                '| SEO | ≥ 90 |',
+                '',
+                `**Workflow run:** ${context.payload.repository.html_url}/actions/runs/${context.runId}`,
+                '',
+                'Download the Lighthouse report from the workflow artifacts for details.',
+              ].join('\n'),
+            });
