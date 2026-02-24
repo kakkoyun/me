@@ -13,8 +13,8 @@ jobs:
     name: Notes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: gautamkrishnar/blog-post-workflow@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: gautamkrishnar/blog-post-workflow@6a6e64abd1f651445da8e59611d0ca0110979aa5 # v1
         with:
           readme_path: 'content/notes/_index.md'
           comment_tag_name: "NOTE-LIST"

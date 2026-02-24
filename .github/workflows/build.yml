@@ -10,7 +10,7 @@ jobs:
   build-verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: true
           fetch-depth: 0
@@ -20,7 +20,7 @@ jobs:
         run: echo "version=$(cat .hugo-version)" >> $GITHUB_OUTPUT
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
+        uses: peaceiris/actions-hugo@75d2e84710de30f6ff7268e08f310b60ef14033f # v3
         with:
           hugo-version: ${{ steps.hugo-version.outputs.version }}
           extended: true
@@ -39,7 +39,7 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           submodules: true
           fetch-depth: 0
@@ -49,7 +49,7 @@ jobs:
         run: echo "version=$(cat .hugo-version)" >> $GITHUB_OUTPUT
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
+        uses: peaceiris/actions-hugo@75d2e84710de30f6ff7268e08f310b60ef14033f # v3
         with:
           hugo-version: ${{ steps.hugo-version.outputs.version }}
           extended: true
@@ -61,7 +61,7 @@ jobs:
 
       - name: Run Lighthouse CI
         id: lhci
-        uses: treosh/lighthouse-ci-action@v12
+        uses: treosh/lighthouse-ci-action@fcd65974f7c4c2bf0ee9d09b84d2489183c29726 # v12
         continue-on-error: true
         with:
           configPath: .lighthouserc.yml
@@ -69,7 +69,7 @@ jobs:
 
       - name: Open issue on score drop
         if: steps.lhci.outcome == 'failure' && github.event_name == 'push'
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           script: |
             const title = 'Lighthouse score drop detected';
