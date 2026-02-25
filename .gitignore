@@ -30,4 +30,5 @@ demo/
 node_modules/
 
 # tmp
-tmp/
+tmp/!CLAUDE.md
+!CLAUDE.md
