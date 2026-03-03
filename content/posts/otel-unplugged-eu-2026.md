@@ -23,13 +23,16 @@ cover:
 
 ### Brussels Again, But Make It Unplugged
 
-The day after FOSDEM, about a hundred of us gathered at **Sparks Meeting** on Rue Ravenstein in Brussels for [OTel Unplugged EU 2026](https://opentelemetry.io/blog/2025/otel-unplugged-fosdem/) — an unconference dedicated entirely to OpenTelemetry. Purple stage lights, a mid-century auditorium with wood paneling, and the familiar buzz of people who spend their days thinking about telemetry pipelines. If you know, you know.
+The day after FOSDEM, about a hundred of us gathered at **Sparks Meeting** on Rue Ravenstein in Brussels for [OTel Unplugged EU 2026](https://opentelemetry.io/blog/2025/otel-unplugged-fosdem/) — an unconference dedicated entirely to OpenTelemetry.
+Purple stage lights, a mid-century auditorium with wood paneling, and the familiar buzz of people who spend their days thinking about telemetry pipelines. If you know, you know.
 
 ![OTel Unplugged agenda projected on stage](/uploads/otel_unplugged_2026_agenda.jpeg)
 
-The format is simple: no prepared talks, no slides. Morning session brainstorming, dot-voting on topics, then self-organizing into **nine rooms across four breakout slots**. You vote with your feet. If a conversation isn't working, you move. It's chaotic, it's honest, and it produces the kind of discussions that polished conference talks rarely achieve.
+The format is simple: no prepared talks, no slides. Morning session brainstorming, dot-voting on topics, then self-organizing into **nine rooms across four breakout slots**.
+You vote with your feet. If a conversation isn't working, you move. It's chaotic, it's honest, and it produces the kind of discussions that polished conference talks rarely achieve.
 
-I spent the day bouncing between sessions on **Prometheus and OpenTelemetry convergence**, the **Injector and Operator**, **OBI/eBPF**, and **auto-instrumentation for Go**. Four rooms, one thread connecting them all: *how do we make applications observable without asking developers to change their code?*
+I spent the day bouncing between sessions on **Prometheus and OpenTelemetry convergence**, the **Injector and Operator**, **OBI/eBPF**, and **auto-instrumentation for Go**.
+Four rooms, one thread connecting them all: *how do we make applications observable without asking developers to change their code?*
 
 Here's what I learned.
 
@@ -37,11 +40,13 @@ Here's what I learned.
 
 ### Prometheus Loves OpenTelemetry (It's Complicated)
 
-Prometheus and OpenTelemetry had **two sessions** — one in the morning with end users and contributors, and a follow-up in the afternoon specifically for maintainers. Both were packed. The relationship between these two projects is the kind you'd describe as "it's complicated" on social media.
+Prometheus and OpenTelemetry had **two sessions** — one in the morning with end users and contributors, and a follow-up in the afternoon specifically for maintainers. Both were packed.
+The relationship between these two projects is the kind you'd describe as "it's complicated" on social media.
 
 #### The Resource Attributes Mess
 
-The biggest pain point? Getting OTLP data into Prometheus. **Resource attributes** are the central headache. OTLP has a rich hierarchy — resource, scope, and metric attributes. Prometheus is flat. Bridging these two models means choosing between promoting all attributes, promoting some, or relying on `target_info`. There are too many config options, no consistency across deployments, and the `info` function (using `target_info`) helps but adoption is uneven.
+The biggest pain point? Getting OTLP data into Prometheus. **Resource attributes** are the central headache. OTLP has a rich hierarchy — resource, scope, and metric attributes. Prometheus is flat.
+Bridging these two models means choosing between promoting all attributes, promoting some, or relying on `target_info`. There are too many config options, no consistency across deployments, and the `info` function (using `target_info`) helps but adoption is uneven.
 
 One person described running an observability platform for **over a thousand developers**, most using Prometheus `remote_write`. Some teams want a single OTLP endpoint for logs and metrics, but that just shifts the same "what to promote, what to drop" problem. The frustration was palpable — someone put it bluntly: *"OTel is rewriting everything again."* Different conventions (`.` vs `_`), hard `target_info` joins, and the sense that mature Prometheus semantics (`cluster`, `namespace`) are being duplicated under different names (`k8s.*`).
 
@@ -49,7 +54,8 @@ One person described running an observability platform for **over a thousand dev
 
 Teams recognize the value of OTel's semantic conventions, but the migration path is painful. **Naming inconsistencies** (`.` vs `_`), hard `target_info` joins, and the cognitive overhead of moving from Prometheus's world view to OTel's. Several people mentioned that `PromQL IS AWESOME` (their emphasis, not mine) and that transformation adds overhead that people who come from a Prometheus background don't want to pay.
 
-On the SDK side, OTel measurements require a **hashmap lookup** while Prometheus doesn't. Too many concepts — meter, instrument, aggregation — versus Prometheus's closer alignment to mechanical sympathy. The performance direction being pursued? **Zero allocations, no lookups** — the bound instruments PoC is the concrete step toward closing that gap. Nobody in the room uses delta temporality.
+On the SDK side, OTel measurements require a **hashmap lookup** while Prometheus doesn't. Too many concepts — meter, instrument, aggregation — versus Prometheus's closer alignment to mechanical sympathy.
+The performance direction being pursued? **Zero allocations, no lookups** — the bound instruments PoC is the concrete step toward closing that gap. Nobody in the room uses delta temporality.
 
 > "People care about observability, not query languages."
 
@@ -57,11 +63,14 @@ On the SDK side, OTel measurements require a **hashmap lookup** while Prometheus
 
 The afternoon session brought Prometheus and OTel maintainers together. The mood was constructive. **OTel SDK v2** was discussed as an opportunity for the kind of breaking changes that could simplify the metrics API — a simplified, more performant, but less flexible API. The **Prometheus 3.0** experience was instructive: the maintainers planned for major breakage but ended up with almost none.
 
-Concrete progress: **David Ashpole's [bound instruments PoC in Go](https://github.com/open-telemetry/opentelemetry-go/pull/7790)** — instruments pre-bound to specific attribute sets, eliminating the hashmap lookup. People in the room care about Go and C++ performance, and this could be a game changer.
+Concrete progress: **David Ashpole's [bound instruments PoC in Go](https://github.com/open-telemetry/opentelemetry-go/pull/7790)** — instruments pre-bound to specific attribute sets, eliminating the hashmap lookup.
+People in the room care about Go and C++ performance, and this could be a game changer.
 
-On the receiver/exporter convergence front: **cAdvisor is considering archiving its Prometheus exporter** and moving all code into the OTel collector. OTel Kubernetes monitoring is broadly adopted, with near-parity to kube-state-metrics. The idea of Prometheus carrying an OTel Collector distribution was floated.
+On the receiver/exporter convergence front: **cAdvisor is considering archiving its Prometheus exporter** and moving all code into the OTel collector. OTel Kubernetes monitoring is broadly adopted, with near-parity to kube-state-metrics.
+The idea of Prometheus carrying an OTel Collector distribution was floated.
 
-The messaging problem came into sharp focus: as one Prometheus maintainer put it, *"Having joint statements helps towards the perception of working together."* The gap isn't just technical — it's about perception. End users see two projects that look like they're competing, even when the maintainers are collaborating.
+The messaging problem came into sharp focus: as one Prometheus maintainer put it, *"Having joint statements helps towards the perception of working together."* The gap isn't just technical — it's about perception.
+End users see two projects that look like they're competing, even when the maintainers are collaborating.
 
 **Action items**: use the `#otel-prometheus` Slack channel, meet again in **Amsterdam**, and produce **joint messaging** — "this is built together and is compatible." Who owns that messaging? That's the open question.
 
@@ -71,7 +80,8 @@ The messaging problem came into sharp focus: as one Prometheus maintainer put it
 
 ### The Injector: From LD_PRELOAD to `apt install opentelemetry`
 
-Two sessions covered the **Injector and Operator** ecosystem — one focused on the general architecture, the other specifically on **OBI and Injector coordination for Go**. The framing that stuck with me came early: *"OTel instrumentation feels more like a collection of tools than a product."* That's why the Injector exists — to close the gap between what OTel offers and what users expect to just work.
+Two sessions covered the **Injector and Operator** ecosystem — one focused on the general architecture, the other specifically on **OBI and Injector coordination for Go**.
+The framing that stuck with me came early: *"OTel instrumentation feels more like a collection of tools than a product."* That's why the Injector exists — to close the gap between what OTel offers and what users expect to just work.
 
 #### Injector vs Operator
 
@@ -123,7 +133,8 @@ And the reality check:
 
 > "Instrumentation tax is inevitable. Manage it, don't pretend it's free."
 
-The consensus across multiple sessions: **stop treating these approaches as competing camps**. They're complementary layers for different deployment scenarios:
+The consensus across multiple sessions: **stop treating these approaches as competing camps**.
+They're complementary layers for different deployment scenarios:
 
 | Approach | Mechanism | Trade-off |
 |----------|-----------|-----------|
@@ -149,7 +160,8 @@ Both are right. The community is threading a needle between moving fast enough t
 
 #### The Maintainer Crisis
 
-This came up in at least three rooms. **Not enough maintainers, too many PRs, codeowners disappearing.** The JavaScript SIG has an automated script to move inactive maintainers to emeritus after three months. Other SIGs handle it manually. Some SIGs have tried a buddy/mentor system for onboarding new contributors — it helps, but it doesn't scale across all SIGs when the existing maintainers barely have time to review PRs. The phrase that stuck with me:
+This came up in at least three rooms. **Not enough maintainers, too many PRs, codeowners disappearing.** The JavaScript SIG has an automated script to move inactive maintainers to emeritus after three months.
+Other SIGs handle it manually. Some SIGs have tried a buddy/mentor system for onboarding new contributors — it helps, but it doesn't scale across all SIGs when the existing maintainers barely have time to review PRs. The phrase that stuck with me:
 
 > "Maintainership is privilege AND responsibility."
 
@@ -157,7 +169,9 @@ And a new problem: as one maintainer put it directly, *"AI slop creates a lot of
 
 #### opentelemetry-go-auto: Quietly Fading
 
-During the Go-focused session, someone asked about `opentelemetry-go-auto` — the eBPF-based Go auto-instrumentation project (originally from Alibaba). The answer was frank: the project **"seems in maintenance mode, some of their maintainers are already contributing to OBI."** The group decided to keep it out of the discussions unless those maintainers want to participate. No drama, just the natural evolution of open-source projects. The people moved to where the momentum is.
+During the Go-focused session, someone asked about `opentelemetry-go-auto` — the eBPF-based Go auto-instrumentation project.
+The answer was frank: the project **"seems in maintenance mode, some of their maintainers are already contributing to OBI."** The group decided to keep it out of the discussions unless those maintainers want to participate.
+No drama, just the natural evolution of open-source projects. The people moved to where the momentum is.
 
 ---
 
@@ -174,10 +188,14 @@ The unconference produced concrete next steps across every thread:
 
 ### Unplugged
 
-The unconference format works because **the hardest problems in observability right now are not technical** — they're social. Governance, maintenance burden, convergence between projects that grew up independently, vendor-neutrality when vendors are the primary contributors. You can't solve these with a slide deck. You need a room, a whiteboard, and honest conversation.
+The unconference format works because **the hardest problems in observability right now are not technical** — they're social.
+Governance, maintenance burden, convergence between projects that grew up independently, vendor-neutrality when vendors are the primary contributors.
+You can't solve these with a slide deck. You need a room, a whiteboard, and honest conversation.
 
 As I always say — **the hallway track is the real conference.** OTel Unplugged is an entire day of hallway track, and it's exactly what the community needs.
 
-If you want to get involved: join the [CNCF Slack](https://slack.cncf.io/) and find the `#otel-prometheus`, `#otel-ebpf-sig`, and `#otel-go` channels. The SIG meetings are open and listed on the [OTel community repo](https://github.com/open-telemetry/community). Show up, contribute, and help shape the future of observability.
+If you want to get involved: join the [CNCF Slack](https://slack.cncf.io/) and find the `#otel-prometheus`, `#otel-ebpf-instrumentation`, and `#otel-go-instrumentation` channels.
+The SIG meetings are open and listed on the [OTel community repo](https://github.com/open-telemetry/community).
+Show up, contribute, and help shape the future of observability.
 
 Already looking forward to the next one.

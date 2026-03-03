@@ -29,6 +29,10 @@ demo/
 # Node
 node_modules/
 
-# tmp
+# Agentic programming
 tmp/!CLAUDE.md
 !CLAUDE.md
+.omc
+
+# Local MCP config (may contain credentials)
+.mcp.json
