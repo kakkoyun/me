@@ -20,6 +20,7 @@ make local-setup        # First-time setup: install Hugo, init submodule, dry-ru
 make check-hugo         # Verify Hugo version matches .hugo-version (auto-installs via Go)
 make update-version     # Update Hugo to latest, sync .hugo-version + netlify.toml
 make theme-update       # Pull latest PaperMod theme submodule
+make buffer-update      # Pull latest buffer-cli submodule
 ```
 
 ## Architecture
@@ -139,6 +140,37 @@ Three GitHub Actions workflows:
 - **Giscus:** Comments via GitHub Discussions on `kakkoyun/me`. Config in `config.yaml` under `params.giscus`.
 - **Plausible + Hakanai:** Dual analytics. Extend via `params.analytics` in `config.yaml`.
 - **Renovate:** Auto-updates Hugo version (in `.hugo-version` + `netlify.toml`), GitHub Actions, and PaperMod submodule.
+
+## Buffer CLI Integration
+
+Social media scheduling via [erickhun/buffer-cli](https://github.com/erickhun/buffer-cli), installed as a git submodule at `tools/buffer-cli/`.
+
+- **Binary:** `~/.local/bin/buffer-cli` (raw upstream binary, macOS ARM64)
+- **Wrapper:** `scripts/buffer` → injects `BUFFER_AUTH_TOKEN` from 1Password (`op://Private/Buffer API Token/credential`), then execs `buffer-cli`
+- **PATH entry:** `~/.local/bin/buffer` → symlink to `scripts/buffer`
+- **Skill:** `~/.claude/skills/buffer/SKILL.md` → global symlink to `tools/buffer-cli/.claude/skills/skill.md` (auto-updates with `make buffer-update`; invoke via `/buffer` in any Claude Code session)
+- **1Password:** Token stored at `op://Private/Buffer API Token/credential` in the Personal account (Private vault)
+
+The wrapper pattern means the upstream skill's `buffer get-account` / `buffer post` calls work unmodified. In CI, set `BUFFER_AUTH_TOKEN` directly as an environment variable to skip the `op read` call.
+
+### Social Media Promotion Pipeline
+
+Automated via `.github/workflows/promote-post.yml` with three triggers:
+
+- **Push**: promotes newly added posts when `publishDate <= today`
+- **Nightly cron (6 AM UTC)**: promotes scheduled posts on their publish day
+- **Manual dispatch**: re-promote or promote any specific post
+
+All date/draft validation is deterministic bash in `scripts/find-promotable-posts.sh`.
+Claude handles only the creative work: reading the post, crafting messages, posting to Buffer.
+
+Posts go to Twitter + LinkedIn + Bluesky. Twitter/Bluesky use threads (message + link).
+LinkedIn includes the link in the main post body.
+
+Dedup: when a post is pushed with today's `publishDate`, the push trigger promotes it.
+The nightly cron skips posts added to git today (detected via `git log --diff-filter=A`).
+
+Local: `/project:promote-post content/posts/<slug>.md` in any Claude Code session.
 
 ## Commit Style
 
