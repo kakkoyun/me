@@ -1,0 +1,77 @@
+name: Promote New Post
+
+on:
+  push:
+    branches: [master]
+    paths: ['content/posts/**']
+  schedule:
+    # Run every day at 6 AM UTC — catches scheduled posts on their publish day
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      post_path:
+        description: 'Path to post file (e.g., content/posts/my-post.md)'
+        required: true
+        type: string
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for git log in schedule/dedup mode
+          submodules: false
+
+      - name: Find promotable posts
+        id: find
+        run: |
+          chmod +x scripts/find-promotable-posts.sh
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            POSTS=$(scripts/find-promotable-posts.sh manual "${{ github.event.inputs.post_path }}")
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            POSTS=$(scripts/find-promotable-posts.sh schedule)
+          else
+            POSTS=$(scripts/find-promotable-posts.sh push)
+          fi
+
+          if [ -z "$POSTS" ]; then
+            echo "No posts to promote"
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Found posts to promote:"
+            echo "$POSTS"
+            {
+              echo "posts<<EOF"
+              echo "$POSTS"
+              echo "EOF"
+              echo "should_run=true"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install buffer-cli
+        if: steps.find.outputs.should_run == 'true'
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -sL https://github.com/erickhun/buffer-cli/releases/latest/download/buffer-linux-amd64 \
+            -o "$HOME/.local/bin/buffer-cli"
+          chmod +x "$HOME/.local/bin/buffer-cli"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Promote with Claude
+        if: steps.find.outputs.should_run == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          direct_prompt: |
+            Promote the following blog post(s) to social media.
+            Read .claude/commands/promote-post.md for full instructions, then execute.
+
+            Post files to promote:
+            ${{ steps.find.outputs.posts }}
+          allowed_tools: "Read,Bash(buffer-cli:*)"
+        env:
+          BUFFER_AUTH_TOKEN: ${{ secrets.BUFFER_AUTH_TOKEN }}
