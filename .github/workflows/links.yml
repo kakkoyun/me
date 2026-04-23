@@ -20,14 +20,22 @@ jobs:
       - name: Check links with lychee
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
-          # --accept 403,429: many valid reference sites (sched.co, linux.die.net, npmjs.com,
+          # --accept 200..=299,403,429: lychee v2 (lychee >=0.15) treats --accept as a
+          #   whitelist that REPLACES the default accepted codes; 200..=299 must be listed
+          #   explicitly or all successful responses are rejected. 403/429 are also accepted
+          #   because many valid reference sites (sched.co, linux.die.net, npmjs.com,
           #   science.sciencemag.org, platform.openai.com, patreon.com) reject automated
-          #   crawlers with 403/429 but are reachable for human visitors. Treat as OK.
+          #   crawlers with those codes but are reachable for human visitors.
+          # --base: resolves root-relative links (e.g. /misc/, /uploads/photo.jpg) in local
+          #   markdown files against the live site so lychee can actually check them.
           # --exclude social/content platforms: linkedin, twitter/x, youtube, hachyderm,
           #   medium, stackoverflow, news.ycombinator.com all block bots reliably.
           # --exclude github.com/kakkoyun/me/edit: edit links require authentication.
           # --exclude localhost: local development URLs, not real links.
           # --exclude gophercon.ist: domain permanently gone.
+          # --exclude logitech.com: persistent HTTP/2 protocol errors from their CDN.
+          # --exclude matryer.com, metalmatze.de: persistent timeouts; personal sites
+          #   that are frequently unreachable by automated crawlers.
           args: >-
             --verbose
             --no-progress
@@ -36,7 +44,8 @@ jobs:
             --max-retries 3
             --retry-wait-time 5
             --timeout 30
-            --accept '403,429'
+            --accept '200..=299,403,429'
+            --base 'https://kakkoyun.me'
             --exclude 'linkedin.com'
             --exclude 'twitter.com'
             --exclude 'x.com'
@@ -48,6 +57,9 @@ jobs:
             --exclude 'github.com/kakkoyun/me/edit'
             --exclude 'localhost'
             --exclude 'gophercon.ist'
+            --exclude 'logitech.com'
+            --exclude 'matryer.com'
+            --exclude 'metalmatze.de'
             './content/**/*.md'
           fail: true
 
