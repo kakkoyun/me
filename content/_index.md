@@ -1,4 +1,4 @@
-<img src="/img/banner.jpeg" alt="Kemal Akkoyun" width="1500" height="500" fetchpriority="high" decoding="async" style="max-width:100%;height:auto">
+<img src="/img/banner.jpeg" alt="Kemal Akkoyun's personal website header banner" width="1500" height="500" fetchpriority="high" decoding="async" style="max-width:100%;height:auto">
 
 ## Hey, I'm Kemal
 
@@ -17,6 +17,6 @@ Currently building Go instrumentation and tracing while keeping an eye on profil
   Sponsor
 </a>
 
-<a href="https://www.buymeacoffee.com/kakkoyun" target="_blank" rel="noopener noreferrer"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" loading="lazy" width="114" height="32" style="height:32px;width:114px"></a>
+<a href="https://www.buymeacoffee.com/kakkoyun" target="_blank" rel="noopener noreferrer"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" loading="lazy" width="114" height="32"></a>
 
 </div>
