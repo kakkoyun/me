@@ -36,6 +36,8 @@ jobs:
           # --exclude logitech.com: persistent HTTP/2 protocol errors from their CDN.
           # --exclude matryer.com, metalmatze.de: persistent timeouts; personal sites
           #   that are frequently unreachable by automated crawlers.
+          # --exclude gitpitch.com: defunct slide-hosting service, all links are dead.
+          # --exclude gophercon.eu: event domain returns 404 (past year's content gone).
           args: >-
             --verbose
             --no-progress
@@ -60,6 +62,8 @@ jobs:
             --exclude 'logitech.com'
             --exclude 'matryer.com'
             --exclude 'metalmatze.de'
+            --exclude 'gitpitch.com'
+            --exclude 'gophercon.eu'
             './content/**/*.md'
           fail: true
 
