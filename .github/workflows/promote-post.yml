@@ -66,12 +66,12 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: |
+          prompt: |
             Promote the following blog post(s) to social media.
             Read .claude/commands/promote-post.md for full instructions, then execute.
 
             Post files to promote:
             ${{ steps.find.outputs.posts }}
-          allowed_tools: "Read,Bash(buffer-cli:*)"
+          claude_args: --allowedTools "Read,Bash(buffer-cli:*)"
         env:
           BUFFER_AUTH_TOKEN: ${{ secrets.BUFFER_AUTH_TOKEN }}
