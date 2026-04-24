@@ -64,7 +64,7 @@ description: "One-sentence description."
 date: 2026-02-13T00:00:00Z
 publishDate: 2026-02-13T00:00:00Z
 categories:
-  - journal   # one of: journal, deep-dive, reflection, technical-findings, blogmentation
+  - journal   # one of: journal, deep-dive, reflection, engineering, technical-findings, blogmentation
 tags:
   - blog      # include "blog" tag by convention
   - topic-tag
@@ -74,14 +74,48 @@ cover:                        # optional
   caption: Caption text
 showToc: true                 # optional, for long technical posts
 tocOpen: false                # optional
-draft: true                   # for WIP content
+draft: true                   # for WIP content; use future publishDate for scheduled posts instead
 ---
 ```
 
 - Always include both `date` and `publishDate`
 - `categories` is a single-value list
 - For cross-posted content, add `showCanonicalLink: true` and `canonicalUrl:`
-- For multi-part posts, add `series:` field
+- For multi-part posts, add `series:` field with the human-readable series title (e.g., `series: "Fantastic Symbols and Where to Find Them"`)
+- Do not quote scalar YAML values (dates, booleans) — only quote strings that contain special characters
+- Use `draft: true` for WIP content; use a future `publishDate` (with `draft` omitted) for scheduled posts
+
+### Content Types
+
+Each category has a distinct purpose, tone, and structure:
+
+| Category | Purpose | Tone | Structure |
+|---|---|---|---|
+| `journal` | Conference recaps, event field notes, personal updates | Informal narrative | Intro → sections by day/topic → reflections |
+| `deep-dive` | Long-form technical analysis (often cross-posted) | Technical, explanatory | Problem statement → technical walkthrough → conclusion |
+| `reflection` | Career/personal essays, lessons learned | Introspective, narrative | Context/motivation → numbered lessons or reflections → takeaways |
+| `engineering` | Talk companion articles, technical experiments | Technical with storytelling | Story hook → technical sections → benchmarks/experiments → conclusion |
+| `technical-findings` | Tool evaluations, discovery write-ups | Evaluative, practical | Setup → evaluation sections → pros/cons → recommendations |
+| `blogmentation` | Documentation-as-blog, how-to tutorials | Tutorial, step-by-step | Problem → solution with code snippets → results |
+
+### Tag Conventions
+
+- Always include `blog` as a tag on posts (every post in `content/posts/`)
+- Use lowercase for new tags (`observability`, not `Observability`)
+- Existing mixed-case tags (`eBPF`, `.Net`, `JVM`, `nodeJS`) are grandfathered — do not normalize them
+- Talks always use `talks` as their first tag
+
+### Filename Conventions
+
+- Use kebab-case slugs: `fosdem-2026.md`, `ice-and-fire.md`
+- Do not prefix with dates — the `2024-03-21-` prefix on one post is legacy, do not repeat it
+- Multi-part posts: append `-part-2`, `-part-3` to the base slug (e.g., `fantastic-symbols-and-where-to-find-them-part-2.md`)
+
+### Cover Image Conventions
+
+- Blog posts: local images stored in `static/uploads/`, referenced as `/uploads/filename.jpeg`
+- Talks: YouTube thumbnail URLs — `https://img.youtube.com/vi/{VIDEO_ID}/maxresdefault.jpg`
+- Always include `alt` text; `caption` is optional
 
 ### Talk Frontmatter
 

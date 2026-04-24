@@ -1,0 +1,16 @@
+/*
+ * PaperMod v8 (f207ce6) compatibility overrides.
+ * These rules roll back spacing changes introduced by the v8 theme bump
+ * that diverged from the previously deployed behaviour.
+ */
+
+/*
+ * v8 added margin-block-start/end: 1em to home-info paragraphs.
+ * The CSS reset (p { margin-top:0; margin-bottom:0 }) kept these
+ * at zero before. 1em each is too generous; 0.75em bottom-only gives
+ * clean paragraph separation without excessive vertical spacing.
+ */
+.home-info .entry-content p {
+    margin-block-start: 0;
+    margin-block-end: 0.75em;
+}
