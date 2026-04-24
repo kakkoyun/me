@@ -61,7 +61,7 @@ jobs:
 
       - name: Run Lighthouse CI
         id: lhci
-        uses: treosh/lighthouse-ci-action@fcd65974f7c4c2bf0ee9d09b84d2489183c29726 # v12
+        uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # v12
         continue-on-error: true
         with:
           configPath: .lighthouserc.yml
@@ -69,7 +69,7 @@ jobs:
 
       - name: Open issue on score drop
         if: steps.lhci.outcome == 'failure' && github.event_name == 'push'
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const title = 'Lighthouse score drop detected';

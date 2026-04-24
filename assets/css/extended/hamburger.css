@@ -42,7 +42,7 @@
         display: flex;
     }
 
-    .nav {
+    .header-nav {
         position: relative;
     }
 
@@ -52,7 +52,7 @@
         justify-content: space-between;
     }
 
-    #menu {
+    .menu {
         display: none;
         position: absolute;
         top: var(--header-height);
@@ -67,21 +67,21 @@
         overflow-x: visible;
     }
 
-    #menu.active {
+    .menu.active {
         display: flex;
     }
 
-    #menu li {
+    .menu li {
         margin: 0;
         padding: 0;
     }
 
-    #menu li + li {
+    .menu li + li {
         margin-inline-start: 0;
         border-top: 1px solid var(--border);
     }
 
-    #menu a {
+    .menu a {
         display: block;
         padding: 10px var(--gap);
         font-size: 16px;
@@ -95,7 +95,7 @@
         display: none !important;
     }
 
-    #menu {
+    .menu {
         display: flex !important;
     }
 }

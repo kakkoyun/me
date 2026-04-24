@@ -139,7 +139,7 @@ So these symbols are also helpful for debugging.
 > Some runtimes, such as Node.js, already have them in their `production` distributions.
 
 Lastly, to completely resolve the stack traces of the runtime, we might need to obtain the debug information for the linked libraries.
-If you remember from [the first blog post](/blog/posts/2022/01/13/fantastic-symbols-and-where-to-find-them), debuginfo files can help us.
+If you remember from [the first blog post](https://www.polarsignals.com/blog/posts/2022/01/13/fantastic-symbols-and-where-to-find-them), debuginfo files can help us.
 Debuginfo files for software packages are available through package managers in Linux distributions.
 Usually for an available package called `mypackage` there exists a `mypackage-dbgsym`, `mypackage-dbg` or `mypackage-debuginfo` package.
 There are also [public servers](https://sourceware.org/elfutils/Debuginfod.html) that serve debug information.
