@@ -90,6 +90,44 @@ run_find() {
   bash "$FIND_SCRIPT" "$@" 2>/dev/null
 }
 
+make_post_raw() {
+  # make_post_raw <file> <publishDate-value-verbatim> [draft=true|false]
+  # Writes publishDate exactly as given — no T00:00:00Z appended.
+  local file="$1"
+  local pub_date_value="$2"
+  local is_draft="${3:-false}"
+  mkdir -p "$(dirname "$file")"
+  {
+    echo "---"
+    echo "title: \"Test Post\""
+    echo "publishDate: ${pub_date_value}"
+    echo "categories:"
+    echo "  - engineering"
+    echo "tags:"
+    echo "  - blog"
+    [ "$is_draft" = "true" ] && echo "draft: true"
+    echo "---"
+    echo ""
+    echo "Post body content."
+  } > "$file"
+}
+
+make_post_no_date() {
+  # make_post_no_date <file> [draft=true|false]
+  # Writes a post with no publishDate field.
+  local file="$1"
+  local is_draft="${2:-false}"
+  mkdir -p "$(dirname "$file")"
+  {
+    echo "---"
+    echo "title: \"No Date Post\""
+    [ "$is_draft" = "true" ] && echo "draft: true"
+    echo "---"
+    echo ""
+    echo "Post body content."
+  } > "$file"
+}
+
 # ── Test runner ───────────────────────────────────────────────────────────────
 # Each test function is called inside a ( subshell ) that has cd'd into a fresh
 # temp repo. Functions inherit setup_repo/make_post/commit_at/run_find/TODAY etc.
@@ -194,6 +232,58 @@ assert_empty "manual: skips draft" "$result"
 
 result=$(with_repo _manual_missing)
 assert_empty "manual: skips nonexistent file" "$result"
+
+# ── edge cases (date/path invariants) ─────────────────────────────────────────
+
+echo ""
+echo "── edge cases ──────────────────────────────────────────"
+
+_edge_datetime_pub() {
+  # publishDate with time component — get_publish_date must strip T...
+  make_post_raw "content/posts/dt.md" "${TODAY}T12:00:00Z"
+  commit_at "content/posts/dt.md" "$TODAY"
+  run_find push
+}
+_edge_missing_pub_date() {
+  # No publishDate field — validate_post must SKIP
+  make_post_no_date "content/posts/nodate.md"
+  commit_at "content/posts/nodate.md" "$TODAY"
+  run_find push
+}
+_edge_quoted_date() {
+  # publishDate: "YYYY-MM-DD" — tr -d '"' branch in get_publish_date
+  make_post_raw "content/posts/quoted.md" "\"${TODAY}\""
+  commit_at "content/posts/quoted.md" "$TODAY"
+  run_find push
+}
+_edge_sched_empty_dir() {
+  # content/posts/ has no .md files — schedule must be a no-op, not a glob failure
+  run_find schedule
+}
+_edge_manual_out_of_tree() {
+  # manual accepts a path outside content/posts/ (date check is skipped)
+  mkdir -p other/dir
+  make_post_raw "other/dir/external.md" "2020-01-01"
+  git add other/dir/external.md
+  GIT_COMMITTER_DATE="${TODAY}T12:00:00Z" GIT_AUTHOR_DATE="${TODAY}T12:00:00Z" \
+    git commit -q -m "out of tree"
+  run_find manual "other/dir/external.md"
+}
+
+result=$(with_repo _edge_datetime_pub)
+assert_eq    "edge: push handles publishDate with time component (get_publish_date strips T...)" "content/posts/dt.md" "$result"
+
+result=$(with_repo _edge_missing_pub_date)
+assert_empty "edge: push skips post with missing publishDate" "$result"
+
+result=$(with_repo _edge_quoted_date)
+assert_eq    "edge: push handles quoted publishDate (tr -d '\"' branch)" "content/posts/quoted.md" "$result"
+
+result=$(with_repo _edge_sched_empty_dir)
+assert_empty "edge: schedule is a no-op when content/posts has no .md files" "$result"
+
+result=$(with_repo _edge_manual_out_of_tree)
+assert_eq    "edge: manual accepts path outside content/posts (permissive, date check skipped)" "other/dir/external.md" "$result"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 
