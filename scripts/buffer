@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Wrapper: injects BUFFER_AUTH_TOKEN from 1Password if not already set, then execs buffer-cli.
+set -euo pipefail
+
+if [ -z "${BUFFER_AUTH_TOKEN:-}" ]; then
+  BUFFER_AUTH_TOKEN="$(op read 'op://Private/Buffer API Token/credential' --account my.1password.com)"
+  export BUFFER_AUTH_TOKEN
+fi
+
+exec buffer-cli "$@"
