@@ -13,6 +13,11 @@ on:
         description: 'Path to post file (e.g., content/posts/my-post.md)'
         required: true
         type: string
+      dry_run:
+        description: 'Install a stub buffer-cli that echoes instead of posting'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   promote:
@@ -53,11 +58,26 @@ jobs:
           fi
 
       - name: Install buffer-cli
-        if: steps.find.outputs.should_run == 'true'
+        if: steps.find.outputs.should_run == 'true' && github.event.inputs.dry_run != 'true'
         run: |
           mkdir -p "$HOME/.local/bin"
           curl -sL https://github.com/erickhun/buffer-cli/releases/latest/download/buffer-linux-amd64 \
             -o "$HOME/.local/bin/buffer-cli"
+          chmod +x "$HOME/.local/bin/buffer-cli"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install buffer-cli stub (dry-run)
+        if: steps.find.outputs.should_run == 'true' && github.event.inputs.dry_run == 'true'
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          cat > "$HOME/.local/bin/buffer-cli" <<'STUB'
+          #!/usr/bin/env bash
+          # Stub buffer-cli for dry-run: log args, never post.
+          printf '[stub buffer-cli] argv:' >&2
+          for a in "$@"; do printf ' %q' "$a" >&2; done
+          printf '\n' >&2
+          echo '{"id":"stub","scheduled_at":null}'
+          STUB
           chmod +x "$HOME/.local/bin/buffer-cli"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
