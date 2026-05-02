@@ -1,0 +1,28 @@
+{{- /*
+  Newsletter subscription form (Hakanai Broadcast).
+
+  Renders nothing until Site.Params.newsletter.enabled is true. Replace the
+  placeholder block below with the embed snippet from the Hakanai dashboard
+  once the campaign is created. The Site.Params.newsletter values let the
+  form be wired without further template edits.
+
+  Accepts an optional `publication` slug in the context (.publication) so a
+  single embed can target a specific publication when Hakanai requires it.
+*/ -}}
+{{- $n := site.Params.newsletter -}}
+{{- if $n.enabled -}}
+{{- $publication := .publication | default "" -}}
+<div class="newsletter-form" data-publication="{{ $publication }}">
+  {{- /* TODO: paste Hakanai-issued embed here. Example shape:
+
+  <form action="{{ $n.formAction }}" method="post">
+    <input type="hidden" name="site" value="{{ $n.formSiteId }}">
+    {{ with $publication }}<input type="hidden" name="publication" value="{{ . }}">{{ end }}
+    <label for="newsletter-email">Email</label>
+    <input id="newsletter-email" type="email" name="email" required>
+    <button type="submit">Subscribe</button>
+  </form>
+
+  */ -}}
+</div>
+{{- end -}}
