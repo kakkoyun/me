@@ -36,6 +36,7 @@ outputs:
     - MARKDOWN
   section:
     - HTML
+    - RSS
     - MARKDOWN
   term:
     - HTML
@@ -75,9 +76,9 @@ menu:
     # - name: "Stats"
     #   weight: 50
     #   url: "/stats/"
-    # - name: "Newsletter"
-    #   weight: 70
-    #   url: "/newsletter/"
+    - name: "Newsletter"
+      weight: 70
+      url: "/newsletter/"
     - name: "Notes"
       weight: 80
       url: "/notes/"
@@ -198,6 +199,16 @@ params:
       outboundLinksTracking: true
     hakanai:
       site: "d59129ee-cdfa-47a5-8908-5a017caf60c7"
+  newsletter:
+    enabled: false
+    provider: hakanai
+    formAction: ""
+    formSiteId: ""
+    publications:
+      - slug: reads-and-builds
+        name: "Reads & Builds"
+        description: "Links and commentary on what I'm reading and building."
+        campaignId: ""
   assets:
     favicon: "img/favicon.ico"
     theme_color: "#000000"
