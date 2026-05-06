@@ -43,3 +43,6 @@ tmp/!CLAUDE.md
 
 # Local MCP config (may contain credentials)
 .mcp.json
+
+# Things3 Task Migration
+.migration/
