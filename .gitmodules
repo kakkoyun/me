@@ -1,3 +1,6 @@
 [submodule "themes/PaperMod"]
 	path = themes/PaperMod
 	url = https://github.com/adityatelange/hugo-PaperMod.git
+[submodule "tools/buffer-cli"]
+	path = tools/buffer-cli
+	url = https://github.com/erickhun/buffer-cli.git

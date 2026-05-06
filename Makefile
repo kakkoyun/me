@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update shellcheck actionlint lint test
 
 # Default target
 help:
@@ -39,6 +39,7 @@ help:
 	@echo "Update Commands:"
 	@echo "  make hugo-update        - Update Hugo to latest version"
 	@echo "  make theme-update       - Update PaperMod theme"
+	@echo "  make buffer-update      - Update buffer-cli submodule"
 	@echo "  make update-version     - Update Hugo to latest and sync version files"
 	@echo "  make update             - Run all update commands"
 	@echo ""
@@ -48,6 +49,12 @@ help:
 	@echo "  make list               - List all content in the site"
 	@echo "  make version            - Check Hugo version"
 	@echo "  make local-setup        - Install/verify Hugo + initialize theme submodule"
+	@echo ""
+	@echo "Quality Commands:"
+	@echo "  make test               - Run unit tests for scripts"
+	@echo "  make shellcheck         - Run shellcheck on all shell scripts"
+	@echo "  make actionlint         - Run actionlint on GitHub Actions workflows"
+	@echo "  make lint               - Run shellcheck + actionlint"
 
 # Build the site
 build: check-hugo
@@ -169,13 +176,16 @@ version: check-hugo
 	hugo version
 
 # Update commands
-update: update-version theme-update
+update: update-version theme-update buffer-update
 
 hugo-update:
 	go install github.com/gohugoio/hugo@latest
 
 theme-update:
 	git submodule update --remote --merge
+
+buffer-update:
+	git submodule update --remote --merge -- tools/buffer-cli
 
 # Update Hugo to latest version and sync version across all files
 update-version:
@@ -225,6 +235,21 @@ check-hugo:
 	else \
 	  echo "✅ Hugo OK: $$(hugo version | awk '{print $$1,$$2}')"; \
 	fi
+
+# Run shellcheck on all shell scripts
+shellcheck:
+	shellcheck scripts/*.sh
+
+# Run actionlint on all GitHub Actions workflows
+actionlint:
+	actionlint .github/workflows/*.yml
+
+# Run all linters
+lint: shellcheck actionlint
+
+# Run unit tests for scripts
+test:
+	@bash scripts/test-find-promotable-posts.sh
 
 local-setup: check-hugo ## Initialize local dev environment (Hugo + theme submodule + dry run)
 	@echo "🔧 Local development environment setup"
