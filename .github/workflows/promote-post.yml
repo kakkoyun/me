@@ -92,6 +92,6 @@ jobs:
 
             Post files to promote:
             ${{ steps.find.outputs.posts }}
-          claude_args: --allowedTools "Read,Bash(buffer-cli:*)"
+          claude_args: --allowedTools "Read,Bash(buffer-cli:*),Bash(echo:*)"
         env:
           BUFFER_AUTH_TOKEN: ${{ secrets.BUFFER_AUTH_TOKEN }}
