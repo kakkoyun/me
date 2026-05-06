@@ -34,5 +34,12 @@ tmp/!CLAUDE.md
 !CLAUDE.md
 .omc
 
+# Track repo-committed Claude config (overrides global .gitignore_global .claude/* rule)
+!.claude/settings.json
+!.claude/skills/
+!.claude/skills/*.md
+!.claude/commands/
+!.claude/commands/*.md
+
 # Local MCP config (may contain credentials)
 .mcp.json
