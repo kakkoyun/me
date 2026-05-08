@@ -84,7 +84,7 @@ jobs:
 
       - name: Promote with Claude
         if: steps.find.outputs.should_run == 'true'
-        uses: anthropics/claude-code-action@62238ddb33772a079b0a6d8665a1ff3043583067 # v1
+        uses: anthropics/claude-code-action@939ae9c056ecf8a1a01409ddd1c4eadec5f8c77b # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
