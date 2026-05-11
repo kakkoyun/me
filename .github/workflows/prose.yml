@@ -26,13 +26,11 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Vale prose lint (advisory)
-        # Renovate will pin this to a SHA on the next update cycle.
-        uses: errata-ai/vale-action@v2
+        uses: vale-cli/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
         with:
           fail_on_error: false
           filter_mode: added
           reporter: github-pr-check
+          level: info
           files: content
-          vale_flags: "--minAlertLevel=warning"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
