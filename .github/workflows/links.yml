@@ -11,32 +11,56 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Fast offline pass on every push/PR: validates internal references only
-  # (root-relative /uploads/*, relative ../*, #anchors). No network, no flake.
-  # If a contributor breaks an internal link, this fails and blocks the PR.
+  # Offline pass on every push/PR: build the site, then validate internal
+  # references against the rendered HTML (root-relative /posts/*, /uploads/*,
+  # #anchors). No network, no flake. If a contributor breaks an internal link,
+  # this fails and blocks the PR.
+  #
+  # Why build first: lychee on raw markdown cannot resolve Hugo URL mappings
+  # (e.g. /posts/foo-bar/ ← content/posts/foo-bar.md) or theme-generated
+  # links (CSS, navigation). Running against ./public/**/*.html checks what
+  # readers actually see.
   links-internal:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Read Hugo version
+        id: hugo-version
+        run: echo "version=$(cat .hugo-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@2752ce1d29631191ea3f27c23495fa06139a5b78 # v3
+        with:
+          hugo-version: ${{ steps.hugo-version.outputs.version }}
+          extended: true
+
+      - name: Build site
+        run: hugo --gc --minify --enableGitInfo
+        env:
+          HUGO_ENV: production
 
       - name: Check internal links with lychee
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
-          # --offline: skip all http/https URLs. We only care that internal
-          #   references resolve here; external rot is handled by the weekly
-          #   cron pass below.
-          # --base: resolves root-relative links (e.g. /uploads/foo.jpg) against
-          #   the local static/ directory. Hugo serves static/ at site root.
-          # --include-fragments: verify #anchor targets exist in the linked file.
+          # --offline: skip all http/https URLs. External rot is handled by the
+          #   weekly cron pass below.
+          # --root-dir: resolves root-relative links (/posts/foo/, /uploads/x.jpg)
+          #   against the built public/ directory. Required for absolute paths
+          #   in offline mode.
+          # --include-fragments: verify #anchor targets exist in the linked page.
           args: >-
             --verbose
             --no-progress
             --offline
-            --base "file://${{ github.workspace }}/static"
+            --root-dir "${{ github.workspace }}/public"
             --include-fragments
-            './content/**/*.md'
+            './public/**/*.html'
           fail: true
 
   # Full external check on the weekly cron and on manual dispatch. Soft-fails
