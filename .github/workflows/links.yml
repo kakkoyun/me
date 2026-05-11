@@ -108,6 +108,11 @@ jobs:
           # that file too. Cache is omitted — net-new files are not in any
           # prior cache. fail: true because flake surface is bounded to the
           # contributor's own new file(s).
+          # --scheme http/https: only check external URLs. Internal references
+          #   (root-relative /posts/foo, relative paths, fragments, mailto:)
+          #   are skipped entirely — links-internal already validates them
+          #   against the built site, and root-relative links to assets added
+          #   in this same PR do not yet exist on the live site.
           args: >-
             --verbose
             --no-progress
@@ -117,7 +122,8 @@ jobs:
             --retry-wait-time 5
             --timeout 30
             --accept '200..=299,403,429'
-            --base 'https://kakkoyun.me'
+            --scheme http
+            --scheme https
             --exclude 'linkedin.com'
             --exclude 'twitter.com'
             --exclude 'x.com'
