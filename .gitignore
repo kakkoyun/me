@@ -37,9 +37,17 @@ tmp/!CLAUDE.md
 # Track repo-committed Claude config (overrides global .gitignore_global .claude/* rule)
 !.claude/settings.json
 !.claude/skills/
-!.claude/skills/*.md
+!.claude/skills/**
 !.claude/commands/
 !.claude/commands/*.md
+
+# Vale styles: commit our own rules under styles/Slop/ and styles/config/,
+# ignore third-party packages fetched via `vale sync`.
+styles/*
+!styles/Slop/
+!styles/Slop/**
+!styles/config/
+!styles/config/**
 
 # Local MCP config (may contain credentials)
 .mcp.json

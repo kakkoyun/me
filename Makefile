@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update shellcheck actionlint lint test
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update shellcheck actionlint lint test vale vale-sync prose
 
 # Default target
 help:
@@ -55,6 +55,9 @@ help:
 	@echo "  make shellcheck         - Run shellcheck on all shell scripts"
 	@echo "  make actionlint         - Run actionlint on GitHub Actions workflows"
 	@echo "  make lint               - Run shellcheck + actionlint"
+	@echo "  make vale-sync          - Fetch third-party Vale style packages"
+	@echo "  make vale               - Run Vale prose linter on content/"
+	@echo "  make prose              - Run Vale and print a finding-count summary"
 
 # Build the site
 build: check-hugo
@@ -250,6 +253,22 @@ lint: shellcheck actionlint
 # Run unit tests for scripts
 test:
 	@bash scripts/test-find-promotable-posts.sh
+
+# Fetch third-party Vale style packages declared in .vale.ini
+vale-sync:
+	@command -v vale >/dev/null 2>&1 || { echo "❌ Vale not found. Install with: brew install vale"; exit 1; }
+	vale sync
+
+# Run Vale prose linter on content/
+vale:
+	@command -v vale >/dev/null 2>&1 || { echo "❌ Vale not found. Install with: brew install vale"; exit 1; }
+	vale content/
+
+# Run Vale advisory (does not fail the build); shows findings + summary
+prose:
+	@command -v vale >/dev/null 2>&1 || { echo "❌ Vale not found. Install with: brew install vale"; exit 1; }
+	@echo "📝 Running Vale on content/ ..."
+	@vale --no-exit content/
 
 local-setup: check-hugo ## Initialize local dev environment (Hugo + theme submodule + dry run)
 	@echo "🔧 Local development environment setup"
