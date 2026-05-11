@@ -16,12 +16,14 @@ HUGO_ENV = "production"
 
 [context.deploy-preview]
 command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL"
+ignore = "bash scripts/netlify-ignore.sh"
 
 [context.deploy-preview.environment]
 HUGO_VERSION = "0.161.1"
 
 [context.branch-deploy]
 command = "hugo --gc --minify -b $DEPLOY_PRIME_URL"
+ignore = "bash scripts/netlify-ignore.sh"
 
 [context.branch-deploy.environment]
 HUGO_VERSION = "0.161.1"
