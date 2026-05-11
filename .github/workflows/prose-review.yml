@@ -2,22 +2,19 @@ name: Prose Review
 
 on:
   pull_request:
-    types: [opened, ready_for_review, reopened, labeled]
-    paths:
-      - 'content/posts/**/*.md'
-      - 'content/talks/**/*.md'
+    types: [labeled]
 
 jobs:
   prose-review:
     if: >-
+      github.event.label.name == 'prose-review' &&
       github.event.pull_request.draft == false &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
-      (github.event.action != 'labeled' || github.event.label.name == 'prose-review')
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-      issues: read
+      issues: write
       id-token: write
 
     steps:
@@ -31,32 +28,25 @@ jobs:
         uses: anthropics/claude-code-action@dde2242db6af13460b916652159b6ba19a598f30 # v1.0.120
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
           prompt: |
-            You are reviewing a pull request that touches blog posts under content/posts/ or content/talks/.
+            Before reviewing, read REVIEW.md (target tone, banned vocab, patterns
+            to scrutinize) and .claude/skills/kemal-voice/SKILL.md (replacements
+            for banned vocab, formulaic openers, editing checklist).
 
-            Before reviewing, read:
-            1. REVIEW.md at the repo root, which sets the target tone and the patterns to scrutinize.
-            2. .claude/skills/kemal-voice/SKILL.md, which has banned vocabulary, formulaic openers, the editing checklist, and tone-by-category notes.
+            Then run the code review against this PR with a PROSE-ONLY focus:
+            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
 
-            Then review only the prose changes on the PR diff. Skip code blocks, frontmatter, shortcode arguments, and link targets.
+            When commenting, prioritise in this order:
+            1. Banned vocabulary hits (delve, tapestry, leverage, ecosystem, ...).
+            2. Formulaic AI openers at paragraph start.
+            3. Em-dash parenthetical asides (— X —) and negative parallelism
+               ("it's not X, it's Y") when overused.
+            4. Tone fit against the post's `categories:` value.
 
-            Target tone for the blog: clear, explanatory, fun, whimsical, honest, open. The author takes the technical material seriously but does not take themselves seriously. Use this as your calibration when judging "does this sound right".
+            Skip: code blocks, frontmatter, shortcode arguments, URL targets.
+            Target tone: clear, explanatory, fun, whimsical, honest, open —
+            serious about the technical material, not about itself.
 
-            Findings to flag, in priority order:
-            1. Banned vocabulary from the Vocabulary list (delve, tapestry, leverage, utilize, seamless, paradigm, ecosystem, etc.). High priority.
-            2. Formulaic AI openers (paragraph starts with "In this post, we'll", "Let's dive into", "It's worth noting that", "At its core", "In conclusion", etc.). High priority.
-            3. Em-dash density: 3+ em-dashes packed into one paragraph reads as AI-flavored. A single em-dash is fine.
-            4. "It's not X, it's Y" negative parallelism: classic AI rhetorical pattern. Flag if the contrast is not load-bearing. A genuine contrast is fine.
-            5. Triadic rhythm used more than once in a post. A single triad is fine; recurring triads feel like a tic.
-            6. Marketing or self-important tone. Anything that sounds like a press release.
-
-            Do not flag:
-            - First person, contractions, or casual phrasing — those are on-tone.
-            - Humor, asides, self-deprecation, or whimsy — those are on-tone.
-            - Passive voice in technical contexts where the actor is irrelevant.
-            - Honest hedging like "I'm not sure" or "this is a proof of concept" — those are on-tone.
-
-            Output:
-            - Up to 5 inline comments, one sentence each, prose-only.
-            - One summary comment with category-fit assessment, any unflagged patterns worth a second look, and a verdict (`ship` / `minor edits` / `revise`).
-            - Advisory only. Never request changes. Never block merge.
+            Advisory only. Never request changes. Never block merge.

@@ -2,23 +2,19 @@ name: Claude Code Review
 
 on:
   pull_request:
-    types: [opened, ready_for_review, reopened, labeled]
-    paths:
-      - 'content/posts/**'
-      - 'content/talks/**'
-      - 'content/notes/**'
+    types: [labeled]
 
 jobs:
   claude-review:
     if: >-
+      github.event.label.name == 'claude-review' &&
       github.event.pull_request.draft == false &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
-      (github.event.action != 'labeled' || github.event.label.name == 'claude-review')
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
+      issues: write
       id-token: write
 
     steps:

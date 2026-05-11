@@ -3,7 +3,7 @@
 Prose review criteria for this blog. Used by:
 
 - The author, as a self-edit checklist before opening a PR.
-- The `prose-review.yml` GitHub Action, which loads this file plus [.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md) before reviewing.
+- The `prose-review.yml` GitHub Action, **label-triggered only** (apply the `prose-review` label to a PR to fire it). Loads this file plus [.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md) before reviewing.
 - The local `vale` config, whose rules in [styles/Slop/](styles/Slop/) mirror the vocabulary lists below.
 
 ## Scope
