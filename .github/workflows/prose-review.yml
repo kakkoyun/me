@@ -2,7 +2,7 @@ name: Prose Review
 
 on:
   pull_request:
-    types: [opened, synchronize, ready_for_review, reopened]
+    types: [opened, ready_for_review, reopened, labeled]
     paths:
       - 'content/posts/**/*.md'
       - 'content/talks/**/*.md'
@@ -11,7 +11,8 @@ jobs:
   prose-review:
     if: >-
       github.event.pull_request.draft == false &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+      github.event.pull_request.user.login == 'kakkoyun' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'prose-review')
     runs-on: ubuntu-latest
     permissions:
       contents: read
