@@ -11,13 +11,57 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-links:
+  # Fast offline pass on every push/PR: validates internal references only
+  # (root-relative /uploads/*, relative ../*, #anchors). No network, no flake.
+  # If a contributor breaks an internal link, this fails and blocks the PR.
+  links-internal:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Check links with lychee
+      - name: Check internal links with lychee
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        with:
+          # --offline: skip all http/https URLs. We only care that internal
+          #   references resolve here; external rot is handled by the weekly
+          #   cron pass below.
+          # --base: resolves root-relative links (e.g. /uploads/foo.jpg) against
+          #   the local static/ directory. Hugo serves static/ at site root.
+          # --include-fragments: verify #anchor targets exist in the linked file.
+          args: >-
+            --verbose
+            --no-progress
+            --offline
+            --base "file://${{ github.workspace }}/static"
+            --include-fragments
+            './content/**/*.md'
+          fail: true
+
+  # Full external check on the weekly cron and on manual dispatch. Soft-fails
+  # so transient third-party errors never paint master red; broken links are
+  # logged onto the persistent broken-links issue for later triage.
+  links-external:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Restore lychee cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .lycheecache
+          key: lychee-${{ github.run_id }}
+          restore-keys: |
+            lychee-
+
+      - name: Check external links with lychee
+        id: lychee
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
           # --accept 200..=299,403,429: lychee v2 (lychee >=0.15) treats --accept as a
@@ -28,6 +72,9 @@ jobs:
           #   crawlers with those codes but are reachable for human visitors.
           # --base: resolves root-relative links (e.g. /misc/, /uploads/photo.jpg) in local
           #   markdown files against the live site so lychee can actually check them.
+          # --cache + --cache-exclude-status: persist results between runs. 2xx and
+          #   permanent 4xx are cached; 429 and 5xx are NOT cached so transient errors
+          #   are retried next run instead of memoized as failures.
           # --exclude social/content platforms: linkedin, twitter/x, youtube, hachyderm,
           #   medium, stackoverflow, news.ycombinator.com all block bots reliably.
           # --exclude github.com/kakkoyun/me/edit: edit links require authentication.
@@ -47,6 +94,8 @@ jobs:
             --retry-wait-time 5
             --timeout 30
             --accept '200..=299,403,429'
+            --cache
+            --cache-exclude-status '429,500..=599'
             --base 'https://kakkoyun.me'
             --exclude 'linkedin.com'
             --exclude 'twitter.com'
@@ -65,32 +114,50 @@ jobs:
             --exclude 'gitpitch.com'
             --exclude 'gophercon.eu'
             './content/**/*.md'
-          fail: true
+          fail: false
 
-      - name: Create issue on failure
-        if: failure()
+      - name: Log broken links to tracking issue
+        if: steps.lychee.outputs.exit_code != '0'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const title = '🔗 Broken links detected';
-            const body = `Broken links were detected in the content.
+            const fs = require('fs');
 
-            Check the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details.`;
+            const reportPath = './lychee/out.md';
+            const report = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '_lychee did not produce ./lychee/out.md — see the workflow logs._';
 
-            // Check if an issue already exists
+            const runUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
+            const header = `Broken links detected in the [latest external link check](${runUrl}) (${new Date().toISOString().slice(0, 10)}):`;
+
+            // GitHub's issue/comment body limit is 65536 chars. Leave headroom.
+            const maxBody = 60000;
+            const combined = `${header}\n\n${report}`;
+            const body = combined.length > maxBody
+              ? combined.slice(0, maxBody) + `\n\n_…report truncated; see the full [workflow run](${runUrl}) for the complete list._`
+              : combined;
+
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              labels: ['broken-links']
+              labels: ['broken-links'],
             });
 
-            if (issues.data.length === 0) {
+            if (issues.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body,
+              });
+            } else {
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: title,
-                body: body,
-                labels: ['broken-links', 'automated']
+                title: '🔗 Broken links detected',
+                body,
+                labels: ['broken-links', 'automated'],
               });
             }
