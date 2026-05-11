@@ -2,7 +2,7 @@ name: Prose Review
 
 on:
   pull_request:
-    types: [opened, synchronize, ready_for_review, reopened]
+    types: [opened, ready_for_review, reopened, labeled]
     paths:
       - 'content/posts/**/*.md'
       - 'content/talks/**/*.md'
@@ -11,7 +11,8 @@ jobs:
   prose-review:
     if: >-
       github.event.pull_request.draft == false &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
+      (github.event.action != 'labeled' || github.event.label.name == 'prose-review')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,7 +28,7 @@ jobs:
 
       - name: Run prose review
         id: prose-review
-        uses: anthropics/claude-code-action@939ae9c056ecf8a1a01409ddd1c4eadec5f8c77b # v1.0.116
+        uses: anthropics/claude-code-action@dde2242db6af13460b916652159b6ba19a598f30 # v1.0.120
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
