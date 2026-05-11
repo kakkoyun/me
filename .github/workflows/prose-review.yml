@@ -3,6 +3,9 @@ name: Prose Review
 on:
   pull_request:
     types: [labeled]
+    paths:
+      - 'content/posts/**/*.md'
+      - 'content/talks/**/*.md'
 
 jobs:
   prose-review:
