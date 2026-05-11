@@ -13,10 +13,12 @@
 
 set -uo pipefail
 
-# Anything outside this list (.github/, .claude/, scripts/, docs/,
-# Makefile, *.md at the repo root, .vale.ini, styles/, renovate.json,
-# tools/, .gitignore, .gitmodules, .lighthouserc.yml) does not change
-# what Hugo renders and does not need a preview.
+# Anything outside this list (.github/, .claude/, the rest of scripts/,
+# docs/, Makefile, *.md at the repo root, .vale.ini, styles/,
+# renovate.json, tools/, .gitignore, .gitmodules, .lighthouserc.yml)
+# does not change what Hugo renders and does not need a preview.
+# `scripts/netlify-ignore.sh` is itself included so a change to the
+# deploy gate triggers a verifying build.
 BUILD_PATHS=(
   ".hugo-version"
   "archetypes/"
@@ -25,6 +27,7 @@ BUILD_PATHS=(
   "content/"
   "layouts/"
   "netlify.toml"
+  "scripts/netlify-ignore.sh"
   "static/"
   "themes/"
 )
@@ -35,8 +38,15 @@ if [[ -z "${CACHED_COMMIT_REF:-}" ]]; then
   exit 1
 fi
 
+# Netlify always sets COMMIT_REF; guard explicitly so local runs or
+# unexpected env shape fall through to "build" instead of erroring on `set -u`.
+if [[ -z "${COMMIT_REF:-}" ]]; then
+  echo "netlify-ignore: COMMIT_REF not set, building."
+  exit 1
+fi
+
 # Manual redeploy of the same commit — nothing changed, by definition.
-if [[ "${CACHED_COMMIT_REF}" == "${COMMIT_REF:-}" ]]; then
+if [[ "${CACHED_COMMIT_REF}" == "${COMMIT_REF}" ]]; then
   echo "netlify-ignore: cached commit == current commit, skipping."
   exit 0
 fi
