@@ -37,4 +37,4 @@ In this talk, we will bring these two concepts together, and explain how to writ
 **Events**
 
 * [GopherCon EU 2022](https://gophercon.eu)
-  * [Recording](#building-a-go-profiler-using-go)
+  * [Recording](https://www.youtube.com/watch?v=OlHQ6gkwqyA)

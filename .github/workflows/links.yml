@@ -11,13 +11,161 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-links:
+  # Offline pass on every push/PR: build the site, then validate internal
+  # references against the rendered HTML (root-relative /posts/*, /uploads/*,
+  # #anchors). No network, no flake. If a contributor breaks an internal link,
+  # this fails and blocks the PR.
+  #
+  # Why build first: lychee on raw markdown cannot resolve Hugo URL mappings
+  # (e.g. /posts/foo-bar/ ← content/posts/foo-bar.md) or theme-generated
+  # links (CSS, navigation). Running against ./public/**/*.html checks what
+  # readers actually see.
+  links-internal:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          submodules: true
+          fetch-depth: 0
 
-      - name: Check links with lychee
+      - name: Read Hugo version
+        id: hugo-version
+        run: echo "version=$(cat .hugo-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@2752ce1d29631191ea3f27c23495fa06139a5b78 # v3
+        with:
+          hugo-version: ${{ steps.hugo-version.outputs.version }}
+          extended: true
+
+      - name: Build site
+        run: hugo --gc --minify --enableGitInfo
+        env:
+          HUGO_ENV: production
+
+      - name: Check internal links with lychee
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        with:
+          # --offline: skip all http/https URLs. External rot is handled by the
+          #   weekly cron pass below.
+          # --root-dir: resolves root-relative links (/posts/foo/, /uploads/x.jpg)
+          #   against the built public/ directory. Required for absolute paths
+          #   in offline mode.
+          # --include-fragments: verify #anchor targets exist in the linked page.
+          args: >-
+            --verbose
+            --no-progress
+            --offline
+            --root-dir "${{ github.workspace }}/public"
+            --include-fragments
+            './public/**/*.html'
+          fail: true
+
+  # On PRs that add a new post or talk, check external links in just those new
+  # files. Bounded scope keeps flake surface tiny while ensuring a contributor
+  # cannot land a brand-new post with a dead link that would only surface a
+  # week later in the cron pass. Existing posts are untouched here — they go
+  # through the weekly cron.
+  links-new-content:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect newly-added posts and talks
+        id: detect
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "${GITHUB_BASE_REF}"
+          # --diff-filter=A: only newly-added files (not modified/renamed).
+          # Limit to top-level posts/talks markdown — _index.md and metadata
+          # files are not net-new content.
+          mapfile -t new_files < <(
+            git diff --name-only --diff-filter=A "origin/${GITHUB_BASE_REF}...HEAD" -- \
+              'content/posts/*.md' 'content/talks/*.md' \
+              | grep -v '/_index\.md$' || true
+          )
+          if [ "${#new_files[@]}" -eq 0 ]; then
+            echo "No newly-added posts or talks. Skipping external link check."
+            echo "files=" >> "$GITHUB_OUTPUT"
+          else
+            echo "Newly-added files to check:"
+            printf '  %s\n' "${new_files[@]}"
+            echo "files=${new_files[*]}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check external links in new posts/talks
+        if: steps.detect.outputs.files != ''
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        with:
+          # Args mirror links-external below (same accept codes, retries,
+          # excludes) so a passing PR check guarantees the cron will pass on
+          # that file too. Cache is omitted — net-new files are not in any
+          # prior cache. fail: true because flake surface is bounded to the
+          # contributor's own new file(s).
+          # --scheme http/https: only check external URLs. Internal references
+          #   (root-relative /posts/foo, relative paths, fragments, mailto:)
+          #   are skipped entirely — links-internal already validates them
+          #   against the built site, and root-relative links to assets added
+          #   in this same PR do not yet exist on the live site.
+          args: >-
+            --verbose
+            --no-progress
+            --max-concurrency 8
+            --insecure
+            --max-retries 3
+            --retry-wait-time 5
+            --timeout 30
+            --accept '200..=299,403,429'
+            --scheme http
+            --scheme https
+            --exclude 'linkedin.com'
+            --exclude 'twitter.com'
+            --exclude 'x.com'
+            --exclude 'youtube.com'
+            --exclude 'hachyderm.io'
+            --exclude 'medium.com'
+            --exclude 'stackoverflow.com'
+            --exclude 'news.ycombinator.com'
+            --exclude 'github.com/kakkoyun/me/edit'
+            --exclude 'localhost'
+            --exclude 'gophercon.ist'
+            --exclude 'logitech.com'
+            --exclude 'matryer.com'
+            --exclude 'metalmatze.de'
+            --exclude 'gitpitch.com'
+            --exclude 'gophercon.eu'
+            ${{ steps.detect.outputs.files }}
+          fail: true
+
+  # Full external check on the weekly cron and on manual dispatch. Soft-fails
+  # so transient third-party errors never paint master red; broken links are
+  # logged onto the persistent broken-links issue for later triage.
+  links-external:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Restore lychee cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: .lycheecache
+          key: lychee-${{ github.run_id }}
+          restore-keys: |
+            lychee-
+
+      - name: Check external links with lychee
+        id: lychee
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
           # --accept 200..=299,403,429: lychee v2 (lychee >=0.15) treats --accept as a
@@ -28,6 +176,9 @@ jobs:
           #   crawlers with those codes but are reachable for human visitors.
           # --base: resolves root-relative links (e.g. /misc/, /uploads/photo.jpg) in local
           #   markdown files against the live site so lychee can actually check them.
+          # --cache + --cache-exclude-status: persist results between runs. 2xx and
+          #   permanent 4xx are cached; 429 and 5xx are NOT cached so transient errors
+          #   are retried next run instead of memoized as failures.
           # --exclude social/content platforms: linkedin, twitter/x, youtube, hachyderm,
           #   medium, stackoverflow, news.ycombinator.com all block bots reliably.
           # --exclude github.com/kakkoyun/me/edit: edit links require authentication.
@@ -47,6 +198,8 @@ jobs:
             --retry-wait-time 5
             --timeout 30
             --accept '200..=299,403,429'
+            --cache
+            --cache-exclude-status '429,500..=599'
             --base 'https://kakkoyun.me'
             --exclude 'linkedin.com'
             --exclude 'twitter.com'
@@ -65,32 +218,50 @@ jobs:
             --exclude 'gitpitch.com'
             --exclude 'gophercon.eu'
             './content/**/*.md'
-          fail: true
+          fail: false
 
-      - name: Create issue on failure
-        if: failure()
+      - name: Log broken links to tracking issue
+        if: steps.lychee.outputs.exit_code != '0'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const title = '🔗 Broken links detected';
-            const body = `Broken links were detected in the content.
+            const fs = require('fs');
 
-            Check the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details.`;
+            const reportPath = './lychee/out.md';
+            const report = fs.existsSync(reportPath)
+              ? fs.readFileSync(reportPath, 'utf8')
+              : '_lychee did not produce ./lychee/out.md — see the workflow logs._';
 
-            // Check if an issue already exists
+            const runUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
+            const header = `Broken links detected in the [latest external link check](${runUrl}) (${new Date().toISOString().slice(0, 10)}):`;
+
+            // GitHub's issue/comment body limit is 65536 chars. Leave headroom.
+            const maxBody = 60000;
+            const combined = `${header}\n\n${report}`;
+            const body = combined.length > maxBody
+              ? combined.slice(0, maxBody) + `\n\n_…report truncated; see the full [workflow run](${runUrl}) for the complete list._`
+              : combined;
+
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              labels: ['broken-links']
+              labels: ['broken-links'],
             });
 
-            if (issues.data.length === 0) {
+            if (issues.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body,
+              });
+            } else {
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: title,
-                body: body,
-                labels: ['broken-links', 'automated']
+                title: '🔗 Broken links detected',
+                body,
+                labels: ['broken-links', 'automated'],
               });
             }
