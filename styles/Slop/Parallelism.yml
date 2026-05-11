@@ -1,0 +1,15 @@
+extends: existence
+message: "Negative parallelism ('%s'). Common AI rhetorical setup; rewrite as a direct statement unless the contrast is load-bearing."
+level: suggestion
+ignorecase: true
+nonword: true
+tokens:
+  - "it's not just"
+  - "it's not merely"
+  - "it's not simply"
+  - "it is not just"
+  - "it is not merely"
+  - "this isn't just"
+  - "this is not just"
+  - "not only is"
+  - "not just a"

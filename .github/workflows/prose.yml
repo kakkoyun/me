@@ -1,0 +1,36 @@
+name: Prose Lint
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'content/**/*.md'
+      - '.vale.ini'
+      - 'styles/**'
+  pull_request:
+    paths:
+      - 'content/**/*.md'
+      - '.vale.ini'
+      - 'styles/**'
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  vale:
+    name: Vale
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Vale prose lint (advisory)
+        uses: vale-cli/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
+        with:
+          fail_on_error: false
+          filter_mode: added
+          reporter: github-pr-check
+          level: info
+          files: content
+          token: ${{ secrets.GITHUB_TOKEN }}
