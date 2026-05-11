@@ -1,0 +1,27 @@
+extends: existence
+message: "Formulaic opener ('%s'). Start with a concrete observation or hook instead."
+level: warning
+ignorecase: true
+nonword: true
+tokens:
+  - 'In this post,'
+  - 'In this article,'
+  - 'In this guide,'
+  - 'In this blog post,'
+  - "Let's dive into"
+  - "Let's explore"
+  - "It's worth noting that"
+  - "It's important to note that"
+  - 'It is worth noting that'
+  - 'It is important to note that'
+  - 'At its core,'
+  - 'In conclusion,'
+  - 'In summary,'
+  - 'To summarize,'
+  - 'As we can see,'
+  - 'As we have seen,'
+  - 'Without further ado'
+  - 'Buckle up'
+  - 'Imagine a world where'
+  - 'Imagine a scenario where'
+  - 'Picture this:'
