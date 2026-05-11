@@ -2,7 +2,7 @@ name: Claude Code Review
 
 on:
   pull_request:
-    types: [labeled]
+    types: [opened, reopened, ready_for_review, labeled]
     paths:
       - 'content/posts/**'
       - 'content/talks/**'
@@ -11,7 +11,7 @@ on:
 jobs:
   claude-review:
     if: >-
-      github.event.label.name == 'claude-review' &&
+      contains(github.event.pull_request.labels.*.name, 'claude-review') &&
       github.event.pull_request.draft == false &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
     runs-on: ubuntu-latest
