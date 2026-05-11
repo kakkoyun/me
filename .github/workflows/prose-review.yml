@@ -11,7 +11,7 @@ jobs:
   prose-review:
     if: >-
       github.event.pull_request.draft == false &&
-      github.event.pull_request.user.login == 'kakkoyun' &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
       (github.event.action != 'labeled' || github.event.label.name == 'prose-review')
     runs-on: ubuntu-latest
     permissions:
