@@ -20,6 +20,10 @@ make local-setup        # First-time setup: install Hugo, init submodule, dry-ru
 make check-hugo         # Verify Hugo version matches .hugo-version (auto-installs via Go)
 make update-version     # Update Hugo to latest, sync .hugo-version + netlify.toml
 make theme-update       # Pull latest PaperMod theme submodule
+make buffer-update      # Pull latest buffer-cli submodule
+make vale-sync          # Fetch third-party Vale style packages (proselint, write-good)
+make vale               # Run Vale prose linter on content/
+make prose              # Alias for vale with a summary count
 ```
 
 ## Architecture
@@ -125,13 +129,31 @@ Talk titles are prefixed with `"talk: "`. Categories and first tag are always `t
 
 Standalone pages (`about.md`, `now.md`, etc.) disable metadata display: `comments: false`, `disableShare: true`, `showWordCount: false`, `showReadingTime: false`.
 
+## Prose Quality
+
+Three layered defenses against AI-slop prose. All advisory; none block merges.
+
+- **[REVIEW.md](REVIEW.md)** -- voice and prose-quality criteria. Companion to the Vale rules and the `prose-review.yml` workflow.
+- **[.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md)** -- Anthropic-format skill. Auto-loads when editing files under `content/posts/`, `content/talks/`, `content/notes/`. Encodes tone, banned vocabulary, formulaic openers, patterns to scrutinize, and tone-by-category notes.
+- **Vale** (`.vale.ini` + `styles/Slop/`) -- deterministic prose linter. Run locally with `make vale`. On PRs, the `prose.yml` workflow posts inline annotations via reviewdog.
+
+**Target tone:** clear, explanatory, fun, whimsical, honest, open. Take the technical material seriously; do not take yourself seriously. See `REVIEW.md` for the full description.
+
+**Patterns to scrutinize, not preserve:** em-dash parenthetical asides (`— X —`), negative parallelism ("it's not X, it's Y" / "not just X, but Y"), and triadic rhythm all read as AI-flavored when overused. Vale flags the first two at `suggestion` (via `Slop.Density` and `Slop.Parallelism`). Triadic rhythm is review-by-eye. A single instance is fine; clusters are not.
+
+**Before opening a PR with a new post:** run `make prose`. First-time setup: `brew install vale && make vale-sync`.
+
 ## CI/CD
 
-Three GitHub Actions workflows:
+GitHub Actions workflows:
 
 - **`build.yml`** -- Build & verify on push/PR to master. Runs production build + `verify-build.sh`, then Lighthouse CI (Performance >= 85, Accessibility >= 90, Best Practices >= 90, SEO >= 90). Auto-creates GitHub issue if Lighthouse scores drop.
 - **`links.yml`** -- Weekly + push/PR link checking via lychee. Excludes social platforms that block bots. Auto-creates issue on broken links.
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags.
+- **`lint.yml`** -- ShellCheck on `scripts/` and actionlint on workflows. Reviewdog-based PR annotations.
+- **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block).
+- **`prose-review.yml`** -- Claude prose review on `content/posts/**` and `content/talks/**` PRs. Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
+- **`claude-code-review.yml`** / **`claude.yml`** -- Generic code-review and `@claude` mention handlers.
 
 ## Key Integrations
 
@@ -139,6 +161,37 @@ Three GitHub Actions workflows:
 - **Giscus:** Comments via GitHub Discussions on `kakkoyun/me`. Config in `config.yaml` under `params.giscus`.
 - **Plausible + Hakanai:** Dual analytics. Extend via `params.analytics` in `config.yaml`.
 - **Renovate:** Auto-updates Hugo version (in `.hugo-version` + `netlify.toml`), GitHub Actions, and PaperMod submodule.
+
+## Buffer CLI Integration
+
+Social media scheduling via [erickhun/buffer-cli](https://github.com/erickhun/buffer-cli), installed as a git submodule at `tools/buffer-cli/`.
+
+- **Binary:** `~/.local/bin/buffer-cli` (raw upstream binary, macOS ARM64)
+- **Wrapper:** `scripts/buffer` → injects `BUFFER_AUTH_TOKEN` from 1Password (`op://Private/Buffer API Token/credential`), then execs `buffer-cli`
+- **PATH entry:** `~/.local/bin/buffer` → symlink to `scripts/buffer`
+- **Skill:** `~/.claude/skills/buffer/SKILL.md` → global symlink to `tools/buffer-cli/.claude/skills/skill.md` (auto-updates with `make buffer-update`; invoke via `/buffer` in any Claude Code session)
+- **1Password:** Token stored at `op://Private/Buffer API Token/credential` in the Personal account (Private vault)
+
+The wrapper pattern means the upstream skill's `buffer get-account` / `buffer post` calls work unmodified. In CI, set `BUFFER_AUTH_TOKEN` directly as an environment variable to skip the `op read` call.
+
+### Social Media Promotion Pipeline
+
+Automated via `.github/workflows/promote-post.yml` with three triggers:
+
+- **Push**: promotes newly added posts when `publishDate <= today`
+- **Nightly cron (6 AM UTC)**: promotes scheduled posts on their publish day
+- **Manual dispatch**: re-promote or promote any specific post
+
+All date/draft validation is deterministic bash in `scripts/find-promotable-posts.sh`.
+Claude handles only the creative work: reading the post, crafting messages, posting to Buffer.
+
+Posts go to Twitter + LinkedIn + Bluesky. Twitter/Bluesky use threads (message + link).
+LinkedIn includes the link in the main post body.
+
+Dedup: when a post is pushed with today's `publishDate`, the push trigger promotes it.
+The nightly cron skips posts added to git today (detected via `git log --diff-filter=A`).
+
+Local: `/project:promote-post content/posts/<slug>.md` in any Claude Code session.
 
 ## Commit Style
 

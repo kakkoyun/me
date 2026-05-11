@@ -1,0 +1,85 @@
+extends: existence
+message: "AI-slop vocabulary: '%s'. Replace with concrete language."
+level: error
+ignorecase: true
+nonword: false
+tokens:
+  - delve
+  - delves
+  - delving
+  - tapestry
+  - rich tapestry
+  - leverage
+  - leverages
+  - leveraging
+  - utilize
+  - utilizes
+  - utilizing
+  - utilization
+  - seamless
+  - seamlessly
+  - paradigm
+  - paradigms
+  - ecosystem
+  - ecosystems
+  - unleash
+  - unleashes
+  - unleashing
+  - unlock the power
+  - unlocking the power
+  - navigate the landscape
+  - navigating the landscape
+  - the landscape of
+  - in today's fast-paced
+  - in today's digital
+  - in today's world
+  - in today's ever-evolving
+  - it's important to note
+  - it is important to note
+  - it's worth noting
+  - it is worth noting
+  - dive deep
+  - dives deep
+  - diving deep
+  - deep dive into
+  - comprehensive guide
+  - comprehensive overview
+  - game-changer
+  - game changer
+  - game-changing
+  - revolutionize
+  - revolutionizes
+  - revolutionary
+  - cutting-edge
+  - state-of-the-art
+  - bleeding-edge
+  - harness
+  - harnesses
+  - harnessing
+  - embark
+  - embarks
+  - embarking
+  - embark on a journey
+  - journey of discovery
+  - realm of
+  - the realm of
+  - foster
+  - fosters
+  - fostering
+  - the world of
+  - in the world of
+  - nuanced
+  - multifaceted
+  - synergy
+  - synergies
+  - synergistic
+  - holistic approach
+  - meticulous
+  - meticulously
+  - elevate
+  - elevates
+  - elevating
+  - groundbreaking
+  - testament to
+  - a testament to
+  - vibrant

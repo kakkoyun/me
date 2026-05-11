@@ -1,0 +1,6 @@
+extends: existence
+message: "Em-dash parenthetical aside ('— X —'). Common AI prose tell; prefer commas or parens for asides. A single em-dash is fine, a pair reads as formal."
+level: suggestion
+nonword: true
+raw:
+  - '—[^—\n]{1,150}—'
