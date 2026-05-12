@@ -7,19 +7,44 @@
    Mirrors the Recent Notes block (.recent-notes-container) so the two
    homepage sections share the same airy, unbulleted list rhythm.
 */
-.recent-issues-container > p:first-child {
+.recent-issues-container > p:first-child,
+.recent-notes-container > p:first-child {
   margin-bottom: 0.5rem;
 }
 
-.recent-issues-container ul {
+.recent-issues-container ul,
+.recent-notes-container ul {
   list-style-type: none;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
 
-.recent-issues-container ul li {
+.recent-issues-container ul li,
+.recent-notes-container ul li {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+/* Two-column homepage grid for Most Recent Issues + Recent Notes.
+   Stacks vertically below the breakpoint used elsewhere on the site.
+*/
+.home-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.home-column > .page-header {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+@media (max-width: 768px) {
+  .home-columns {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }
 
 .newsletter-form {

@@ -53,62 +53,50 @@
 
 {{- if and .IsHome site.Params.homeInfoParams (eq $paginator.PageNumber 1) }}
 {{- partial "home_info.html" . }}
+{{- $recentNotes := "" }}
 {{- if site.Params.showRecentNotes }}
-{{- $recentNotes := site.GetPage "notes/_index.md" }}
-{{- if $recentNotes }}
-<div>
-  <style>
-    .recent-notes-container > p:first-child {
-      margin-bottom: 0.5rem;
-    }
-    .recent-notes-container ul {
-      list-style-type: none;
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-    }
-    .recent-notes-container ul li {
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-    }
-  </style>
-
-<br/>
-<hr/>
-
-<header class="page-header">
-  <h2>Recent Notes</h2>
-</header>
-<div class="post-content recent-notes-container">
-  {{ $recentNotes.Content }}
-</div>
-</div>
+{{- $recentNotes = site.GetPage "notes/_index.md" }}
 {{- end }}
-{{- end }}
+{{- $newsletters := slice }}
 {{- if site.Params.showRecentNewsletters }}
 {{- $count := site.Params.recentNewslettersCount | default 5 }}
-{{- $newsletters := where site.RegularPages "Section" "newsletter" }}
+{{- $newsletters = where site.RegularPages "Section" "newsletter" }}
 {{- $newsletters = first $count $newsletters }}
-{{- if $newsletters }}
-<div>
+{{- end }}
+{{- if or $recentNotes $newsletters }}
 <br/>
 <hr/>
-<header class="page-header">
-  <h2>Most Recent Issues</h2>
-</header>
-<div class="post-content recent-issues-container">
-  <p>Latest issues across all <a href="/newsletter/">newsletters</a>.</p>
-  <ul>
-    {{- range $newsletters }}
-    <li>
-      <a href="{{ .Permalink }}">{{ .Title }}</a>
-      {{- with .Parent }}{{ if ne .Kind "home" }} · <em>{{ .Title }}</em>{{ end }}{{- end -}}
-      {{- with .Date }} · <time datetime="{{ .Format "2006-01-02" }}">{{ .Format site.Params.dateFormat }}</time>{{- end -}}
-    </li>
-    {{- end }}
-  </ul>
+<div class="home-columns">
+  {{- if $newsletters }}
+  <section class="home-column">
+    <header class="page-header">
+      <h2>Most Recent Issues</h2>
+    </header>
+    <div class="post-content recent-issues-container">
+      <p>Latest issues across all <a href="/newsletter/">newsletters</a>.</p>
+      <ul>
+        {{- range $newsletters }}
+        <li>
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+          {{- with .Parent }}{{ if ne .Kind "home" }} · <em>{{ .Title }}</em>{{ end }}{{- end -}}
+          {{- with .Date }} · <time datetime="{{ .Format "2006-01-02" }}">{{ .Format site.Params.dateFormat }}</time>{{- end -}}
+        </li>
+        {{- end }}
+      </ul>
+    </div>
+  </section>
+  {{- end }}
+  {{- if $recentNotes }}
+  <section class="home-column">
+    <header class="page-header">
+      <h2>Recent Notes</h2>
+    </header>
+    <div class="post-content recent-notes-container">
+      {{ $recentNotes.Content }}
+    </div>
+  </section>
+  {{- end }}
 </div>
-</div>
-{{- end }}
 {{- end }}
 {{- end }}
 
