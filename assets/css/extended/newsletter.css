@@ -10,6 +10,9 @@
 .recent-issues-container > p:first-child,
 .recent-notes-container > p:first-child {
   margin-bottom: 0.5rem;
+  font-style: italic;
+  color: var(--secondary);
+  font-size: 0.95em;
 }
 
 .recent-issues-container ul,
