@@ -113,6 +113,12 @@ jobs:
           #   are skipped entirely — links-internal already validates them
           #   against the built site, and root-relative links to assets added
           #   in this same PR do not yet exist on the live site.
+          # --root-dir: lychee needs a root dir to parse root-relative URLs
+          #   like /talks/foo into file:// URLs before any filter applies.
+          #   Without it, parsing fails with a hard error and --scheme never
+          #   gets a chance to skip them. The path is only used for URL
+          #   construction; the resulting file:// URLs are then filtered out
+          #   by --scheme http/https.
           args: >-
             --verbose
             --no-progress
@@ -124,6 +130,7 @@ jobs:
             --accept '200..=299,403,429'
             --scheme http
             --scheme https
+            --root-dir "${{ github.workspace }}"
             --exclude 'linkedin.com'
             --exclude 'twitter.com'
             --exclude 'x.com'
