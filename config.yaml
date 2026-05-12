@@ -150,6 +150,8 @@ params:
   tocOpen: false
   showToc: false
   showRecentNotes: true
+  showRecentNewsletters: true
+  recentNewslettersCount: 5
   showShareButtons: true
   showReadingTime: true
   showBreadCrumbs: false

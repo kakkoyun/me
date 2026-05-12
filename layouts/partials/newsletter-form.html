@@ -1,17 +1,24 @@
 {{- /*
   Newsletter subscription form (Hakanai Broadcast).
 
-  Renders nothing until Site.Params.newsletter.enabled is true. Replace the
-  placeholder block below with the embed snippet from the Hakanai dashboard
-  once the campaign is created. The Site.Params.newsletter values let the
-  form be wired without further template edits.
+  When Site.Params.newsletter.enabled is true: emits a wrapper div ready to
+  receive the Hakanai-issued embed snippet (paste it where the TODO is).
+  When disabled (the default until Hakanai is wired up): renders a visible
+  "coming soon" placeholder so layout/placement can be reviewed in preview.
 
-  Accepts an optional `publication` slug in the context (.publication) so a
-  single embed can target a specific publication when Hakanai requires it.
+  Accepts an optional `publication` slug in the context (.publication). If
+  provided, the placeholder name resolves to the publication's display name
+  from Site.Params.newsletter.publications.
 */ -}}
 {{- $n := site.Params.newsletter -}}
-{{- if $n.enabled -}}
 {{- $publication := .publication | default "" -}}
+{{- $name := "newsletter" -}}
+{{- with $publication -}}
+  {{- range $n.publications -}}
+    {{- if eq .slug $publication -}}{{- $name = .name -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if $n.enabled -}}
 <div class="newsletter-form" data-publication="{{ $publication }}">
   {{- /* TODO: paste Hakanai-issued embed here. Example shape:
 
@@ -25,4 +32,11 @@
 
   */ -}}
 </div>
+{{- else -}}
+<aside class="newsletter-form newsletter-form--placeholder" data-publication="{{ $publication }}" aria-label="Subscription form placeholder">
+  <strong>Subscribe to {{ $name }}</strong>
+  <p>Email subscription is coming soon. For now, email
+    <a href="mailto:{{ site.Params.author.email }}?subject=Newsletter">{{ site.Params.author.email }}</a>
+    with the subject &ldquo;Newsletter&rdquo; and I&rsquo;ll add you.</p>
+</aside>
 {{- end -}}

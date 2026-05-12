@@ -80,6 +80,29 @@
 </div>
 {{- end }}
 {{- end }}
+{{- if site.Params.showRecentNewsletters }}
+{{- $count := site.Params.recentNewslettersCount | default 5 }}
+{{- $newsletters := where site.RegularPages "Section" "newsletter" }}
+{{- $newsletters = first $count $newsletters }}
+{{- if $newsletters }}
+<div>
+<br/>
+<hr/>
+<header class="page-header">
+  <h2>Recent Newsletters</h2>
+</header>
+<ul class="recent-newsletters">
+  {{- range $newsletters }}
+  <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    {{- with .Parent }}{{ if ne .Kind "home" }} · <em>{{ .Title }}</em>{{ end }}{{- end -}}
+    {{- with .Date }} · <time datetime="{{ .Format "2006-01-02" }}">{{ .Format site.Params.dateFormat }}</time>{{- end -}}
+  </li>
+  {{- end }}
+</ul>
+</div>
+{{- end }}
+{{- end }}
 {{- end }}
 
 <hr/>

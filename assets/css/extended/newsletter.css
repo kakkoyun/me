@@ -1,0 +1,27 @@
+/* Newsletter form
+   Styles for the subscription form wrapper and its placeholder variant
+   shown while Hakanai is not yet wired up.
+*/
+
+.newsletter-form {
+  margin: 1.5rem 0;
+}
+
+.newsletter-form--placeholder {
+  display: block;
+  padding: 0.9rem 1rem;
+  background: var(--note-bg, rgba(0, 0, 0, 0.03));
+  border-left: 3px solid var(--note-accent, #888);
+  border-radius: 4px;
+  font-size: 0.95em;
+  line-height: 1.4;
+}
+
+.newsletter-form--placeholder strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.newsletter-form--placeholder p {
+  margin: 0;
+}
