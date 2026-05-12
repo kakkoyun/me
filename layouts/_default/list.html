@@ -95,15 +95,18 @@
 <header class="page-header">
   <h2>Most Recent Issues</h2>
 </header>
-<ul class="recent-newsletters">
-  {{- range $newsletters }}
-  <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    {{- with .Parent }}{{ if ne .Kind "home" }} · <em>{{ .Title }}</em>{{ end }}{{- end -}}
-    {{- with .Date }} · <time datetime="{{ .Format "2006-01-02" }}">{{ .Format site.Params.dateFormat }}</time>{{- end -}}
-  </li>
-  {{- end }}
-</ul>
+<div class="post-content recent-issues-container">
+  <p>Latest issues across all <a href="/newsletter/">newsletters</a>.</p>
+  <ul>
+    {{- range $newsletters }}
+    <li>
+      <a href="{{ .Permalink }}">{{ .Title }}</a>
+      {{- with .Parent }}{{ if ne .Kind "home" }} · <em>{{ .Title }}</em>{{ end }}{{- end -}}
+      {{- with .Date }} · <time datetime="{{ .Format "2006-01-02" }}">{{ .Format site.Params.dateFormat }}</time>{{- end -}}
+    </li>
+    {{- end }}
+  </ul>
+</div>
 </div>
 {{- end }}
 {{- end }}

@@ -3,6 +3,25 @@
    shown while Hakanai is not yet wired up.
 */
 
+/* Most Recent Issues homepage block
+   Mirrors the Recent Notes block (.recent-notes-container) so the two
+   homepage sections share the same airy, unbulleted list rhythm.
+*/
+.recent-issues-container > p:first-child {
+  margin-bottom: 0.5rem;
+}
+
+.recent-issues-container ul {
+  list-style-type: none;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.recent-issues-container ul li {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
 .newsletter-form {
   margin: 1.5rem 0;
 }
