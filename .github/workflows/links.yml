@@ -46,6 +46,7 @@ jobs:
           HUGO_ENV: production
 
       - name: Check internal links with lychee
+        id: lychee
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
           # --offline: skip all http/https URLs. External rot is handled by the
@@ -54,6 +55,8 @@ jobs:
           #   against the built public/ directory. Required for absolute paths
           #   in offline mode.
           # --include-fragments: verify #anchor targets exist in the linked page.
+          #   Works because layouts/_default/_markup/render-heading.html emits
+          #   id="<slug>" on every heading.
           args: >-
             --verbose
             --no-progress
@@ -61,7 +64,25 @@ jobs:
             --root-dir "${{ github.workspace }}/public"
             --include-fragments
             './public/**/*.html'
-          fail: true
+          # fail: false so a work-in-progress series with forward references
+          # to not-yet-written sibling posts does not block the PR. Broken
+          # links still surface in the workflow's step summary below.
+          fail: false
+
+      - name: Surface broken internal links to step summary
+        if: steps.lychee.outputs.exit_code != '0'
+        run: |
+          {
+            echo "## ⚠️ Broken internal links (non-blocking)"
+            echo
+            echo "These links did not resolve against the built site. Fix them before merging if they are not intentional forward references."
+            echo
+            if [ -f ./lychee/out.md ]; then
+              cat ./lychee/out.md
+            else
+              echo "_lychee did not produce ./lychee/out.md — see step logs above._"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # On PRs that add a new post or talk, check external links in just those new
   # files. Bounded scope keeps flake surface tiny while ensuring a contributor
