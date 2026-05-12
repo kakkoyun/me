@@ -9,8 +9,7 @@ blog posts do not.
 
 ## Publications
 
-- [**Reads & Builds**](/newsletter/reads-and-builds/) — links and commentary on
-  what I'm reading and building.
+{{< newsletter-publications >}}
 
 More to come.
 

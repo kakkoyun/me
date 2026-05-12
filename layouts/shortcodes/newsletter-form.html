@@ -1,1 +1,12 @@
+{{/* Newsletter form shortcode
+Usage:
+  {{< newsletter-form >}}
+  {{< newsletter-form publication="reads-and-builds" >}}
+Optional named params:
+  publication   Slug of the publication to target (matches a slug under
+                Site.Params.newsletter.publications). Omitted for a
+                generic / global subscribe form.
+Rendering is gated on Site.Params.newsletter.enabled — nothing emits until
+the Hakanai dashboard values are pasted in and the flag is flipped.
+*/}}
 {{- partial "newsletter-form.html" (dict "publication" (.Get "publication")) -}}
