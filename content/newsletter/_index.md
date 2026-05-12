@@ -12,5 +12,3 @@ blog posts do not.
 {{< newsletter-publications >}}
 
 More to come.
-
-{{< newsletter-form >}}
