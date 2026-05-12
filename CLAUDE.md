@@ -135,7 +135,9 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 
 - **[REVIEW.md](REVIEW.md)** -- voice and prose-quality criteria. Companion to the Vale rules and the `prose-review.yml` workflow.
 - **[.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md)** -- Anthropic-format skill. Auto-loads when editing files under `content/posts/`, `content/talks/`, `content/notes/`. Encodes tone, banned vocabulary, formulaic openers, patterns to scrutinize, and tone-by-category notes.
-- **Vale** (`.vale.ini` + `styles/Slop/`) -- deterministic prose linter. Run locally with `make vale`. On PRs, the `prose.yml` workflow posts inline annotations via reviewdog.
+- **Vale** (`.vale.ini` + `styles/Slop/`) -- runs automatically on every content PR via `prose.yml` (reviewdog inline annotations). Run locally with `make vale`.
+- **`prose-review.yml`** -- Claude prose reviewer. Triggered on demand by applying the `prose-review` label to a PR. Reads `REVIEW.md` and the `kemal-voice` skill.
+- **`claude-code-review.yml`** -- generic code reviewer. Triggered on demand by applying the `claude-review` label.
 
 **Target tone:** clear, explanatory, fun, whimsical, honest, open. Take the technical material seriously; do not take yourself seriously. See `REVIEW.md` for the full description.
 
@@ -151,9 +153,10 @@ GitHub Actions workflows:
 - **`links.yml`** -- Weekly + push/PR link checking via lychee. Excludes social platforms that block bots. Auto-creates issue on broken links.
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags.
 - **`lint.yml`** -- ShellCheck on `scripts/` and actionlint on workflows. Reviewdog-based PR annotations.
-- **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block).
-- **`prose-review.yml`** -- Claude prose review on `content/posts/**` and `content/talks/**` PRs. Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
-- **`claude-code-review.yml`** / **`claude.yml`** -- Generic code-review and `@claude` mention handlers.
+- **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block). Auto-fires on content paths.
+- **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
+- **`claude-code-review.yml`** -- Generic code reviewer. Label-triggered only (apply `claude-review` to fire). Advisory.
+- **`claude.yml`** -- `@claude` mention handler.
 
 ## Key Integrations
 
