@@ -10,9 +10,9 @@ on:
 jobs:
   prose-review:
     if: >-
+      contains(github.event.pull_request.labels.*.name, 'prose-review') &&
       github.event.pull_request.draft == false &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association) &&
-      (github.event.action != 'labeled' || github.event.label.name == 'prose-review')
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,10 +31,14 @@ jobs:
         uses: anthropics/claude-code-action@dde2242db6af13460b916652159b6ba19a598f30 # v1.0.120
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
           prompt: |
-            You are reviewing a pull request that touches blog posts under content/posts/ or content/talks/.
+            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
 
-            Before reviewing, read:
+            Apply the review above as a PROSE-ONLY review of a blog post under content/posts/ or content/talks/.
+
+            Before commenting, read:
             1. REVIEW.md at the repo root, which sets the target tone and the patterns to scrutinize.
             2. .claude/skills/kemal-voice/SKILL.md, which has banned vocabulary, formulaic openers, the editing checklist, and tone-by-category notes.
 
