@@ -26,12 +26,13 @@
 }
 
 /* Two-column homepage grid for Most Recent Issues + Recent Notes.
-   Stacks vertically below the breakpoint used elsewhere on the site.
+   A 1px separator runs between the columns (vertical on desktop,
+   horizontal on mobile once they stack).
 */
 .home-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 0;
   margin-bottom: 1rem;
 }
 
@@ -40,10 +41,30 @@
   padding-top: 0;
 }
 
+.home-column:first-child {
+  padding-right: 2rem;
+}
+
+.home-column + .home-column {
+  border-left: 1px solid var(--border);
+  padding-left: 2rem;
+}
+
 @media (max-width: 768px) {
   .home-columns {
     grid-template-columns: 1fr;
-    gap: 0;
+  }
+
+  .home-column:first-child {
+    padding-right: 0;
+    padding-bottom: 1rem;
+  }
+
+  .home-column + .home-column {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding-left: 0;
+    padding-top: 1rem;
   }
 }
 
