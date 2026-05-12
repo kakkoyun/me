@@ -1,0 +1,10 @@
+{{- /*
+  Emit an id="..." attribute on every heading so in-page fragment links
+  (`#section-name`) resolve correctly. Hugo's default renderer emits no id,
+  and PaperMod ships no render-heading.html override, so without this every
+  fragment link on the site silently 404s. .Anchor is Hugo's slug for the
+  heading text (e.g. "## Where to Find Me" -> "where-to-find-me").
+*/ -}}
+<h{{ .Level }} id="{{ .Anchor | safeURL }}">
+  {{- .Text | safeHTML -}}
+</h{{ .Level }}>
