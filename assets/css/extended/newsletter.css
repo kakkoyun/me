@@ -29,9 +29,19 @@
 }
 
 /* Two-column homepage grid for Most Recent Issues + Recent Notes.
-   A 1px separator runs between the columns (vertical on desktop,
-   horizontal on mobile once they stack).
+   A separator runs between the columns (vertical on desktop, horizontal
+   on mobile once they stack). All dividers in this area --- the .home-divider
+   <hr> elements above/below the block and the inter-column rule --- share
+   the same 2px var(--tertiary) treatment, mirroring PaperMod's .md-content
+   hr style and adapting automatically to light and dark themes.
 */
+.home-divider {
+  height: 2px;
+  background: var(--tertiary);
+  border: 0;
+  margin: 30px 0;
+}
+
 .home-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -49,7 +59,7 @@
 }
 
 .home-column + .home-column {
-  border-left: 1px solid var(--border);
+  border-left: 2px solid var(--tertiary);
   padding-left: 2rem;
 }
 
@@ -65,7 +75,7 @@
 
   .home-column + .home-column {
     border-left: 0;
-    border-top: 1px solid var(--border);
+    border-top: 2px solid var(--tertiary);
     padding-left: 0;
     padding-top: 1rem;
   }

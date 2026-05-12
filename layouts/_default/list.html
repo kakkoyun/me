@@ -65,7 +65,7 @@
 {{- end }}
 {{- if or $recentNotes $newsletters }}
 <br/>
-<hr/>
+<hr class="home-divider"/>
 <div class="home-columns">
   {{- if $newsletters }}
   <section class="home-column">
@@ -101,7 +101,7 @@
 {{- end }}
 
 {{- if not (.Param "hideAutoList") }}
-<hr/>
+<hr class="home-divider"/>
 
 {{- if and .IsHome (eq $paginator.PageNumber 1) }}
 <header class="page-header">
