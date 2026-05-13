@@ -23,58 +23,131 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     permissions:
       issues: write
     steps:
-      - name: POST to Hakanai
-        id: post
+      - name: Probe Hakanai subscribe endpoints
+        id: probe
         env:
           EMAIL: ${{ github.event.inputs.email || 'kakkoyun@gmail.com' }}
           CAMPAIGN_ID: ${{ github.event.inputs.campaign_id || 'c5029a05-9d18-4c54-8b44-1e8b270a6841' }}
           TRIGGER: ${{ github.event_name }}
         run: |
           set +e
-          url="https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe"
 
-          headers=$(mktemp)
-          body=$(mktemp)
+          probe() {
+            local label="$1"
+            local url="$2"
+            local content_type="$3"
+            local data="$4"
 
-          status=$(curl -sS -o "$body" -D "$headers" -w "%{http_code}" \
-            -X POST \
-            -H "User-Agent: kakkoyun-debug-workflow/1.0" \
-            -H "Accept: text/html,application/json;q=0.9,*/*;q=0.8" \
-            -H "Origin: https://kakkoyun.me" \
-            -H "Referer: https://kakkoyun.me/" \
-            --data-urlencode "email=${EMAIL}" \
-            "$url")
+            local headers
+            local body
+            headers=$(mktemp)
+            body=$(mktemp)
+            local elapsed_file
+            elapsed_file=$(mktemp)
 
-          {
-            echo "## Hakanai subscribe probe — \`${TRIGGER}\`"
             echo ""
-            echo "- **Endpoint:** \`POST $url\`"
-            echo "- **Body:** \`email=${EMAIL}\` (url-encoded)"
-            echo "- **HTTP status:** \`$status\`"
-            echo "- **Run:** [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
+            echo "## $label"
+            echo ""
+            echo "- **URL:** \`$url\`"
+            echo "- **Content-Type:** \`$content_type\`"
+            echo "- **Body:** \`$data\`"
+
+            local started end status
+            started=$(date +%s)
+
+            status=$(curl -sS --connect-timeout 10 --max-time 30 \
+              -o "$body" -D "$headers" -w "%{http_code}" \
+              -X POST \
+              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
+              -H "Accept: text/html,application/json;q=0.9,*/*;q=0.8" \
+              -H "Origin: https://kakkoyun.me" \
+              -H "Referer: https://kakkoyun.me/" \
+              -H "Content-Type: $content_type" \
+              --data "$data" \
+              "$url" 2>"$elapsed_file")
+            local curl_exit=$?
+            end=$(date +%s)
+            local dt=$((end - started))
+
+            echo "- **curl exit code:** \`$curl_exit\`"
+            echo "- **HTTP status:** \`${status:-(none)}\`"
+            echo "- **Elapsed:** \`${dt}s\`"
+
+            if [[ -s "$elapsed_file" ]]; then
+              echo ""
+              echo "### curl stderr"
+              echo '```'
+              cat "$elapsed_file"
+              echo '```'
+            fi
+
             echo ""
             echo "### Response headers"
             echo '```'
-            cat "$headers"
+            if [[ -s "$headers" ]]; then cat "$headers"; else echo "(empty)"; fi
             echo '```'
+
             echo ""
             echo "### Response body"
             echo '```'
-            cat "$body"
+            if [[ -s "$body" ]]; then
+              head -c 4096 "$body"
+              local total
+              total=$(wc -c < "$body")
+              if (( total > 4096 )); then
+                echo ""
+                echo "... (truncated, total $total bytes)"
+              fi
+            else
+              echo "(empty)"
+            fi
+            echo '```'
+          }
+
+          {
+            echo "# Hakanai subscribe probe — \`${TRIGGER}\`"
+            echo ""
+            echo "Run: [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
+            echo "Time: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
+
+            # Probe A: the form endpoint that the homepage <form action> points at.
+            probe "A. Form endpoint (urlencoded)" \
+              "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe" \
+              "application/x-www-form-urlencoded" \
+              "email=${EMAIL}"
+
+            # Probe B: the API endpoint with JSON.
+            probe "B. API endpoint (JSON)" \
+              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" \
+              "application/json" \
+              "{\"email\":\"${EMAIL}\"}"
+
+            # Probe C: TLS-only handshake check to see if the host even responds.
+            echo ""
+            echo "## C. Plain HEAD to broadcast.hakanai.io"
+            echo '```'
+            curl -sS -I --connect-timeout 10 --max-time 15 https://broadcast.hakanai.io/ 2>&1 | head -30
             echo '```'
           } | tee /tmp/comment.md
 
           cat /tmp/comment.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment on issue #165
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const body = fs.readFileSync('/tmp/comment.md', 'utf8');
+            let body;
+            try {
+              body = fs.readFileSync('/tmp/comment.md', 'utf8');
+            } catch (e) {
+              body = `Probe step did not produce a comment file: ${e.message}\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            }
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
