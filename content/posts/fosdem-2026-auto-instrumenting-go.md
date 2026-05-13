@@ -175,7 +175,7 @@ For Go, this approach is more useful as a debugging tool than a production instr
 
 ### USDT Probes: The Novel Part
 
-USDT (User Statically-Defined Tracing) probes are a mechanism from the DTrace/SystemTap ecosystem. They are marker points compiled into a binary that external tooling (bpftrace, perf, DTrace) can attach to at runtime. The key property: **when no consumer is attached, the probe site is a NOP instruction with zero overhead.**
+USDT (User Statically-Defined Tracing) probes are a mechanism from the DTrace/SystemTap world. They are marker points compiled into a binary that external tooling (bpftrace, perf, DTrace) can attach to at runtime. The key property: **when no consumer is attached, the probe site is a NOP instruction with zero overhead.**
 
 We built two proof-of-concept implementations.
 
@@ -266,7 +266,7 @@ Full benchmark data and reproduction instructions are in the [demo repository](h
 
 ---
 
-### The Ecosystem Picture
+### How the Approaches Fit Together
 
 The most grounded take from the [OTel Unplugged EU 2026](/posts/otel-unplugged-eu-2026/) OBI/eBPF session:
 
@@ -280,7 +280,7 @@ These approaches are not competing. They serve different deployment scenarios an
 | **eBPF/OBI** | Kernel-level network hooks | Runtime flexibility, multi-language, no restart | Needs kernel privileges |
 | **eBPF Auto** | Uprobe hooks on Go functions | Go-specific deep tracing without code changes | Maintenance mode, fragile across Go versions |
 | **Injector/SSI** | K8s operator + `LD_PRELOAD` | Lowest friction onboarding | Does not work for Go's static binaries |
-| **USDT** | Compiled probe points + bpftrace | Zero overhead when not tracing, future potential | Proof of concept, ecosystem immaturity |
+| **USDT** | Compiled probe points + bpftrace | Zero overhead when not tracing, future potential | Proof of concept, tooling still young |
 
 The vision articulated at OTel Unplugged — `apt install opentelemetry` and everything works — requires all these layers coordinating. OBI detecting the Injector and backing off. Compile-time instrumentation detecting existing SDK usage. USDT probes coexisting with eBPF hooks. We are not there yet, but the direction is clear.
 
@@ -296,7 +296,7 @@ Several threads from the talk and surrounding conversations point forward:
 
 - **eBPF Tokens.** [BPF Tokens](https://fosdem.org/2026/schedule/event/3LLHG9-bpf-tokens-safe-userspace-ebpf/) could significantly reduce the privilege requirements for eBPF-based instrumentation. Instead of `CAP_SYS_ADMIN`, a token-based trust model would lower the bar for security teams.
 
-- **Native USDT in Go.** The PoC fork demonstrates feasibility. Whether the Go team would accept USDT probes into the standard library is an open question, but the pattern exists in other ecosystems — Postgres, MySQL, and the JVM all have static tracepoints behind flags.
+- **Native USDT in Go.** The PoC fork demonstrates feasibility. Whether the Go team would accept USDT probes into the standard library is an open question, but the pattern exists elsewhere — Postgres, MySQL, and the JVM all have static tracepoints behind flags.
 
 - **Flight recording.** The `golang/go#63185` proposal for always-on flight recording in the Go runtime could eventually provide the foundation for zero-touch distributed tracing without any external tooling.
 
@@ -310,4 +310,4 @@ The slides are available as [Markdown](https://github.com/kakkoyun/fosdem-2026/b
 
 If you want to get involved: the [OTel Compile-Time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://slack.cncf.io/) are where the discussions happen.
 
-See also: [OTel Unplugged EU 2026 field notes](/posts/otel-unplugged-eu-2026/) for the broader ecosystem context.
+See also: [OTel Unplugged EU 2026 field notes](/posts/otel-unplugged-eu-2026/) for the broader community context.
