@@ -78,8 +78,11 @@ for tpl in "${targets[@]}"; do
     continue
   fi
 
-  out=$(npx --yes mjml@latest --validate strict "$tpl" -o /dev/null 2>&1) || rc=$?
-  rc=${rc:-0}
+  # Pin to MJML v4 (current stable line). `@latest` would make CI
+  # non-deterministic: a new release could break validation without
+  # any repo change. Bump the major manually when intentional.
+  rc=0
+  out=$(npx --yes mjml@4 --validate strict "$tpl" -o /dev/null 2>&1) || rc=$?
   if (( rc != 0 )) || grep -qE 'Line [0-9]+|ValidationError|^Error' <<<"$out"; then
     echo "  FAILED: $tpl"
     if [[ -n "$out" ]]; then

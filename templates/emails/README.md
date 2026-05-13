@@ -35,7 +35,7 @@ These files live in git so:
 4. Commit the `.mjml` change. Do not commit compiled HTML to this repo.
 
 CI runs `make email-validate` on every PR that touches
-`templates/emails/` ([workflow](../.github/workflows/email-templates.yml)).
+`templates/emails/` ([workflow](../../.github/workflows/email-templates.yml)).
 
 ### Mustache tokens are not allowed inside HTML comments
 
@@ -58,15 +58,23 @@ if a Mustache token slips into a comment.
   items into one email; the `{{#articles}}` block renders each item
   as a title + summary card.
 - [`the-unwind.mjml`](the-unwind.mjml) — **single-article** layout.
-  Used by The Unwind, the hand-curated weekly publication. Hakanai is
-  configured to send one email per new RSS item, so the
-  `{{#articles}}` block iterates once and the full HTML body of the
-  issue is dropped into an `<mj-text>` wrapper via `{{{description}}}`.
-  Inline CSS in `<mj-style>` targets `.article-body h2 / p / a /
-  blockquote / pre / code / img / hr` so the rendered article reads
-  cleanly across email clients. (Earlier versions used `<mj-raw>`
-  for the body, which Hakanai rejected with an unhelpful save-time
-  error.)
+  Used by The Unwind, the hand-curated weekly publication. Hakanai
+  is configured to send one email per new RSS item, so the
+  `{{#articles}}` block iterates once and the full HTML body of
+  the issue is dropped in via `{{{description}}}` (triple-brace,
+  raw HTML) inside an `<mj-text mj-class="article-body">` wrapper.
+
+  Article content inherits styling from the body-default `mj-text`
+  attributes (system font, 16px, line-height 1.6). For now the
+  template intentionally keeps the `<mj-style>` block tiny — we
+  arrived at this minimal-diff variant after Hakanai rejected an
+  earlier, more elaborate version (with `<mj-raw>`, an
+  `letter-spacing`/`text-transform` mj-class, a per-article
+  two-section layout, and a long `.article-body h2 / p / a /
+  blockquote / pre / code / img / hr` selector list in
+  `<mj-style>`). Re-introduce styling rules incrementally if needed,
+  running `make email-validate` then paste-testing in the dashboard
+  between additions to find what Hakanai actually rejects.
 
 If another campaign needs a meaningfully different layout, fork
 whichever template is closer rather than branching inside one.
