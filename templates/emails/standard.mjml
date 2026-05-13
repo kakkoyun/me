@@ -44,8 +44,9 @@
       <mj-column>
         <mj-text mj-class="heading">{{newsletter.name}}</mj-text>
         <mj-spacer height="14px" />
-        <mj-text>Hi there!</mj-text>
-        <mj-text>Here are the latest posts on <a href="{{{newsletter.url}}}">{{newsletter.name}}</a>:</mj-text>
+        <mj-text>Hello,</mj-text>
+        <mj-text>You&rsquo;re reading <a href="{{{newsletter.url}}}">{{newsletter.name}}</a>: a roughly-monthly round-up of recent posts on kakkoyun.me, assembled automatically from the RSS feed so I don&rsquo;t forget to send it.</mj-text>
+        <mj-text>Here&rsquo;s what&rsquo;s new since last time:</mj-text>
       </mj-column>
     </mj-section>
 
