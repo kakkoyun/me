@@ -92,9 +92,8 @@
    doesn't visually overshadow the icons or the page intro.
 */
 .newsletter-form {
-  margin: 0.75rem auto 0;
+  margin: 0.75rem 0 0;
   max-width: 24rem;
-  text-align: center;
 }
 
 .newsletter-form__row {
