@@ -26,6 +26,9 @@ demo/
 # Hugo
 .hugo_build.lock
 
+# Lighthouse CI local run output
+.lighthouseci/
+
 # Node
 node_modules/
 
