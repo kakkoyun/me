@@ -31,7 +31,7 @@ I thought it would live the typical conference-talk life: watched a few times, c
 
 ### What it became
 
-It didn't get forgotten. Other people kept linking to it, kept asking about it, kept finding it useful — and now it has [a home in the official Prometheus docs](https://prometheus.io/docs/practices/the_zen/).
+It didn't get forgotten. Other people kept linking to it and kept finding it useful — and now it has [a home in the official Prometheus docs](https://prometheus.io/docs/practices/the_zen/).
 
 That word, *home*, is the one that keeps coming back to me. A talk is a moment. A docs page is a place. When something moves from the first into the second, it stops being *Kemal's slides from a 2020 PromCon* and becomes something a newcomer reads on day one without ever needing to know who wrote it. That is exactly what I would have wanted, and I'm not sure I would have had the nerve to ask for it.
 
@@ -45,7 +45,7 @@ It's a strange and quietly emotional thing to see those notes outlast the moment
 
 ### Thanks
 
-Thank you to the Prometheus maintainers — for stewarding the project, for keeping its documentation alive and opinionated, and for making space for community contributions to grow into something canonical. Thank you to everyone who shared the talk over the years, asked sharp questions about it, and pushed back where I was wrong. A particular nod to the [follow-up at PromCon EU 2022](https://kakkoyun.me/talks/best-practices-and-pitfalls-of-instrumenting-your-cloud-native-application/), which carried the same thread further with a co-speaker who made it sharper than I could have alone.
+Thank you to the Prometheus maintainers, who steward the project and keep its documentation alive enough that community contributions can grow into something canonical. Thank you to everyone who asked sharp questions about the talk over the years and pushed back where I was wrong. A particular nod to the [follow-up at PromCon EU 2022](https://kakkoyun.me/talks/best-practices-and-pitfalls-of-instrumenting-your-cloud-native-application/), which carried the same thread further with a co-speaker who made it sharper than I could have alone.
 
 A talk only ever belongs to its speaker for an hour. After that, it belongs to whoever finds it useful.
 
