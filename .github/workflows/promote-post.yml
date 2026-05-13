@@ -32,9 +32,6 @@ jobs:
           fetch-depth: 0  # Full history needed for git log in schedule/dedup mode
           submodules: false
 
-      - name: Checkout humanizer skill submodule
-        run: git submodule update --init --depth 1 tools/humanizer
-
       - name: Find promotable posts
         id: find
         run: |
@@ -60,6 +57,10 @@ jobs:
               echo "should_run=true"
             } >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Checkout humanizer skill submodule
+        if: steps.find.outputs.should_run == 'true'
+        run: git submodule update --init --depth 1 tools/humanizer
 
       - name: Install buffer-cli
         if: steps.find.outputs.should_run == 'true' && github.event.inputs.dry_run != 'true'

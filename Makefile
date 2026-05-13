@@ -192,7 +192,7 @@ buffer-update:
 	git submodule update --remote --merge -- tools/buffer-cli
 
 humanizer-update:
-	git submodule update --remote --merge -- tools/humanizer
+	git submodule update --init --remote --merge -- tools/humanizer
 
 # Update Hugo to latest version and sync version across all files
 update-version:
