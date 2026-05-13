@@ -58,6 +58,10 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Checkout humanizer skill submodule
+        if: steps.find.outputs.should_run == 'true'
+        run: git submodule update --init --depth 1 tools/humanizer
+
       - name: Install buffer-cli
         if: steps.find.outputs.should_run == 'true' && github.event.inputs.dry_run != 'true'
         run: |
@@ -89,9 +93,20 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
             Promote the following blog post(s) to social media.
+
             Read .claude/commands/promote-post.md for full instructions, then execute.
 
-            Post files to promote:
+            Two skills shape the writing — use them, don't just acknowledge them:
+
+            - `kemal-voice` (.claude/skills/kemal-voice/SKILL.md) — anchors the
+              author's voice and lists banned vocabulary / formulaic openers.
+              Read it before drafting.
+            - `humanizer` (.claude/skills/humanizer/SKILL.md) — AI-pattern
+              cleanup pass. After drafting each platform's message, run it
+              through the humanizer pass before posting. Apply the final
+              anti-AI audit ("what makes this obviously AI-generated?" → fix).
+
+            Posts to promote:
             ${{ steps.find.outputs.posts }}
           claude_args: --allowedTools "Read,Bash(buffer-cli:*),Bash(echo:*)"
         env:
