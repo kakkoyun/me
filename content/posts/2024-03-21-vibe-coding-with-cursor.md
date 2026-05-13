@@ -24,17 +24,17 @@ cover:
 
 ## The Setup: R&D Week Vibes
 
-You know that feeling when R&D week rolls around, and you're caught between "I should learn something useful" and "I want to have fun"? Well, this time I decided to combine both by diving deep into [Cursor](https://cursor.com), an AI-powered code editor that's been making waves in the developer community.
+You know that feeling when R&D week rolls around, and you're caught between "I should learn something useful" and "I want to have fun"? Well, this time I decided to combine both by digging into [Cursor](https://cursor.com), an AI-powered code editor that's been making waves in the developer community.
 
 The mission was simple: Use Cursor for    **everything** - from managing my notes to building small task-specific projects. And by everything, I mean *everything*. {{< sidenote side="alternate" label="why" >}}Deliberate constraint: forcing one environment exposes friction you normally gloss over.{{< /sidenote >}}
 
 ## What Makes Cursor Different?
 
-Unlike traditional IDEs that just help you write code, Cursor feels more like having a pair programmer who actually gets your {{< tooltip "context" >}}The active project knowledge the AI leverages (rules, open files, repo structure).{{< /tooltip >}}. It's built on top of VSCode (so you get all the good stuff you're used to) but adds a layer of {{< tooltip term="AI-powered" >}}Augmented by model-assisted completions, edits, refactors, and semantic search.{{< /tooltip >}} features that make development feel more... vibey? 😎
+Unlike traditional IDEs that just help you write code, Cursor feels more like having a pair programmer who actually gets your {{< tooltip "context" >}}The active project knowledge the AI uses (rules, open files, repo structure).{{< /tooltip >}}. It's built on top of VSCode (so you get all the good stuff you're used to) but adds a layer of {{< tooltip term="AI-powered" >}}Augmented by model-assisted completions, edits, refactors, and semantic search.{{< /tooltip >}} features that make development feel more... vibey? 😎
 
 ### The Good Parts
 
-1. **Context-Aware AI**: The AI understands your project structure and can help with everything from code completion to refactoring. For example, when working on a React component, it automatically suggested appropriate hooks and state management patterns based on my component's purpose. When your requirements are clear, it's almost magical how it can {{< tooltip term="scaffold" >}}Generate initial file / function structures & boilerplate quickly.{{< /tooltip >}} projects and implement patterns! {{< sidenote side="alternate" >}}High leverage = spend 5 min articulating intent; save 30+ min of boilerplate churn.{{< /sidenote >}}
+1. **Context-Aware AI**: The AI understands your project structure and can help with everything from code completion to refactoring. For example, when working on a React component, it automatically suggested appropriate hooks and state management patterns based on my component's purpose. When your requirements are clear, it's almost magical how it can {{< tooltip term="scaffold" >}}Generate initial file / function structures & boilerplate quickly.{{< /tooltip >}} projects and implement patterns! {{< sidenote side="alternate" >}}The payoff: spend 5 min articulating intent; save 30+ min of boilerplate churn.{{< /sidenote >}}
 
 2. **[Rules Feature](https://docs.cursor.com/context/rules-for-ai)**: This is where things get interesting. You can create custom rules and context for different types of work, both at the project and global level. Think project-specific coding standards, documentation patterns, and even architecture guidelines. {{< tooltip term="Rules" placement="right" >}}Small YAML/Markdown-like spec files in `.cursor/rules` shaping AI behavior & attached context.{{< /tooltip >}}
 
@@ -53,7 +53,7 @@ One of my unexpected discoveries was how well Cursor handles note-taking and [se
 - Dynamic references using @ mentions
 ```
 
-### The Rules Feature: A Game Changer
+### The Rules Feature: Actually the Best Part
 
 The rules feature deserves its own spotlight. Cursor offers two powerful ways to customize AI behavior (note that the older `.cursorrules` file is being deprecated in favor of this new system):
 
