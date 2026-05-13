@@ -189,7 +189,7 @@ theme-update:
 	git submodule update --remote --merge
 
 buffer-update:
-	git submodule update --remote --merge -- tools/buffer-cli
+	git submodule update --init --remote --merge -- tools/buffer-cli
 
 humanizer-update:
 	git submodule update --init --remote --merge -- tools/humanizer
