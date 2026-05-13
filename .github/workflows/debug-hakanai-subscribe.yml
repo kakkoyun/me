@@ -1,24 +1,31 @@
-name: Debug Hakanai subscribe (ad hoc)
+name: Debug Hakanai (ad hoc)
 
-# One-off debug workflow: POSTs to the Hakanai subscribe endpoint from a
-# GitHub-hosted runner (which has unrestricted internet) and posts the
-# full HTTP response back as a comment on issue #165, since the Claude
-# sandbox proxy blocks *.hakanai.io. Delete this workflow + branch
-# when we're done debugging.
+# One-off debug workflow. Used because the Claude dev sandbox proxy
+# blocks *.hakanai.io with x-deny-reason: host_not_allowed. Push to
+# the debug/hakanai-subscribe-test branch to run; the job posts its
+# findings back as a comment on issue #165.
 
 on:
   push:
     branches: [debug/hakanai-subscribe-test]
   workflow_dispatch:
     inputs:
+      mode:
+        description: What to probe
+        required: true
+        default: docs
+        type: choice
+        options:
+          - docs
+          - api
       email:
-        description: 'Email to test-subscribe'
-        required: true
-        default: 'kakkoyun@gmail.com'
+        description: '(api mode) Email to test-subscribe'
+        required: false
+        default: kakkoyun@gmail.com
       campaign_id:
-        description: 'Campaign ID'
-        required: true
-        default: 'c5029a05-9d18-4c54-8b44-1e8b270a6841'
+        description: '(api mode) Campaign ID'
+        required: false
+        default: c5029a05-9d18-4c54-8b44-1e8b270a6841
 
 jobs:
   probe:
@@ -26,211 +33,106 @@ jobs:
     timeout-minutes: 3
     permissions:
       issues: write
+    env:
+      MODE: ${{ github.event.inputs.mode || 'docs' }}
+      EMAIL: ${{ github.event.inputs.email || 'kakkoyun@gmail.com' }}
+      CAMPAIGN_ID: ${{ github.event.inputs.campaign_id || 'c5029a05-9d18-4c54-8b44-1e8b270a6841' }}
     steps:
-      - name: Probe Hakanai subscribe endpoints
+      - name: Probe
         id: probe
-        env:
-          EMAIL: ${{ github.event.inputs.email || 'kakkoyun@gmail.com' }}
-          CAMPAIGN_ID: ${{ github.event.inputs.campaign_id || 'c5029a05-9d18-4c54-8b44-1e8b270a6841' }}
-          TRIGGER: ${{ github.event_name }}
         run: |
           set +e
 
-          probe() {
+          fetch_doc() {
             local label="$1"
             local url="$2"
-            local content_type="$3"
-            local data="$4"
-
-            local headers
-            local body
-            headers=$(mktemp)
-            body=$(mktemp)
-            local elapsed_file
-            elapsed_file=$(mktemp)
+            local page
+            page=$(mktemp)
 
             echo ""
             echo "## $label"
-            echo ""
-            echo "- **URL:** \`$url\`"
-            echo "- **Content-Type:** \`$content_type\`"
-            echo "- **Body:** \`$data\`"
+            echo "$url"
 
-            local started end status
-            started=$(date +%s)
-
-            status=$(curl -sS --connect-timeout 10 --max-time 30 \
-              -o "$body" -D "$headers" -w "%{http_code}" \
-              -X POST \
+            curl -sS --connect-timeout 10 --max-time 30 \
               -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
-              -H "Accept: text/html,application/json;q=0.9,*/*;q=0.8" \
-              -H "Origin: https://kakkoyun.me" \
-              -H "Referer: https://kakkoyun.me/" \
-              -H "Content-Type: $content_type" \
-              --data "$data" \
-              "$url" 2>"$elapsed_file")
-            local curl_exit=$?
-            end=$(date +%s)
-            local dt=$((end - started))
-
-            echo "- **curl exit code:** \`$curl_exit\`"
-            echo "- **HTTP status:** \`${status:-(none)}\`"
-            echo "- **Elapsed:** \`${dt}s\`"
-
-            if [[ -s "$elapsed_file" ]]; then
-              echo ""
-              echo "### curl stderr"
-              echo '```'
-              cat "$elapsed_file"
-              echo '```'
-            fi
+              -o "$page" \
+              -w "status=%{http_code} bytes=%{size_download}" \
+              "$url"
+            echo ""
 
             echo ""
-            echo "### Response headers"
+            echo "### Plaintext body (HTML stripped, first 8 KiB)"
             echo '```'
-            if [[ -s "$headers" ]]; then cat "$headers"; else echo "(empty)"; fi
+            sed -e 's/<script[^>]*>[^<]*<\/script>//g' \
+                -e 's/<style[^>]*>[^<]*<\/style>//g' \
+                -e 's/<[^>]*>/ /g' "$page" \
+              | tr -s ' \t\r\n' '\n' \
+              | grep -v '^[[:space:]]*$' \
+              | head -c 8192
+            echo ""
             echo '```'
 
             echo ""
-            echo "### Response body"
+            echo "### API URLs and shapes embedded in page"
             echo '```'
-            if [[ -s "$body" ]]; then
-              head -c 4096 "$body"
-              local total
-              total=$(wc -c < "$body")
-              if (( total > 4096 )); then
-                echo ""
-                echo "... (truncated, total $total bytes)"
-              fi
-            else
-              echo "(empty)"
-            fi
+            {
+              grep -oE '/api/[A-Za-z0-9/_{}.\-]+' "$page"
+              grep -oE '\\u002Fapi\\u002F[A-Za-z0-9/_{}.\-]+' "$page" \
+                | sed 's/\\u002F/\//g'
+            } | sort -u | head -40
+            echo '```'
+
+            echo ""
+            echo "### Lines mentioning verbs / fields"
+            echo '```'
+            tr '<>' '\n\n' < "$page" \
+              | grep -iE 'POST|GET|application/json|formData|content-type|api/campaign|/subscribe|email|campaign_id|honeypot|csrf|consent' \
+              | grep -vE '^\s*$|<style|<script|@layer|--ui-color' \
+              | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+              | sort -u \
+              | head -80
+            echo '```'
+          }
+
+          probe_api() {
+            local label="$1"
+            local method="$2"
+            local url="$3"
+            local extra_args=("${@:4}")
+
+            echo ""
+            echo "## $label"
+            echo "\`$method $url\`"
+            echo ""
+            echo '```'
+            curl -sS -i --connect-timeout 10 --max-time 30 \
+              -X "$method" \
+              -H "Accept: application/json" \
+              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
+              "${extra_args[@]}" \
+              "$url" 2>&1 | head -40
             echo '```'
           }
 
           {
-            echo "# Hakanai subscribe probe — \`${TRIGGER}\`"
+            echo "# Hakanai debug --- mode: $MODE"
             echo ""
             echo "Run: [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
             echo "Time: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
 
-            # D: GET the SPA shell and look for hardcoded API URLs in the
-            # served HTML. The form is mounted client-side by Nuxt; the
-            # server-rendered HTML still includes the JS bundle and may
-            # embed the API URL in a __NUXT_DATA__ or hydration payload.
-            echo ""
-            echo "## D. GET the SPA shell --- find API endpoint in HTML"
-            echo '```'
-            page=$(mktemp)
-            curl -sS --connect-timeout 10 --max-time 20 \
-              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
-              -o "$page" -w "status=%{http_code}\n" \
-              "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe"
-            echo ""
-            echo "--- /api/ references in the page ---"
-            grep -oE '"/api/[^"]+"|\\u002Fapi\\u002F[^"]+|/api/[A-Za-z0-9/_.-]+' "$page" | sort -u | head -30
-            echo ""
-            echo "--- 'subscribe' string occurrences ---"
-            grep -oE '"[^"]*subscribe[^"]*"' "$page" | sort -u | head -30
-            echo ""
-            echo "--- 'email' field-related strings ---"
-            grep -oE '"[^"]{0,30}email[^"]{0,30}"' "$page" | sort -u | head -20
-            echo ""
-            echo "--- JS bundle URLs (for follow-up grep if needed) ---"
-            grep -oE 'src="/_nuxt/[^"]+\.js"' "$page" | head -5
-            echo '```'
+            if [[ "$MODE" == "docs" ]]; then
+              fetch_doc "Forms doc" "https://hakanai.io/docs/broadcast/forms"
+              fetch_doc "Subscribers doc" "https://hakanai.io/docs/broadcast/subscribers"
+              fetch_doc "Emails doc" "https://hakanai.io/docs/broadcast/emails"
+              fetch_doc "API overview" "https://hakanai.io/docs/broadcast/api"
+              fetch_doc "Campaigns doc" "https://hakanai.io/docs/broadcast/campaigns"
+            else
+              email_enc=$(printf %s "${EMAIL}" | jq -sRr @uri)
+              base="https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe"
 
-            # G: OPTIONS preflight against the API endpoint --- reveals
-            # allowed methods and headers, which often hints at right path.
-            echo ""
-            echo "## G. OPTIONS on /api/.../subscribe"
-            echo '```'
-            curl -sS -i -X OPTIONS --connect-timeout 10 --max-time 15 \
-              -H "Origin: https://kakkoyun.me" \
-              -H "Access-Control-Request-Method: POST" \
-              -H "Access-Control-Request-Headers: content-type" \
-              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" 2>&1 | head -30
-            echo '```'
-
-            # H: same API endpoint but with Accept: application/json only ---
-            # forces the server to return a JSON error body instead of HTML.
-            echo ""
-            echo "## H. POST API with Accept: application/json (force JSON error)"
-            echo '```'
-            curl -sS -i --connect-timeout 10 --max-time 30 \
-              -X POST \
-              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
-              -H "Accept: application/json" \
-              -H "Origin: https://kakkoyun.me" \
-              -H "Referer: https://kakkoyun.me/" \
-              -H "Content-Type: application/json" \
-              --data "{\"email\":\"${EMAIL}\"}" \
-              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" 2>&1 | head -50
-            echo '```'
-
-            # I: POST with email in query string, no body
-            echo ""
-            echo "## I. POST /api/.../subscribe?email=... (query string, no body)"
-            echo '```'
-            email_enc=$(printf %s "${EMAIL}" | jq -sRr @uri)
-            curl -sS -i --connect-timeout 10 --max-time 30 \
-              -X POST \
-              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
-              -H "Accept: application/json" \
-              -H "Origin: https://kakkoyun.me" \
-              -H "Referer: https://kakkoyun.me/" \
-              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe?email=${email_enc}" 2>&1 | head -50
-            echo '```'
-
-            # J: GET with email in query string
-            echo ""
-            echo "## J. GET /api/.../subscribe?email=... (query string, GET)"
-            echo '```'
-            curl -sS -i --connect-timeout 10 --max-time 30 \
-              -X GET \
-              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
-              -H "Accept: application/json" \
-              -H "Origin: https://kakkoyun.me" \
-              -H "Referer: https://kakkoyun.me/" \
-              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe?email=${email_enc}" 2>&1 | head -50
-            echo '```'
-
-            # Probe A: the form endpoint that the homepage <form action> points at.
-            probe "A. POST form endpoint (urlencoded)" \
-              "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe" \
-              "application/x-www-form-urlencoded" \
-              "email=${EMAIL}"
-
-            # Probe B: the API endpoint with JSON.
-            probe "B. POST API endpoint (JSON)" \
-              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" \
-              "application/json" \
-              "{\"email\":\"${EMAIL}\"}"
-
-            # Probe E: API endpoint with a more complete payload.
-            probe "E. POST API endpoint (JSON with consent)" \
-              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" \
-              "application/json" \
-              "{\"email\":\"${EMAIL}\",\"consent\":true,\"opt_in\":true}"
-
-            # Probe F: same form endpoint but as multipart/form-data.
-            echo ""
-            echo "## F. POST form endpoint (multipart)"
-            echo '```'
-            curl -sS --connect-timeout 10 --max-time 30 -i \
-              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
-              -H "Origin: https://kakkoyun.me" \
-              -H "Referer: https://kakkoyun.me/" \
-              -F "email=${EMAIL}" \
-              "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe" 2>&1 | head -30
-            echo '```'
-
-            # Probe C: TLS-only handshake check to see if the host even responds.
-            echo ""
-            echo "## C. Plain HEAD to broadcast.hakanai.io"
-            echo '```'
-            curl -sS -I --connect-timeout 10 --max-time 15 https://broadcast.hakanai.io/ 2>&1 | head -30
-            echo '```'
+              probe_api "POST with email query" POST "$base?email=$email_enc"
+              probe_api "GET with email query"  GET  "$base?email=$email_enc"
+            fi
           } | tee /tmp/comment.md
 
           cat /tmp/comment.md >> "$GITHUB_STEP_SUMMARY"
@@ -244,8 +146,12 @@ jobs:
             let body;
             try {
               body = fs.readFileSync('/tmp/comment.md', 'utf8');
+              // GitHub issue-comment limit is 65536 chars; chunk if needed.
+              if (body.length > 60000) {
+                body = body.slice(0, 60000) + '\n\n... (truncated; see step summary)';
+              }
             } catch (e) {
-              body = `Probe step did not produce a comment file: ${e.message}\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+              body = `Step did not produce a comment file: ${e.message}\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             }
             await github.rest.issues.createComment({
               owner: context.repo.owner,
