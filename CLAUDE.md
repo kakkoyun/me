@@ -21,6 +21,7 @@ make check-hugo         # Verify Hugo version matches .hugo-version (auto-instal
 make update-version     # Update Hugo to latest, sync .hugo-version + netlify.toml
 make theme-update       # Pull latest PaperMod theme submodule
 make buffer-update      # Pull latest buffer-cli submodule
+make humanizer-update   # Pull latest humanizer skill submodule
 make vale-sync          # Fetch third-party Vale style packages (proselint, write-good)
 make vale               # Run Vale prose linter on content/
 make prose              # Alias for vale with a summary count
@@ -190,6 +191,11 @@ Claude handles only the creative work: reading the post, crafting messages, post
 
 Posts go to Twitter + LinkedIn + Bluesky. Twitter/Bluesky use threads (message + link).
 LinkedIn includes the link in the main post body.
+
+Two skills shape the writing and are wired into both the local command and the CI workflow:
+
+- **`kemal-voice`** (`.claude/skills/kemal-voice/SKILL.md`) — author voice, banned vocabulary, formulaic openers, patterns to scrutinize. Applied while drafting.
+- **`humanizer`** (`.claude/skills/humanizer/SKILL.md`) — AI-pattern detector from [blader/humanizer](https://github.com/blader/humanizer), vendored as a git submodule at `tools/humanizer/` with `.claude/skills/humanizer` as a symlink. Applied as a revision pass after drafting. The CI workflow initialises just this submodule (`tools/humanizer`) before the action runs; sync locally with `make humanizer-update`.
 
 Dedup: when a post is pushed with today's `publishDate`, the push trigger promotes it.
 The nightly cron skips posts added to git today (detected via `git log --diff-filter=A`).
