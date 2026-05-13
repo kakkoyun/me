@@ -9,17 +9,54 @@ ci:
 
   assert:
     assertions:
-      # Current scores: Performance 98, Accessibility 100, Best Practices 100, SEO 100
-      # Thresholds set ~10-15 points below current to catch significant regressions
+      # Category floors. Set ~3 points below the post-fix scores so any
+      # meaningful drop trips CI without being so tight that a single
+      # noisy audit blocks unrelated PRs.
       "categories:performance":
         - error
-        - minScore: 0.85
+        - minScore: 0.95
       "categories:accessibility":
         - error
-        - minScore: 0.90
+        - minScore: 0.97
       "categories:best-practices":
         - error
-        - minScore: 0.90
+        - minScore: 0.95
       "categories:seo":
         - error
-        - minScore: 0.90
+        - minScore: 0.97
+
+      # Per-audit assertions for regressions the category floors won't
+      # catch on their own. Each one corresponds to an issue we hit (and
+      # fixed) in #171; keep them as hard errors so re-introducing them
+      # blocks merges.
+
+      # CLS: Lighthouse's "good" boundary is 0.1. The home page banner
+      # was at 0.117 before the fix; lock it under that bar.
+      "cumulative-layout-shift":
+        - error
+        - maxNumericValue: 0.1
+
+      # Robots.txt validity. Lost SEO points the last time a non-standard
+      # directive crept in.
+      "robots-txt": error
+
+      # Accessibility audit that previously failed on the home page.
+      # (presentation-role-conflict was the other one — it lives in
+      # Lighthouse 13+ and isn't bundled with @lhci/cli yet, so the
+      # tightened accessibility floor above is what catches it.)
+      "link-in-text-block": error
+
+      # Image attributes — the banner regressed both of these when first
+      # given explicit width/height without `height: auto` CSS.
+      "image-aspect-ratio": error
+      "image-size-responsive": error
+
+      # Cover thumbnails in static/uploads/ legitimately can't be sized
+      # without moving them into assets/, so keep this informational
+      # rather than blocking. Surfacing it as a warning means it shows
+      # up in the report without failing CI.
+      "unsized-images": warn
+
+      # Console errors — sandbox MITM-style failures aren't real, so we
+      # stay informational rather than blocking on this in CI.
+      "errors-in-console": warn
