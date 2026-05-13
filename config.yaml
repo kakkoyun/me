@@ -206,9 +206,9 @@ params:
     hakanaiHost: "https://broadcast.hakanai.io"
     mainCampaignId: "c5029a05-9d18-4c54-8b44-1e8b270a6841"
     publications:
-      - slug: reads-and-builds
-        name: "Reads & Builds"
-        description: "Links and commentary on what I'm reading and building."
+      - slug: the-unwind
+        name: "The Unwind"
+        description: "A roughly-weekly dispatch of links and notes from what I've read and built lately. Hand-curated, mixed signal."
         campaignId: ""
   assets:
     favicon: "img/favicon.ico"

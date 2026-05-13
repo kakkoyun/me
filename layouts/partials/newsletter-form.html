@@ -16,7 +16,7 @@
       {{ partial "newsletter-form.html" . }}
         -> main feed form (uses site.Params.newsletter.mainCampaignId)
 
-      {{ partial "newsletter-form.html" (dict "publication" "reads-and-builds") }}
+      {{ partial "newsletter-form.html" (dict "publication" "the-unwind") }}
         -> looks up name + campaignId for the named publication
 
       {{ partial "newsletter-form.html" (dict "campaignId" "..." "name" "...") }}
