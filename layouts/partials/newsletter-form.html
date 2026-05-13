@@ -49,9 +49,6 @@
 
 {{- if $campaignId -}}
 <form class="newsletter-form" action="{{ $host }}/campaign/{{ $campaignId }}/subscribe" method="post" data-publication="{{ $publication }}">
-  <label for="{{ $inputId }}" class="newsletter-form__label">
-    Subscribe to <strong>{{ $name }}</strong>
-  </label>
   <div class="newsletter-form__row">
     <input
       id="{{ $inputId }}"
@@ -60,6 +57,7 @@
       name="email"
       placeholder="you@example.com"
       autocomplete="email"
+      aria-label="Email address for {{ $name }} newsletter"
       required
     />
     <button type="submit" class="newsletter-form__submit">Subscribe</button>

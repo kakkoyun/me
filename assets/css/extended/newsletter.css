@@ -82,73 +82,84 @@
 }
 
 /* Inline subscription form (Hakanai Broadcast).
-   Used both on the homepage (entry-footer after social icons) and on
+   Used on the homepage (entry-footer after social icons) and on
    publication landing pages once each has its own campaign wired up.
-   Theme-aware via --primary/--theme/--tertiary, so light + dark render
-   correctly without overrides.
+   Theme-aware via --primary/--border/--secondary/--theme, so light +
+   dark render correctly without overrides.
+
+   Visual intent: minimal, single-row, similar tonality to the social
+   icon cluster above. Outline button rather than filled so the form
+   doesn't visually overshadow the icons or the page intro.
 */
 .newsletter-form {
-  margin: 1.5rem auto 0;
-  max-width: 32rem;
-}
-
-.home-info .newsletter-form {
-  text-align: left;
-}
-
-.newsletter-form__label {
-  display: block;
-  font-size: 0.95em;
-  margin-bottom: 0.4rem;
-  color: var(--content);
+  margin: 0.75rem auto 0;
+  max-width: 24rem;
+  text-align: center;
 }
 
 .newsletter-form__row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .newsletter-form__email {
   flex: 1;
   min-width: 0;
-  padding: 0.55rem 0.75rem;
+  padding: 0.45rem 0.7rem;
   font: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--content);
-  background: var(--theme);
-  border: 1px solid var(--tertiary);
+  background: transparent;
+  border: 1px solid var(--border);
   border-radius: var(--radius, 8px);
+  transition: border-color 0.15s ease;
+}
+
+.newsletter-form__email::placeholder {
+  color: var(--secondary);
+}
+
+.newsletter-form__email:hover {
+  border-color: var(--tertiary);
 }
 
 .newsletter-form__email:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--primary);
 }
 
 .newsletter-form__submit {
-  padding: 0.55rem 1rem;
+  padding: 0.45rem 1rem;
   font: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--theme);
-  background: var(--primary);
+  color: var(--primary);
+  background: transparent;
   border: 1px solid var(--primary);
   border-radius: var(--radius, 8px);
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.newsletter-form__submit:hover {
-  opacity: 0.85;
+.newsletter-form__submit:hover,
+.newsletter-form__submit:focus-visible {
+  background: var(--primary);
+  color: var(--theme);
+  outline: none;
 }
 
 .newsletter-form__note {
-  margin: 0.45rem 0 0;
-  font-size: 0.8em;
+  margin: 0.4rem 0 0;
+  font-size: 0.78em;
   font-style: italic;
   color: var(--secondary);
 }
 
 @media (max-width: 480px) {
+  .newsletter-form {
+    max-width: 100%;
+  }
+
   .newsletter-form__row {
     flex-direction: column;
   }
