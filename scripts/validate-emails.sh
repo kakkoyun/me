@@ -83,7 +83,11 @@ for tpl in "${targets[@]}"; do
   if (( rc != 0 )) || grep -qE 'Line [0-9]+|ValidationError|^Error' <<<"$out"; then
     echo "  FAILED: $tpl"
     if [[ -n "$out" ]]; then
-      sed 's/^/    /' <<<"$out"
+      # SC2001-friendly: prepend each line with four spaces using bash
+      # parameter expansion (no `sed`). The trailing trailing-newline
+      # from $out becomes a 4-space-only trailing line, which printf
+      # trims via the format string.
+      printf '    %s\n' "${out//$'\n'/$'\n    '}"
     fi
     failed=1
   fi
