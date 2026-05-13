@@ -1,0 +1,74 @@
+{{- /*
+  Newsletter subscription form (Hakanai Broadcast).
+
+  Renders one of two states based on whether a campaignId is resolvable:
+
+    - With campaignId  --> a real <form> that POSTs to
+      {hakanaiHost}/campaign/{campaignId}/subscribe (the user-facing
+      form URL; Hakanai handles the redirect/confirmation page).
+
+    - Without campaignId --> a "coming soon" placeholder linking to email,
+      used on publication landing pages whose per-publication campaign
+      hasn't been wired up yet.
+
+  Callable shapes:
+
+      {{ partial "newsletter-form.html" . }}
+        -> main feed form (uses site.Params.newsletter.mainCampaignId)
+
+      {{ partial "newsletter-form.html" (dict "publication" "the-unwind") }}
+        -> looks up name + campaignId for the named publication
+
+      {{ partial "newsletter-form.html" (dict "campaignId" "..." "name" "...") }}
+        -> explicit override (used by shortcodes/tests)
+*/ -}}
+{{- $n := site.Params.newsletter -}}
+{{- $host := $n.hakanaiHost | default "https://broadcast.hakanai.io" -}}
+{{- $publication := .publication | default "" -}}
+{{- $campaignId := .campaignId | default "" -}}
+{{- $name := .name | default "" -}}
+
+{{- /* Resolve from publication slug when one was passed in */ -}}
+{{- with $publication -}}
+  {{- range $n.publications -}}
+    {{- if eq .slug $publication -}}
+      {{- if not $name -}}{{- $name = .name -}}{{- end -}}
+      {{- if not $campaignId -}}{{- $campaignId = .campaignId -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Fall back to main feed when nothing else was provided */ -}}
+{{- if and (not $publication) (not $campaignId) -}}
+  {{- $campaignId = $n.mainCampaignId | default "" -}}
+  {{- if not $name -}}{{- $name = site.Title -}}{{- end -}}
+{{- end -}}
+
+{{- if not $name -}}{{- $name = "newsletter" -}}{{- end -}}
+{{- $inputId := printf "newsletter-email-%s" (or $publication "main") -}}
+
+{{- if $campaignId -}}
+<form class="newsletter-form" action="{{ $host }}/campaign/{{ $campaignId }}/subscribe" method="post" data-publication="{{ $publication }}">
+  <div class="newsletter-form__row">
+    <input
+      id="{{ $inputId }}"
+      class="newsletter-form__email"
+      type="email"
+      name="email"
+      placeholder="you@example.com"
+      autocomplete="email"
+      aria-label="Email address for {{ $name }} newsletter"
+      required
+    />
+    <button type="submit" class="newsletter-form__submit">Subscribe</button>
+  </div>
+  <p class="newsletter-form__note">No spam. Unsubscribe anytime.</p>
+</form>
+{{- else -}}
+<aside class="newsletter-form newsletter-form--placeholder" data-publication="{{ $publication }}" aria-label="Subscription form placeholder">
+  <strong>Subscribe to {{ $name }}</strong>
+  <p>Email subscription is coming soon. For now, email
+    <a href="mailto:{{ site.Params.author.email }}?subject=Newsletter">{{ site.Params.author.email }}</a>
+    with the subject &ldquo;Newsletter&rdquo; and I&rsquo;ll add you.</p>
+</aside>
+{{- end -}}
