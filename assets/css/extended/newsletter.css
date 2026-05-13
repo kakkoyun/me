@@ -29,11 +29,23 @@
 }
 
 /* Underline list-item links so they don't rely on colour alone --- improves
-   accessibility and satisfies Lighthouse's link-in-text-block audit. */
+   accessibility and satisfies Lighthouse's link-in-text-block audit.
+   Tertiary-coloured rule keeps the visual weight quiet (matches the airy
+   list rhythm above); brightens to --primary on hover/focus. */
 .recent-issues-container ul li a,
 .recent-notes-container ul li a {
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-color: var(--tertiary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.recent-issues-container ul li a:hover,
+.recent-issues-container ul li a:focus-visible,
+.recent-notes-container ul li a:hover,
+.recent-notes-container ul li a:focus-visible {
+  text-decoration-color: var(--primary);
 }
 
 /* Two-column homepage grid for Most Recent Issues + Recent Notes.
