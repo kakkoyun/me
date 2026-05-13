@@ -280,7 +280,7 @@ You don't need to build a benchmarking platform from scratch. Several open sourc
 - [**Apache Otava**](https://blog.nyrkio.com/2025/05/08/welcome-apache-otava-incubating-project/) (formerly Nyrkio, incubating) — Performance change point detection service, built on the e-divisive algorithm.
 - [**perflock**](https://github.com/aclements/perflock) — A tool for locking CPU frequency and other system settings during benchmarks. Useful for local development.
 
-The right tool depends on your language ecosystem, CI system, and how much you want to self-host vs. use a managed service.
+The right tool depends on your language, CI system, and how much you want to self-host vs. use a managed service.
 
 ---
 
