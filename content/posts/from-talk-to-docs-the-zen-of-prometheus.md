@@ -12,9 +12,9 @@ tags:
   - community
   - open-source
 cover:
-  image: https://img.youtube.com/vi/Nqp4fjw_omU/maxresdefault.jpg
-  alt: The Zen of Prometheus
-  caption: The Zen of Prometheus — PromCon Online 2020
+  image: /uploads/the-zen-now.png
+  alt: The Zen of Prometheus, now part of the official Prometheus documentation
+  caption: "*The Zen of Prometheus* on [prometheus.io/docs/practices/the_zen/](https://prometheus.io/docs/practices/the_zen/)"
 ---
 
 Every now and then a project surprises you by remembering something you said years ago. This week was one of those weeks. A talk I gave at [PromCon Online 2020](https://kakkoyun.me/talks/the-zen-of-prometheus/) — *The Zen of Prometheus* — has quietly become part of the [official Prometheus documentation](https://prometheus.io/docs/practices/the_zen/).
@@ -28,6 +28,8 @@ The talk was born in the strangest year of my career. PromCon 2020 was online, l
 I borrowed a frame from somewhere I love: [PEP 20, *The Zen of Python*](https://peps.python.org/pep-0020/), the small, almost-koan list that has shaped how an entire community talks to itself. *Beautiful is better than ugly. Simple is better than complex.* I wondered if the same shape could carry the lessons we keep relearning about metrics, instrumentation, and alerting. The result was *The Zen of Prometheus*: a handful of aphorisms, a [companion site](https://the-zen-of-prometheus.netlify.app/), some [slides](https://github.com/kakkoyun/the-zen-of-prometheus), and a [recording](https://www.youtube.com/watch?v=Nqp4fjw_omU) for anyone who wanted to follow along.
 
 I thought it would live the typical conference-talk life: watched a few times, cited in a Slack thread, then politely forgotten.
+
+![Screenshot of the original Zen of Prometheus companion site, hosted at the-zen-of-prometheus.netlify.app, with the "Heads up — this is the original draft" banner pointing readers to the official docs.](/uploads/the-zen-then.png)
 
 ### What it became
 
