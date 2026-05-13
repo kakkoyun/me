@@ -1,0 +1,246 @@
+/* Newsletter form
+   Styles for the subscription form wrapper and its placeholder variant
+   shown while Hakanai is not yet wired up.
+*/
+
+/* Most Recent Issues homepage block
+   Mirrors the Recent Notes block (.recent-notes-container) so the two
+   homepage sections share the same airy, unbulleted list rhythm.
+*/
+.recent-issues-container > p:first-child,
+.recent-notes-container > p:first-child {
+  margin-bottom: 0.5rem;
+  font-style: italic;
+  color: var(--secondary);
+  font-size: 0.95em;
+}
+
+.recent-issues-container ul,
+.recent-notes-container ul {
+  list-style-type: none;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.recent-issues-container ul li,
+.recent-notes-container ul li {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Two-column homepage grid for Most Recent Issues + Recent Notes.
+   A separator runs between the columns (vertical on desktop, horizontal
+   on mobile once they stack). All dividers in this area --- the .home-divider
+   <hr> elements above/below the block and the inter-column rule --- share
+   the same 2px var(--tertiary) treatment, mirroring PaperMod's .md-content
+   hr style and adapting automatically to light and dark themes.
+*/
+.home-divider {
+  height: 2px;
+  background: var(--tertiary);
+  border: 0;
+  margin: 30px 0;
+}
+
+.home-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-bottom: 1rem;
+}
+
+.home-column > .page-header {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.home-column:first-child {
+  padding-right: 2rem;
+}
+
+.home-column + .home-column {
+  border-left: 2px solid var(--tertiary);
+  padding-left: 2rem;
+}
+
+@media (max-width: 768px) {
+  .home-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .home-column:first-child {
+    padding-right: 0;
+    padding-bottom: 1rem;
+  }
+
+  .home-column + .home-column {
+    border-left: 0;
+    border-top: 2px solid var(--tertiary);
+    padding-left: 0;
+    padding-top: 1rem;
+  }
+}
+
+/* Inline subscription form (Hakanai Broadcast).
+   Used on the homepage (entry-footer after social icons) and on
+   publication landing pages once each has its own campaign wired up.
+   Theme-aware via --primary/--border/--secondary/--theme, so light +
+   dark render correctly without overrides.
+
+   Visual intent: minimal, single-row, similar tonality to the social
+   icon cluster above. Outline button rather than filled so the form
+   doesn't visually overshadow the icons or the page intro.
+*/
+.newsletter-form {
+  margin: 0.75rem 0 0;
+  max-width: 24rem;
+}
+
+.newsletter-form__row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.newsletter-form__email {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--content);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 8px);
+  transition: border-color 0.15s ease;
+}
+
+.newsletter-form__email::placeholder {
+  color: var(--secondary);
+}
+
+.newsletter-form__email:hover {
+  border-color: var(--tertiary);
+}
+
+.newsletter-form__email:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.newsletter-form__submit {
+  padding: 0.45rem 1rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: transparent;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius, 8px);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.newsletter-form__submit:hover,
+.newsletter-form__submit:focus-visible {
+  background: var(--primary);
+  color: var(--theme);
+  outline: none;
+}
+
+.newsletter-form__note {
+  margin: 0.4rem 0 0;
+  font-size: 0.78em;
+  font-style: italic;
+  color: var(--secondary);
+}
+
+/* Success + error feedback rendered after a fetch() round-trip. Both
+   carry an emoji prefix (CSS pseudo-element) so the meaning reads
+   even when colour-blindness or terminal renderings flatten the
+   hue. Theme-aware via :root[data-theme="dark"] overrides; the
+   light-theme values are the defaults.
+*/
+.newsletter-form__success {
+  margin: 0.75rem 0 0;
+  max-width: 24rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.10);
+  border-left: 3px solid #16a34a;
+  border-radius: 4px;
+  outline: none;
+}
+
+.newsletter-form__success::before {
+  content: "✓ ";
+  font-weight: 700;
+  margin-right: 0.15rem;
+}
+
+.newsletter-form__error {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.10);
+  border-left: 3px solid #dc2626;
+  border-radius: 4px;
+}
+
+.newsletter-form__error::before {
+  content: "⚠ ";
+  font-weight: 700;
+  margin-right: 0.15rem;
+}
+
+.newsletter-form__error a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+:root[data-theme="dark"] .newsletter-form__success {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.18);
+  border-color: #22c55e;
+}
+
+:root[data-theme="dark"] .newsletter-form__error {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
+}
+
+@media (max-width: 480px) {
+  .newsletter-form {
+    max-width: 100%;
+  }
+
+  .newsletter-form__row {
+    flex-direction: column;
+  }
+}
+
+/* Placeholder variant: rendered on publication landing pages when their
+   campaignId is not yet set. Falls back to a mailto: invite.
+*/
+.newsletter-form--placeholder {
+  display: block;
+  padding: 0.9rem 1rem;
+  background: var(--code-bg, rgba(0, 0, 0, 0.03));
+  border-left: 3px solid var(--tertiary);
+  border-radius: 4px;
+  font-size: 0.95em;
+  line-height: 1.4;
+}
+
+.newsletter-form--placeholder strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.newsletter-form--placeholder p {
+  margin: 0;
+}

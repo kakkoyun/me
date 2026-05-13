@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update shellcheck actionlint lint test vale vale-sync prose
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test vale vale-sync prose
 
 # Default target
 help:
@@ -40,6 +40,7 @@ help:
 	@echo "  make hugo-update        - Update Hugo to latest version"
 	@echo "  make theme-update       - Update PaperMod theme"
 	@echo "  make buffer-update      - Update buffer-cli submodule"
+	@echo "  make humanizer-update   - Update humanizer skill submodule"
 	@echo "  make update-version     - Update Hugo to latest and sync version files"
 	@echo "  make update             - Run all update commands"
 	@echo ""
@@ -179,7 +180,7 @@ version: check-hugo
 	hugo version
 
 # Update commands
-update: update-version theme-update buffer-update
+update: update-version theme-update buffer-update humanizer-update
 
 hugo-update:
 	go install github.com/gohugoio/hugo@latest
@@ -188,7 +189,10 @@ theme-update:
 	git submodule update --remote --merge
 
 buffer-update:
-	git submodule update --remote --merge -- tools/buffer-cli
+	git submodule update --init --remote --merge -- tools/buffer-cli
+
+humanizer-update:
+	git submodule update --init --remote --merge -- tools/humanizer
 
 # Update Hugo to latest version and sync version across all files
 update-version:
