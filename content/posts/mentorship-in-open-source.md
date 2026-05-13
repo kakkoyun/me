@@ -65,3 +65,10 @@ If this lands for you, there are two follow-ups in mind: a practical playbook fo
 The timing isn't accidental. As I write this, I'm about to start a new cohort: co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) on `opentelemetry-go-compile-instrumentation` with [Dario Castañé](https://github.com/darccio) for the LFX 2026 Jun–Aug round. Applications closed a few weeks ago; we're picking a mentee now, and the cohort itself kicks off in June.
 
 If you're a mentee looking at a future cohort and want a second pair of eyes on a draft proposal, or if you're already mentoring and want to compare notes: my DMs are open on the [usual places](/about/#where-to-find-me).
+
+The timing isn't accidental. As I write this, I'm mid-cohort on the LFX 2026 Jun–Aug round, co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) on `opentelemetry-go-compile-instrumentation` with [Dario Castañé](https://github.com/darccio). Applications closed a few weeks ago; we're picking a mentee now. Part 3 takes that story apart in detail.
+
+If you're already on either side of that conversation and want to compare notes, or if you're a mentee looking at a future 2026 cohort and want a second pair of eyes on a draft proposal: my DMs are open on the [usual places](/about/#where-to-find-me).
+
+See you in [Part 2](/posts/mentorship-in-open-source-part-2-mentee-playbook/).
+>>>>>>> 268e82f (post: link Part 1 forward to the now-landing Part 2)
