@@ -64,7 +64,7 @@ The performance direction being pursued? **Zero allocations, no lookups** — th
 The afternoon session brought Prometheus and OTel maintainers together. The mood was constructive. **OTel SDK v2** was discussed as an opportunity for the kind of breaking changes that could simplify the metrics API — a simplified, more performant, but less flexible API. The **Prometheus 3.0** experience was instructive: the maintainers planned for major breakage but ended up with almost none.
 
 Concrete progress: **David Ashpole's [bound instruments PoC in Go](https://github.com/open-telemetry/opentelemetry-go/pull/7790)** — instruments pre-bound to specific attribute sets, eliminating the hashmap lookup.
-People in the room care about Go and C++ performance, and this could be a game changer.
+People in the room care about Go and C++ performance, and this could shift the math significantly.
 
 On the receiver/exporter convergence front: **cAdvisor is considering archiving its Prometheus exporter** and moving all code into the OTel collector. OTel Kubernetes monitoring is broadly adopted, with near-parity to kube-state-metrics.
 The idea of Prometheus carrying an OTel Collector distribution was floated.
@@ -80,7 +80,7 @@ End users see two projects that look like they're competing, even when the maint
 
 ### The Injector: From LD_PRELOAD to `apt install opentelemetry`
 
-Two sessions covered the **Injector and Operator** ecosystem — one focused on the general architecture, the other specifically on **OBI and Injector coordination for Go**.
+Two sessions covered the **Injector and Operator** — one focused on the general architecture, the other specifically on **OBI and Injector coordination for Go**.
 The framing that stuck with me came early: *"OTel instrumentation feels more like a collection of tools than a product."* That's why the Injector exists — to close the gap between what OTel offers and what users expect to just work.
 
 #### Injector vs Operator
