@@ -34,7 +34,7 @@ jobs:
     permissions:
       issues: write
     env:
-      MODE: ${{ github.event.inputs.mode || 'docs' }}
+      MODE: ${{ github.event.inputs.mode || 'api' }}
       EMAIL: ${{ github.event.inputs.email || 'kakkoyun@gmail.com' }}
       CAMPAIGN_ID: ${{ github.event.inputs.campaign_id || 'c5029a05-9d18-4c54-8b44-1e8b270a6841' }}
     steps:
@@ -128,10 +128,21 @@ jobs:
               fetch_doc "Campaigns doc" "https://hakanai.io/docs/broadcast/campaigns"
             else
               email_enc=$(printf %s "${EMAIL}" | jq -sRr @uri)
-              base="https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe"
 
-              probe_api "POST with email query" POST "$base?email=$email_enc"
-              probe_api "GET with email query"  GET  "$base?email=$email_enc"
+              # The documented endpoint per
+              # https://hakanai.io/docs/broadcast/forms is hakanai.io
+              # (NOT broadcast.hakanai.io) and the path is
+              # /api/subscribe/{id} (NOT /api/campaign/{id}/subscribe).
+              # The latter was a campaign-metadata endpoint that
+              # returned 200 but never subscribed.
+              docs_url="https://hakanai.io/api/subscribe/${CAMPAIGN_ID}"
+              probe_api "GET docs URL with email query"  GET  "$docs_url?email=$email_enc"
+              probe_api "POST docs URL with email query" POST "$docs_url?email=$email_enc"
+
+              # Sanity: also probe the previously-tried URL so the
+              # comparison stays in the issue history.
+              old_url="https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe"
+              probe_api "GET old (campaign-metadata) URL" GET "$old_url?email=$email_enc"
             fi
           } | tee /tmp/comment.md
 
