@@ -13,5 +13,4 @@ Allow: /
 
 Sitemap: {{ "sitemap.xml" | absURL }}
 
-# LLM-friendly content index
-{{ "llms.txt" | absURL }}
+# LLM-friendly content index at {{ "llms.txt" | absURL }}
