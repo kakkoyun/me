@@ -114,17 +114,57 @@ jobs:
             echo "Run: [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
             echo "Time: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
 
+            # GET the form URL to discover what Hakanai's hosted form actually
+            # posts (field names, hidden inputs, the real action URL, etc).
+            echo ""
+            echo "## D. GET on the form URL --- inspect hosted form"
+            echo '```html'
+            page=$(mktemp)
+            curl -sS --connect-timeout 10 --max-time 20 \
+              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
+              -o "$page" -w "status=%{http_code} url=%{url_effective}\n" \
+              "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe"
+            # Extract <form ...> tags and all <input ...> children, plus
+            # any nearby <button> labels.
+            grep -oE '<form[^>]*>|<input[^>]*>|<button[^>]*>[^<]*' "$page" | head -40
+            echo ""
+            echo "--- All visible form action URLs in page ---"
+            grep -oE 'action="[^"]+"' "$page" | sort -u | head -10
+            echo "--- All input name= values in page ---"
+            grep -oE 'name="[^"]+"' "$page" | sort -u | head -20
+            echo "--- All form-method indicators ---"
+            grep -oE 'method="[^"]+"|@submit|on:submit|hx-post|hx-get' "$page" | sort -u | head -10
+            echo '```'
+
             # Probe A: the form endpoint that the homepage <form action> points at.
-            probe "A. Form endpoint (urlencoded)" \
+            probe "A. POST form endpoint (urlencoded)" \
               "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe" \
               "application/x-www-form-urlencoded" \
               "email=${EMAIL}"
 
             # Probe B: the API endpoint with JSON.
-            probe "B. API endpoint (JSON)" \
+            probe "B. POST API endpoint (JSON)" \
               "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" \
               "application/json" \
               "{\"email\":\"${EMAIL}\"}"
+
+            # Probe E: API endpoint with a more complete payload.
+            probe "E. POST API endpoint (JSON with consent)" \
+              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" \
+              "application/json" \
+              "{\"email\":\"${EMAIL}\",\"consent\":true,\"opt_in\":true}"
+
+            # Probe F: same form endpoint but as multipart/form-data.
+            echo ""
+            echo "## F. POST form endpoint (multipart)"
+            echo '```'
+            curl -sS --connect-timeout 10 --max-time 30 -i \
+              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
+              -H "Origin: https://kakkoyun.me" \
+              -H "Referer: https://kakkoyun.me/" \
+              -F "email=${EMAIL}" \
+              "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe" 2>&1 | head -30
+            echo '```'
 
             # Probe C: TLS-only handshake check to see if the host even responds.
             echo ""
