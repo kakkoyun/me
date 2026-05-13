@@ -137,7 +137,8 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 - **[REVIEW.md](REVIEW.md)** -- voice and prose-quality criteria. Companion to the Vale rules and the `prose-review.yml` workflow.
 - **[.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md)** -- Anthropic-format skill. Auto-loads when editing files under `content/posts/`, `content/talks/`, `content/notes/`. Encodes tone, banned vocabulary, formulaic openers, patterns to scrutinize, and tone-by-category notes.
 - **Vale** (`.vale.ini` + `styles/Slop/`) -- runs automatically on every content PR via `prose.yml` (reviewdog inline annotations). Run locally with `make vale`.
-- **`prose-review.yml`** -- Claude prose reviewer. Triggered on demand by applying the `prose-review` label to a PR. Reads `REVIEW.md` and the `kemal-voice` skill.
+- **[.claude/commands/prose-review.md](.claude/commands/prose-review.md)** -- `/prose-review` slash command. Wraps the upstream `code-review` plugin with prose-specific priorities (banned vocab, formulaic openers, em-dash density, do-not-flag list, output format). Single source of truth for the procedure; `prose-review.yml` references it. Invoke locally as `/prose-review owner/repo/pull/N` to review a PR before merging.
+- **`prose-review.yml`** -- Claude prose reviewer. Triggered on demand by applying the `prose-review` label to a PR. Follows the procedure in `.claude/commands/prose-review.md` and pulls voice rules from `REVIEW.md` and the `kemal-voice` skill.
 - **`claude-code-review.yml`** -- generic code reviewer. Triggered on demand by applying the `claude-review` label.
 
 **Target tone:** clear, explanatory, fun, whimsical, honest, open. Take the technical material seriously; do not take yourself seriously. See `REVIEW.md` for the full description.

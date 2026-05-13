@@ -209,7 +209,7 @@ params:
       - slug: the-unwind
         name: "The Unwind"
         description: "A roughly-weekly dispatch of links and notes from what I've read and built lately. Hand-curated, mixed signal."
-        campaignId: ""
+        campaignId: "b350b0eb-605b-469c-8c49-8f0f33b1e78c"
   assets:
     favicon: "img/favicon.ico"
     theme_color: "#000000"

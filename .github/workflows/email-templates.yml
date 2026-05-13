@@ -1,0 +1,37 @@
+name: Email templates
+
+# Validate MJML email templates on every PR that touches them.
+# Surfaces both MJML syntax errors and a Hakanai-specific pitfall
+# (Mustache tokens inside HTML comments --- Hakanai's pre-processor
+# isn't comment-aware, so a {{description}} mention in a doc comment
+# can get substituted with article body HTML at send time and break
+# parsing).
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'templates/emails/**'
+      - 'scripts/validate-emails.sh'
+      - '.github/workflows/email-templates.yml'
+  pull_request:
+    paths:
+      - 'templates/emails/**'
+      - 'scripts/validate-emails.sh'
+      - '.github/workflows/email-templates.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          submodules: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v6
+        with:
+          node-version: '22'
+
+      - name: Validate email templates
+        run: make email-validate
