@@ -1,13 +1,24 @@
 {{- /*
   RSS override for kakkoyun.me.
 
-  PaperMod's upstream template gates <lastBuildDate> on the current
-  page's .Date.IsZero, which suppresses it on the home page and section
-  landings that have no date in their _index.md. Strict feed parsers
-  (e.g. Hakanai Broadcast as of 2026-05) reject feeds without a channel
-  pubDate, so we always emit both <lastBuildDate> (from most-recent
-  Lastmod) and <pubDate> (from most-recent PublishDate), falling back to
-  the build time when the feed has no items yet.
+  Two reasons to override the upstream PaperMod rss.xml:
+
+  1. Always emit channel-level <lastBuildDate> and <pubDate>. PaperMod's
+     upstream template gates <lastBuildDate> on the current page's
+     .Date.IsZero, which suppresses it on the home page and section
+     landings whose _index.md has no date. Strict feed parsers (e.g.
+     Hakanai Broadcast as of 2026-05) reject feeds without a channel
+     pubDate, so we always emit both --- derived from the most recent
+     Lastmod / PublishDate, falling back to build time when the feed
+     has no items yet.
+
+  2. On the home feed only, filter to mainSections so newsletter
+     issues (and other non-blog content) don't leak into /index.xml.
+     The home feed stays a blog-and-notes-and-talks feed; each
+     newsletter publication has its own dedicated section feed at
+     /newsletter/<slug>/index.xml that its Hakanai campaign polls.
+
+  The template otherwise mirrors PaperMod's upstream output.
 */ -}}
 {{- $authorEmail := "" }}
 {{- with site.Params.author }}
@@ -32,7 +43,9 @@
 {{- $pctx := . }}
 {{- if .IsHome }}{{ $pctx = site }}{{ end }}
 {{- $pages := slice }}
-{{- if or $.IsHome $.IsSection }}
+{{- if .IsHome }}
+{{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- else if .IsSection }}
 {{- $pages = $pctx.RegularPages }}
 {{- else }}
 {{- $pages = $pctx.Pages }}

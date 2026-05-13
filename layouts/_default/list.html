@@ -61,6 +61,7 @@
 {{- if site.Params.showRecentNewsletters }}
 {{- $count := site.Params.recentNewslettersCount | default 5 }}
 {{- $newsletters = where site.RegularPages "Section" "newsletter" }}
+{{- $newsletters = sort $newsletters "Date" "desc" }}
 {{- $newsletters = first $count $newsletters }}
 {{- end }}
 {{- if or $recentNotes $newsletters }}
