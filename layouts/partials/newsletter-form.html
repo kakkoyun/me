@@ -5,19 +5,25 @@
 
     - With campaignId  --> a real <form> that submits to
       {hakanaiHost}/api/campaign/{campaignId}/subscribe?email=...
-      Hakanai's API reads "email" from the URL query (verified by
-      probing the live endpoint; their SPA's own client builds the
-      same URL pattern). A small inline JS handler intercepts the
-      submit and calls the API via fetch(), then swaps the form for
-      a thank-you message. Without JS the form still submits (GET to
-      the same URL), the API still subscribes the user, but the user
-      sees raw JSON --- acceptable graceful degradation.
+      This URL pattern is what the campaign's Forms tab in the
+      Hakanai dashboard shows verbatim. A successful subscribe
+      returns HTTP 200 with the campaign metadata as JSON
+      ({"name":"...","url":"..."}) --- that response IS the success
+      signal; Hakanai sends the double-opt-in email asynchronously.
 
-      The earlier action URL --- /campaign/{id}/subscribe without
-      /api/ --- was Hakanai's SPA page, not a server route. POSTs to
-      it hang indefinitely because no handler exists for that verb.
-      See debug/hakanai-subscribe-test (now deleted) for the probes
-      that uncovered this.
+      A small inline JS handler intercepts the submit, calls the API
+      via fetch(), and swaps the form for a thank-you message with
+      role=status + aria-live=polite + focus shift so screen readers
+      pick it up. Errors get role=alert + aria-live=assertive.
+      Without JS, the form submits via GET to the same URL --- the
+      API still subscribes the user, but they end up on Hakanai's
+      JSON response page; acceptable degradation.
+
+      The docs example at hakanai.io/docs/broadcast/forms uses
+      "https://hakanai.io/api/subscribe/your-campaign-id" as a
+      *placeholder*, not a literal URL --- the per-campaign Forms
+      tab is what gives you the real action URL, which lives on
+      broadcast.hakanai.io.
 
     - Without campaignId --> a "coming soon" placeholder linking to email,
       used on publication landing pages whose per-publication campaign
@@ -39,6 +45,7 @@
 {{- $publication := .publication | default "" -}}
 {{- $campaignId := .campaignId | default "" -}}
 {{- $name := .name | default "" -}}
+{{- $contactEmail := site.Params.author.email -}}
 
 {{- /* Resolve from publication slug when one was passed in */ -}}
 {{- with $publication -}}
@@ -60,7 +67,7 @@
 {{- $inputId := printf "newsletter-email-%s" (or $publication "main") -}}
 
 {{- if $campaignId -}}
-<form class="newsletter-form" action="{{ $host }}/api/campaign/{{ $campaignId }}/subscribe" method="get" data-publication="{{ $publication }}">
+<form class="newsletter-form" action="{{ $host }}/api/campaign/{{ $campaignId }}/subscribe" method="get" data-publication="{{ $publication }}" data-contact-email="{{ $contactEmail }}">
   <div class="newsletter-form__row">
     <input
       id="{{ $inputId }}"
@@ -94,22 +101,37 @@
         if (button) { button.disabled = true; button.textContent = "Subscribing…"; }
         var existingError = form.querySelector(".newsletter-form__error");
         if (existingError) existingError.remove();
-        fetch(url, { method: "POST", headers: { Accept: "application/json" } })
+        fetch(url, { method: "GET", headers: { Accept: "application/json" } })
           .then(function (response) {
             if (!response.ok) throw new Error("HTTP " + response.status);
             var thanks = document.createElement("p");
             thanks.className = "newsletter-form__success";
+            thanks.setAttribute("role", "status");
+            thanks.setAttribute("aria-live", "polite");
+            thanks.setAttribute("tabindex", "-1");
             thanks.textContent = "Thanks! Check your inbox for a confirmation email.";
             form.replaceWith(thanks);
+            try { thanks.focus(); } catch (e) {}
           })
           .catch(function () {
             if (button) {
               button.disabled = false;
               button.textContent = originalLabel || "Subscribe";
             }
+            var contactEmail = form.dataset.contactEmail || "";
             var err = document.createElement("p");
             err.className = "newsletter-form__error";
-            err.textContent = "Subscription failed. Please try again, or email kakkoyun@gmail.com.";
+            err.setAttribute("role", "alert");
+            err.setAttribute("aria-live", "assertive");
+            err.textContent = "Subscription failed. Please try again";
+            if (contactEmail) {
+              err.appendChild(document.createTextNode(", or email "));
+              var link = document.createElement("a");
+              link.href = "mailto:" + contactEmail;
+              link.textContent = contactEmail;
+              err.appendChild(link);
+            }
+            err.appendChild(document.createTextNode("."));
             form.appendChild(err);
           });
       });
@@ -121,7 +143,7 @@
 <aside class="newsletter-form newsletter-form--placeholder" data-publication="{{ $publication }}" aria-label="Subscription form placeholder">
   <strong>Subscribe to {{ $name }}</strong>
   <p>Email subscription is coming soon. For now, email
-    <a href="mailto:{{ site.Params.author.email }}?subject=Newsletter">{{ site.Params.author.email }}</a>
+    <a href="mailto:{{ $contactEmail }}?subject=Newsletter">{{ $contactEmail }}</a>
     with the subject &ldquo;Newsletter&rdquo; and I&rsquo;ll add you.</p>
 </aside>
 {{- end -}}

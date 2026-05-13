@@ -154,18 +154,63 @@
   color: var(--secondary);
 }
 
+/* Success + error feedback rendered after a fetch() round-trip. Both
+   carry an emoji prefix (CSS pseudo-element) so the meaning reads
+   even when colour-blindness or terminal renderings flatten the
+   hue. Theme-aware via :root[data-theme="dark"] overrides; the
+   light-theme values are the defaults.
+*/
 .newsletter-form__success {
   margin: 0.75rem 0 0;
   max-width: 24rem;
-  padding: 0.45rem 0;
+  padding: 0.5rem 0.7rem;
   font-size: 0.95rem;
-  color: var(--content);
+  font-weight: 500;
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.10);
+  border-left: 3px solid #16a34a;
+  border-radius: 4px;
+  outline: none;
+}
+
+.newsletter-form__success::before {
+  content: "✓ ";
+  font-weight: 700;
+  margin-right: 0.15rem;
 }
 
 .newsletter-form__error {
-  margin: 0.45rem 0 0;
-  font-size: 0.85em;
-  color: var(--secondary);
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.10);
+  border-left: 3px solid #dc2626;
+  border-radius: 4px;
+}
+
+.newsletter-form__error::before {
+  content: "⚠ ";
+  font-weight: 700;
+  margin-right: 0.15rem;
+}
+
+.newsletter-form__error a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+:root[data-theme="dark"] .newsletter-form__success {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.18);
+  border-color: #22c55e;
+}
+
+:root[data-theme="dark"] .newsletter-form__error {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
 }
 
 @media (max-width: 480px) {
