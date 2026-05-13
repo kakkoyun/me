@@ -47,7 +47,7 @@ It's a strange and quietly emotional thing to see those notes outlast the moment
 
 ### Thanks
 
-Thank you to the Prometheus maintainers, who steward the project and keep its documentation alive enough that community contributions can grow into something canonical. A special thanks to [@beorn7](https://github.com/beorn7) for the careful reviews on [the docs PR](https://github.com/prometheus/docs/pull/1783) that brought *The Zen* in. Thank you to everyone who asked sharp questions about the talk over the years and pushed back where I was wrong. A particular nod to the [follow-up at PromCon EU 2022](https://kakkoyun.me/talks/best-practices-and-pitfalls-of-instrumenting-your-cloud-native-application/), which carried the same thread further with a co-speaker who made it sharper than I could have alone.
+Thank you to the Prometheus maintainers, who steward the project and keep its documentation alive enough that community contributions can grow into something canonical. A special thanks to [@beorn7](https://github.com/beorn7) for the careful reviews on [the docs PR](https://github.com/prometheus/docs/pull/1783) that brought *The Zen* in. Thank you to everyone who asked sharp questions about the talk over the years and pushed back where I was wrong. A particular nod to [@jessicalins](https://github.com/jessicalins), my partner in crime on the [follow-up at PromCon EU 2022](https://kakkoyun.me/talks/best-practices-and-pitfalls-of-instrumenting-your-cloud-native-application/), who carried the same thread further with me and made it sharper than I could have alone.
 
 A talk only ever belongs to its speaker for an hour. After that, it belongs to whoever finds it useful.
 
