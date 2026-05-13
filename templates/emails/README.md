@@ -69,7 +69,7 @@ campaign fields, etc.) consult their docs at
 
 Hardcoded hex values in the templates mirror PaperMod's light-theme
 tokens from
-[`themes/PaperMod/assets/css/core/theme-vars.css`](../themes/PaperMod/assets/css/core/theme-vars.css).
+[`themes/PaperMod/assets/css/core/theme-vars.css`](../../themes/PaperMod/assets/css/core/theme-vars.css).
 
 | PaperMod token | Email hex |
 | --- | --- |
