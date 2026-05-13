@@ -1,0 +1,83 @@
+name: Debug Hakanai subscribe (ad hoc)
+
+# One-off debug workflow: POSTs to the Hakanai subscribe endpoint from a
+# GitHub-hosted runner (which has unrestricted internet) and posts the
+# full HTTP response back as a comment on issue #165, since the Claude
+# sandbox proxy blocks *.hakanai.io. Delete this workflow + branch
+# when we're done debugging.
+
+on:
+  push:
+    branches: [debug/hakanai-subscribe-test]
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'Email to test-subscribe'
+        required: true
+        default: 'kakkoyun@gmail.com'
+      campaign_id:
+        description: 'Campaign ID'
+        required: true
+        default: 'c5029a05-9d18-4c54-8b44-1e8b270a6841'
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: POST to Hakanai
+        id: post
+        env:
+          EMAIL: ${{ github.event.inputs.email || 'kakkoyun@gmail.com' }}
+          CAMPAIGN_ID: ${{ github.event.inputs.campaign_id || 'c5029a05-9d18-4c54-8b44-1e8b270a6841' }}
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          set +e
+          url="https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe"
+
+          headers=$(mktemp)
+          body=$(mktemp)
+
+          status=$(curl -sS -o "$body" -D "$headers" -w "%{http_code}" \
+            -X POST \
+            -H "User-Agent: kakkoyun-debug-workflow/1.0" \
+            -H "Accept: text/html,application/json;q=0.9,*/*;q=0.8" \
+            -H "Origin: https://kakkoyun.me" \
+            -H "Referer: https://kakkoyun.me/" \
+            --data-urlencode "email=${EMAIL}" \
+            "$url")
+
+          {
+            echo "## Hakanai subscribe probe — \`${TRIGGER}\`"
+            echo ""
+            echo "- **Endpoint:** \`POST $url\`"
+            echo "- **Body:** \`email=${EMAIL}\` (url-encoded)"
+            echo "- **HTTP status:** \`$status\`"
+            echo "- **Run:** [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
+            echo ""
+            echo "### Response headers"
+            echo '```'
+            cat "$headers"
+            echo '```'
+            echo ""
+            echo "### Response body"
+            echo '```'
+            cat "$body"
+            echo '```'
+          } | tee /tmp/comment.md
+
+          cat /tmp/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on issue #165
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('/tmp/comment.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 165,
+              body,
+            });
