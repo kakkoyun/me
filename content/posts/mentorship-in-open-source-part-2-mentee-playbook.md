@@ -38,7 +38,7 @@ This is the post I wish I could send those folks.
 You've heard about open-source mentorship programs and you want in. You might be:
 
 - A student looking for a structured summer project (GSoC's bullseye).
-- A working engineer wanting to break into a CNCF or {{< tooltip term="OSS" >}}Open-source software.{{< /tooltip >}} ecosystem you respect (LFX is your friend).
+- A working engineer wanting to break into a CNCF or {{< tooltip term="OSS" >}}Open-source software.{{< /tooltip >}} community you respect (LFX is your friend).
 - An engineer from a background under-represented in tech (Outreachy is built for you).
 - Someone who's tried "just contribute to open source" and bounced off the gravitational well of unread Slack channels (you want a structured program with a mentor whose job it is to talk to you).
 
@@ -50,29 +50,19 @@ I've personally been involved with four. There are more — these are the ones I
 
 ### CNCF LFX Mentorship
 
-- **What it is.** A structured cohort-based program run by the Linux Foundation. Each project is scoped for one cohort (~12 weeks), assigned 1–2 mentors, and pays a stipend.
-- **Cadence.** Multiple cohorts per year. Spring/summer/fall — see the [active terms](https://mentorship.lfx.linuxfoundation.org/) for current dates.
-- **Project list.** Lives in the [`cncf/mentoring`](https://github.com/cncf/mentoring) repo under `programs/lfx-mentorship/`. The structure rewards reading: each project has a description, required skills, mentor names, and (usually) example issues.
-- **What makes it special.** Every mentor on LFX has agreed to commit a meaningful chunk of time. That is a contract you don't get from "show up in the GitHub issues."
+A structured cohort-based program run by the Linux Foundation. Each project is scoped for one cohort (~12 weeks), assigned 1–2 mentors, and pays a stipend. There are multiple cohorts per year; the [active terms page](https://mentorship.lfx.linuxfoundation.org/) lists what's open right now, and the project list lives in the [`cncf/mentoring`](https://github.com/cncf/mentoring) repo under `programs/lfx-mentorship/`. The structure rewards reading: each project has a description, required skills, mentor names, and (usually) example issues. Every mentor on LFX has agreed to commit a meaningful chunk of time; that's a contract you don't get from "show up in the GitHub issues."
 
 ### Google Summer of Code
 
-- **What it is.** Google's long-running OSS internship. Originally student-only; for a few years now it's been open to "beginners to open source," not just students.
-- **Cadence.** Annual. Applications open in spring, work happens over summer.
-- **Project list.** Each participating org publishes its own ideas list. CNCF orgs aggregate theirs in [`cncf/mentoring`](https://github.com/cncf/mentoring/tree/main/programs/summerofcode).
-- **What makes it special.** GSoC has the strongest "first-time mentee" track record I've seen. The structure is forgiving enough that someone with rough Git fundamentals can still ship something real by August.
+Google's long-running OSS internship. Originally student-only; for a few years now it's been open to "beginners to open source," not just students. Applications open in spring, work happens over summer. Each participating org publishes its own ideas list, and CNCF orgs aggregate theirs in [`cncf/mentoring`](https://github.com/cncf/mentoring/tree/main/programs/summerofcode). GSoC has the strongest "first-time mentee" track record I've seen: the structure is forgiving enough that someone with rough Git fundamentals can still ship something real by August.
 
 ### Outreachy
 
-- **What it is.** A program for people from groups traditionally under-represented in tech, including those affected by systemic bias.
-- **Cadence.** Two cohorts per year (May–August and December–March).
-- **How to apply.** Outreachy's intake is more rigorous than the others — there's a contribution period before the formal proposal, and it's [run from outreachy.org directly](https://www.outreachy.org/).
-- **What makes it special.** It has the lowest tolerance for the "open-source as boys' club" failure mode of any program I've seen. If you've felt locked out of OSS communities, this is the door.
+A program for people from groups traditionally under-represented in tech, including those affected by systemic bias. Two cohorts per year (May–August and December–March). The intake is more rigorous than the others: there's a contribution period before the formal proposal, and it's [run from outreachy.org directly](https://www.outreachy.org/). Outreachy has the lowest tolerance for the "open-source as boys' club" failure mode of any program I've seen. If you've felt locked out of OSS communities, this is the door.
 
 ### GoBridge & CommunityBridge
 
-- **What they are.** Less structured than the above. [GoBridge](https://gobridge.org/) runs workshops, scholarships, and mentor pairings focused on the Go community. [CommunityBridge](https://communitybridge.org/) is the Linux Foundation's broader umbrella for sponsored mentorship and project funding.
-- **Why I list them.** Not every door is a 12-week cohort. Sometimes a one-week workshop or a 1:1 office-hours pairing is exactly the right starting size.
+These are less structured than the above. [GoBridge](https://gobridge.org/) runs workshops, scholarships, and mentor pairings focused on the Go community. [CommunityBridge](https://communitybridge.org/) is the Linux Foundation's broader umbrella for sponsored mentorship and project funding. I list them because not every door is a 12-week cohort. Sometimes a one-week workshop or a 1:1 office-hours pairing is exactly the right starting size.
 
 ## What I look for in a proposal
 
@@ -88,7 +78,7 @@ That last bullet is the one I see violated most often. A mentorship proposal is 
 
 ## What makes a good first contribution
 
-If you're not yet at proposal stage — you just want to do *something* — start here.
+If you're not yet at proposal stage and just want to do *something*, start here.
 
 1. **Pick the project before the program.** Find a CNCF or Go project whose docs you've actually read for fun. Whose maintainers you've watched on a podcast or at a meet-up. {{< sidenote >}}If no project meets that bar yet, your first task is to find one. Spend a week with the [CNCF Landscape](https://landscape.cncf.io/) and the [TAG observability group](https://github.com/cncf/tag-observability).{{< /sidenote >}} Programs are the scaffolding. The project is the building.
 2. **Read the issue tracker for an hour.** Not to pick an issue — to understand the *vocabulary*. What does "OBI" mean to this project? What's a "sidecar" here? Who's `@nickname` and why do they have opinions?
@@ -98,7 +88,7 @@ If you're not yet at proposal stage — you just want to do *something* — star
 
 ## The five mistakes I see most
 
-I've watched these patterns play out across cohorts. They are not character flaws — they are easy traps. Knowing about them will not stop you from falling into one of them. But it might shorten the climb out.
+I've watched these patterns play out across cohorts. They're easy traps, not character flaws. Knowing about them will not stop you from falling into one of them, but it might shorten the climb out.
 
 ### 1. Picking a project you're not actually curious about
 
