@@ -202,10 +202,9 @@ params:
     hakanai:
       site: "d59129ee-cdfa-47a5-8908-5a017caf60c7"
   newsletter:
-    enabled: false
     provider: hakanai
-    formAction: ""
-    formSiteId: ""
+    hakanaiHost: "https://broadcast.hakanai.io"
+    mainCampaignId: "c5029a05-9d18-4c54-8b44-1e8b270a6841"
     publications:
       - slug: reads-and-builds
         name: "Reads & Builds"

@@ -1,12 +1,13 @@
 {{/* Newsletter form shortcode
+
+Renders a subscription <form> when the resolved campaignId is set,
+otherwise a "coming soon" placeholder with a mailto: fallback. Resolution
+order:
+  1. publication slug -> Site.Params.newsletter.publications[].campaignId
+  2. no args          -> Site.Params.newsletter.mainCampaignId
+
 Usage:
-  {{< newsletter-form >}}
+  {{< newsletter-form >}}                              (main feed)
   {{< newsletter-form publication="reads-and-builds" >}}
-Optional named params:
-  publication   Slug of the publication to target (matches a slug under
-                Site.Params.newsletter.publications). Omitted for a
-                generic / global subscribe form.
-Rendering is gated on Site.Params.newsletter.enabled — nothing emits until
-the Hakanai dashboard values are pasted in and the flag is flipped.
 */}}
 {{- partial "newsletter-form.html" (dict "publication" (.Get "publication")) -}}

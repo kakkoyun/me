@@ -12,6 +12,9 @@
     {{ end }}
     <footer class="entry-footer">
         {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
+        {{- if site.Params.newsletter.mainCampaignId }}
+        {{ partial "newsletter-form.html" (dict) }}
+        {{- end }}
     </footer>
 </article>
 {{- end -}}

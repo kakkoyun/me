@@ -81,15 +81,87 @@
   }
 }
 
+/* Inline subscription form (Hakanai Broadcast).
+   Used both on the homepage (entry-footer after social icons) and on
+   publication landing pages once each has its own campaign wired up.
+   Theme-aware via --primary/--theme/--tertiary, so light + dark render
+   correctly without overrides.
+*/
 .newsletter-form {
-  margin: 1.5rem 0;
+  margin: 1.5rem auto 0;
+  max-width: 32rem;
 }
 
+.home-info .newsletter-form {
+  text-align: left;
+}
+
+.newsletter-form__label {
+  display: block;
+  font-size: 0.95em;
+  margin-bottom: 0.4rem;
+  color: var(--content);
+}
+
+.newsletter-form__row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.newsletter-form__email {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.75rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--content);
+  background: var(--theme);
+  border: 1px solid var(--tertiary);
+  border-radius: var(--radius, 8px);
+}
+
+.newsletter-form__email:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.newsletter-form__submit {
+  padding: 0.55rem 1rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--theme);
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius, 8px);
+  cursor: pointer;
+}
+
+.newsletter-form__submit:hover {
+  opacity: 0.85;
+}
+
+.newsletter-form__note {
+  margin: 0.45rem 0 0;
+  font-size: 0.8em;
+  font-style: italic;
+  color: var(--secondary);
+}
+
+@media (max-width: 480px) {
+  .newsletter-form__row {
+    flex-direction: column;
+  }
+}
+
+/* Placeholder variant: rendered on publication landing pages when their
+   campaignId is not yet set. Falls back to a mailto: invite.
+*/
 .newsletter-form--placeholder {
   display: block;
   padding: 0.9rem 1rem;
-  background: var(--note-bg, rgba(0, 0, 0, 0.03));
-  border-left: 3px solid var(--note-accent, #888);
+  background: var(--code-bg, rgba(0, 0, 0, 0.03));
+  border-left: 3px solid var(--tertiary);
   border-radius: 4px;
   font-size: 0.95em;
   line-height: 1.4;
