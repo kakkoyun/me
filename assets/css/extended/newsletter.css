@@ -154,6 +154,20 @@
   color: var(--secondary);
 }
 
+.newsletter-form__success {
+  margin: 0.75rem 0 0;
+  max-width: 24rem;
+  padding: 0.45rem 0;
+  font-size: 0.95rem;
+  color: var(--content);
+}
+
+.newsletter-form__error {
+  margin: 0.45rem 0 0;
+  font-size: 0.85em;
+  color: var(--secondary);
+}
+
 @media (max-width: 480px) {
   .newsletter-form {
     max-width: 100%;
