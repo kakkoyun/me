@@ -20,7 +20,24 @@ on:
         type: boolean
 
 jobs:
+  deploy:
+    # Only needed on schedule — push to master already triggers a Netlify deploy,
+    # and workflow_dispatch is manual control. On schedule, we must rebuild so
+    # posts whose publishDate has arrived become live before promotion fires.
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger Netlify build
+        run: curl -fsS -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK_URL }}"
+      - name: Wait for Netlify build to complete
+        # Hugo builds are fast (~1-2 min); 3 min is a safe buffer before promotion.
+        run: sleep 180
+
   promote:
+    needs: [deploy]
+    # Run when deploy succeeded (schedule) or was skipped (push / workflow_dispatch).
+    if: always() && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
