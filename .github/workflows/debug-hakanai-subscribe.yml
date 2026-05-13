@@ -114,26 +114,58 @@ jobs:
             echo "Run: [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
             echo "Time: \`$(date -u +%Y-%m-%dT%H:%M:%SZ)\`"
 
-            # GET the form URL to discover what Hakanai's hosted form actually
-            # posts (field names, hidden inputs, the real action URL, etc).
+            # D: GET the SPA shell and look for hardcoded API URLs in the
+            # served HTML. The form is mounted client-side by Nuxt; the
+            # server-rendered HTML still includes the JS bundle and may
+            # embed the API URL in a __NUXT_DATA__ or hydration payload.
             echo ""
-            echo "## D. GET on the form URL --- inspect hosted form"
-            echo '```html'
+            echo "## D. GET the SPA shell --- find API endpoint in HTML"
+            echo '```'
             page=$(mktemp)
             curl -sS --connect-timeout 10 --max-time 20 \
               -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
-              -o "$page" -w "status=%{http_code} url=%{url_effective}\n" \
+              -o "$page" -w "status=%{http_code}\n" \
               "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe"
-            # Extract <form ...> tags and all <input ...> children, plus
-            # any nearby <button> labels.
-            grep -oE '<form[^>]*>|<input[^>]*>|<button[^>]*>[^<]*' "$page" | head -40
             echo ""
-            echo "--- All visible form action URLs in page ---"
-            grep -oE 'action="[^"]+"' "$page" | sort -u | head -10
-            echo "--- All input name= values in page ---"
-            grep -oE 'name="[^"]+"' "$page" | sort -u | head -20
-            echo "--- All form-method indicators ---"
-            grep -oE 'method="[^"]+"|@submit|on:submit|hx-post|hx-get' "$page" | sort -u | head -10
+            echo "--- /api/ references in the page ---"
+            grep -oE '"/api/[^"]+"|\\u002Fapi\\u002F[^"]+|/api/[A-Za-z0-9/_.-]+' "$page" | sort -u | head -30
+            echo ""
+            echo "--- 'subscribe' string occurrences ---"
+            grep -oE '"[^"]*subscribe[^"]*"' "$page" | sort -u | head -30
+            echo ""
+            echo "--- 'email' field-related strings ---"
+            grep -oE '"[^"]{0,30}email[^"]{0,30}"' "$page" | sort -u | head -20
+            echo ""
+            echo "--- JS bundle URLs (for follow-up grep if needed) ---"
+            grep -oE 'src="/_nuxt/[^"]+\.js"' "$page" | head -5
+            echo '```'
+
+            # G: OPTIONS preflight against the API endpoint --- reveals
+            # allowed methods and headers, which often hints at right path.
+            echo ""
+            echo "## G. OPTIONS on /api/.../subscribe"
+            echo '```'
+            curl -sS -i -X OPTIONS --connect-timeout 10 --max-time 15 \
+              -H "Origin: https://kakkoyun.me" \
+              -H "Access-Control-Request-Method: POST" \
+              -H "Access-Control-Request-Headers: content-type" \
+              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" 2>&1 | head -30
+            echo '```'
+
+            # H: same API endpoint but with Accept: application/json only ---
+            # forces the server to return a JSON error body instead of HTML.
+            echo ""
+            echo "## H. POST API with Accept: application/json (force JSON error)"
+            echo '```'
+            curl -sS -i --connect-timeout 10 --max-time 30 \
+              -X POST \
+              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
+              -H "Accept: application/json" \
+              -H "Origin: https://kakkoyun.me" \
+              -H "Referer: https://kakkoyun.me/" \
+              -H "Content-Type: application/json" \
+              --data "{\"email\":\"${EMAIL}\"}" \
+              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" 2>&1 | head -50
             echo '```'
 
             # Probe A: the form endpoint that the homepage <form action> points at.
