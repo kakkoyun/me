@@ -17,13 +17,13 @@ cover:
 
 ### Another Year, Another FOSDEM
 
-**FOSDEM**—the annual pilgrimage to **Brussels** for a weekend of open-source brilliance, hallway track magic, and the inevitable sleep deprivation. This year's **Free and Open Source Software Developers' European Meeting** was, as always, a whirlwind of ideas, people, and tech so bleeding-edge it practically needed bandages.
+**FOSDEM**—the annual pilgrimage to **Brussels** for a weekend of open-source brilliance, hallway track magic, and the inevitable sleep deprivation. This year's **Free and Open Source Software Developers' European Meeting** was, as always, a whirlwind of ideas, people, and tech so sharp it practically needed bandages.
 
 But for me? It was all about **seeing friends**. Catching up, syncing, and squeezing in as many conversations as humanly possible. As we always say—the **hallway track is the real conference**. I'm beyond grateful for the people I managed to see, and equally bummed about those I missed. But with a toddler waiting at home, even carving out this limited time was a logistical miracle.
 
 ### Saturday: Go, Go, Go... and the eBPF Black Hole
 
-Saturday kicked off with a deep dive into the **Go DevRoom**, before a (failed) mission to infiltrate the **eBPF** talks.
+Saturday kicked off in the **Go DevRoom**, before a (failed) mission to infiltrate the **eBPF** talks.
 
 #### **Go Goodness**
 
