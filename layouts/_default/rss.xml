@@ -96,7 +96,17 @@
       <pubDate>{{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
       {{- with $authorEmail }}<author>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</author>{{ end }}
       <guid>{{ .Permalink }}</guid>
+      {{- /* For newsletter items, emit the full rendered HTML body in
+             <description> so Hakanai Broadcast's {{description}}
+             Mustache var (which maps to RSS <description>) carries the
+             full article into the email. Hakanai doesn't expose
+             <content:encoded> as a separate var. Other sections keep
+             the default summary-only description. */ -}}
+      {{- if eq .Section "newsletter" }}
+      <description>{{ (printf "<![CDATA[%s]]>" .Content) | safeHTML }}</description>
+      {{- else }}
       <description>{{ with .Description | html }}{{ . }}{{ else }}{{ .Summary | html }}{{ end -}}</description>
+      {{- end }}
       {{- if and site.Params.ShowFullTextinRSS .Content }}
       <content:encoded>{{ (printf "<![CDATA[%s]]>" .Content) | safeHTML }}</content:encoded>
       {{- end }}

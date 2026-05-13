@@ -16,7 +16,11 @@ These files live in git so:
 ## Workflow
 
 1. Edit the `.mjml` file locally.
-2. Preview/validate. Easiest option is the official MJML CLI:
+2. Validate with `make email-validate`. This runs the official MJML
+   compiler in strict mode and additionally checks for the
+   Mustache-in-HTML-comment pitfall described below.
+
+   To preview the rendered HTML in a browser:
 
    ```sh
    npx mjml standard.mjml -o /tmp/standard.html && open /tmp/standard.html
@@ -30,16 +34,42 @@ These files live in git so:
    need to upload compiled HTML.
 4. Commit the `.mjml` change. Do not commit compiled HTML to this repo.
 
+CI runs `make email-validate` on every PR that touches
+`templates/emails/` ([workflow](../.github/workflows/email-templates.yml)).
+
+### Mustache tokens are not allowed inside HTML comments
+
+Hakanai's pre-processor isn't comment-aware. A token like
+`{{description}}` mentioned inside an `<!-- ... -->` block (e.g. in a
+documentation comment) gets substituted with the actual article body
+HTML at send time. If that body contains a `-->` --- or any number of
+other tokens that confuse MJML's strict parser --- the template
+rendering breaks with the unhelpful dashboard error *"Error when
+rendering or saving template: Error:"*.
+
+Keep all documentation in this README, not inline in the `.mjml`
+files. The validator's `mustache-in-comments` check fails the build
+if a Mustache token slips into a comment.
+
 ## Templates
 
-- [`standard.mjml`](standard.mjml) — the main broadcast template, used
-  by both the blog-wide main feed and per-publication campaigns (Reads
-  & Builds and any future ones). One template so the visual identity
-  stays consistent across all newsletters.
+- [`standard.mjml`](standard.mjml) — **digest** layout. Used by the
+  blog-wide main feed campaign. Hakanai aggregates the recent RSS
+  items into one email; the `{{#articles}}` block renders each item
+  as a title + summary card.
+- [`the-unwind.mjml`](the-unwind.mjml) — **single-article** layout.
+  Used by The Unwind, the hand-curated weekly publication. Hakanai is
+  configured to send one email per new RSS item, so the
+  `{{#articles}}` block iterates once and the full HTML body of the
+  issue is dropped into an `<mj-text>` wrapper via `{{{description}}}`.
+  Inline CSS in `<mj-style>` targets `.article-body h2 / p / a /
+  blockquote / pre / code / img / hr` so the rendered article reads
+  cleanly across email clients. (Earlier versions used `<mj-raw>`
+  for the body, which Hakanai rejected with an unhelpful save-time
+  error.)
 
-If a campaign ever needs a meaningfully different layout, fork
-`standard.mjml` to e.g. `reads-and-builds.mjml` rather than branching
-inside a single template.
+If another campaign needs a meaningfully different layout, fork
+whichever template is closer rather than branching inside one.
 
 ## Hakanai Mustache variables
 
@@ -55,11 +85,30 @@ configuration plus the RSS items being broadcast.
 | `{{currentYear}}` | Current year, for copyright lines |
 | `{{#articles}}…{{/articles}}` | Section/loop over items in the broadcast |
 | `{{title}}` (inside articles) | Article title |
-| `{{description}}` (inside articles) | Article description / summary |
+| `{{description}}` (inside articles) | Article description / summary. See note below for full-body templates. |
 | `{{{link}}}` (inside articles) | Article URL — note the triple braces |
+| `{{pubDate}}` (inside articles) | Article publication date, formatted by Hakanai |
 
-Use triple-brace `{{{ }}}` around URLs to skip HTML-escaping; Mustache
-treats triple-brace output as raw.
+Use triple-brace `{{{ }}}` around URLs and HTML to skip HTML-escaping;
+Mustache treats triple-brace output as raw.
+
+### Article body for full-content templates
+
+`the-unwind.mjml` needs the **full HTML body** of an issue, not the
+short summary. The site's RSS template (`layouts/_default/rss.xml`)
+emits two body fields per item:
+
+- `<description>` — `.Description` (frontmatter) or `.Summary` (auto)
+- `<content:encoded>` — full HTML when `params.showFullTextinRSS:
+  true` (it is)
+
+Which one Hakanai surfaces inside `{{#articles}}` as `{{description}}`
+isn't documented in a way I can verify (sandbox blocked from
+`hakanai.io`). The template uses `{{{description}}}`; if the preview
+shows only the summary, switch to whichever variable holds
+`content:encoded` (likely `{{{contentEncoded}}}` or `{{{content}}}`),
+or override the section's RSS template to put `.Content` into
+`<description>`.
 
 If Hakanai exposes additional variables (a `socials` dict, custom
 campaign fields, etc.) consult their docs at
@@ -81,8 +130,8 @@ tokens from
 | `--theme` (content card background) | `#FFFFFF` |
 | Outer page wash | `#FAFAFA` |
 
-If PaperMod's palette changes, update the constants in `standard.mjml`
-to match.
+If PaperMod's palette changes, update the constants in both
+`standard.mjml` and `the-unwind.mjml` to match.
 
 Email-client dark mode is intentionally not implemented yet — Apple
 Mail respects `prefers-color-scheme`, but Gmail and Outlook ignore it,
@@ -97,7 +146,8 @@ Hakanai's `{{#socials.X}}` template blocks even though the example
 template does — that lets us keep the canonical list in this repo and
 avoid having to keep two lists in sync.
 
-When you change socials, update both:
+When you change socials, update all three:
 
 - `config.yaml` (website footer)
-- `standard.mjml` (email footer)
+- `standard.mjml` (digest email footer)
+- `the-unwind.mjml` (single-article email footer)
