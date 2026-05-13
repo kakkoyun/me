@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test vale vale-sync prose
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test vale vale-sync prose email-validate
 
 # Default target
 help:
@@ -273,6 +273,14 @@ prose:
 	@command -v vale >/dev/null 2>&1 || { echo "❌ Vale not found. Install with: brew install vale"; exit 1; }
 	@echo "📝 Running Vale on content/ ..."
 	@vale --no-exit content/
+
+# Validate every MJML email template under templates/emails/. Catches
+# both MJML syntax errors and a Hakanai-specific pitfall (Mustache
+# tokens inside HTML comments). Requires npx; will fetch mjml on first
+# run.
+email-validate:
+	@command -v npx >/dev/null 2>&1 || { echo "❌ npx not found. Install Node.js"; exit 1; }
+	@bash scripts/validate-emails.sh
 
 local-setup: check-hugo ## Initialize local dev environment (Hugo + theme submodule + dry run)
 	@echo "🔧 Local development environment setup"
