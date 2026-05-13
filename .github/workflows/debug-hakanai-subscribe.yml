@@ -168,6 +168,33 @@ jobs:
               "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe" 2>&1 | head -50
             echo '```'
 
+            # I: POST with email in query string, no body
+            echo ""
+            echo "## I. POST /api/.../subscribe?email=... (query string, no body)"
+            echo '```'
+            email_enc=$(printf %s "${EMAIL}" | jq -sRr @uri)
+            curl -sS -i --connect-timeout 10 --max-time 30 \
+              -X POST \
+              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
+              -H "Accept: application/json" \
+              -H "Origin: https://kakkoyun.me" \
+              -H "Referer: https://kakkoyun.me/" \
+              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe?email=${email_enc}" 2>&1 | head -50
+            echo '```'
+
+            # J: GET with email in query string
+            echo ""
+            echo "## J. GET /api/.../subscribe?email=... (query string, GET)"
+            echo '```'
+            curl -sS -i --connect-timeout 10 --max-time 30 \
+              -X GET \
+              -H "User-Agent: Mozilla/5.0 (kakkoyun-debug)" \
+              -H "Accept: application/json" \
+              -H "Origin: https://kakkoyun.me" \
+              -H "Referer: https://kakkoyun.me/" \
+              "https://broadcast.hakanai.io/api/campaign/${CAMPAIGN_ID}/subscribe?email=${email_enc}" 2>&1 | head -50
+            echo '```'
+
             # Probe A: the form endpoint that the homepage <form action> points at.
             probe "A. POST form endpoint (urlencoded)" \
               "https://broadcast.hakanai.io/campaign/${CAMPAIGN_ID}/subscribe" \
