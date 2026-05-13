@@ -1,8 +1,8 @@
 ---
 title: "Why I Keep Mentoring in Open Source"
 description: "Series opener — a few words on why I keep saying yes to mentorship in open source, and what's coming next."
-date: 2026-05-02T00:00:00Z
-publishDate: 2026-05-02T00:00:00Z
+date: 2026-05-22T00:00:00Z
+publishDate: 2026-05-22T00:00:00Z
 categories:
   - reflection
 tags:
@@ -41,8 +41,8 @@ So I'm going to try a different shape: a short series of three posts, each aimed
 ### What's in this series
 
 1. **This post** — why I keep saying yes. A reflection, mostly for me, but also for anyone who's wondering whether to start.
-2. **[Part 2 — The mentee playbook](/posts/mentorship-in-open-source-part-2-mentee-playbook/).** {{< sidenote >}}Link goes live when Part 2 lands.{{< /sidenote >}} If you want to be mentored — through LFX, GSoC, Outreachy, GoBridge, CommunityBridge, or just by cold-DMing a maintainer — here's what works, what doesn't, and how to write a proposal that actually gets picked.
-3. **[Part 3 — Stewardship inside OpenTelemetry](/posts/mentorship-in-open-source-part-3-stewardship/).** {{< sidenote >}}Link goes live when Part 3 lands.{{< /sidenote >}} A live example. The CNCF and Bloomberg recently published a piece I keep coming back to — *[Sustaining OpenTelemetry: Moving from Dependency Management to Stewardship](https://www.cncf.io/blog/2026/03/31/sustaining-opentelemetry-moving-from-dependency-management-to-stewardship/)*. Part 3 is about what stewardship looks like at the SIG level when the goal is to grow people, not just code.
+2. **The mentee playbook (next week).** If you want to be mentored — through LFX, GSoC, Outreachy, GoBridge, CommunityBridge, or just by cold-DMing a maintainer — what works, what doesn't, and how to write a proposal that actually gets picked.
+3. **Stewardship inside OpenTelemetry (the week after).** A live example. The CNCF and Bloomberg recently published a piece I keep coming back to — *[Sustaining OpenTelemetry: Moving from Dependency Management to Stewardship](https://www.cncf.io/blog/2026/03/31/sustaining-opentelemetry-moving-from-dependency-management-to-stewardship/)*. The third post is about what stewardship looks like at the SIG level when the goal is to grow people, not just code.
 
 ### Why I keep saying yes
 
