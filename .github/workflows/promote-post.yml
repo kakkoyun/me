@@ -28,16 +28,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Validate secret
+        run: |
+          if [ -z "$NETLIFY_BUILD_HOOK_URL" ]; then
+            echo "::error::NETLIFY_BUILD_HOOK_URL secret is not set. Add it under repo Settings → Secrets → Actions."
+            exit 1
+          fi
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
       - name: Trigger Netlify build
         run: curl -fsS -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK_URL }}"
       - name: Wait for Netlify build to complete
-        # Hugo builds are fast (~1-2 min); 3 min is a safe buffer before promotion.
-        run: sleep 180
+        # Hugo builds typically take 1-3 min; 5 min covers queue delays and slower runners.
+        run: sleep 300
 
   promote:
     needs: [deploy]
-    # Run when deploy succeeded (schedule) or was skipped (push / workflow_dispatch).
-    if: always() && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
+    # Run when deploy succeeded or was skipped (push / workflow_dispatch).
+    # Also run when deploy failed: a missed rebuild shouldn't block promotion of a
+    # post that may already be live from a prior deploy.
+    if: always() && needs.deploy.result != 'cancelled'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
