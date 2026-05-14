@@ -18,13 +18,18 @@ is_draft() {
 }
 
 get_publish_date() {
-  # Extract publishDate from YAML frontmatter, return date portion only (YYYY-MM-DD)
-  grep '^publishDate:' "$1" | head -1 | awk '{print $2}' | tr -d '"' | cut -dT -f1
+  # Extract publishDate from YAML frontmatter, return date portion only (YYYY-MM-DD).
+  # Returns empty (exit 0) when the field is missing — callers must handle that.
+  local line
+  line=$(grep -m1 '^publishDate:' "$1" || true)
+  [ -z "$line" ] && return 0
+  echo "$line" | awk '{print $2}' | tr -d '"' | cut -dT -f1
 }
 
 file_added_date() {
-  # Date file was first added to git (for dedup between push and cron triggers)
-  git log --diff-filter=A --format=%cs -- "$1" | head -1
+  # Date file was first added to git (for dedup between push and cron triggers).
+  # Returns empty (exit 0) when git has no record of the file.
+  git log --diff-filter=A --format=%cs -- "$1" 2>/dev/null | awk 'NR==1{print; exit}'
 }
 
 validate_post() {
