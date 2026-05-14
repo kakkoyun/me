@@ -5,6 +5,13 @@
 HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
+# Ensure go-installed binaries (e.g. hugo) are visible in every recipe shell.
+# Prefer GOBIN when set; fall back to GOPATH/bin.
+GO_INSTALL_BIN := $(shell go env GOBIN 2>/dev/null)
+ifeq ($(GO_INSTALL_BIN),)
+  GO_INSTALL_BIN := $(shell go env GOPATH 2>/dev/null)/bin
+endif
+export PATH := $(PATH):$(GO_INSTALL_BIN)
 
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
 
