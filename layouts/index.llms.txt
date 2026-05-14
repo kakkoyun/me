@@ -1,4 +1,4 @@
-# Kemal Akkoyun
+# {{ .Site.Params.title }}
 
 > Software Infrastructure Engineer, System Programmer, and Performance Engineer writing about observability, profiling, eBPF, Go, and performance engineering.
 > For every page, you can add `index.md` to the URL to get a markdown version in plain text that you can use as context for calls to LLMs.
@@ -29,13 +29,6 @@ You can find [more information about Kemal on this page](/about/index.md).
 - [Talks](/categories/talks/index.md) - Conference talks and presentations
 
 ## Recent Posts
-
-- [FOSDEM 2025: Blimey, What a Weekend!](/posts/fosdem-2025/index.md)
-- [I left Polar Signals or A new chapter in my professional journey](/posts/i-left-polar-signals/index.md)
-- [Hustle Culture Startup Lessons](/posts/hustle-culture-startup-lessons/index.md)
-- [Vibe Coding with Cursor](/posts/2024-03-21-vibe-coding-with-cursor/index.md)
-- [Profiling Python and Ruby using eBPF](/posts/profiling-python-and-ruby-using-ebpf/index.md)
-- [Profiling Python with eBPF](/posts/profiling-python-with-ebpf/index.md)
-- [Fantastic Symbols and Where to Find Them (Part 2)](/posts/fantastic-symbols-and-where-to-find-them-part-2/index.md)
-- [Fantastic Symbols and Where to Find Them](/posts/fantastic-symbols-and-where-to-find-them/index.md)
-- [Making Drone Builds 10 Times Faster](/posts/making-drone-builds-10-times-faster/index.md)
+{{ range first 10 (where .Site.RegularPages "Section" "posts") }}
+- [{{ .Title }}]({{ .RelPermalink }}index.md)
+{{- end }}
