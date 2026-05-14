@@ -4,8 +4,12 @@ theme: "PaperMod"
 
 enableRobotsTXT: true
 
-languageCode: "en"
 defaultContentLanguage: "en"
+languages:
+  en:
+    locale: en
+    direction: ltr
+    weight: 1
 buildDrafts: false
 
 pagination:
