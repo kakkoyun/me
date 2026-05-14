@@ -19,22 +19,24 @@ Currently focused on Go runtime and compiler internals, building AST manipulatio
 
 ## Learning & Exploration
 
-Focused on writing, blogging, engineering leadership, and the internals of LLMs. Exploring how these tools work under the hood and how to build better systems with them.
+Deep in agentic engineering as a hobby. Building complex multi-agent flows and finding their limits: what these systems do well, and what falls over once you push past the demo.
 
-Experimenting with Claude Code, Claude Desktop, and MCPs to fully automate my Personal Knowledge Management on top of Obsidian.
+Day-to-day I live inside [Claude Code](https://claude.com/code) and [pi](https://pi.dev), the two agentic coding environments doing most of the heavy lifting.
+
+Still focused on writing, blogging, engineering leadership, and the internals of LLMs. Exploring how these tools work under the hood and how to build better systems with them.
 
 ## Hobby Tech
 
-Showing some love to my Raspberry Pi cluster and Flipper Zero. Small projects, big fun.
+Running local LLMs on my Raspberry Pi cluster. I'm convinced Raspberry Pi plus local compute is where a lot of the future of LLMs actually lives, and I want to see how much you can squeeze out of cheap hardware and small models.
 
 ## Family & Life
 
-Based in Berlin with my partner and our son.
+Based in Berlin with my partner and our son. The boy sets the schedule, which is fair. Whatever free time is left collapses into three buckets: read, exercise, write.
 
-Gravel cycling whenever I can. Dreaming of camping and bikepacking trips—something I want to do with my boy when he's grown up enough. For now, prioritizing outdoor time and sleep.
+On the movement side: gravel cycling when the weather and the calendar agree, plus HIIT boot camps, Hyrox, and indoor cycling on the trainer for the in-between days. Still dreaming of bikepacking trips with my boy once he's old enough for two wheels.
 
 ## Reading & Writing
 
-Reading a mix of systems papers, engineering leadership books, and sci-fi. Check my [reading page](/reading/) for current books.
+Reading a mix of systems papers, engineering leadership books, and sci-fi. The to-read pile and the article backlog keep growing faster than I burn through them; check my [reading page](/reading/) for what's currently in rotation.
 
-Notes and insights land in the **[notes](/notes/)** section when useful.
+The read-then-write loop now feeds [The Unwind](/newsletter/the-unwind/), my roughly-weekly newsletter of links and notes. Other notes and insights still land in the **[notes](/notes/)** section when useful.
