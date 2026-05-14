@@ -14,7 +14,7 @@ Sometimes I write something that's not a blog post. Or create a page that's not 
 
 ### [Open Source](/open_source/)
 
-Projects I maintain or contribute to across the CNCF ecosystem—Prometheus, OpenTelemetry, Datadog instrumentation, and more.
+Projects I maintain or contribute to across CNCF—Prometheus, OpenTelemetry, Datadog instrumentation, and more.
 
 ### [Sponsorship](/sponsorship/)
 

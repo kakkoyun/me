@@ -17,9 +17,9 @@ My work centers on observability, instrumentation, profiling, and performance en
 I started tinkering with computers early, drawn to the idea of making machines do useful things. Over time, that curiosity evolved into a career focused on systems programming, low-level tooling, and observability.
 I've worked across distributed systems, time-series databases, continuous profiling, and eBPF-based instrumentation.
 
-Before Datadog, I helped build Parca (continuous profiling) and Thanos (Prometheus at scale). I've been a maintainer and contributor across the CNCF ecosystem—Prometheus, Prometheus Operator, and various observability projects. I've mentored through CNCF LFX, Google Summer of Code, CommunityBridge, and GoBridge, helping others find their way into open source.
+Before Datadog, I helped build Parca (continuous profiling) and Thanos (Prometheus at scale). I've been a maintainer and contributor across CNCF—Prometheus, Prometheus Operator, and various observability projects. I've mentored through CNCF LFX, Google Summer of Code, CommunityBridge, and GoBridge, helping others find their way into open source.
 
-I've also had the privilege of angel investing in two promising companies, supporting innovation in the tech ecosystem.
+I've also had the privilege of angel investing in two promising companies, supporting innovation in the tech space.
 
 #### What I Do recently
 
@@ -38,7 +38,7 @@ I enjoy **sci-fi and fantasy literature, board games, and programming fun side p
 
 **Gravel cycling** is my escape. I'm dreaming of camping and bikepacking adventures—trips I want to take with my son when he's grown up enough to join me on two wheels.
 
-As an **angel investor**, I've had the privilege of investing in two promising companies, helping support innovation and growth in the tech ecosystem.
+As an **angel investor**, I've had the privilege of investing in two promising companies, helping support innovation and growth in the tech space.
 
 One of my long-term goals is **early retirement**, spending most of my time outdoors—maybe overlanding with a Land Rover, bikepacking through mountains, or camping under the stars. Who knows?
 
