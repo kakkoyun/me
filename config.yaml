@@ -5,11 +5,6 @@ theme: "PaperMod"
 enableRobotsTXT: true
 
 defaultContentLanguage: "en"
-languages:
-  en:
-    locale: en
-    direction: ltr
-    weight: 1
 buildDrafts: false
 
 pagination:

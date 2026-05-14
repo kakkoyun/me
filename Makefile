@@ -5,6 +5,8 @@
 HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
+# Ensure go-installed binaries (e.g. hugo) are visible in every recipe shell.
+export PATH := $(PATH):$(shell go env GOPATH 2>/dev/null)/bin
 
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test vale vale-sync prose email-validate
 
@@ -224,7 +226,6 @@ check-hugo:
 	    echo "➡️  Installing latest Hugo via Go (no .hugo-version)"; \
 	    GO111MODULE=on go install github.com/gohugoio/hugo@latest || echo "⚠️ go install failed"; \
 	  fi; \
-	  export PATH="$$PATH:$$(go env GOPATH)/bin"; \
 	fi; \
 	if ! command -v hugo >/dev/null 2>&1; then \
 	  if [ -n "$$V" ]; then \
