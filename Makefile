@@ -224,6 +224,7 @@ check-hugo:
 	    echo "➡️  Installing latest Hugo via Go (no .hugo-version)"; \
 	    GO111MODULE=on go install github.com/gohugoio/hugo@latest || echo "⚠️ go install failed"; \
 	  fi; \
+	  export PATH="$$PATH:$$(go env GOPATH)/bin"; \
 	fi; \
 	if ! command -v hugo >/dev/null 2>&1; then \
 	  if [ -n "$$V" ]; then \
