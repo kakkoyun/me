@@ -2,19 +2,22 @@ ci:
   collect:
     # Serve the built public/ directory locally
     staticDistDir: ./public
-    numberOfRuns: 1
+    # Three runs let LHCI take the median and absorb the ~5-point
+    # run-to-run variance the GitHub-hosted runner produces.
+    numberOfRuns: 3
     # Check the homepage — representative of all pages
     url:
       - "http://localhost/"
 
   assert:
     assertions:
-      # Category floors. Set ~3 points below the post-fix scores so any
-      # meaningful drop trips CI without being so tight that a single
-      # noisy audit blocks unrelated PRs.
+      # Category floors. A11y/best-practices/SEO are stable across runs
+      # on a static site, so they sit just under the post-fix scores.
+      # Performance has more headroom because the runner's variance
+      # alone can move the score by 5+ points.
       "categories:performance":
         - error
-        - minScore: 0.95
+        - minScore: 0.9
       "categories:accessibility":
         - error
         - minScore: 0.97
