@@ -34,9 +34,9 @@ My work was deeply rooted in **profiling, eBPF, performance engineering, time-se
 
 In my free time, I'm a **tinkerer**—I open things up, inspect what's inside, and fix them. I'm also a **bookworm, a mechanical keyboard and LEGO builder, a single malt taster, and a coffee drinker in training** (peer pressure).
 
-I enjoy **sci-fi and fantasy literature, board games, and programming fun side projects** (from Raspberry Pi cluster experiments to Flipper Zero hardware hacking). I'm passionate about **traveling, cooking vegan and vegetarian dishes**, and constantly **challenging myself to learn new languages**—one day, I hope to become a proper polyglot.
+I enjoy **sci-fi and fantasy literature, board games, and programming fun side projects** (from Raspberry Pi cluster experiments to running local LLMs on cheap hardware, with multi-agent flows as my current obsession). I'm passionate about **traveling, cooking vegan and vegetarian dishes**, and constantly **challenging myself to learn new languages**—one day, I hope to become a proper polyglot.
 
-**Gravel cycling** is my escape. I'm dreaming of camping and bikepacking adventures—trips I want to take with my son when he's grown up enough to join me on two wheels.
+**Gravel cycling** is my escape, with **HIIT boot camps, Hyrox, and indoor cycling** filling the gaps when life gets in the way. I'm dreaming of camping and bikepacking adventures, trips I want to take with my son when he's grown up enough to join me on two wheels.
 
 As an **angel investor**, I've had the privilege of investing in two promising companies, helping support innovation and growth in the tech space.
 
@@ -44,7 +44,7 @@ One of my long-term goals is **early retirement**, spending most of my time outd
 
 #### Home
 
-I currently live in **Berlin, Germany**, with my beloved significant other, **Rüya**, and our one-year-old son, **Atlas Robin**. Our home is often filled with toys and creative projects. Though we recently lost our beloved dog, she lives on in spirit—and through the tattoo on my left forearm.
+I currently live in **Berlin, Germany**, with my beloved significant other, **Rüya**, and our son, **Atlas Robin**. Our home is often filled with toys and creative projects. Though we recently lost our beloved dog, she lives on in spirit—and through the tattoo on my left forearm.
 
 ### More
 
