@@ -10,12 +10,4 @@ Currently building Go instrumentation and tracing while keeping an eye on profil
 
 [Me in 5 minutes](/about/) | [What I'm doing now](/now/) | [Everything else](/misc/)
 
-<div style="display: flex; gap: 10px; align-items: center;">
-
-<iframe src="https://github.com/sponsors/kakkoyun/button" title="Sponsor kakkoyun" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
-
-<p style="margin: 0;">
-<a href="https://www.buymeacoffee.com/kakkoyun" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 32px; width: 114px;" ></a>
-</p>
-
-</div>
+[Support my work](/sponsorship/)
