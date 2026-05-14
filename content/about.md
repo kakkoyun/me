@@ -34,7 +34,7 @@ My work was deeply rooted in **profiling, eBPF, performance engineering, time-se
 
 In my free time, I'm a **tinkerer**—I open things up, inspect what's inside, and fix them. I'm also a **bookworm, a mechanical keyboard and LEGO builder, a single malt taster, and a coffee drinker in training** (peer pressure).
 
-I enjoy **sci-fi and fantasy literature, board games, and programming fun side projects** (from Raspberry Pi cluster experiments to running local LLMs on cheap hardware, with multi-agent flows as my current obsession). I'm passionate about **traveling, cooking vegan and vegetarian dishes**, and constantly **challenging myself to learn new languages**—one day, I hope to become a proper polyglot.
+I enjoy **sci-fi and fantasy literature, board games, and programming fun side projects** (from Raspberry Pi cluster experiments to running local LLMs on cheap hardware, with multi-agent flows as my current obsession). I'm passionate about **traveling** and constantly **challenging myself to learn new languages**—one day, I hope to become a proper polyglot.
 
 **Gravel cycling** is my escape, with **HIIT boot camps, Hyrox, and indoor cycling** filling the gaps when life gets in the way. I'm dreaming of camping and bikepacking adventures, trips I want to take with my son when he's grown up enough to join me on two wheels.
 

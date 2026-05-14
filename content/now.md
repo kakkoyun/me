@@ -21,11 +21,13 @@ Currently focused on Go runtime and compiler internals, building AST manipulatio
 
 Deep in agentic engineering as a hobby. Building complex multi-agent flows and finding their limits: what these systems do well, and what falls over once you push past the demo.
 
-Day-to-day I live inside [Claude Code](https://claude.com/code) and [Pie](https://pi.dev), the two agentic coding environments doing most of the heavy lifting. Still poking at LLM internals on the side.
+Day-to-day I live inside [Claude Code](https://claude.com/code) and [pi](https://pi.dev), the two agentic coding environments doing most of the heavy lifting.
+
+Still focused on writing, blogging, engineering leadership, and the internals of LLMs. Exploring how these tools work under the hood and how to build better systems with them.
 
 ## Hobby Tech
 
-Running local LLMs on my Raspberry Pi cluster. Seeing how much you can squeeze out of cheap hardware and small models.
+Running local LLMs on my Raspberry Pi cluster. I'm convinced Raspberry Pi plus local compute is where a lot of the future of LLMs actually lives, and I want to see how much you can squeeze out of cheap hardware and small models.
 
 ## Family & Life
 
