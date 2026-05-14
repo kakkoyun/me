@@ -47,6 +47,10 @@ setup_repo() {
   git init -q
   git config user.email "test@test.com"
   git config user.name "Test"
+  # Disable commit signing inherited from the user's global gitconfig — the
+  # tests don't need signed commits and signing breaks in sandboxed CI runners.
+  git config commit.gpgsign false
+  git config tag.gpgsign false
   mkdir -p content/posts
   touch content/posts/.gitkeep
   git add content/posts/.gitkeep
@@ -214,6 +218,30 @@ assert_empty "schedule: skips draft even when publishDate matches today" "$resul
 
 result=$(with_repo _sched_dedup)
 assert_eq   "schedule: dedup skips today-added, promotes yesterday-committed" "content/posts/scheduled.md" "$result"
+
+_sched_no_pub_alone() {
+  # Legacy post with no publishDate — schedule scan must not crash on it.
+  # Regression for run 25847187011: get_publish_date used to fail under
+  # `set -euo pipefail` when the frontmatter had no publishDate field.
+  make_post_no_date "content/posts/legacy.md"
+  commit_at "content/posts/legacy.md" "$YESTERDAY"
+  run_find schedule
+}
+_sched_no_pub_mixed() {
+  # Same legacy file alongside a legitimate today-dated post — the today post
+  # must still be promoted, proving the no-pub file is skipped, not blocking.
+  make_post_no_date "content/posts/legacy.md"
+  commit_at         "content/posts/legacy.md" "$YESTERDAY"
+  make_post         "content/posts/today.md" "$TODAY"
+  commit_at         "content/posts/today.md" "$YESTERDAY"
+  run_find schedule
+}
+
+result=$(with_repo _sched_no_pub_alone)
+assert_empty "schedule: legacy post with missing publishDate does not crash the scan" "$result"
+
+result=$(with_repo _sched_no_pub_mixed)
+assert_eq    "schedule: today-dated post is promoted even when a no-pub legacy post coexists" "content/posts/today.md" "$result"
 
 # ── manual mode ───────────────────────────────────────────────────────────────
 

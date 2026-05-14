@@ -6,7 +6,7 @@ HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test vale vale-sync prose email-validate
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
 
 # Default target
 help:
@@ -56,6 +56,7 @@ help:
 	@echo "  make shellcheck         - Run shellcheck on all shell scripts"
 	@echo "  make actionlint         - Run actionlint on GitHub Actions workflows"
 	@echo "  make lint               - Run shellcheck + actionlint"
+	@echo "  make check              - Run lint + test (pre-commit gate)"
 	@echo "  make vale-sync          - Fetch third-party Vale style packages"
 	@echo "  make vale               - Run Vale prose linter on content/"
 	@echo "  make prose              - Run Vale and print a finding-count summary"
@@ -257,6 +258,10 @@ lint: shellcheck actionlint
 # Run unit tests for scripts
 test:
 	@bash scripts/test-find-promotable-posts.sh
+
+# Pre-commit gate: every static + dynamic check we run in CI.
+# Run this locally before pushing to catch issues before the PR opens.
+check: lint test
 
 # Fetch third-party Vale style packages declared in .vale.ini
 vale-sync:

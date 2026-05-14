@@ -1,7 +1,8 @@
 ---
 title: "Profiling Python with eBPF: A New Frontier in Performance Analysis"
 author: Kemal Akkoyun
-date: 2024-02-12
+date: 2024-02-12T00:00:00Z
+publishDate: 2024-02-12T00:00:00Z
 categories:
   - deep-dive
 tags:
