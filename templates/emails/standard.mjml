@@ -41,6 +41,28 @@
     </mj-section>
     {{/articles}}
 
+    <mj-section background-color="#FFFFFF" padding="8px 28px 24px">
+      <mj-column>
+        <mj-divider border-color="#EEEEEE" border-width="2px" padding="8px 0 16px" />
+        <mj-text mj-class="article-title" align="center">Want more, more often?</mj-text>
+        <mj-text mj-class="article-body" align="center">
+          <a href="https://kakkoyun.me/newsletter/the-unwind/">The Unwind</a>
+          is a hand-curated, roughly-weekly dispatch of links and notes from what I&rsquo;ve read and built lately.
+        </mj-text>
+        <mj-button
+          href="https://kakkoyun.me/newsletter/the-unwind/"
+          background-color="#1E1E1E"
+          color="#FFFFFF"
+          font-size="15px"
+          font-weight="600"
+          inner-padding="12px 22px"
+          border-radius="4px"
+          padding="12px 0 0">
+          Subscribe to The Unwind &rarr;
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
     <mj-section background-color="#FFFFFF" padding="12px 28px 24px">
       <mj-column>
         <mj-divider border-color="#EEEEEE" border-width="2px" padding="8px 0 16px" />
