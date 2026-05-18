@@ -55,6 +55,12 @@
 {{- $pages = $pctx.Pages }}
 {{- end }}
 {{- $pages = where $pages "Params.hiddenInRss" "!=" true -}}
+{{- /* Sort after the union+filter so the home feed (which merges
+       mainSections with newsletter pages) is globally ordered by
+       publish date, not partitioned. Also matters before applying
+       $limit below: without this, a full mainSections slice could
+       push newsletter issues past the cutoff. */ -}}
+{{- $pages = sort $pages "PublishDate" "desc" -}}
 {{- $limit := site.Config.Services.RSS.Limit }}
 {{- if ge $limit 1 }}
 {{- $pages = $pages | first $limit }}
@@ -100,15 +106,21 @@
       <pubDate>{{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
       {{- with $authorEmail }}<author>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</author>{{ end }}
       <guid>{{ .Permalink }}</guid>
-      {{- /* For newsletter items, emit the full rendered HTML body in
-             <description> so Hakanai Broadcast's {{description}}
-             Mustache var (which maps to RSS <description>) carries the
-             full article into the email. Hakanai doesn't expose
-             <content:encoded> as a separate var. This only applies to
-             per-publication feeds (one email per issue); on the home
-             digest feed newsletter items fall through to the
-             summary-only branch like every other section so they don't
-             splat full issue bodies into the digest. */ -}}
+      {{- /* For newsletter items on their own per-publication feed,
+             emit the full rendered HTML body in <description> so
+             Hakanai Broadcast's {{description}} Mustache var (which
+             maps to RSS <description>) carries the full article into
+             the one-email-per-issue send. Hakanai doesn't expose
+             <content:encoded> as a separate var, so the trick is
+             scoped to <description> only.
+
+             On the home feed newsletter items fall through to the
+             default branch, which mirrors how posts/notes/talks are
+             rendered: summary in <description>, and (because
+             site.Params.ShowFullTextinRSS is true) full body in
+             <content:encoded> below. That keeps Hakanai's main-campaign
+             digest summary-only via {{description}} while generic RSS
+             readers see full text consistently across all sections. */ -}}
       {{- if and (eq .Section "newsletter") (not $.IsHome) }}
       <description>{{ (printf "<![CDATA[%s]]>" .Content) | safeHTML }}</description>
       {{- else }}
