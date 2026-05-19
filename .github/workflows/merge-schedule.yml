@@ -1,0 +1,64 @@
+name: Merge Schedule
+
+# Auto-merge PRs whose description contains a `/schedule YYYY-MM-DD` (or
+# ISO 8601) directive once that date has passed.
+#
+# Why this exists when Hugo already handles publishDate scheduling:
+# Series posts cross-reference each other (e.g. part 2 links back to part 1).
+# Both must live on master in the correct order before Hugo's daily rebuild
+# picks them up — otherwise part 2 ships with a broken internal link until
+# the next deploy. This action lets us land a series as a queue of PRs that
+# merge in the intended sequence, while Hugo's publishDate keeps the posts
+# invisible to readers until their scheduled day.
+#
+# Cadence: every 6h (we publish ~one post/day, so faster polling buys nothing).
+#
+# Usage: add a line at the bottom of the PR description, e.g.:
+#   /schedule 2026-06-08
+#   /schedule 2026-06-08T07:00:00Z      # ISO 8601, timezone-safe
+#   /schedule                            # merge on the next cron tick
+#
+# Branch protection note: this action uses GITHUB_TOKEN, which respects
+# branch protection rules. If required reviews ever block auto-merge,
+# create a GitHub App per the action's README and inject its token instead.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+  schedule:
+    # Every 6 hours at :30 — offset from main.yml (00:00) and
+    # promote-post.yml (06:00), and clear of GitHub's on-the-hour cron rush.
+    - cron: "30 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write # merge the PR
+  pull-requests: write # set status, comment, label
+  statuses: read # required when require_statuses_success: true
+  checks: read
+
+jobs:
+  merge_schedule:
+    name: Merge scheduled PRs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Skip on PRs from forks: the action ignores them anyway (and GITHUB_TOKEN
+    # is read-only for forks), but skipping early keeps the Actions tab tidy.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: gr2m/merge-schedule-action@a9b6ddcf1282dfd66907bda8e7941dff59f03bad # v2.7.0
+        with:
+          merge_method: squash
+          # Default UTC. Use ISO 8601 dates in the PR body
+          # (e.g. /schedule 2026-06-08T07:00:00Z) for timezone-safe scheduling.
+          time_zone: "UTC"
+          # Wait for build.yml + links.yml + prose.yml to finish green before
+          # merging. Series posts in particular need a clean build first.
+          require_statuses_success: "true"
+          automerge_fail_label: "merge-schedule-failed"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
