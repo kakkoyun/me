@@ -100,7 +100,7 @@ Almost every first-draft proposal I review is 2–3× too ambitious. {{< sidenot
 
 ### 3. Ghosting
 
-If you don't hear from your mentor for a week, send a message. If you don't hear from yourself for a week — that is, if you've gone quiet on your own project — send a message anyway. *"I'm stuck"* is always a better message than no message. Mentors are not graders; we cannot help you if we don't know what's happening.
+If you don't hear from your mentor for a week, send a message. If you don't hear from yourself for a week (that is, if you've gone quiet on your own project), send a message anyway. *"I'm stuck"* is always a better message than no message. Mentors are not graders; we cannot help you if we don't know what's happening.
 
 ### 4. Treating reviews as criticism
 
@@ -118,7 +118,7 @@ A handful of patterns that show up across cohorts:
 
 - The strongest proposals always referenced specific open issues by number, not abstract feature ideas.
 - The mentees who finished early *all* did one small "warm-up" PR before the cohort officially started.
-- The mentees who became maintainers were the ones who kept showing up to community meetings *during* their project, not just at the end.
+- The mentees who became maintainers were the ones who kept showing up to community meetings *during* their project, then kept showing up after it closed.
 
 If you're a former mentee of mine and you'd like me to credit your work in a follow-up post, drop me a line — happy to.
 
@@ -135,4 +135,4 @@ There's no admission test for asking. The only failure mode is not asking.
 
 ---
 
-*Part 3 of this series — "Stewardship inside OpenTelemetry" — is for the people on the other side of the table: the maintainers thinking about whether to sign up to mentor at all. Coming next week.*
+*Part 3 of this series, "Stewardship inside OpenTelemetry", is for the people on the other side of the table: the maintainers thinking about whether to sign up to mentor at all. Coming next week.*
