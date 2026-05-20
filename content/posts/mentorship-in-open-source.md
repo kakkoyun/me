@@ -41,7 +41,7 @@ So I'm going to try a different shape: a short series of three posts, each aimed
 ### What's in this series
 
 1. **This post** — why I keep saying yes. A reflection, mostly for me, but also for anyone who's wondering whether to start.
-2. **The mentee playbook (next week).** If you want to be mentored — through LFX, GSoC, Outreachy, GoBridge, CommunityBridge, or just by cold-DMing a maintainer — what works, what doesn't, and how to write a proposal that actually gets picked.
+2. **The mentee playbook (next week).** If you want to be mentored, through LFX, GSoC, Outreachy, GoBridge, CommunityBridge, or just by cold-DMing a maintainer: what works, what doesn't, and how to write a proposal that actually gets picked.
 3. **Stewardship inside OpenTelemetry (the week after).** A live example. The CNCF and Bloomberg recently published a piece I keep coming back to — *[Sustaining OpenTelemetry: Moving from Dependency Management to Stewardship](https://www.cncf.io/blog/2026/03/31/sustaining-opentelemetry-moving-from-dependency-management-to-stewardship/)*. The third post is about what stewardship looks like at the SIG level when the goal is to grow people, not just code.
 
 ### Why I keep saying yes
@@ -68,7 +68,7 @@ It's also not a recruiting pitch for a particular program. The programs I'll tal
 
 ### Where this goes next
 
-Two more posts are coming. Part 2, for the people thinking *"I want to do this — where do I start?"*. Part 3, for the maintainers thinking *"I want to do this — how do I make it part of how my project runs?"*.
+Two more posts are coming. Part 2, for the people thinking *"I want to do this, where do I start?"*. Part 3, for the maintainers thinking *"I want to do this, how do I make it part of how my project runs?"*.
 
 The timing isn't accidental. As I write this, I'm mid-cohort on the LFX 2026 Jun–Aug round, co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) on `opentelemetry-go-compile-instrumentation` with [Dario Castañé](https://github.com/darccio). Applications closed a few weeks ago; we're picking a mentee now. Part 3 takes that story apart in detail.
 
