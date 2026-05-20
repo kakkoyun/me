@@ -112,7 +112,9 @@ This one is on both sides — mentors do it too. The cohort has a hard end date.
 
 ## Concrete examples (from my own cohorts)
 
-I've mentored on Parca, Thanos, and various OpenTelemetry projects through these programs. {{< sidenote side="alternate" >}}I'll add specific mentee credits and merged-PR links here as I get clearance from the folks involved — naming people in a blog post without asking is exactly the kind of thing I'm trying to teach mentees not to do.{{< /sidenote >}} A handful of patterns that show up across cohorts:
+I've mentored on Parca, Thanos, and various OpenTelemetry projects through these programs. The most concrete current example, while this post goes live: I'm co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) in the LFX 2026 Jun–Aug cohort with [Dario Castañé](https://github.com/darccio). The framing lives in [`opentelemetry-go-compile-instrumentation#446`](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/issues/446). Applications closed before this post published; we're choosing a mentee now. The next cohort's listings tend to land in [`cncf/mentoring`](https://github.com/cncf/mentoring) a few weeks before each term opens, so the next round to apply to will go up there. {{< sidenote side="alternate" >}}I'll add older mentee credits and merged-PR links here as I get clearance from the folks involved. Naming people in a blog post without asking is exactly the kind of thing I'm trying to teach mentees not to do.{{< /sidenote >}}
+
+A handful of patterns that show up across cohorts:
 
 - The strongest proposals always referenced specific open issues by number, not abstract feature ideas.
 - The mentees who finished early *all* did one small "warm-up" PR before the cohort officially started.
