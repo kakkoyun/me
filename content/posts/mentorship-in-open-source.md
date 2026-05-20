@@ -1,6 +1,6 @@
 ---
 title: "Why I Keep Mentoring in Open Source"
-description: "A few words on why I keep saying yes to mentorship in open source, what I learned from being a mentee first, and why I think sharing is the only way the field gets better."
+description: "A few words on why I keep saying yes to mentorship in open source."
 date: 2026-05-22T00:00:00Z
 publishDate: 2026-05-22T00:00:00Z
 categories:
@@ -18,10 +18,6 @@ tags:
   - reflection
 series:
   - Mentorship in Open Source
-cover:
-  image: /uploads/otel_unplugged_2026_community.jpeg
-  alt: OTel Unplugged EU 2026 — community gathering at Sparks Meeting, Brussels
-  caption: OTel Unplugged EU 2026 — the community room. Most of the people I now call colleagues started in rooms like this one.
 ---
 
 There's a moment that keeps happening to me. Someone I mentored two or three years ago shows up in a SIG call, on a maintainers' list, on a stage at KubeCon. They've shipped something I couldn't have shipped alone. They're answering questions I once answered for them. And the part that gets me: they're already mentoring someone else.
