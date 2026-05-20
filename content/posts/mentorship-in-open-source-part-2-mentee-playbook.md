@@ -27,7 +27,7 @@ cover:
   caption: A wall of sticky notes from OTel Unplugged 2026. Most good mentorship projects start as one of these.
 ---
 
-This is Part 2 of a small series. [Part 1](/posts/mentorship-in-open-source/) was the *why*. This one is the *how* — specifically, how to be a mentee in 2026.
+[Last time](/posts/mentorship-in-open-source/) I wrote about why I keep saying yes to open-source mentorship. This post is the *how*: specifically, how to be a mentee in 2026.
 
 I've spent the last few years on the mentor side of CNCF {{< tooltip term="LFX" >}}LFX Mentorship — the Linux Foundation's structured mentorship program. Cohorts run quarterly, projects are scoped to ~12 weeks, and mentees receive a stipend.{{< /tooltip >}}, [Google Summer of Code](https://summerofcode.withgoogle.com/) ({{< tooltip term="GSoC" >}}A Google-funded program where students contribute to open-source projects over the summer, paired with mentors from those projects.{{< /tooltip >}}), [GoBridge](https://gobridge.org/), and [CommunityBridge](https://communitybridge.org/), mostly through [Parca](https://github.com/parca-dev/parca), [Thanos](https://github.com/thanos-io/thanos), and now various [OpenTelemetry](https://github.com/open-telemetry) projects. Every cohort I've run, the same questions keep coming up from people who *want* to apply but don't know how to start.
 
