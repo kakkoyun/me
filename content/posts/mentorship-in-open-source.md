@@ -62,6 +62,6 @@ Underneath all of these is something simpler. I love learning. Open source is on
 
 If this lands for you, there are two follow-ups in mind: a practical playbook for mentees, and a closing post on what mentorship looks like inside OpenTelemetry right now.
 
-The timing isn't accidental. As I write this, I'm mid-cohort on the LFX 2026 Jun–Aug round, co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) on `opentelemetry-go-compile-instrumentation` with [Dario Castañé](https://github.com/darccio). Applications closed a few weeks ago; we're picking a mentee now.
+The timing isn't accidental. As I write this, I'm about to start a new cohort: co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) on `opentelemetry-go-compile-instrumentation` with [Dario Castañé](https://github.com/darccio) for the LFX 2026 Jun–Aug round. Applications closed a few weeks ago; we're picking a mentee now, and the cohort itself kicks off in June.
 
 If you're a mentee looking at a future cohort and want a second pair of eyes on a draft proposal, or if you're already mentoring and want to compare notes: my DMs are open on the [usual places](/about/#where-to-find-me).
