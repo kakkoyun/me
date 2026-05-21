@@ -144,12 +144,12 @@ obsidian-git handles backup automatically — commit every 70 minutes, push ever
 
 ## How a typical day flows
 
-1. **Morning**: `pkm-tool` runs, daily note is created with activity data
-2. **Journal entry**: I write a few lines, Claude Code asks follow-up questions
-3. **Reading**: I read in Readwise Reader; highlights sync to `curation/readwise/` in the background
-4. **Work**: Notes and decisions land in `projects/` or `zettelkasten/` as I go
-5. **Synthesis**: When I want to understand something, I run a `qmd` query; if the answer produces new insight, the wiki files update
-6. **obsidian-git**: Commits and pushes in the background, silently
+1. `pkm-tool` runs at startup — daily note appears with activity data already filled in
+2. I write a few lines in the journal; Claude Code reads the activity data and asks follow-up questions
+3. I read in Readwise Reader; highlights sync to `curation/readwise/` in the background
+4. Notes and decisions land in `projects/` or `zettelkasten/` as I work
+5. When I want to understand something I run a `qmd` query; if the answer surfaces new insight, the wiki files update
+6. obsidian-git commits and pushes in the background, unattended
 
 ## What works
 
