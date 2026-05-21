@@ -2,7 +2,7 @@
 title: "New world as an ADHD person"
 description: "On being a late-diagnosed ADHD engineer in the age of AI agents: the unexpected fit, the familiar traps, and the question nobody tells you to ask yourself."
 date: 2026-05-21T00:00:00Z
-publishDate: 2026-05-21T00:00:00Z
+publishDate: 2026-07-31T00:00:00Z
 categories:
   - reflection
 tags:
