@@ -95,6 +95,11 @@ output if available.]
 [code block: the fix, command, or config change]
 ```
 
+## Result
+
+[Show what success looks like — the passing command, the clean output, the thing that
+ now behaves correctly. One concrete indicator that confirms the fix worked.]
+
 ## Why it works
 
 [Explain the underlying cause and why the fix resolves it. Be specific about
@@ -201,17 +206,10 @@ the flag and pass it as `--days N` to `recall`.
 
 ### W2. Enumerate blog session directories
 
-Collect both the canonical project dir and all worktree variants:
+Collect all blog-related session dirs. Claude Code encodes a project path by replacing
+`/` with `-` and removing the leading `/`. Run the following to discover all matches
+(adjust the pattern if your macOS username differs):
 
-```bash
-# Canonical
-~/.claude/projects/-Users-kemal-akkoyun-Vaults-blog
-
-# Worktree variants (pattern-match; five+ exist currently)
-~/.claude/projects/-Users-kemal-akkoyun-Workspace--worktrees-blog-*
-```
-
-Run:
 ```bash
 ls ~/.claude/projects/ | grep -E '^-Users-kemal-akkoyun-(Vaults-blog$|Workspace--worktrees-blog-)'
 ```
@@ -222,13 +220,13 @@ For each directory found above, run `recall` in list mode (no query = recency
 list):
 
 ```bash
-recall --project ~/.claude/projects/<dir> --days 7
+recall --project ~/.claude/projects/<dir> --days <N>
 ```
 
 Underlying script (if `recall` is not on PATH):
 ```bash
 python3 ~/.agents/skills/recall/scripts/recall.py \
-  --project ~/.claude/projects/<dir> --days 7
+  --project ~/.claude/projects/<dir> --days <N>
 ```
 
 Skip dirs that `recall` reports as empty or non-existent.
