@@ -1,7 +1,7 @@
 ---
 title: "Your Second Brain, Upgraded: Integrating Obsidian with AI Tools and Claude Code"
 description: "How I connected Obsidian, MCP servers, qmd semantic search, and Claude Code skills into a living knowledge system that actually gets smarter over time."
-publishDate: "2026-05-21T00:00:00Z"
+publishDate: 2026-07-03T00:00:00Z
 date: "2026-05-21T00:00:00Z"
 draft: true
 categories:
