@@ -253,7 +253,7 @@ If a section has nothing worth saying after the interview answers, leave it hone
 ## Step 5 — Local Vale pre-check (advisory)
 
 ```bash
-cd <repo_root> && vale content/newsletter/the-unwind/issue-NNN.md
+cd "$(git rev-parse --show-toplevel)" && vale content/newsletter/the-unwind/issue-NNN.md
 ```
 
 Capture the output. Append a compact summary to `## Vale pre-check` in the brief:
