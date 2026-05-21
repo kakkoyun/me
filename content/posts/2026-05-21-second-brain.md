@@ -2,7 +2,7 @@
 title: "My Second Brain System: PARA, Readwise, and an LLM That Takes Notes"
 description: "How I built a knowledge management system on top of Obsidian that captures everything automatically, organizes it with PARA, and uses an LLM to synthesize it into a persistent wiki."
 date: 2026-05-21T00:00:00Z
-publishDate: 2026-05-21T00:00:00Z
+publishDate: 2026-07-10T00:00:00Z
 categories:
   - blogmentation
 tags:
