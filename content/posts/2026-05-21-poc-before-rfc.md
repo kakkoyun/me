@@ -2,7 +2,7 @@
 title: "PoC First, RFC Never"
 description: "Multi-language SDKs keep shipping Java prototypes as cross-language specs. Here's why the PoC-as-spec pattern is so sticky — and what the pipeline should actually look like."
 date: 2026-05-21T00:00:00Z
-publishDate: 2026-05-21T00:00:00Z
+publishDate: 2026-07-24T00:00:00Z
 slug: poc-first-rfc-never
 categories:
   - engineering
