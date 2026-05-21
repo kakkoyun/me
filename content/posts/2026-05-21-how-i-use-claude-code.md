@@ -2,7 +2,7 @@
 title: "How I Use Claude Code: The Basics That Actually Help"
 description: "The habits, settings, and mental models behind a daily Claude Code workflow — not the polished demo version."
 date: 2026-05-21T00:00:00Z
-publishDate: 2026-05-21T00:00:00Z
+publishDate: 2026-06-12T00:00:00Z
 categories:
   - blogmentation
 tags:
