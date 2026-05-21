@@ -6,8 +6,8 @@ description: >
   Supports weekly mode that scans recent Claude Code sessions and surfaces
   candidates for drafting. Creates Hugo drafts in categories: [blogmentation].
   USE WHEN user says "blogmentation", "capture solution", "blog this fix",
-  "shipped it", "weekly blogmentation", or "blog from notes".
-disable-model-invocation: true
+  "shipped it", "weekly blogmentation", or "blogment this".
+disable-model-invocation: false
 argument-hint: "[--weekly [--since Nd]] | [topic]"
 ---
 
@@ -67,13 +67,17 @@ Ask the user for each, or extract from git context and ask to confirm:
 
 ### 3. Draft the blogmentation
 
-Write 300-800 words. Follow the `blogmentation` tone from `kemal-voice`:
-tutorial, code-heavy, imperative steps. Open with a concrete hook — an error
-message, a number, a short anecdote. Do not start with a banned opener.
+Re-read the `kemal-voice` authoring checklist (`.agents/skills/kemal-voice/SKILL.md`)
+now, before writing any prose. Do not proceed until you have the banned vocabulary
+list and authoring checklist active in context.
+
+Write 300-800 words. Follow the `blogmentation` tone: tutorial, code-heavy,
+imperative steps. Open with a concrete hook — an error message, a number, a short
+anecdote. Do not start with a banned opener.
 
 Structure:
 
-```markdown
+~~~markdown
 [Opening: 1-2 sentences that drop the reader straight into the problem.
  Start with a concrete observation — the exact error, the broken command,
  the confusing output. Not a template sentence.]
@@ -109,7 +113,7 @@ the root cause, not just "this fixes it".]
 
 [Include only if the fix is a single command or one-liner worth calling out
 for readers who scan. Skip if the fix is multi-step or context-dependent.]
-```
+~~~
 
 Keep the tone direct and technical. Permit humour; a wry aside or
 self-deprecating one-liner is on-tone. End on a trade-off or open question
@@ -117,8 +121,8 @@ rather than a summary paragraph.
 
 ### 4. Scaffold the Hugo post
 
-Generate a kebab-case slug from the title (no date prefix). Verify that
-`content/posts/` exists relative to the current working directory. If it does
+Generate a kebab-case slug from the title (no date prefix). Use
+`~/Vaults/blog/content/posts/` as the target directory. Verify it exists; if
 not, inform the user and ask for the correct path.
 
 Present the file to be created (path, title, tags) and **ask the user to
@@ -166,7 +170,8 @@ works, skip and inform the user.
 
 ### 6. Create a Things 3 task
 
-Check if Things 3 MCP tools are available (`things/add_todo`). If available,
+Attempt to create a Things 3 task using the `things/add_todo` MCP tool. If the
+call fails or the tool is unavailable, skip to the Fallback below. Otherwise,
 present the task details and ask the user to confirm before creating:
 
 > I'll create a Things 3 task: "Review and publish: Post Title" with tags
@@ -207,8 +212,7 @@ the flag and pass it as `--days N` to `recall`.
 ### W2. Enumerate blog session directories
 
 Collect all blog-related session dirs. Claude Code encodes a project path by replacing
-`/` with `-` and removing the leading `/`. Run the following to discover all matches
-(adjust the pattern if your macOS username differs):
+`/` with `-` and removing the leading `/`. Run the following to discover all matches:
 
 ```bash
 ls ~/.claude/projects/ | grep -E '^-Users-kemal-akkoyun-(Vaults-blog$|Workspace--worktrees-blog-)'
@@ -216,7 +220,8 @@ ls ~/.claude/projects/ | grep -E '^-Users-kemal-akkoyun-(Vaults-blog$|Workspace-
 
 ### W3. Collect sessions via recall
 
-For each directory found above, run `recall` in list mode (no query = recency
+`recall` is a Claude Code session log reader (`~/.agents/skills/recall/`; also
+on PATH). For each directory found above, run it in list mode (no query = recency
 list):
 
 ```bash
