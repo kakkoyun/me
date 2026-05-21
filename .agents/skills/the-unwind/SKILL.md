@@ -2,10 +2,9 @@
 name: the-unwind
 description: >
   Drafts the next issue of The Unwind newsletter from coding sessions, Readwise highlights,
-  personal vault captures, and Things3 completed tasks. Writes issue-NNN.md (draft: true)
-  with a gitignored sidecar brief and runs Vale.
-  USE WHEN user says "draft the unwind", "next unwind issue", "draft newsletter issue",
-  "the unwind draft", "weekly newsletter draft", or "draft unwind issue".
+  personal vault notes, and Things3 tasks. Produces issue-NNN.md (draft: true) with a
+  gitignored sidecar brief and Vale pre-check. USE WHEN user says "draft the unwind",
+  "next unwind issue", "the unwind newsletter", "unwind issue draft", or "draft unwind NNN".
 disable-model-invocation: false
 ---
 
@@ -27,7 +26,7 @@ local Vale pre-check. The author revises, then runs `/humanize` → `/de-slop` �
 
 ## Step 0 — Resolve the window and issue number
 
-1. List `content/newsletter/the-unwind/issue-*.md`. Find the highest `NNN` (zero-padded, e.g. `001`). Next issue = `NNN+1`.
+1. List `content/newsletter/the-unwind/issue-*.md`. Find the highest `NNN` (zero-padded, e.g. `001`). Next issue = `NNN+1`. **Note:** the filename uses zero-padded NNN (`issue-003.md`); the issue title uses the unpadded number (`The Unwind #3: ...`).
 2. Read the previous issue's `publishDate` from its YAML frontmatter. That is `WINDOW_START`.
 3. `WINDOW_END` = today's date (or `--until` override).
 4. Compute `DAYS` = ceil((WINDOW_END − WINDOW_START).days). Use for `--days N` in recall.
@@ -77,20 +76,28 @@ Surfaces what was finished reading in the window.
 
 ### Source 4: Personal vault — recent capture
 
-Glob by modification time within the window across these paths:
-
-```
-~/Vaults/personal/curation/clippings/articles/**/*.md
-~/Vaults/personal/curation/readwise/articles/**/*.md
-~/Vaults/personal/curation/highlights/**/*.md
-~/Vaults/personal/0inbox/**/*.md
-```
-
-Also pull the matching ISO-week and daily notes for the author's own framing:
+Find files modified in the window. macOS `find` does not support `-newermt`; create a
+reference file at `WINDOW_START` using python3 (already a dependency via recall.py):
 
 ```bash
-find ~/Vaults/personal/periodic/weekly -name "*.md" -newer <WINDOW_START_FILE> 2>/dev/null
-find ~/Vaults/personal/periodic/daily  -name "*.md" -newer <WINDOW_START_FILE> 2>/dev/null
+# Create sentinel file at WINDOW_START for -newer comparison
+touch -t $(python3 -c "
+from datetime import datetime
+print(datetime.strptime('WINDOW_START', '%Y-%m-%d').strftime('%Y%m%d%H%M.00'))
+") /tmp/unwind-window-ref 2>/dev/null
+
+# Clippings and highlights
+for vault_dir in \
+  ~/Vaults/personal/curation/clippings/articles \
+  ~/Vaults/personal/curation/readwise/articles \
+  ~/Vaults/personal/curation/highlights \
+  ~/Vaults/personal/0inbox; do
+  find "$vault_dir" -name "*.md" -newer /tmp/unwind-window-ref 2>/dev/null
+done
+
+# Weekly/daily framing notes
+find ~/Vaults/personal/periodic/weekly -name "*.md" -newer /tmp/unwind-window-ref 2>/dev/null
+find ~/Vaults/personal/periodic/daily  -name "*.md" -newer /tmp/unwind-window-ref 2>/dev/null
 ```
 
 For weekly/daily notes, include the first 300 characters as context in the brief.
@@ -109,12 +116,14 @@ Only when a genuine theme is apparent — don't run this speculatively on every 
 ### Source 6: Things3 — completed tasks
 
 ```bash
-bash ~/.agents/skills/things3-manager/scripts/things logbook
+bash ~/.agents/skills/things3-manager/scripts/things logbook --period ${DAYS}d --limit 100
 ```
 
-Filter the output client-side: keep only tasks with completion date within the window. Group by
-project/area. **Noise filter:** retain tasks whose project/area also appears in recall session
-titles, plus any task with a notes payload. Collapse all others into a count line:
+The `--period` flag ensures the lookback matches the computed `DAYS` from Step 0 — the default
+is 7d, which silently drops tasks if the window spans more than a week. Filter the output
+client-side: keep only tasks with completion date within the window. Group by project/area.
+**Noise filter:** retain tasks whose project/area also appears in recall session titles, plus
+any task with a notes payload. Collapse all others into a count line:
 "N other tasks closed (routine)."
 
 ---
@@ -224,20 +233,16 @@ and the author's interview answers. No internal or work-confidential content.>
 Good for things that didn't fit elsewhere.>
 ```
 
-### Voice rules (derived from `.claude/skills/kemal-voice/SKILL.md`)
+### Voice rules
 
-- **Tone:** clear, explanatory, fun, whimsical, honest, open. Take the material seriously;
-  not yourself.
+Apply the full voice contract from `.claude/skills/kemal-voice/SKILL.md` — banned vocabulary,
+formulaic openers, patterns to scrutinize, and tone-by-category guidance all apply. Do not
+reproduce the list here; load the skill as context instead.
+
+Newsletter-specific extensions (not in kemal-voice):
 - **Opener:** start with a concrete hook — an observation, number, anecdote, contradiction.
   Never a template phrase.
-- **Banned vocabulary** (hard errors in Vale): delve, leverage, utilize, seamless, paradigm,
-  ecosystem (metaphorical), unleash, game-changer, revolutionize, cutting-edge, harness,
-  embark, realm of, nuanced, synergy, holistic, meticulous, elevate, groundbreaking,
-  testament to, vibrant (metaphorical). Replace with concrete language.
-- **Patterns to watch** (not banned, watch for clusters): em-dash parenthetical asides,
-  negative parallelism ("it's not X, it's Y"), triadic rhythm.
-- **End** on a trade-off, open question, or "what I'd try next" — not a summary paragraph.
-- **No formulaic closers:** "In conclusion", "To summarize", "As we've seen".
+- **End** on a trade-off, open question, or "what I'd try next". Not a summary paragraph.
 - First person. Permit humor. Name influences directly (as issue-001 does with *Register Spill*).
 
 If a section has nothing worth saying after the interview answers, leave it honest:
