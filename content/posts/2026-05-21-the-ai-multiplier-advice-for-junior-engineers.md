@@ -1,7 +1,7 @@
 ---
 title: "The AI Multiplier: What Actually Matters for Junior Engineers Right Now"
 description: "AI tools are powerful. But a multiplier applied to zero is still zero. Here is what junior engineers should actually focus on."
-publishDate: "2026-05-21T00:00:00Z"
+publishDate: 2026-06-26T00:00:00Z
 date: "2026-05-21T00:00:00Z"
 draft: true
 categories:
