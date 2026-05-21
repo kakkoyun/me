@@ -21,9 +21,9 @@ Every post about AI coding tools sounds the same. Some tool "transformed" the au
 
 I've been using Claude Code daily for months — for my [personal CLI project `af`](https://github.com/kakkoyun/af), for incident investigations at work, for ADRs, for this blog. It's genuinely useful. It also requires deliberate habits to avoid it becoming a sophisticated way to generate confident nonsense.
 
-This series is about the habits that actually help. We'll cover: plan mode, session hygiene, persistent tracking, worktree isolation with `claude-focus`, configuring output styles, and keeping work-specific context available without it leaking everywhere.
+This series is about the habits that actually help: plan mode, session hygiene, persistent tracking, worktree isolation with `claude-focus`, configuring output styles, and keeping work-specific context available without it leaking everywhere.
 
-Part 1 covers the basics — the three things I'd tell anyone starting out.
+Part 1: the three things I'd tell anyone starting out.
 
 ---
 
@@ -86,4 +86,4 @@ Three habits — plan mode, fresh sessions, persistent tracking — are enough t
 - **Part 3: Output styles and `/insights`** — configuring Claude to explain its reasoning as it works, and why that's worth the token overhead
 - **Part 4: Company context** — keeping work-specific knowledge (internal systems, conventions, on-call playbooks) available without it leaking between personal and work projects
 
-None of this is magic. It's just enough structure to make the tool predictable.
+None of this eliminates the judgement call of when to trust the output. That part is still on you.
