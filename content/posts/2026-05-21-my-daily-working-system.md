@@ -2,7 +2,7 @@
 title: "My Daily Working System"
 description: "How I actually work: Things3 for task capture, isolated workstreams per task, Claude Code in every terminal, and Obsidian as the exocortex. An honest account of the stack, the friction, and what I'm still building."
 date: 2026-05-21T00:00:00Z
-publishDate: 2026-05-21T00:00:00Z
+publishDate: 2026-07-17T00:00:00Z
 draft: true
 categories:
   - journal
