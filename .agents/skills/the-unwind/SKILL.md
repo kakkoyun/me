@@ -6,13 +6,14 @@ description: >
   gitignored sidecar brief and Vale pre-check. USE WHEN user says "draft the unwind",
   "next unwind issue", "the unwind newsletter", "unwind issue draft", or "draft unwind NNN".
 disable-model-invocation: false
+argument-hint: "[--days N | --since YYYY-MM-DD] [--until YYYY-MM-DD] [--issue NNN]"
 ---
 
 # The Unwind — newsletter drafting skill
 
 Drafts the next issue of [The Unwind](https://kakkoyun.me/newsletter/the-unwind/) from six data
 sources, writes a sidecar brief, interviews the author, produces the issue file, and runs a
-local Vale pre-check. The author revises, then runs `/humanize` → `/de-slop` → `/kemal-voice`.
+local Vale pre-check. The author revises using the humanizer skill, de-slop skill, and kemal-voice checklist before publishing.
 
 ## Arguments
 
@@ -207,6 +208,9 @@ Question pool (pick what applies from the brief):
 
 Write the author's answers to `## Author notes` in the brief before drafting.
 
+**Wait for all answers before proceeding to Step 4.** Do not begin drafting until at
+least one answer has been received.
+
 ---
 
 ## Step 4 — Draft the issue
@@ -294,20 +298,20 @@ Vale pre-check: N suggestion(s), M warning(s), P error(s)
 
 Next steps:
   1. Read the draft; revise as needed.
-  2. /humanize   → removes AI-pattern cadence
-  3. /de-slop    → detects remaining slop patterns
-  4. /kemal-voice → voice + tone final pass
+  2. Run the humanizer skill (/humanizer) — removes AI-pattern cadence
+  3. Run the de-slop skill (/de-slop) — detects remaining slop patterns
+  4. Apply kemal-voice checklist (.agents/skills/kemal-voice/SKILL.md) — voice + tone final pass
   5. make prose  → Vale re-check after revisions
   6. make serve-draft → preview at /newsletter/the-unwind/issue-NNN/
   7. Set draft: false + update publishDate when ready to ship.
 ```
 
-Do **not** run `/humanize`, `/de-slop`, or `/kemal-voice` as part of this skill. Authoring and
+Do **not** run the humanizer, de-slop, or kemal-voice passes as part of this skill. Authoring and
 review are separate passes (see `<execution_protocols>` in global CLAUDE.md).
 
 ---
 
-## Anti-patterns
+## Common mistakes
 
 - **Do not fabricate.** If a section has no material, say so in the draft rather than inventing.
 - **Do not pull from the work vault** (`~/Vaults/work/`). The newsletter is public.
