@@ -41,9 +41,9 @@ Every retrieved item must include its source path or URL — the draft cites fro
 ### Source 1: Coding sessions (recall CLI)
 
 ```bash
-python3 ~/.agents/skills/recall/scripts/recall.py --days DAYS --source claude --limit 30
-python3 ~/.agents/skills/recall/scripts/recall.py --days DAYS --source codex --limit 30
-python3 ~/.agents/skills/recall/scripts/recall.py --days DAYS --source pi --limit 30
+python3 ~/.agents/skills/recall/scripts/recall.py --days $DAYS --source claude --limit 30
+python3 ~/.agents/skills/recall/scripts/recall.py --days $DAYS --source codex --limit 30
+python3 ~/.agents/skills/recall/scripts/recall.py --days $DAYS --source pi --limit 30
 ```
 
 List mode (no query) returns session titles and file paths sorted by recency. For sessions that
@@ -57,6 +57,8 @@ Limit `read_session` calls to the 3–5 most relevant sessions per source to kee
 
 ### Source 2: Readwise highlights
 
+Substitute the resolved `WINDOW_START` date (e.g. `"2026-05-13"`) before executing:
+
 ```
 mcp__readwise__readwise_list_highlights(highlighted_at_gt="WINDOW_START", page_size=100)
 ```
@@ -66,6 +68,8 @@ Pull: `document_title`, `document_author`, `highlight_plaintext`, `highlight_not
 `highlight_tags`, then by recency. Keep at most 30 highlights total.
 
 ### Source 3: Reader finished documents
+
+Substitute `WINDOW_START` with the resolved date before executing:
 
 ```
 mcp__readwise__reader_list_documents(location="archive", updated_after="WINDOW_START",
@@ -131,6 +135,13 @@ any task with a notes payload. Collapse all others into a count line:
 ## Step 2 — Write the sidecar brief
 
 Path: `content/newsletter/the-unwind/.brief-NNN.md` (gitignored — see `.gitignore`).
+
+Before writing, verify the gitignore entry is present:
+
+```bash
+grep -q '\.brief-' "$(git rev-parse --show-toplevel)/.gitignore" || \
+  echo "WARNING: .gitignore entry for .brief-*.md is missing — add it before writing the brief"
+```
 
 ```markdown
 # Brief for issue-NNN (window: WINDOW_START → WINDOW_END)
