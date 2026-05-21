@@ -39,11 +39,11 @@ have no idea any of that context exists. Every session starts from scratch. You 
 your architecture, your preferences, your past decisions. The AI is smart, but it's amnesiac
 about *you*.
 
-The gap between those two sides is the problem. Closing it is what this post is about.
+The gap between those two sides is the problem. This post is about closing it.
 
 ## The Stack
 
-Before diving in, here's what I ended up building. Each piece has a specific job:
+Here's what I ended up building. Each piece has a specific job:
 
 | Layer | Tool | Role |
 |---|---|---|
@@ -77,7 +77,7 @@ For Obsidian, there's
 [`obsidian-mcp`](https://github.com/newtype-01/obsidian-mcp) — an MCP server that exposes
 your vault as a set of tools Claude (or any MCP-compatible agent) can call: read a note,
 search notes, create a note, list recent files, follow backlinks. Your AI can now
-*navigate* your second brain rather than being told about it.
+*browse* your second brain rather than being told about it.
 
 The configuration is straightforward — add it to your `~/.claude/mcp.json`:
 
@@ -161,7 +161,7 @@ qmd query $'hyde: A note explaining why I chose Obsidian over Notion'
 `qmd` also ships an MCP server — add `qmd mcp` to your config and Claude can retrieve
 semantically relevant notes *during* a session, without you manually pasting context. With
 both `obsidian-mcp` and `qmd` wired in, Claude can find the right context from thousands of
-notes *and* navigate to the full document: combining keyword precision with semantic recall.
+notes *and* pull the full document: combining keyword precision with semantic recall.
 
 ## The Devlog Pattern: Making Activity Automatic
 
@@ -257,7 +257,7 @@ retrieval. This immediately makes your existing notes more useful — no AI agen
 yet.
 
 **Week 2: Add `obsidian-mcp`.** Wire it into Claude Code or your editor. Start asking
-Claude questions that require vault context and watch it navigate your notes.
+Claude questions that require vault context and watch it work through your notes.
 
 **Week 3: Add `basic-memory`.** Let sessions write structured observations back to your
 vault. After a month, you'll have a genuine knowledge graph of your work and thinking.
@@ -268,7 +268,7 @@ decision record — turn it into a skill.
 
 ## What Changes
 
-The shift isn't just productivity. It's epistemic.
+The shift isn't just about speed. It's about what questions become answerable.
 
 When your AI tool can read your actual notes, you stop describing your context and start
 *using* it. "What did I decide about X?" is no longer a question you answer from memory —
@@ -282,8 +282,11 @@ And when the whole stack is local-first — files on your disk, embeddings in a 
 database, no data leaving your machine — you can extend it without worrying about what
 you're handing over.
 
-The second brain was always meant to be an extension of your cognition. Connecting it to AI
-tools is just finishing the job.
+The honest caveat: this takes real setup time, and the compounding only pays off if you
+actually run the devlog skill consistently and keep the vault tidy enough for semantic
+search to work well. Whether the maintenance overhead is worth it probably depends on how
+much context you lose between sessions today. For me, the answer was obvious. Your mileage
+may vary — literally, depending on how messy your notes are.
 
 ---
 
