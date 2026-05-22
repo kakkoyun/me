@@ -1,297 +1,217 @@
 ---
-title: "Your Second Brain, Upgraded: Integrating Obsidian with AI Tools and Claude Code"
-description: "How I connected Obsidian, MCP servers, qmd semantic search, and Claude Code skills into a living knowledge system that actually gets smarter over time."
-publishDate: 2026-07-03T00:00:00Z
-date: "2026-05-21T00:00:00Z"
+title: "Years of Notes I Didn't Know What to Do With"
+description: "I've been hoarding Markdown in Obsidian for years with no real system. Then AI tools learned to read it. This is what's possible now — and what I'm still figuring out."
+publishDate: "2026-05-22T00:00:00Z"
+date: "2026-05-22T00:00:00Z"
 draft: true
 categories:
   - "technical-findings"
 tags:
-  - "tools"
-  - "productivity"
   - "obsidian"
   - "claude-code"
   - "second-brain"
   - "pkm"
   - "ai"
   - "mcp"
+  - "tools"
   - "blog"
 showToc: true
 tocOpen: false
 ---
 
-> TL;DR: Your Obsidian vault is full of context your AI tools can't see. I fixed that by
-> wiring together an MCP server, a local semantic search engine (`qmd`), and Claude Code
-> skills into a stack where your second brain and your AI agent share the same knowledge.
-> Here's exactly how it works — and why it's the most useful thing I've built for my own
-> workflow.
+I've been keeping notes in Obsidian for about four years.
 
-## The Problem Nobody Talks About
+I'd love to tell you I had a master plan. I didn't. I started because I read
+Tiago Forte's [*Building a Second Brain*](https://www.buildingasecondbrain.com/)
+and liked the premise — a trusted external system, all in plain Markdown,
+organised loosely with [PARA](https://fortelabs.com/blog/para/). His core
+argument stuck with me: we can't use our heads to store everything we need
+to know, so we have to put it somewhere else.
 
-There's a quiet contradiction at the heart of modern knowledge work.
-
-On one side: you've spent months (or years) building a second brain in Obsidian. Your notes
-have structure. They link to each other. You've captured decisions, ideas, devlogs, reading
-highlights, and retrospectives. It's a genuine asset.
-
-On the other side: you're using Claude Code, Cursor, or similar tools every day — and they
-have no idea any of that context exists. Every session starts from scratch. You re-explain
-your architecture, your preferences, your past decisions. The AI is smart, but it's amnesiac
-about *you*.
+So I just... started writing things down.
 
-The gap between those two sides is the problem. This post is about closing it.
+Daily journals. Reading highlights from Readwise. Architecture decisions at
+work. Half-formed ideas from walks. Meeting notes. Project retrospectives.
+Notes about notes. Some of it well-organised. Most of it not. I never quite
+figured out the perfect structure. I never did the canonical PARA
+reorganisation the books recommend. I just kept dumping things into the vault
+because the habit felt right and I figured I'd sort it out later.
+
+Then, sometime last year, AI tools learned to read it.
+
+This post is about that — and about how the four years of accidental hoarding
+turned out to be the whole investment.
+
+## The thing that changed
 
-## The Stack
-
-Here's what I ended up building. Each piece has a specific job:
+I'm not going to overstate this. Most of my notes are still messy. My PARA
+folders have weeds growing through them. I'm not a knowledge management
+influencer. I forget where I put things constantly.
 
-| Layer | Tool | Role |
-|---|---|---|
-| Knowledge store | Obsidian + Markdown | Ground truth, human-readable |
-| Semantic search | `qmd` | Local BM25 + vector retrieval |
-| Connection layer | MCP servers | AI ↔ vault read/write |
-| Agent | Claude Code | Reasoning + execution |
-| Persistent workflows | Claude Code skills | Reusable vault operations |
+But something genuinely shifted last year: tools like
+[Claude Code](https://www.anthropic.com/claude-code),
+[Claude Desktop](https://claude.ai/download), and Cursor learned to speak a
+new protocol — the [Model Context Protocol](https://modelcontextprotocol.io/),
+Anthropic's open standard for connecting AI applications to external systems.
+Their own metaphor on the spec site is *"like a USB-C port for AI
+applications."*
 
-None of these pieces are exotic. The insight is in *how they connect*.
+That sounds dry. The practical effect is anything but.
 
-## The Foundation: Obsidian as a Local-First Knowledge Graph
+It means every disorganised Markdown file I've been hoarding for four years
+is now something an agent can read, search, link, and write to. The
+accumulated mess is suddenly a corpus.
 
-I've been using Obsidian with the PARA method for a few years now. Two vaults: one personal,
-one work. Daily journals, weekly reviews, project notes, reading highlights from Readwise,
-architecture decisions, devlogs.
+That accumulated mess turns out to have been the point.
 
-What makes Obsidian the right foundation isn't the plugins or the UI — it's the storage
-model. Everything lives in plain Markdown files on your filesystem. No proprietary database.
-No sync service you need to trust. The vault is just a folder.
+## What's possible right now (with real tools)
 
-That "just a folder" property is exactly what makes the rest of this stack possible.
+Three concrete things you can wire up today. I'll be specific about which
+projects I'd actually point you at, with links.
 
-## The Connection Layer: MCP
+### 1. A bridge between Obsidian and your AI client
 
-[Model Context Protocol](https://modelcontextprotocol.io) (MCP) is the piece that changed
-everything. It's an open protocol that lets AI models talk to external tools through a
-standardised interface — think of it as USB-C for AI integrations.
+[**`mcp-obsidian`**](https://github.com/MarkusPfundstein/mcp-obsidian) by
+Markus Pfundstein is the most popular Obsidian MCP server (around 3.8k stars
+at time of writing). It talks to your vault through the companion
+[Local REST API plugin](https://github.com/coddingtonbear/obsidian-local-rest-api)
+by Adam Coddington, which is the prerequisite — you install the plugin in
+Obsidian, generate an API token, then point the MCP server at it.
 
-For Obsidian, there's
-[`obsidian-mcp`](https://github.com/newtype-01/obsidian-mcp) — an MCP server that exposes
-your vault as a set of tools Claude (or any MCP-compatible agent) can call: read a note,
-search notes, create a note, list recent files, follow backlinks. Your AI can now
-*browse* your second brain rather than being told about it.
+Once wired in, your AI client can read, create, search, and update your notes
+directly. No more copy-pasting context into chat. No more re-explaining your
+projects from scratch every session.
 
-The configuration is straightforward — add it to your `~/.claude/mcp.json`:
+This is the moment your AI stops being a stranger to your own thinking. It
+can answer "what did I decide about X" by actually reading the note where
+you decided it.
 
-```json
-{
-  "mcpServers": {
-    "obsidian": {
-      "command": "npx",
-      "args": ["-y", "obsidian-mcp"],
-      "env": {
-        "VAULT_PATH": "/path/to/your/vault"
-      }
-    }
-  }
-}
-```
-
-Once connected, Claude can read your daily notes, check your project files, and write new
-entries — all without you having to copy-paste anything. The first time Claude automatically
-pulled context from my devlog to continue work from the previous session, I felt the gap
-finally closing.
+### 2. A persistent memory layer
 
-### Basic Memory: A Persistent Semantic Graph
-
-One step further: [`basic-memory`](https://github.com/basicmachines-co/basic-memory) layers
-a persistent semantic graph on top of your Markdown files. Every conversation with Claude
-that touches your vault can leave structured knowledge behind — observations, relations,
-entity links — all stored as standard Markdown that Obsidian renders beautifully.
+[**`basic-memory`**](https://github.com/basicmachines-co/basic-memory) by
+Basic Machines (open source, AGPL-3.0) goes a step further. Their tagline is
+the honest pitch:
 
-The key pattern is in the note format:
+> *"AI conversations that actually remember. Never re-explain your project
+> to your AI again."*
 
-```markdown
-## Observations
-- [decision] Chose qmd over Typesense for local-first semantic search — no server to run
-- [principle] All knowledge stays in files I control
-
-## Relations
-- relates_to [[Search Architecture]]
-- informs [[Claude Code Setup]]
-```
-
-This is how conversations *compound*. Each session adds to the graph rather than
-evaporating. Install it with `uv tool install basic-memory`, point it at your vault, and
-add it to your MCP config.
-
-## Semantic Search: `qmd`
-
-Native Obsidian search is keyword-only. When you have thousands of notes, "find everything
-related to distributed tracing" returns either too much or nothing useful. What you actually
-want is semantic retrieval: *find notes that are about this concept*, not just notes that
-contain these words.
-
-[`qmd`](https://github.com/qmd-lab/qmd) solves this. It's a local CLI tool that indexes
-your Markdown collections with BM25 + vector embeddings + LLM reranking — no external API,
-no data leaving your machine. The local-first constraint was non-negotiable for me: my vaults
-contain work notes, personal reflections, architectural decisions — none of that should
-touch a third-party indexing service.
-
-Setup is a one-time index build:
-
-```bash
-# Add your vaults as collections
-qmd collection add ~/Vaults/personal --name personal
-qmd collection add ~/Vaults/work --name work
-
-# Build the initial index
-qmd embed -c personal
-qmd embed -c work
-```
-
-Then searching feels like talking to someone who has read everything in your vault:
-
-```bash
-# Natural language — hybrid BM25 + semantic + rerank
-qmd query "how did I decide on the authentication architecture" -c work
+Every conversation can leave structured Markdown behind — observations (facts
+you've established) and relations (wiki-style links to other concepts) — that
+lives in your vault as plain files. Install with `uv tool install basic-memory`,
+add it to your MCP config, and your sessions stop being amnesiac across days
+and weeks.
+
+### 3. Semantic search over your vault
 
-# Find by what the answer would sound like (HyDE)
-qmd query $'hyde: A note explaining why I chose Obsidian over Notion'
-```
-
-`qmd` also ships an MCP server — add `qmd mcp` to your config and Claude can retrieve
-semantically relevant notes *during* a session, without you manually pasting context. With
-both `obsidian-mcp` and `qmd` wired in, Claude can find the right context from thousands of
-notes *and* pull the full document: combining keyword precision with semantic recall.
-
-## The Devlog Pattern: Making Activity Automatic
-
-One of the highest-ROI things I've done is an automated devlog that writes itself.
-
-The idea: at the end of each day, a Claude Code skill pulls activity from GitHub (PRs
-opened, reviewed, merged), Jira (tickets closed, commented), and Things3 (tasks completed),
-then synthesises a structured devlog entry and writes it to the Obsidian work vault:
-
-```
-work/devlog/2026/2026-05-21-Wed.md
-```
-
-Each entry has a consistent structure — summary, what I shipped, blockers, decisions made.
-`qmd` indexes everything, so future sessions can retrieve it semantically. "What was the
-context around the auth refactor last March?" becomes a real question Claude can answer from
-*your own notes*.
-
-The MCP stack that makes this work:
-
-```json
-{
-  "mcpServers": {
-    "github":    { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-github"] },
-    "atlassian": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-atlassian"] },
-    "things":    { "command": "uvx", "args": ["things-mcp"] },
-    "obsidian":  { "command": "npx", "args": ["-y", "obsidian-mcp"] }
-  }
-}
-```
-
-The skill aggregates data from all four sources, synthesises the entry, and writes it. No
-manual journaling required — the record keeps itself.
-
-## The LLM Wiki Pattern
-
-This is the idea I keep coming back to. Andrej Karpathy described something like it: an
-"LLM wiki" where sessions write back what they learn, creating a compounding knowledge base
-rather than ephemeral conversations. Turned inward, the same pattern applies to personal
-knowledge: each session makes the next one smarter.
-
-The practical implementation in Obsidian:
-
-1. **Every significant session leaves a trace.** Decisions, discoveries, rejected
-   approaches — all written to structured notes in the vault via a skill.
-2. **Notes link to each other.** New context connects to existing knowledge via
-   wikilinks and the `Relations` block from basic-memory.
-3. **`qmd` indexes everything.** Future sessions retrieve relevant prior context
-   automatically.
-4. **Skills encode recurring operations.** The `vault-wiki` skill in Claude Code handles
-   the ingestion protocol so every session follows the same pattern.
-
-The result: Claude gets *better at working with your specific context* over time, because
-accumulated knowledge lives in your vault and gets loaded via semantic retrieval at session
-start.
-
-```bash
-# At the start of a heavy session:
-qmd query "recent decisions about [current project]" -c work -n 5
-# Paste the relevant hits into the session context
-```
-
-## Claude Code Skills as Persistent Vault Workflows
-
-Claude Code skills are Markdown files that describe a reusable workflow. I've built a small
-set specifically for vault operations:
-
-**`vault-wiki`** — Ingest a source (meeting notes, article, session summary) into the LLM
-Wiki layer. Handles entity extraction, relation linking, and writing structured notes to the
-vault.
-
-**`obsidian:obsidian-cli`** — Interact with the vault from the terminal: create notes,
-search, read properties, manage tasks. Useful for scripted operations outside a full Claude
-session.
-
-**`qmd`** — Full semantic search workflow with collection-scoping, query-type selection,
-and follow-up `get` for full documents.
-
-**`reader-recap`** — Pull recent Readwise highlights, synthesise insights, write a note to
-the vault. Reading becomes a vault operation.
-
-The pattern for authoring a new skill is simple: write a Markdown file in
-`~/.claude/skills/<name>/SKILL.md` describing the workflow, the tools it uses, and example
-commands. Claude routes to it automatically when the matching keywords appear in a prompt.
-Your recurring workflows become first-class tools.
-
-## The Practical Getting-Started Path
-
-If you're starting from zero, this is the order that makes sense:
-
-**Week 1: Add semantic search.** Install `qmd`, index your vault, start using it for
-retrieval. This immediately makes your existing notes more useful — no AI agent required
-yet.
-
-**Week 2: Add `obsidian-mcp`.** Wire it into Claude Code or your editor. Start asking
-Claude questions that require vault context and watch it work through your notes.
-
-**Week 3: Add `basic-memory`.** Let sessions write structured observations back to your
-vault. After a month, you'll have a genuine knowledge graph of your work and thinking.
-
-**Ongoing: Build skills for your recurring workflows.** Every time you catch yourself doing
-the same thing twice — synthesising meeting notes, summarising a project week, writing a
-decision record — turn it into a skill.
-
-## What Changes
-
-The shift isn't just about speed. It's about what questions become answerable.
-
-When your AI tool can read your actual notes, you stop describing your context and start
-*using* it. "What did I decide about X?" is no longer a question you answer from memory —
-Claude retrieves it from your vault and quotes you back to yourself.
-
-When sessions leave structured traces in the vault, knowledge compounds across months rather
-than evaporating between tabs. The vault becomes a living record of how you think, not just
-what you captured.
-
-And when the whole stack is local-first — files on your disk, embeddings in a local SQLite
-database, no data leaving your machine — you can extend it without worrying about what
-you're handing over.
-
-The honest caveat: this takes real setup time, and the compounding only pays off if you
-actually run the devlog skill consistently and keep the vault tidy enough for semantic
-search to work well. Whether the maintenance overhead is worth it probably depends on how
-much context you lose between sessions today. For me, the answer was obvious. Your mileage
-may vary — literally, depending on how messy your notes are.
+Native Obsidian search is keyword-only. When you have thousands of notes,
+"find everything I've written about distributed tracing" returns either too
+much or nothing useful. What you want is semantic retrieval — finding notes
+that are *about* a concept, not just notes that contain the words.
+
+Two public tools to look at:
+
+- [**Smart Connections**](https://github.com/brianpetro/obsidian-smart-connections)
+  is the most popular Obsidian plugin for this. Local embeddings by default,
+  surfaces related notes as you navigate. Worth noting: it's *source-available*
+  rather than traditional open source — the licence restricts redistribution
+  for competing commercial offerings, and a paid Pro tier funds development.
+- [**Khoj**](https://github.com/khoj-ai/khoj) (Apache 2.0) is a fully open
+  alternative that runs as a desktop app or service, indexes Markdown and
+  PDFs, and can also chat against your notes with local or hosted models.
+
+I personally run a small custom CLI for this — BM25 plus local vector
+embeddings plus reranking — but it's not public. If you want something today,
+those two are the honest recommendations.
+
+## The compounding idea
+
+There's an idea I keep coming back to, originally articulated by
+[Andy Matuschak](https://andymatuschak.org/) in his work on
+[evergreen notes](https://notes.andymatuschak.org/Evergreen_notes): notes
+should be *"written and organized to evolve, contribute, and accumulate over
+time, across projects."* Each note makes the next one more valuable. Knowledge
+compounds.
+
+I never managed the discipline Matuschak describes. My notes aren't evergreen
+— they're a mix of journals, half-drafts, snapshots, and links. But the
+compounding principle plays out anyway, accidentally, with AI in the loop.
+Every time a session leaves a structured note behind, the next session has
+more to draw on. The vault gets denser. The agent gets sharper at *your*
+context, not because the model is getting smarter, but because it has more of
+your actual thinking to read.
+
+You don't have to be doing this perfectly. You just have to be doing it.
+
+## A few moments from the last month
+
+Trying to be concrete here, because abstract claims are cheap.
+
+- I asked Claude to help me revisit an architectural decision on a Go side
+  project. It pulled an ADR I'd written eight months earlier — one I'd
+  half-forgotten — and reminded me what I'd already concluded about the
+  trade-off. Saved me an afternoon of re-deriving the argument from scratch.
+
+- A reading highlight I'd captured in February surfaced in a session in May,
+  when I was thinking about something seemingly unrelated. The agent spotted
+  the connection. I would never have surfaced that link manually.
+
+- "What did I work on this week" — usually a grind to answer when I'm writing
+  a retrospective or a status update — turns into "summarise my devlog notes
+  for the past 7 days" and the agent does it in seconds.
+
+None of these are magic. They're just years of accumulated context, finally
+legible to something that can act on it.
+
+## The honest part
+
+I'm not running every piece of this perfectly. The fully automated devlog I'd
+like — pulling from GitHub, Jira, calendar, and Things into a daily entry —
+is half-built. Some days it writes itself. Most days I do it by hand. My PARA
+folders are still a mess. I still occasionally lose notes because I can't
+remember which vault I put them in.
+
+If you came here looking for a complete, polished system to copy: I don't
+have one. Nobody really does. Anyone selling a finished system in this space
+is selling you the box, not the contents.
+
+What I do have is the realisation that *the habit was always the moat*. The
+system can come later, or never. Whatever shape your notes are in, if you
+have years of them in plain Markdown, an AI agent can read them today.
+
+## If you want to try this week
+
+The minimum useful stack, in order:
+
+1. **You may already have it: an Obsidian vault**, or any folder of Markdown
+   files with some accumulated content.
+2. **A bridge:** [`mcp-obsidian`](https://github.com/MarkusPfundstein/mcp-obsidian)
+   plus the [Local REST API plugin](https://github.com/coddingtonbear/obsidian-local-rest-api).
+3. **A client:** [Claude Code](https://www.anthropic.com/claude-code),
+   [Claude Desktop](https://claude.ai/download), or Cursor with the MCP config
+   pointing at the bridge.
+
+That's the floor. From there: add
+[`basic-memory`](https://github.com/basicmachines-co/basic-memory) when you
+want structured memory persisting across sessions. Add
+[Smart Connections](https://github.com/brianpetro/obsidian-smart-connections)
+or [Khoj](https://github.com/khoj-ai/khoj) when keyword search isn't enough.
+
+If you've been keeping notes for years and wondering whether the effort was
+worth it: it turns out the answer is yes — just not for the reasons most of
+the second-brain books predicted. Not because you'll go back and re-read
+them. Because they're finally readable by something that can do something
+with them.
+
+The unglamorous habit was the whole investment. The interesting part is just
+starting now.
 
 ---
 
-*Tools mentioned: [obsidian-mcp](https://github.com/newtype-01/obsidian-mcp),
-[basic-memory](https://github.com/basicmachines-co/basic-memory),
-[qmd](https://github.com/qmd-lab/qmd),
-[Claude Code](https://claude.ai/code). Related earlier post:
-[Vibe Coding with Cursor](/posts/2024-03-21-vibe-coding-with-cursor/).*
+**Further reading:**
+
+- Tiago Forte, *[Building a Second Brain](https://www.buildingasecondbrain.com/)*
+  — the original case for an external Markdown brain.
+- Andy Matuschak, [Evergreen notes](https://notes.andymatuschak.org/Evergreen_notes)
+  — the most precise articulation of why notes compound.
+- Anthropic, [Model Context Protocol](https://modelcontextprotocol.io/)
+  — the open standard that makes all of this possible.
