@@ -1,7 +1,7 @@
 ---
 title: "Years of Notes I Didn't Know What to Do With"
 description: "I've been hoarding Markdown in Obsidian for years with no real system. Then AI tools learned to read it. This is what's possible now — and what I'm still figuring out."
-publishDate: "2026-05-22T00:00:00Z"
+publishDate: 2026-07-01T00:00:00Z
 date: "2026-05-22T00:00:00Z"
 draft: true
 categories:
@@ -15,6 +15,7 @@ tags:
   - "mcp"
   - "tools"
   - "blog"
+  - "agentic-coding"
 showToc: true
 tocOpen: false
 ---
