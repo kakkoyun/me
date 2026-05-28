@@ -1,6 +1,6 @@
 ---
 title: "Mentorship in Open Source — Part 2: The Mentee Playbook"
-description: "A practical guide to getting into open-source through structured mentorship — LFX, GSoC, Outreachy, GoBridge, and CommunityBridge. What works, what doesn't, and how to write a proposal that gets picked."
+description: "A practical guide to getting into open-source through structured mentorship — LFX, GSoC, Outreachy, and GoBridge. What works, what doesn't, and how to write a proposal that gets picked."
 date: 2026-05-29T00:00:00Z
 publishDate: 2026-05-29T00:00:00Z
 categories:
@@ -15,7 +15,6 @@ tags:
   - gsoc
   - outreachy
   - gobridge
-  - communitybridge
   - career
 series:
   - Mentorship in Open Source
@@ -29,7 +28,7 @@ cover:
 
 [Last time](/posts/mentorship-in-open-source/) I wrote about why I keep saying yes to open-source mentorship. This post is the *how*: specifically, how to be a mentee in 2026.
 
-I've spent the last few years on the mentor side of CNCF {{< tooltip term="LFX" >}}LFX Mentorship — the Linux Foundation's structured mentorship program. Cohorts run quarterly, projects are scoped to ~12 weeks, and mentees receive a stipend.{{< /tooltip >}}, [Google Summer of Code](https://summerofcode.withgoogle.com/) ({{< tooltip term="GSoC" >}}A Google-funded program where students contribute to open-source projects over the summer, paired with mentors from those projects.{{< /tooltip >}}), [GoBridge](https://gobridge.org/), and [CommunityBridge](https://communitybridge.org/), mostly through [Parca](https://github.com/parca-dev/parca), [Thanos](https://github.com/thanos-io/thanos), and now various [OpenTelemetry](https://github.com/open-telemetry) projects. Every cohort I've run, the same questions keep coming up from people who *want* to apply but don't know how to start.
+I've spent the last few years on the mentor side of CNCF {{< tooltip term="LFX" >}}LFX Mentorship — the Linux Foundation's structured mentorship program. Cohorts run quarterly, projects are scoped to ~12 weeks, and mentees receive a stipend.{{< /tooltip >}}, [Google Summer of Code](https://summerofcode.withgoogle.com/) ({{< tooltip term="GSoC" >}}A Google-funded program where students contribute to open-source projects over the summer, paired with mentors from those projects.{{< /tooltip >}}), and [GoBridge](https://gobridge.org/), mostly through [Parca](https://github.com/parca-dev/parca), [Thanos](https://github.com/thanos-io/thanos), and now various [OpenTelemetry](https://github.com/open-telemetry) projects. Every cohort I've run, the same questions keep coming up from people who *want* to apply but don't know how to start.
 
 This is the post I wish I could send those folks.
 
@@ -43,6 +42,20 @@ You've heard about open-source mentorship programs and you want in. You might be
 - Someone who's tried "just contribute to open source" and bounced off the gravitational well of unread Slack channels (you want a structured program with a mentor whose job it is to talk to you).
 
 If any of those is you, keep reading.
+
+## Who this is not for
+
+Before you spend a weekend writing a proposal, please read the program's eligibility documentation carefully. For LFX, that's [`docs.linuxfoundation.org/lfx/mentorship/mentees`](https://docs.linuxfoundation.org/lfx/mentorship/mentees). Each program has its own version, and they are gold mines: eligibility, expectations, time commitment, conflict-of-interest rules, how the stipend works. Outreachy's [eligibility page](https://www.outreachy.org/apply/eligibility/) is written for a specific reason and is worth reading slowly. Skipping this step is the single biggest reason proposals never reach a mentor.
+
+Beyond the eligibility check, three patterns make me say "please don't apply this cohort."
+
+If you can scope the work, set up the dev environment, and ship the first milestone in two weekends by yourself, you don't need a mentor — and someone with less experience does. These programs exist to help people get into open source who otherwise can't break in. Taking a slot to add a stipend and a credential to your CV when you could have just opened the PRs yourself is taking it from someone who needs it more. {{< sidenote >}}Not hypothetical. I have rejected proposals from clearly capable engineers and felt good about it, because the next in the queue came from someone who needed the structure.{{< /sidenote >}}
+
+If you have exam season halfway through the cohort, an internship that overlaps, or this is the third thing on your list behind two more important commitments: don't apply this round. Apply next time. A part-time mentee is worse than no mentee, because the mentor's hours are already committed and now they're spent waiting for messages that don't come. Mentors do this for free, in our personal time, on top of day jobs. Wasted mentor time is the failure mode we feel most. Plenty of other people are ready to commit fully; let them have the slot.
+
+And if your goal is a CV line, please pick a different path. "LFX mentee" looks good on a resume; "LFX mentee who became a maintainer of $project" looks much better, and only one of those two requires you to still be around three months after the program ends. If the line on the CV is the point, mentorship is not the cheapest way to get it.
+
+The mentorship is about helping and enabling. If you fit, apply enthusiastically. If you don't, apply later, or apply somewhere else.
 
 ## The four programs I've worked through
 
@@ -60,9 +73,9 @@ Google's long-running OSS internship. Originally student-only; for a few years n
 
 A program for people from groups traditionally under-represented in tech, including those affected by systemic bias. Two cohorts per year (May–August and December–March). The intake is more rigorous than the others: there's a contribution period before the formal proposal, and it's [run from outreachy.org directly](https://www.outreachy.org/). Outreachy has the lowest tolerance for the "open-source as boys' club" failure mode of any program I've seen. If you've felt locked out of OSS communities, this is the door.
 
-### GoBridge & CommunityBridge
+### GoBridge
 
-These are less structured than the above. [GoBridge](https://gobridge.org/) runs workshops, scholarships, and mentor pairings focused on the Go community. [CommunityBridge](https://communitybridge.org/) is the Linux Foundation's broader umbrella for sponsored mentorship and project funding. I list them because not every door is a 12-week cohort. Sometimes a one-week workshop or a 1:1 office-hours pairing is exactly the right starting size.
+Less structured than the above. [GoBridge](https://gobridge.org/) runs workshops, scholarships, and mentor pairings focused on the Go community. I list it because not every door is a 12-week cohort. Sometimes a one-week workshop or a 1:1 office-hours pairing is exactly the right starting size. {{< sidenote >}}If you've seen references to **CommunityBridge** in older blog posts or my About page, that's the platform CNCF LFX Mentorship used to run on; the Linux Foundation rebranded it to LFX Mentorship around 2020. Same plumbing, different name.{{< /sidenote >}}
 
 ## What I look for in a proposal
 
@@ -108,7 +121,11 @@ I once spent twenty minutes writing a careful review comment explaining why a pa
 
 ### 5. Disappearing after the cohort ends
 
-This one is on both sides — mentors do it too. The cohort has a hard end date. The relationship doesn't have to. The mentees I'm proudest of are the ones who kept poking me with PR links and SIG-meeting questions for *years* after their LFX project closed. The official program is a starter loan; the real currency is the ongoing connection.
+This one is on both sides — mentors do it too. The cohort has a hard end date. The relationship doesn't have to.
+
+The mentees I'm proudest of are the ones who kept poking me with PR links and SIG-meeting questions for *years* after their LFX project closed. The ones I'm least proud of are the ones who disappeared the day the certificate landed and resurfaced two years later asking for a reference letter for a job application. {{< sidenote side="alternate" >}}I write the reference letter anyway. But I notice.{{< /sidenote >}}
+
+Don't be that person. Don't be selfish. We do this in the hope that the next generation of maintainers comes from somewhere, which requires you to stick around long enough to *become* the next generation. The official program is a starter loan; the real currency is the ongoing connection. Repay it by being present.
 
 ## Concrete examples (from my own cohorts)
 
