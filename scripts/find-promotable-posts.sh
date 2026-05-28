@@ -17,6 +17,10 @@ is_draft() {
   grep -q '^draft: true' "$1"
 }
 
+skip_promotion() {
+  grep -q '^promote: false' "$1"
+}
+
 get_publish_date() {
   # Extract publishDate from YAML frontmatter, return date portion only (YYYY-MM-DD).
   # Returns empty (exit 0) when the field is missing — callers must handle that.
@@ -43,6 +47,11 @@ validate_post() {
 
   if is_draft "$post"; then
     echo "SKIP $post — draft" >&2
+    return 1
+  fi
+
+  if skip_promotion "$post"; then
+    echo "SKIP $post — promote: false" >&2
     return 1
   fi
 
@@ -86,6 +95,11 @@ case "$MODE" in
 
       if is_draft "$post"; then
         echo "SKIP $post — draft" >&2
+        continue
+      fi
+
+      if skip_promotion "$post"; then
+        echo "SKIP $post — promote: false" >&2
         continue
       fi
 
