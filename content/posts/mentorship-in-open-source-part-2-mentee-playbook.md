@@ -20,10 +20,6 @@ series:
   - Mentorship in Open Source
 showToc: true
 tocOpen: false
-cover:
-  image: /uploads/fosdem26_go_crowd.jpeg
-  alt: FOSDEM 2026, Go Devroom — a packed room of Go engineers
-  caption: The Go Devroom at FOSDEM 2026. This is the room a lot of LFX projects end up presenting in three years later.
 ---
 
 [Last time](/posts/mentorship-in-open-source/) I wrote about why I keep saying yes to open-source mentorship. This post is the *how*: specifically, how to be a mentee in 2026.
