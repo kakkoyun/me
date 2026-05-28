@@ -36,8 +36,10 @@ outputs:
   section:
     - HTML
     - RSS
+    - MARKDOWN
   term:
     - HTML
+    - MARKDOWN
 
 markup:
   highlight:

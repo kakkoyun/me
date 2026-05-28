@@ -34,8 +34,10 @@ BUILD_PATHS=(
 
 # Netlify exposes the build hook JSON body as INCOMING_HOOK_BODY. The
 # promote-post cron sets {"force":true} so future-dated posts can go live
-# on their publishDate even though no commit landed.
-if [[ "${INCOMING_HOOK_BODY:-}" == *'"force":true'* ]]; then
+# on their publishDate even though no commit landed. Tolerate whitespace
+# around the colon so a reformatted payload (e.g. {"force": true}) still
+# matches.
+if [[ "${INCOMING_HOOK_BODY:-}" =~ \"force\"[[:space:]]*:[[:space:]]*true ]]; then
   echo "netlify-ignore: incoming hook requested force build, building."
   exit 1
 fi
