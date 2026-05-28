@@ -134,6 +134,30 @@ make_post_no_date() {
   } > "$file"
 }
 
+make_post_with_body_line() {
+  # make_post_with_body_line <file> <publishDate> <body_line>
+  # Writes a well-formed post whose body contains <body_line> at column 0 —
+  # used to verify that frontmatter-scoped checks ignore body-level matches.
+  local file="$1"
+  local pub_date="$2"
+  local body_line="$3"
+  mkdir -p "$(dirname "$file")"
+  {
+    echo "---"
+    echo "title: \"Test Post\""
+    echo "publishDate: ${pub_date}T00:00:00Z"
+    echo "categories:"
+    echo "  - engineering"
+    echo "tags:"
+    echo "  - blog"
+    echo "---"
+    echo ""
+    echo "$body_line"
+    echo ""
+    echo "Trailing body content."
+  } > "$file"
+}
+
 # ── Test runner ───────────────────────────────────────────────────────────────
 # Each test function is called inside a ( subshell ) that has cd'd into a fresh
 # temp repo. Functions inherit setup_repo/make_post/commit_at/run_find/TODAY etc.
@@ -319,6 +343,24 @@ _edge_manual_out_of_tree() {
     git commit -q -m "out of tree"
   run_find manual "other/dir/external.md"
 }
+_edge_body_promote_false() {
+  # "promote: false" appears in body content at column 0 — must NOT skip
+  make_post_with_body_line "content/posts/bodypromote.md" "$TODAY" "promote: false"
+  commit_at "content/posts/bodypromote.md" "$TODAY"
+  run_find push
+}
+_edge_body_draft_true() {
+  # "draft: true" appears in body content at column 0 — must NOT mark as draft
+  make_post_with_body_line "content/posts/bodydraft.md" "$TODAY" "draft: true"
+  commit_at "content/posts/bodydraft.md" "$TODAY"
+  run_find push
+}
+_edge_body_publish_date() {
+  # "publishDate: ..." appears in body content at column 0 — frontmatter value wins
+  make_post_with_body_line "content/posts/bodypub.md" "$TODAY" "publishDate: 2099-01-01T00:00:00Z"
+  commit_at "content/posts/bodypub.md" "$TODAY"
+  run_find push
+}
 
 result=$(with_repo _edge_datetime_pub)
 assert_eq    "edge: push handles publishDate with time component (get_publish_date strips T...)" "content/posts/dt.md" "$result"
@@ -334,6 +376,15 @@ assert_empty "edge: schedule is a no-op when content/posts has no .md files" "$r
 
 result=$(with_repo _edge_manual_out_of_tree)
 assert_eq    "edge: manual accepts path outside content/posts (permissive, date check skipped)" "other/dir/external.md" "$result"
+
+result=$(with_repo _edge_body_promote_false)
+assert_eq    "edge: 'promote: false' in body (not frontmatter) does not skip promotion" "content/posts/bodypromote.md" "$result"
+
+result=$(with_repo _edge_body_draft_true)
+assert_eq    "edge: 'draft: true' in body (not frontmatter) does not mark as draft" "content/posts/bodydraft.md" "$result"
+
+result=$(with_repo _edge_body_publish_date)
+assert_eq    "edge: 'publishDate: ...' in body (not frontmatter) is ignored, frontmatter date wins" "content/posts/bodypub.md" "$result"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 
