@@ -28,7 +28,7 @@ cover:
 
 [Last time](/posts/mentorship-in-open-source/) I wrote about why I keep saying yes to open-source mentorship. This post is the *how*: specifically, how to be a mentee in 2026.
 
-I've spent the last few years on the mentor side of CNCF {{< tooltip term="LFX" >}}LFX Mentorship — the Linux Foundation's structured mentorship program. Cohorts run quarterly, projects are scoped to ~12 weeks, and mentees receive a stipend.{{< /tooltip >}}, [Google Summer of Code](https://summerofcode.withgoogle.com/) ({{< tooltip term="GSoC" >}}A Google-funded program where students contribute to open-source projects over the summer, paired with mentors from those projects.{{< /tooltip >}}), and [GoBridge](https://gobridge.org/), mostly through [Thanos](https://github.com/thanos-io/thanos), [Prometheus](https://github.com/prometheus/prometheus), and now various [OpenTelemetry](https://github.com/open-telemetry) projects. Every cohort I've run, the same questions keep coming up from people who *want* to apply but don't know how to start.
+I've spent the last few years on the mentor side of CNCF {{< tooltip term="LFX" >}}LFX Mentorship — the Linux Foundation's structured mentorship program. Cohorts run quarterly, projects are scoped to ~12 weeks, and mentees receive a stipend.{{< /tooltip >}}, [Google Summer of Code](https://summerofcode.withgoogle.com/) ({{< tooltip term="GSoC" >}}A Google-funded program where students contribute to open-source projects over the summer, paired with mentors from those projects.{{< /tooltip >}}), and [GoBridge](https://gobridge.org/), through [Thanos](https://github.com/thanos-io/thanos), [Prometheus](https://github.com/prometheus/prometheus), and now [OpenTelemetry](https://github.com/open-telemetry) projects. Every cohort I've run, the same questions keep coming up from people who *want* to apply but don't know how to start.
 
 This is the post I wish I could send those folks.
 
@@ -39,7 +39,7 @@ You've heard about open-source mentorship programs and you want in. You might be
 - A student looking for a structured summer project (GSoC's bullseye).
 - A working engineer wanting to break into a CNCF or {{< tooltip term="OSS" >}}Open-source software.{{< /tooltip >}} community you respect (LFX is your friend).
 - An engineer from a background under-represented in tech (Outreachy is built for you).
-- Someone who's tried "just contribute to open source" and bounced off the gravitational well of unread Slack channels (you want a structured program with a mentor whose job it is to talk to you).
+- Someone who's tried "just contribute to open source" and bounced off the gravitational well of unread Slack channels (you want a structured program with a mentor whose job is to talk to you).
 
 If any of those is you, keep reading.
 
@@ -49,25 +49,25 @@ Before you spend a weekend writing a proposal, please read the program's eligibi
 
 Beyond the eligibility check, three patterns make me say "please don't apply this cohort."
 
-If you can scope the work, set up the dev environment, and ship the first milestone in two weekends by yourself, you don't need a mentor — and someone with less experience does. These programs exist to help people get into open source who otherwise can't break in. Taking a slot to add a stipend and a credential to your CV when you could have just opened the PRs yourself is taking it from someone who needs it more. {{< sidenote >}}Not hypothetical. I have rejected proposals from clearly capable engineers and felt good about it, because the next in the queue came from someone who needed the structure.{{< /sidenote >}}
+If you can scope the work, set up the dev environment, and ship the first milestone in two weekends by yourself, you don't need a mentor — and someone with less experience does. These programs exist to help people get into open source who otherwise can't break in. Taking a slot to add a stipend and a credential to your CV when you could have just opened the PRs yourself is taking it from someone who needs it more. {{< sidenote >}}Not hypothetical. I have rejected proposals from engineers who could have shipped the project alone, and felt good about it, because the next in the queue came from someone who needed the structure.{{< /sidenote >}}
 
-If you have exam season halfway through the cohort, an internship that overlaps, or this is the third thing on your list behind two more important commitments: don't apply this round. Apply next time. A part-time mentee is worse than no mentee, because the mentor's hours are already committed and now they're spent waiting for messages that don't come. Mentors do this for free, in our personal time, on top of day jobs. Wasted mentor time is the failure mode we feel most. Plenty of other people are ready to commit fully; let them have the slot.
+If you have exam season halfway through the cohort, an internship that overlaps, or this is the third thing on your list behind two more important commitments: don't apply this round. Apply next time. A part-time mentee is worse than no mentee, because the mentor's hours are already committed and now they're spent waiting for messages that don't come. Mentors put in volunteer hours, in our personal time, on top of day jobs. Wasted mentor time is the failure mode we feel most. Plenty of other people are ready to commit fully; let them have the slot.
 
-And if your goal is a CV line, please pick a different path. "LFX mentee" looks good on a resume; "LFX mentee who became a maintainer of $project" looks much better, and only one of those two requires you to still be around three months after the program ends. If the line on the CV is the point, mentorship is not the cheapest way to get it.
+And if your goal is a CV line, please pick a different path. "LFX mentee" looks good on a résumé; "LFX mentee who became a maintainer of $project" looks much better, and only one of those two requires you to still be around three months after the program ends. If the line on the CV is the point, mentorship is not the cheapest way to get it.
 
 The mentorship is about helping and enabling. If you fit, apply enthusiastically. If you don't, apply later, or apply somewhere else.
 
 ## The four programs
 
-I've personally mentored through three of these: LFX, GSoC, and GoBridge. Outreachy I include because it's the door I most want under-represented contributors to know about; the Outreachy section below is description from the outside, not first-hand experience. There are more programs out there — these are the ones I can speak to.
+I've personally mentored through three of these: LFX, GSoC, and GoBridge. Outreachy I include because it's the door I most want under-represented contributors to know about; the Outreachy section below is description from the outside, not first-hand experience. Other programs exist; these are the ones I can speak to.
 
 ### CNCF LFX Mentorship
 
-A structured cohort-based program run by the Linux Foundation. Each project is scoped for one cohort (~12 weeks), assigned 1–2 mentors, and pays a stipend. There are multiple cohorts per year; the [active terms page](https://mentorship.lfx.linuxfoundation.org/) lists what's open right now, and the project list lives in the [`cncf/mentoring`](https://github.com/cncf/mentoring) repo under `programs/lfx-mentorship/`. The structure rewards reading: each project has a description, required skills, mentor names, and (usually) example issues. Every mentor on LFX has agreed to commit a meaningful chunk of time; that's a contract you don't get from "show up in the GitHub issues."
+A structured cohort-based program run by the Linux Foundation. Each project is scoped for one cohort (~12 weeks), assigned 1–2 mentors, and pays a stipend. Cohorts run a few times a year; the [active terms page](https://mentorship.lfx.linuxfoundation.org/) lists what's open right now, and the project list lives in the [`cncf/mentoring`](https://github.com/cncf/mentoring) repo under `programs/lfx-mentorship/`. The structure rewards reading: each project has a description, required skills, mentor names, and (often) example issues. Every mentor on LFX has agreed to commit a meaningful chunk of time; that's a contract you don't get from "show up in the GitHub issues."
 
 ### Google Summer of Code
 
-Google's long-running OSS internship. Originally student-only; for a few years now it's been open to "beginners to open source," not just students. Applications open in spring, work happens over summer. Each participating org publishes its own ideas list, and CNCF orgs aggregate theirs in [`cncf/mentoring`](https://github.com/cncf/mentoring/tree/main/programs/summerofcode). GSoC has the strongest "first-time mentee" track record I've seen: the structure is forgiving enough that someone with rough Git fundamentals can still ship something real by August.
+Google's long-running OSS internship. Originally student-only; for a few years now it's been open to "beginners to open source," not just students. Applications open in spring, work happens over summer. Each participating org publishes its own ideas list, and CNCF orgs collect theirs in [`cncf/mentoring`](https://github.com/cncf/mentoring/tree/main/programs/summerofcode). GSoC has the strongest "first-time mentee" track record I've seen: the structure is forgiving enough that someone with rough Git fundamentals can still ship something real by August.
 
 ### Outreachy
 
@@ -81,7 +81,7 @@ Less structured than the above. [GoBridge](https://gobridge.org/) runs workshops
 
 Most proposals get rejected for the same reasons. Most accepted proposals share the same shape. Here's what I look for as a mentor — your mileage may vary, but ask any LFX/GSoC mentor and you'll hear most of this.
 
-- [ ] **You have read the project's recent issues, PRs, and design docs.** Not all of them — but enough that you can name two open issues by number and explain why they matter.
+- [ ] **You have read the project's recent issues, PRs, and design docs.** Not all — but enough that you can name two open issues by number and explain why they matter.
 - [ ] **Your scope fits in 12 weeks.** Not 12 weeks of full-time senior-engineer effort — 12 weeks of *your* effort, with reasonable assumptions about ramp-up. {{< sidenote side="alternate" >}}A great heuristic: if you can't draft a one-paragraph milestone for week 4 *right now*, your scope is too vague.{{< /sidenote >}}
 - [ ] **You've made one small PR already.** Even a typo fix in the README. It tells me you can find your way around the codebase, run the tests, and follow the contribution guide.
 - [ ] **You've named the trade-offs.** Every interesting project has at least one. If your proposal reads like a feature spec with no tensions, you haven't engaged with the problem deeply enough.
@@ -89,7 +89,7 @@ Most proposals get rejected for the same reasons. Most accepted proposals share 
 
 That last bullet is the one I see violated most often. A mentorship proposal is not a CV. It's a draft of the conversation we're going to have for the next three months.
 
-One more thing worth saying clearly, now that the agentic coding tools are everywhere: use AI to do reconnaissance in the codebase, summarize design docs, get up to speed on the project, learn unfamiliar concepts. All fine. Don't use it to write the proposal. We will ask questions in selection. We hold you accountable for the understanding the proposal claims. A proposal you can't defend in a thirty-minute conversation won't be picked, and the AI-drafted ones are usually obvious within two.
+One more thing worth flagging, now that the agentic coding tools are everywhere: use AI to do reconnaissance in the codebase, summarize design docs, get up to speed on the project, learn unfamiliar concepts. All fine. Don't use it to write the proposal. We will ask questions in selection. We hold you accountable for the understanding the proposal claims. A proposal you can't defend in a thirty-minute conversation won't be picked, and the AI-drafted ones tend to be obvious within two.
 
 ## What makes a good first contribution
 
@@ -131,7 +131,7 @@ Don't be that person. Don't be selfish. We do this in the hope that the next gen
 
 ## Concrete examples (from my own cohorts)
 
-I've mentored on Thanos, Prometheus, and various OpenTelemetry projects through these programs. The most concrete current example, while this post goes live: [Dario Castañé](https://github.com/darccio) and I are about to start co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) in the LFX 2026 Jun–Aug cohort. The framing lives in [`opentelemetry-go-compile-instrumentation#446`](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/issues/446). Applications closed before this post published; we're choosing a mentee now, with the cohort itself starting in June. The next cohort's listings tend to land in [`cncf/mentoring`](https://github.com/cncf/mentoring) a few weeks before each term opens, so the next round to apply to will go up there. {{< sidenote side="alternate" >}}I'll add older mentee credits and merged-PR links here as I get clearance from the folks involved. Naming people in a blog post without asking is exactly the kind of thing I'm trying to teach mentees not to do.{{< /sidenote >}}
+I've mentored on Thanos, Prometheus, and OpenTelemetry projects through these programs. The most concrete current example, while this post goes live: [Dario Castañé](https://github.com/darccio) and I are about to start co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) in the LFX 2026 Jun–Aug cohort. The framing lives in [`opentelemetry-go-compile-instrumentation#446`](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/issues/446). Applications closed before this post published; we're choosing a mentee now, with the cohort itself starting in June. The next cohort's listings tend to land in [`cncf/mentoring`](https://github.com/cncf/mentoring) a few weeks before each term opens, so the next round to apply to will go up there. {{< sidenote side="alternate" >}}I'll add older mentee credits and merged-PR links here as I get clearance from the folks involved. Naming people in a blog post without asking is exactly the kind of thing I'm trying to teach mentees not to do.{{< /sidenote >}}
 
 A handful of patterns that show up across cohorts:
 
