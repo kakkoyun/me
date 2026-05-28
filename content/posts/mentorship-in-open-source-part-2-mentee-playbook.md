@@ -49,7 +49,7 @@ Before you spend a weekend writing a proposal, please read the program's eligibi
 
 Beyond the eligibility check, three patterns make me say "please don't apply this cohort."
 
-If you can scope the work, set up the dev environment, and ship the first milestone in two weekends by yourself, you don't need a mentor — and someone with less experience does. These programs exist to help people get into open source who otherwise can't break in. Taking a slot to add a stipend and a credential to your CV when you could have just opened the PRs yourself is taking it from someone who needs it more. {{< sidenote >}}Not hypothetical. I have rejected proposals from engineers who could have shipped the project alone, and felt good about it, because the next in the queue came from someone who needed the structure.{{< /sidenote >}}
+If you can scope the work, set up the dev environment, and ship the first milestone in two weekends by yourself, you don't need a mentor. Someone with less experience does. These programs exist to help people get into open source who otherwise can't break in. Taking a slot to add a stipend and a credential to your CV when you could have just opened the PRs yourself is taking it from someone who needs it more. {{< sidenote >}}Not hypothetical. I have rejected proposals from engineers who could have shipped the project alone, and felt good about it, because the next in the queue came from someone who needed the structure.{{< /sidenote >}}
 
 If you have exam season halfway through the cohort, an internship that overlaps, or this is the third thing on your list behind two more important commitments: don't apply this round. Apply next time. A part-time mentee is worse than no mentee, because the mentor's hours are already committed and now they're spent waiting for messages that don't come. Mentors put in volunteer hours, in our personal time, on top of day jobs. Wasted mentor time is the failure mode we feel most. Plenty of other people are ready to commit fully; let them have the slot.
 
@@ -79,10 +79,10 @@ Less structured than the above. [GoBridge](https://gobridge.org/) runs workshops
 
 ## What I look for in a proposal
 
-Most proposals get rejected for the same reasons. Most accepted proposals share the same shape. Here's what I look for as a mentor — your mileage may vary, but ask any LFX/GSoC mentor and you'll hear most of this.
+Most proposals get rejected for the same reasons. Most accepted proposals share the same shape. Here's what I look for as a mentor. Your mileage may vary, but ask any LFX/GSoC mentor and you'll hear most of this.
 
-- [ ] **You have read the project's recent issues, PRs, and design docs.** Not all — but enough that you can name two open issues by number and explain why they matter.
-- [ ] **Your scope fits in 12 weeks.** Not 12 weeks of full-time senior-engineer effort — 12 weeks of *your* effort, with reasonable assumptions about ramp-up. {{< sidenote side="alternate" >}}A great heuristic: if you can't draft a one-paragraph milestone for week 4 *right now*, your scope is too vague.{{< /sidenote >}}
+- [ ] **You have read the project's recent issues, PRs, and design docs.** Not all, but enough that you can name two open issues by number and explain why they matter.
+- [ ] **Your scope fits in 12 weeks.** Not 12 weeks of full-time senior-engineer effort. 12 weeks of *your* effort, with reasonable assumptions about ramp-up. {{< sidenote side="alternate" >}}A great heuristic: if you can't draft a one-paragraph milestone for week 4 *right now*, your scope is too vague.{{< /sidenote >}}
 - [ ] **You've made one small PR already.** Even a typo fix in the README. It tells me you can find your way around the codebase, run the tests, and follow the contribution guide.
 - [ ] **You've named the trade-offs.** Every interesting project has at least one. If your proposal reads like a feature spec with no tensions, you haven't engaged with the problem deeply enough.
 - [ ] **You've written the proposal *as a collaboration plan*, not a job application.** I want to know *how we're going to work together*, not how impressive you are.
@@ -95,8 +95,8 @@ One more thing worth flagging, now that the agentic coding tools are everywhere:
 
 If you're not yet at proposal stage and just want to do *something*, start here.
 
-1. **Pick the project before the program.** Find a CNCF or Go project whose docs you've actually read for fun. Whose maintainers you've watched on a podcast or at a meet-up. {{< sidenote >}}If no project meets that bar yet, your first task is to find one. Start with the [CNCF Landscape](https://landscape.cncf.io/) and look at which projects are listed in the current LFX, GSoC, or Outreachy cohorts — that tells you who is actively running mentorships. Even better: some of the best applicants I've seen reached out to a project they loved and asked the maintainers whether they'd consider running a cohort. Brilliant move, every time.{{< /sidenote >}} Programs are the scaffolding. The project is the building.
-2. **Read the issue tracker for an hour.** Not to pick an issue — to understand the *vocabulary*. What does "OBI" mean to this project? What's a "sidecar" here? Who's `@nickname` and why do they have opinions?
+1. **Pick the project before the program.** Find a CNCF or Go project whose docs you've actually read for fun. Whose maintainers you've watched on a podcast or at a meet-up. {{< sidenote >}}If no project meets that bar yet, your first task is to find one. Start with the [CNCF Landscape](https://landscape.cncf.io/) and look at which projects are listed in the current LFX, GSoC, or Outreachy cohorts. That tells you who is actively running mentorships. Even better: some of the best applicants I've seen reached out to a project they loved and asked the maintainers whether they'd consider running a cohort. Brilliant move, every time.{{< /sidenote >}} Programs are the scaffolding. The project is the building.
+2. **Read the issue tracker for an hour.** Not to pick an issue; to understand the *vocabulary*. What does "OBI" mean to this project? What's a "sidecar" here? Who's `@nickname` and why do they have opinions?
 3. **Find a "good first issue" or a `help-wanted` that hasn't been touched in a few weeks.** If it's been claimed and abandoned, comment asking if you can pick it up. If it's untouched, comment with your understanding of the problem and a sketch of an approach *before* you write code.
 4. **Submit a small, working PR.** Tests included. Description that explains the *why*, not the *what*. Ask for review explicitly.
 5. **Stay in the thread.** This is the most under-rated step. Half of first-time contributors disappear after their PR gets review comments. The half that stay through one round of revisions become contributors.
@@ -123,7 +123,7 @@ I once spent twenty minutes writing a careful review comment explaining why a pa
 
 ### 5. Disappearing after the cohort ends
 
-This one is on both sides — mentors do it too. The cohort has a hard end date. The relationship doesn't have to.
+This one cuts both ways. Mentors do it too. The cohort has a hard end date; the relationship doesn't have to.
 
 The mentees I'm proudest of are the ones who kept poking me with PR links and SIG-meeting questions for *years* after their LFX project closed. The ones I'm least proud of are the ones who disappeared the day the certificate landed and resurfaced two years later asking for a reference letter for a job application. {{< sidenote side="alternate" >}}I write the reference letter anyway. But I notice.{{< /sidenote >}}
 
@@ -139,7 +139,7 @@ A handful of patterns that show up across cohorts:
 - The mentees who finished early *all* did one small "warm-up" PR before the cohort officially started.
 - The mentees who became maintainers were the ones who kept showing up to community meetings *during* their project, then kept showing up after it closed.
 
-If you're a former mentee of mine and you'd like me to credit your work in a follow-up post, drop me a line — happy to.
+If you're a former mentee of mine and you'd like me to credit your work in a follow-up post, drop me a line; happy to.
 
 ## Call to action — for mentees
 
