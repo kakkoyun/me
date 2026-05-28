@@ -18,7 +18,7 @@
 {{- end -}}
 
 {{- if and $img $img.MediaType (in (slice "image/jpeg" "image/png" "image/gif" "image/bmp" "image/tiff" "image/webp") $img.MediaType.Type) -}}
-  {{- $sizes := slice 480 1024 1920 -}}
+  {{- $sizes := slice 480 768 1024 1366 1920 -}}
 
   {{- $srcset := slice -}}
   {{- $srcsetWebP := slice -}}
