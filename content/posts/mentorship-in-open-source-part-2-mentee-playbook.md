@@ -20,6 +20,10 @@ series:
   - Mentorship in Open Source
 showToc: true
 tocOpen: false
+cover:
+  image: /uploads/lfx-mentorship.svg
+  alt: CNCF LFX Mentorship logo
+  caption: The CNCF LFX Mentorship program — one of the four doors this post is about.
 ---
 
 [Last time](/posts/mentorship-in-open-source/) I wrote about why I keep saying yes to open-source mentorship. This post is the *how*: specifically, how to be a mentee in 2026.
