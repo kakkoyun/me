@@ -59,10 +59,11 @@ setup_repo() {
 }
 
 make_post() {
-  # make_post <file> [publishDate] [draft=true|false]
+  # make_post <file> [publishDate] [draft=true|false] [promote_false=true|false]
   local file="$1"
   local pub_date="${2:-$TODAY}"
   local is_draft="${3:-false}"
+  local no_promote="${4:-false}"
   mkdir -p "$(dirname "$file")"
   {
     echo "---"
@@ -73,6 +74,7 @@ make_post() {
     echo "tags:"
     echo "  - blog"
     [ "$is_draft" = "true" ] && echo "draft: true"
+    [ "$no_promote" = "true" ] && echo "promote: false"
     echo "---"
     echo ""
     echo "Post body content."
@@ -132,6 +134,30 @@ make_post_no_date() {
   } > "$file"
 }
 
+make_post_with_body_line() {
+  # make_post_with_body_line <file> <publishDate> <body_line>
+  # Writes a well-formed post whose body contains <body_line> at column 0 —
+  # used to verify that frontmatter-scoped checks ignore body-level matches.
+  local file="$1"
+  local pub_date="$2"
+  local body_line="$3"
+  mkdir -p "$(dirname "$file")"
+  {
+    echo "---"
+    echo "title: \"Test Post\""
+    echo "publishDate: ${pub_date}T00:00:00Z"
+    echo "categories:"
+    echo "  - engineering"
+    echo "tags:"
+    echo "  - blog"
+    echo "---"
+    echo ""
+    echo "$body_line"
+    echo ""
+    echo "Trailing body content."
+  } > "$file"
+}
+
 # ── Test runner ───────────────────────────────────────────────────────────────
 # Each test function is called inside a ( subshell ) that has cd'd into a fresh
 # temp repo. Functions inherit setup_repo/make_post/commit_at/run_find/TODAY etc.
@@ -169,6 +195,11 @@ _push_mixed() {
   GIT_COMMITTER_DATE="${TODAY}T12:00:00Z" GIT_AUTHOR_DATE="${TODAY}T12:00:00Z" git commit -q -m "mixed"
   run_find push
 }
+_push_no_promote() {
+  make_post "content/posts/quiet.md" "$TODAY" false true
+  commit_at "content/posts/quiet.md" "$TODAY"
+  run_find push
+}
 
 result=$(with_repo _push_today)
 assert_eq   "push: promotes new post with today's publishDate" "content/posts/new.md" "$result"
@@ -185,6 +216,9 @@ assert_empty "push: no output when commit has no posts" "$result"
 result=$(with_repo _push_mixed)
 assert_eq   "push: promotes only the publishable post from a mixed commit" "content/posts/ok.md" "$result"
 
+result=$(with_repo _push_no_promote)
+assert_empty "push: skips post with promote: false" "$result"
+
 # ── schedule mode ─────────────────────────────────────────────────────────────
 
 echo ""
@@ -194,6 +228,11 @@ _sched_yesterday() { make_post "content/posts/sched.md" "$TODAY";         commit
 _sched_today()     { make_post "content/posts/same.md"  "$TODAY";         commit_at "content/posts/same.md"  "$TODAY";     run_find schedule; }
 _sched_future()    { make_post "content/posts/fut.md"   "$TOMORROW";      commit_at "content/posts/fut.md"   "$YESTERDAY"; run_find schedule; }
 _sched_draft()     { make_post "content/posts/d.md"     "$TODAY" true;    commit_at "content/posts/d.md"     "$YESTERDAY"; run_find schedule; }
+_sched_no_promote() {
+  make_post "content/posts/quiet.md" "$TODAY" false true
+  commit_at "content/posts/quiet.md" "$YESTERDAY"
+  run_find schedule
+}
 _sched_dedup() {
   # pushed-today: committed today (should be deduped, push trigger ran it)
   make_post "content/posts/pushed-today.md" "$TODAY"
@@ -215,6 +254,9 @@ assert_empty "schedule: skips post with future publishDate" "$result"
 
 result=$(with_repo _sched_draft)
 assert_empty "schedule: skips draft even when publishDate matches today" "$result"
+
+result=$(with_repo _sched_no_promote)
+assert_empty "schedule: skips post with promote: false" "$result"
 
 result=$(with_repo _sched_dedup)
 assert_eq   "schedule: dedup skips today-added, promotes yesterday-committed" "content/posts/scheduled.md" "$result"
@@ -251,6 +293,7 @@ echo "── manual mode ──────────────────�
 _manual_old()         { make_post "content/posts/old.md"   "2020-01-01";      commit_at "content/posts/old.md"   "2020-01-01"; run_find manual "content/posts/old.md";   }
 _manual_draft()       { make_post "content/posts/d.md"     "$TODAY" true;     commit_at "content/posts/d.md"     "$TODAY";     run_find manual "content/posts/d.md";     }
 _manual_missing()     {                                                                                                          run_find manual "content/posts/gone.md"; }
+_manual_no_promote()  { make_post "content/posts/q.md"     "$TODAY" false true; commit_at "content/posts/q.md"   "$TODAY";     run_find manual "content/posts/q.md";     }
 
 result=$(with_repo _manual_old)
 assert_eq   "manual: returns path regardless of publishDate" "content/posts/old.md" "$result"
@@ -260,6 +303,9 @@ assert_empty "manual: skips draft" "$result"
 
 result=$(with_repo _manual_missing)
 assert_empty "manual: skips nonexistent file" "$result"
+
+result=$(with_repo _manual_no_promote)
+assert_empty "manual: skips post with promote: false" "$result"
 
 # ── edge cases (date/path invariants) ─────────────────────────────────────────
 
@@ -297,6 +343,24 @@ _edge_manual_out_of_tree() {
     git commit -q -m "out of tree"
   run_find manual "other/dir/external.md"
 }
+_edge_body_promote_false() {
+  # "promote: false" appears in body content at column 0 — must NOT skip
+  make_post_with_body_line "content/posts/bodypromote.md" "$TODAY" "promote: false"
+  commit_at "content/posts/bodypromote.md" "$TODAY"
+  run_find push
+}
+_edge_body_draft_true() {
+  # "draft: true" appears in body content at column 0 — must NOT mark as draft
+  make_post_with_body_line "content/posts/bodydraft.md" "$TODAY" "draft: true"
+  commit_at "content/posts/bodydraft.md" "$TODAY"
+  run_find push
+}
+_edge_body_publish_date() {
+  # "publishDate: ..." appears in body content at column 0 — frontmatter value wins
+  make_post_with_body_line "content/posts/bodypub.md" "$TODAY" "publishDate: 2099-01-01T00:00:00Z"
+  commit_at "content/posts/bodypub.md" "$TODAY"
+  run_find push
+}
 
 result=$(with_repo _edge_datetime_pub)
 assert_eq    "edge: push handles publishDate with time component (get_publish_date strips T...)" "content/posts/dt.md" "$result"
@@ -312,6 +376,15 @@ assert_empty "edge: schedule is a no-op when content/posts has no .md files" "$r
 
 result=$(with_repo _edge_manual_out_of_tree)
 assert_eq    "edge: manual accepts path outside content/posts (permissive, date check skipped)" "other/dir/external.md" "$result"
+
+result=$(with_repo _edge_body_promote_false)
+assert_eq    "edge: 'promote: false' in body (not frontmatter) does not skip promotion" "content/posts/bodypromote.md" "$result"
+
+result=$(with_repo _edge_body_draft_true)
+assert_eq    "edge: 'draft: true' in body (not frontmatter) does not mark as draft" "content/posts/bodydraft.md" "$result"
+
+result=$(with_repo _edge_body_publish_date)
+assert_eq    "edge: 'publishDate: ...' in body (not frontmatter) is ignored, frontmatter date wins" "content/posts/bodypub.md" "$result"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 
