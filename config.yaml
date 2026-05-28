@@ -4,7 +4,6 @@ theme: "PaperMod"
 
 enableRobotsTXT: true
 
-languageCode: "en"
 defaultContentLanguage: "en"
 buildDrafts: false
 
@@ -36,6 +35,7 @@ outputs:
     - MARKDOWN
   section:
     - HTML
+    - RSS
     - MARKDOWN
   term:
     - HTML
@@ -75,9 +75,9 @@ menu:
     # - name: "Stats"
     #   weight: 50
     #   url: "/stats/"
-    # - name: "Newsletter"
-    #   weight: 70
-    #   url: "/newsletter/"
+    - name: "Newsletter"
+      weight: 70
+      url: "/newsletter/"
     - name: "Notes"
       weight: 80
       url: "/notes/"
@@ -149,6 +149,8 @@ params:
   tocOpen: false
   showToc: false
   showRecentNotes: true
+  showRecentNewsletters: true
+  recentNewslettersCount: 5
   showShareButtons: true
   showReadingTime: true
   showBreadCrumbs: false
@@ -198,6 +200,15 @@ params:
       outboundLinksTracking: true
     hakanai:
       site: "d59129ee-cdfa-47a5-8908-5a017caf60c7"
+  newsletter:
+    provider: hakanai
+    hakanaiHost: "https://broadcast.hakanai.io"
+    mainCampaignId: "c5029a05-9d18-4c54-8b44-1e8b270a6841"
+    publications:
+      - slug: the-unwind
+        name: "The Unwind"
+        description: "A roughly-weekly dispatch of links and notes from what I've read and built lately. Hand-curated, mixed signal."
+        campaignId: "b350b0eb-605b-469c-8c49-8f0f33b1e78c"
   assets:
     favicon: "img/favicon.ico"
     theme_color: "#000000"

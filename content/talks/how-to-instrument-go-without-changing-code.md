@@ -22,7 +22,7 @@ Zero-touch observability for Go is finally becoming real. In this talk, we walk 
 
 We compare several concrete approaches and projects: eBPF-based auto-instrumentation using OpenTelemetry's Go auto-instrumentation agent and OBI (OpenTelemetry eBPF Instrumentation), compile-time manipulation using tools like Orchestrion and the OpenTelemetry Compile-Time Instrumentation SIG, runtime injection via Frida/ptrace, and USDT (User Statically-Defined Tracing) probes — both via libstapsdt and a custom Go runtime fork.
 
-Beyond what exists today, we look at how ongoing work in the Go runtime and diagnostics ecosystem could unlock cleaner, safer hooks for future auto-instrumentation, including flight recording proposals and native USDT support in the Go toolchain.
+Beyond what exists today, we look at how ongoing work in the Go runtime and diagnostics tooling could unlock cleaner, safer hooks for future auto-instrumentation, including flight recording proposals and native USDT support in the Go toolchain.
 
 Throughout the talk, we use benchmark results and small, realistic services to compare these strategies along three axes: performance overhead (latency, allocations, CPU impact), robustness and upgradeability across Go versions and container images, and operational friction (rollout complexity, debugging, and failure modes).
 

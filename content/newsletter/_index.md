@@ -1,14 +1,15 @@
 ---
 title: Newsletter
 comments: false
+hideAutoList: true
 ---
 
-Occasional notes on observability, instrumentation, profiling, and performance engineering. No spam.
+Occasional, named newsletters delivered by email. Each publication has its own
+focus and its own RSS feed, and only newsletter posts trigger emails — regular
+blog posts do not.
 
-What to expect:
+## Publications
 
-- Practical techniques, write‑ups, and talk notes
-- Experiments in Go instrumentation, eBPF, and profiling
-- Open‑source updates and learning resources
+{{< newsletter-publications >}}
 
-Subscribe: for now, email me at `kakkoyun at gmail dot com` with the subject "Newsletter" and I’ll add you. A provider-backed form is coming soon.
+More to come.

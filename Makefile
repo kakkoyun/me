@@ -5,8 +5,15 @@
 HUGO_SITE_DIR := .
 PUBLIC_DIR := public
 HUGO_VERSION := $(shell cat .hugo-version)
+# Ensure go-installed binaries (e.g. hugo) are visible in every recipe shell.
+# Prefer GOBIN when set; fall back to GOPATH/bin.
+GO_INSTALL_BIN := $(shell go env GOBIN 2>/dev/null)
+ifeq ($(GO_INSTALL_BIN),)
+  GO_INSTALL_BIN := $(shell go env GOPATH 2>/dev/null)/bin
+endif
+export PATH := $(PATH):$(GO_INSTALL_BIN)
 
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update shellcheck actionlint lint test vale vale-sync prose
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
 
 # Default target
 help:
@@ -40,6 +47,7 @@ help:
 	@echo "  make hugo-update        - Update Hugo to latest version"
 	@echo "  make theme-update       - Update PaperMod theme"
 	@echo "  make buffer-update      - Update buffer-cli submodule"
+	@echo "  make humanizer-update   - Update humanizer skill submodule"
 	@echo "  make update-version     - Update Hugo to latest and sync version files"
 	@echo "  make update             - Run all update commands"
 	@echo ""
@@ -55,6 +63,7 @@ help:
 	@echo "  make shellcheck         - Run shellcheck on all shell scripts"
 	@echo "  make actionlint         - Run actionlint on GitHub Actions workflows"
 	@echo "  make lint               - Run shellcheck + actionlint"
+	@echo "  make check              - Run lint + test (pre-commit gate)"
 	@echo "  make vale-sync          - Fetch third-party Vale style packages"
 	@echo "  make vale               - Run Vale prose linter on content/"
 	@echo "  make prose              - Run Vale and print a finding-count summary"
@@ -179,7 +188,7 @@ version: check-hugo
 	hugo version
 
 # Update commands
-update: update-version theme-update buffer-update
+update: update-version theme-update buffer-update humanizer-update
 
 hugo-update:
 	go install github.com/gohugoio/hugo@latest
@@ -188,7 +197,10 @@ theme-update:
 	git submodule update --remote --merge
 
 buffer-update:
-	git submodule update --remote --merge -- tools/buffer-cli
+	git submodule update --init --remote --merge -- tools/buffer-cli
+
+humanizer-update:
+	git submodule update --init --remote --merge -- tools/humanizer
 
 # Update Hugo to latest version and sync version across all files
 update-version:
@@ -254,6 +266,10 @@ lint: shellcheck actionlint
 test:
 	@bash scripts/test-find-promotable-posts.sh
 
+# Pre-commit gate: every static + dynamic check we run in CI.
+# Run this locally before pushing to catch issues before the PR opens.
+check: lint test
+
 # Fetch third-party Vale style packages declared in .vale.ini
 vale-sync:
 	@command -v vale >/dev/null 2>&1 || { echo "❌ Vale not found. Install with: brew install vale"; exit 1; }
@@ -269,6 +285,14 @@ prose:
 	@command -v vale >/dev/null 2>&1 || { echo "❌ Vale not found. Install with: brew install vale"; exit 1; }
 	@echo "📝 Running Vale on content/ ..."
 	@vale --no-exit content/
+
+# Validate every MJML email template under templates/emails/. Catches
+# both MJML syntax errors and a Hakanai-specific pitfall (Mustache
+# tokens inside HTML comments). Requires npx; will fetch mjml on first
+# run.
+email-validate:
+	@command -v npx >/dev/null 2>&1 || { echo "❌ npx not found. Install Node.js"; exit 1; }
+	@bash scripts/validate-emails.sh
 
 local-setup: check-hugo ## Initialize local dev environment (Hugo + theme submodule + dry run)
 	@echo "🔧 Local development environment setup"

@@ -1,44 +1,53 @@
-{{- $img := .Page.Resources.GetMatch .Destination -}}
+{{- $dest := .Destination -}}
 {{- $alt := .Text -}}
 {{- $title := .Title -}}
+{{- $loading := "lazy" -}}
+{{- $fetchpriority := "" -}}
+{{- if .Page.IsHome -}}
+  {{- $loading = "eager" -}}
+  {{- $fetchpriority = "high" -}}
+{{- end -}}
+{{- $img := .Page.Resources.GetMatch $dest -}}
 
-{{- if $img -}}
-  {{- /* Image is a page resource */ -}}
-  {{- $formats := slice "webp" -}}
-  {{- $sizes := slice "480" "768" "1024" "1366" "1920" -}}
-
-  {{- /* Generate responsive images */ -}}
-  {{- $srcset := slice -}}
-  {{- range $sizes -}}
-    {{- $size := printf "%sx" . -}}
-    {{- $resized := $img.Resize $size -}}
-    {{- $srcset = $srcset | append (printf "%s %sw" $resized.RelPermalink .) -}}
+{{/* Fall back to a global asset for absolute paths (e.g. /img/banner.jpeg). */}}
+{{- if not $img -}}
+  {{- $assetPath := strings.TrimPrefix "/" $dest -}}
+  {{- if and (hasPrefix $dest "/") (not (or (hasPrefix $dest "//") (hasPrefix $dest "http"))) -}}
+    {{- $img = resources.Get $assetPath -}}
   {{- end -}}
+{{- end -}}
 
-  {{- /* Generate WebP srcset */ -}}
+{{- if and $img $img.MediaType (in (slice "image/jpeg" "image/png" "image/gif" "image/bmp" "image/tiff" "image/webp") $img.MediaType.Type) -}}
+  {{- $sizes := slice 480 768 1024 1366 1920 -}}
+
+  {{- $srcset := slice -}}
   {{- $srcsetWebP := slice -}}
   {{- range $sizes -}}
-    {{- $size := printf "%sx webp" . -}}
-    {{- $resized := $img.Resize $size -}}
-    {{- $srcsetWebP = $srcsetWebP | append (printf "%s %sw" $resized.RelPermalink .) -}}
+    {{- if le . $img.Width -}}
+      {{- $resized := $img.Resize (printf "%dx" .) -}}
+      {{- $srcset = $srcset | append (printf "%s %dw" $resized.RelPermalink .) -}}
+      {{- $resizedW := $img.Resize (printf "%dx webp" .) -}}
+      {{- $srcsetWebP = $srcsetWebP | append (printf "%s %dw" $resizedW.RelPermalink .) -}}
+    {{- end -}}
   {{- end -}}
 
   <picture>
-    <source type="image/webp" srcset="{{ delimit $srcsetWebP ", " }}">
-    <source srcset="{{ delimit $srcset ", " }}">
+    {{- with $srcsetWebP }}<source type="image/webp" srcset="{{ delimit . ", " }}">{{ end }}
+    {{- with $srcset }}<source srcset="{{ delimit . ", " }}">{{ end }}
     <img src="{{ $img.RelPermalink }}"
       alt="{{ $alt }}"
       {{- with $title }} title="{{ . }}"{{ end }}
-      loading="lazy"
+      loading="{{ $loading }}"
       decoding="async"
+      {{- with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}
       width="{{ $img.Width }}"
       height="{{ $img.Height }}">
   </picture>
 {{- else -}}
-  {{- /* External image or not a page resource */ -}}
-  <img src="{{ .Destination | safeURL }}"
+  <img src="{{ $dest | safeURL }}"
     alt="{{ $alt }}"
     {{- with $title }} title="{{ . }}"{{ end }}
-    loading="lazy"
-    decoding="async">
+    loading="{{ $loading }}"
+    decoding="async"
+    {{- with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}>
 {{- end -}}

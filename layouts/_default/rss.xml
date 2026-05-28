@@ -1,0 +1,136 @@
+{{- /*
+  RSS override for kakkoyun.me.
+
+  Two reasons to override the upstream PaperMod rss.xml:
+
+  1. Always emit channel-level <lastBuildDate> and <pubDate>. PaperMod's
+     upstream template gates <lastBuildDate> on the current page's
+     .Date.IsZero, which suppresses it on the home page and section
+     landings whose _index.md has no date. Strict feed parsers (e.g.
+     Hakanai Broadcast as of 2026-05) reject feeds without a channel
+     pubDate, so we always emit both --- derived from the most recent
+     Lastmod / PublishDate, falling back to build time when the feed
+     has no items yet.
+
+  2. On the home feed, include mainSections plus newsletter issues
+     so the main Hakanai campaign can cross-promote them in its
+     digest. Per-publication feeds at /newsletter/<slug>/index.xml
+     remain the source of truth that each publication's campaign
+     polls; the home feed shows newsletter items as summary-only
+     entries (see the description-handling branch below) so they
+     don't splat full issue bodies into the digest.
+
+  The template otherwise mirrors PaperMod's upstream output.
+*/ -}}
+{{- $authorEmail := "" }}
+{{- with site.Params.author }}
+  {{- if reflect.IsMap . }}
+    {{- with .email }}
+      {{- $authorEmail = . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- $authorName := "" }}
+{{- with site.Params.author }}
+  {{- if reflect.IsMap . }}
+    {{- with .name }}
+      {{- $authorName = . }}
+    {{- end }}
+  {{- else }}
+    {{- $authorName  = . }}
+  {{- end }}
+{{- end }}
+
+{{- $pctx := . }}
+{{- if .IsHome }}{{ $pctx = site }}{{ end }}
+{{- $pages := slice }}
+{{- if .IsHome }}
+{{- $main := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- $newsletter := where site.RegularPages "Section" "newsletter" }}
+{{- $pages = $main | union $newsletter }}
+{{- else if .IsSection }}
+{{- $pages = $pctx.RegularPages }}
+{{- else }}
+{{- $pages = $pctx.Pages }}
+{{- end }}
+{{- $pages = where $pages "Params.hiddenInRss" "!=" true -}}
+{{- /* Sort after the union+filter so the home feed (which merges
+       mainSections with newsletter pages) is globally ordered by
+       publish date, not partitioned. Also matters before applying
+       $limit below: without this, a full mainSections slice could
+       push newsletter issues past the cutoff. */ -}}
+{{- $pages = sort $pages "PublishDate" "desc" -}}
+{{- $limit := site.Config.Services.RSS.Limit }}
+{{- if ge $limit 1 }}
+{{- $pages = $pages | first $limit }}
+{{- end }}
+
+{{- $rfc822 := "Mon, 02 Jan 2006 15:04:05 -0700" -}}
+{{- $now := now.Format $rfc822 -}}
+{{- $lastBuildDate := $now -}}
+{{- $pubDate := $now -}}
+{{- with $pages -}}
+{{- $lastBuildDate = (index .ByLastmod.Reverse 0).Lastmod.Format $rfc822 -}}
+{{- $pubDate = (index .ByPublishDate.Reverse 0).PublishDate.Format $rfc822 -}}
+{{- end -}}
+
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{{ if eq .Title site.Title }}{{ site.Title }}{{ else }}{{ with .Title }}{{ . }} on {{ end }}{{ site.Title }}{{ end }}</title>
+    <link>{{ .Permalink }}</link>
+    <description>Recent content {{ if ne .Title site.Title }}{{ with .Title }}in {{ . }} {{ end }}{{ end }}on {{ site.Title }}</description>
+    {{- with site.Params.images }}
+    <image>
+      <title>{{ site.Title }}</title>
+      <url>{{ index . 0 | absURL }}</url>
+      <link>{{ index . 0 | absURL }}</link>
+    </image>
+    {{- end }}
+    <generator>Hugo</generator>
+    <language>{{ site.Language.Locale }}</language>{{ with $authorEmail }}
+    <managingEditor>{{.}}{{ with $authorName }} ({{ . }}){{ end }}</managingEditor>{{ end }}{{ with $authorEmail }}
+    <webMaster>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</webMaster>{{ end }}{{ with site.Copyright }}
+    <copyright>{{ . | markdownify | plainify | strings.TrimPrefix "© " }}</copyright>{{ end }}
+    <lastBuildDate>{{ $lastBuildDate | safeHTML }}</lastBuildDate>
+    <pubDate>{{ $pubDate | safeHTML }}</pubDate>
+    {{- with .OutputFormats.Get "RSS" }}
+    {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{- end }}
+    {{- range $pages }}
+    {{- if and (ne .Layout `search`) (ne .Layout `archives`) }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{- with $authorEmail }}<author>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</author>{{ end }}
+      <guid>{{ .Permalink }}</guid>
+      {{- /* For newsletter items on their own per-publication feed,
+             emit the full rendered HTML body in <description> so
+             Hakanai Broadcast's {{description}} Mustache var (which
+             maps to RSS <description>) carries the full article into
+             the one-email-per-issue send. Hakanai doesn't expose
+             <content:encoded> as a separate var, so the trick is
+             scoped to <description> only.
+
+             On the home feed newsletter items fall through to the
+             default branch, which mirrors how posts/notes/talks are
+             rendered: summary in <description>, and (because
+             site.Params.ShowFullTextinRSS is true) full body in
+             <content:encoded> below. That keeps Hakanai's main-campaign
+             digest summary-only via {{description}} while generic RSS
+             readers see full text consistently across all sections. */ -}}
+      {{- if and (eq .Section "newsletter") (not $.IsHome) }}
+      <description>{{ (printf "<![CDATA[%s]]>" .Content) | safeHTML }}</description>
+      {{- else }}
+      <description>{{ with .Description | html }}{{ . }}{{ else }}{{ .Summary | html }}{{ end -}}</description>
+      {{- end }}
+      {{- if and site.Params.ShowFullTextinRSS .Content }}
+      <content:encoded>{{ (printf "<![CDATA[%s]]>" .Content) | safeHTML }}</content:encoded>
+      {{- end }}
+    </item>
+    {{- end }}
+    {{- end }}
+  </channel>
+</rss>

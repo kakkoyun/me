@@ -1,0 +1,13 @@
+{{/* Newsletter form shortcode
+
+Renders a subscription <form> when the resolved campaignId is set,
+otherwise a "coming soon" placeholder with a mailto: fallback. Resolution
+order:
+  1. publication slug -> Site.Params.newsletter.publications[].campaignId
+  2. no args          -> Site.Params.newsletter.mainCampaignId
+
+Usage:
+  {{< newsletter-form >}}                              (main feed)
+  {{< newsletter-form publication="the-unwind" >}}
+*/}}
+{{- partial "newsletter-form.html" (dict "publication" (.Get "publication")) -}}

@@ -1,6 +1,6 @@
 ---
 title: "talk: Building Observable Go Services"
-description: "Comprehensive guide to the four pillars of observability (logs, metrics, traces, profiling) in Go services, using CNCF tools like Prometheus, Loki, OpenTelemetry, Jaeger, and Conprof."
+description: "A guide to the four pillars of observability (logs, metrics, traces, profiling) in Go services, using CNCF tools like Prometheus, Loki, OpenTelemetry, Jaeger, and Conprof."
 date: "2020-12-01T00:00:00Z"
 publishDate: "2020-12-01T00:00:00Z"
 categories:
@@ -18,9 +18,9 @@ cover:
 
 In modern days, we run our applications as loosely coupled micro-services on distributed, elastic infrastructure as (mostly) stateless workloads. Under these circumstances, observability has become a key attribute to understand how our applications run and behave in action, in order to provide highly available and resilient service.
 
-There exist several observability signals, such as “log”, “metric”, “tracing” and “profiling” that can be collected from a running service, which we can also call pillars of observability. Using these signals, we can create real-time, actionable alerts, create panels where we can monitor applications closely, and perform in-depth analysis to find the root of the systems’ failures. Within the Go and CNCF ecosystem, there are a variety of tools that can collect and make these observable signals useful.
+There exist several observability signals, such as “log”, “metric”, “tracing” and “profiling” that can be collected from a running service, which we can also call pillars of observability. Using these signals, we can create real-time, actionable alerts, create panels where we can monitor applications closely, and perform in-depth analysis to find the root of the systems’ failures. Within the Go and CNCF community, there are a variety of tools that can collect and make these observable signals useful.
 
-During this talk, Kemal will first introduce the tools that can be embedded in the services to make critical services observable, and share the patterns that will enable them to be used efficiently in the applications and services. Moreover,  he will demonstrate how to use these collected signals in real-life scenarios, using tools within the CNCF ecosystem (Loki, Prometheus, OpenTelemetry, Jaeger, Conprof). He also aims to share the methods that are used to build and run applications running under heavy-traffic, and to understand the origin of the problems encountered in running systems.
+During this talk, Kemal will first introduce the tools that can be embedded in the services to make critical services observable, and share the patterns that will enable them to be used efficiently in the applications and services. Moreover,  he will demonstrate how to use these collected signals in real-life scenarios, using CNCF tools — Loki, Prometheus, OpenTelemetry, Jaeger, Conprof. He also aims to share the methods that are used to build and run applications running under heavy-traffic, and to understand the origin of the problems encountered in running systems.
 
 #### Recording
 

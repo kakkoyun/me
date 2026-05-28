@@ -1,0 +1,103 @@
+<mjml>
+  <mj-head>
+    <mj-title>{{title}}</mj-title>
+    <mj-preview>Latest from {{newsletter.name}}</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif" />
+      <mj-text color="#1F1F1F" font-size="16px" line-height="1.6" padding="6px 0" />
+      <mj-class name="heading" color="#1E1E1E" font-size="32px" font-weight="700" line-height="1.2" padding="0" />
+      <mj-class name="article-title" color="#1E1E1E" font-size="18px" font-weight="600" line-height="1.4" padding="14px 0 4px" />
+      <mj-class name="article-body" color="#1F1F1F" font-size="15px" line-height="1.55" padding="0 0 4px" />
+      <mj-class name="muted" color="#6C6C6C" font-size="13px" line-height="1.5" padding="3px 0" />
+    </mj-attributes>
+    <mj-style>
+      a { color: #1E1E1E; text-decoration: underline; }
+      a.muted-link { color: #6C6C6C; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#FAFAFA" width="640px">
+
+    <mj-section background-color="#FAFAFA" padding="16px 0 0" />
+
+    <mj-section background-color="#FFFFFF" padding="32px 28px 20px">
+      <mj-column>
+        <mj-text mj-class="heading">{{newsletter.name}}</mj-text>
+        <mj-spacer height="14px" />
+        <mj-text>Hello,</mj-text>
+        <mj-text>You&rsquo;re reading <a href="{{{newsletter.url}}}">{{newsletter.name}}</a>: a roughly-monthly round-up of recent posts on kakkoyun.me, assembled automatically from the RSS feed so I don&rsquo;t forget to send it.</mj-text>
+        <mj-text>Here&rsquo;s what&rsquo;s new since last time:</mj-text>
+      </mj-column>
+    </mj-section>
+
+    {{#articles}}
+    <mj-section background-color="#FFFFFF" padding="0 28px">
+      <mj-column>
+        <mj-text mj-class="article-title">
+          <a href="{{{link}}}">{{title}}</a>
+        </mj-text>
+        <mj-text mj-class="article-body">{{description}}</mj-text>
+      </mj-column>
+    </mj-section>
+    {{/articles}}
+
+    <mj-section background-color="#FFFFFF" padding="8px 28px 24px">
+      <mj-column>
+        <mj-divider border-color="#EEEEEE" border-width="2px" padding="8px 0 16px" />
+        <mj-text mj-class="article-title" align="center">Want more, more often?</mj-text>
+        <mj-text mj-class="article-body" align="center">
+          <a href="https://kakkoyun.me/newsletter/the-unwind/">The Unwind</a>
+          is a hand-curated, roughly-weekly dispatch of links and notes from what I&rsquo;ve read and built lately.
+        </mj-text>
+        <mj-button
+          href="https://kakkoyun.me/newsletter/the-unwind/"
+          background-color="#1E1E1E"
+          color="#FFFFFF"
+          font-size="15px"
+          font-weight="600"
+          inner-padding="12px 22px"
+          border-radius="4px"
+          padding="12px 0 0">
+          Subscribe to The Unwind &rarr;
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#FFFFFF" padding="12px 28px 24px">
+      <mj-column>
+        <mj-divider border-color="#EEEEEE" border-width="2px" padding="8px 0 16px" />
+        <mj-text align="center" mj-class="muted">
+          <a href="https://github.com/kakkoyun">GitHub</a>
+          &nbsp;·&nbsp;
+          <a href="https://linkedin.com/in/kakkoyun">LinkedIn</a>
+          &nbsp;·&nbsp;
+          <a href="https://x.com/kakkoyun_me">X</a>
+          &nbsp;·&nbsp;
+          <a href="https://bsky.app/profile/kakkoyun.me">Bluesky</a>
+          &nbsp;·&nbsp;
+          <a href="https://hachyderm.io/@kakkoyun">Mastodon</a>
+          &nbsp;·&nbsp;
+          <a href="https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB">YouTube</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#FAFAFA" padding="20px 28px 28px">
+      <mj-column>
+        <mj-text align="center" mj-class="muted">
+          <a href="{{{newsletter.url}}}">{{newsletter.name}}</a> © {{currentYear}}. All rights reserved.
+        </mj-text>
+        <mj-text align="center" mj-class="muted">
+          You&rsquo;re receiving this because you subscribed at
+          <a href="https://kakkoyun.me/">kakkoyun.me</a>.
+        </mj-text>
+        <mj-text align="center" mj-class="muted">
+          <a class="muted-link" href="{{{newsletter.unsubscribe}}}">Unsubscribe</a>
+          &nbsp;·&nbsp;
+          Powered by <a class="muted-link" href="https://hakanai.io">Hakanai</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>

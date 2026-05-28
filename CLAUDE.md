@@ -21,6 +21,7 @@ make check-hugo         # Verify Hugo version matches .hugo-version (auto-instal
 make update-version     # Update Hugo to latest, sync .hugo-version + netlify.toml
 make theme-update       # Pull latest PaperMod theme submodule
 make buffer-update      # Pull latest buffer-cli submodule
+make humanizer-update   # Pull latest humanizer skill submodule
 make vale-sync          # Fetch third-party Vale style packages (proselint, write-good)
 make vale               # Run Vale prose linter on content/
 make prose              # Alias for vale with a summary count
@@ -136,7 +137,9 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 - **[REVIEW.md](REVIEW.md)** -- voice and prose-quality criteria. Companion to the Vale rules and the `prose-review.yml` workflow.
 - **[.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md)** -- Anthropic-format skill. Auto-loads when editing files under `content/posts/`, `content/talks/`, `content/notes/`. Encodes tone, banned vocabulary, formulaic openers, patterns to scrutinize, and tone-by-category notes.
 - **Vale** (`.vale.ini` + `styles/Slop/`) -- runs automatically on every content PR via `prose.yml` (reviewdog inline annotations). Run locally with `make vale`.
-- **`prose-review.yml`** -- Claude prose reviewer. Triggered on demand by applying the `prose-review` label to a PR. Reads `REVIEW.md` and the `kemal-voice` skill.
+- **[.claude/commands/prose-review.md](.claude/commands/prose-review.md)** -- `/prose-review` slash command. Wraps the upstream `code-review` plugin with prose-specific priorities (banned vocab, formulaic openers, em-dash density, do-not-flag list, output format). Single source of truth for the procedure; `prose-review.yml` references it. Invoke locally as `/prose-review owner/repo/pull/N` to review a PR before merging.
+- **[.claude/commands/capture.md](.claude/commands/capture.md)** -- `/capture blogmentation [topic]` to draft a short-form solution post (300-800 words, `categories: [blogmentation]`). Use `--weekly` to scan recent Claude Code sessions and surface candidates. Skill at `.agents/skills/blogmentation/SKILL.md`.
+- **`prose-review.yml`** -- Claude prose reviewer. Triggered on demand by applying the `prose-review` label to a PR. Follows the procedure in `.claude/commands/prose-review.md` and pulls voice rules from `REVIEW.md` and the `kemal-voice` skill.
 - **`claude-code-review.yml`** -- generic code reviewer. Triggered on demand by applying the `claude-review` label.
 
 **Target tone:** clear, explanatory, fun, whimsical, honest, open. Take the technical material seriously; do not take yourself seriously. See `REVIEW.md` for the full description.
@@ -157,6 +160,7 @@ GitHub Actions workflows:
 - **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
 - **`claude-code-review.yml`** -- Generic code reviewer. Label-triggered only (apply `claude-review` to fire). Advisory.
 - **`claude.yml`** -- `@claude` mention handler.
+- **`merge-schedule.yml`** -- Auto-merges PRs containing a `/schedule YYYY-MM-DD` (or ISO 8601) directive in the description once the scheduled time has passed. Runs every 6 hours at `:30` plus on `pull_request` events. Used for **series posts** that cross-link each other: Hugo's `publishDate` controls visibility, but the PRs themselves must land on master in the intended order so internal links resolve. `require_statuses_success: true` waits for build + links + prose checks to go green before merging. Add `/schedule 2026-06-08T07:00:00Z` at the bottom of the PR description (ISO 8601 is timezone-safe). Failed merges get the `merge-schedule-failed` label. **Gotcha:** the action's directive parser uses the regex `/(^|\n)\/schedule/` and does **not** respect markdown code fences. Any line in the PR body starting with `/schedule ...` is treated as a directive, even inside a triple-backtick block. Wrap examples in list items (`- \`/schedule ...\``) or otherwise avoid line-starts.
 
 ## Key Integrations
 
@@ -190,6 +194,11 @@ Claude handles only the creative work: reading the post, crafting messages, post
 
 Posts go to Twitter + LinkedIn + Bluesky. Twitter/Bluesky use threads (message + link).
 LinkedIn includes the link in the main post body.
+
+Two skills shape the writing and are wired into both the local command and the CI workflow:
+
+- **`kemal-voice`** (`.claude/skills/kemal-voice/SKILL.md`) — author voice, banned vocabulary, formulaic openers, patterns to scrutinize. Applied while drafting.
+- **`humanizer`** (`.claude/skills/humanizer/SKILL.md`) — AI-pattern detector from [blader/humanizer](https://github.com/blader/humanizer), vendored as a git submodule at `tools/humanizer/` with `.claude/skills/humanizer` as a symlink. Applied as a revision pass after drafting. The CI workflow initialises just this submodule (`tools/humanizer`) before the action runs; sync locally with `make humanizer-update`.
 
 Dedup: when a post is pushed with today's `publishDate`, the push trigger promotes it.
 The nightly cron skips posts added to git today (detected via `git log --diff-filter=A`).

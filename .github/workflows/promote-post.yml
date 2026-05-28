@@ -20,7 +20,34 @@ on:
         type: boolean
 
 jobs:
+  deploy:
+    # Only needed on schedule — push to master already triggers a Netlify deploy,
+    # and workflow_dispatch is manual control. On schedule, we must rebuild so
+    # posts whose publishDate has arrived become live before promotion fires.
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Validate secret
+        run: |
+          if [ -z "$NETLIFY_BUILD_HOOK_URL" ]; then
+            echo "::error::NETLIFY_BUILD_HOOK_URL secret is not set. Add it under repo Settings → Secrets → Actions."
+            exit 1
+          fi
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+      - name: Trigger Netlify build
+        run: curl -fsS -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK_URL }}"
+      - name: Wait for Netlify build to complete
+        # Hugo builds typically take 1-3 min; 5 min covers queue delays and slower runners.
+        run: sleep 300
+
   promote:
+    needs: [deploy]
+    # Run when deploy succeeded or was skipped (push / workflow_dispatch).
+    # Also run when deploy failed: a missed rebuild shouldn't block promotion of a
+    # post that may already be live from a prior deploy.
+    if: always() && needs.deploy.result != 'cancelled'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -58,6 +85,10 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Checkout humanizer skill submodule
+        if: steps.find.outputs.should_run == 'true'
+        run: git submodule update --init --depth 1 tools/humanizer
+
       - name: Install buffer-cli
         if: steps.find.outputs.should_run == 'true' && github.event.inputs.dry_run != 'true'
         run: |
@@ -84,14 +115,25 @@ jobs:
 
       - name: Promote with Claude
         if: steps.find.outputs.should_run == 'true'
-        uses: anthropics/claude-code-action@dde2242db6af13460b916652159b6ba19a598f30 # v1
+        uses: anthropics/claude-code-action@20c8abf165d5f85ab3fc970db9498436377dc9d1 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
             Promote the following blog post(s) to social media.
+
             Read .claude/commands/promote-post.md for full instructions, then execute.
 
-            Post files to promote:
+            Two skills shape the writing — use them, don't just acknowledge them:
+
+            - `kemal-voice` (.claude/skills/kemal-voice/SKILL.md) — anchors the
+              author's voice and lists banned vocabulary / formulaic openers.
+              Read it before drafting.
+            - `humanizer` (.claude/skills/humanizer/SKILL.md) — AI-pattern
+              cleanup pass. After drafting each platform's message, run it
+              through the humanizer pass before posting. Apply the final
+              anti-AI audit ("what makes this obviously AI-generated?" → fix).
+
+            Posts to promote:
             ${{ steps.find.outputs.posts }}
           claude_args: --allowedTools "Read,Bash(buffer-cli:*),Bash(echo:*)"
         env:

@@ -35,7 +35,8 @@ Updated occasionally; this is what I actually use day-to-day.
 
 ## Editors
 
-- Cursor / VS Code for most work
+- [Claude Code](https://claude.com/code) for most work
+- [pi](https://pi.dev) as my agentic coding environment
 - Neovim for quick edits and terminal workflows
 
 ## Languages & Toolchains
@@ -60,7 +61,8 @@ Updated occasionally; this is what I actually use day-to-day.
 ## Hobby Tech
 
 - **Raspberry Pi cluster**: Home lab for experiments and learning
-- **Flipper Zero**: Hardware hacking and security research
+- **Local LLMs**: Running small models on the Pi cluster, seeing how far cheap hardware goes
+- **Multi-agent flows**: Building agentic systems with [Claude Code](https://claude.com/code) and [pi](https://pi.dev), poking at where they break
 
 ## Cycling
 

@@ -26,6 +26,9 @@ demo/
 # Hugo
 .hugo_build.lock
 
+# Lighthouse CI local run output
+.lighthouseci/
+
 # Node
 node_modules/
 
@@ -54,3 +57,6 @@ styles/*
 
 # Things3 Task Migration
 .migration/
+
+# Newsletter sidecar briefs (raw aggregation data, not for committing)
+content/newsletter/the-unwind/.brief-*.md

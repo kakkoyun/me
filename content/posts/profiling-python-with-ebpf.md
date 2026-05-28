@@ -1,7 +1,8 @@
 ---
 title: "Profiling Python with eBPF: A New Frontier in Performance Analysis"
 author: Kemal Akkoyun
-date: 2024-02-12
+date: 2024-02-12T00:00:00Z
+publishDate: 2024-02-12T00:00:00Z
 categories:
   - deep-dive
 tags:
@@ -17,9 +18,9 @@ description: Discover how eBPF and Parca are transforming Python profiling, enab
 
 # Profiling Python with eBPF: A New Frontier in Performance Analysis
 
-Profiling Python applications can be challenging, especially in scenarios involving high-performance requirements or complex workloads. Existing tools often require code instrumentation, making them impractical for certain use cases. Enter [eBPF](https://ebpf.io/) (Extended Berkeley Packet Filter)—a revolutionary Linux technology—and the open-source project [Parca](https://parca.dev), which together are reshaping the landscape of Python profiling.
+Profiling Python applications can be challenging, especially in scenarios involving high-performance requirements or complex workloads. Existing tools often require code instrumentation, making them impractical for certain use cases. Enter [eBPF](https://ebpf.io/) (Extended Berkeley Packet Filter)—a versatile Linux technology—and the open-source project [Parca](https://parca.dev), which together are reshaping how Python profiling works.
 
-In this post, I’ll explore how eBPF enables continuous profiling, discuss challenges like stack unwinding in Python, and demonstrate the power of modern profiling tools.
+I’ll cover how eBPF enables continuous profiling, the challenges of stack unwinding in Python, and what modern profiling tools can do with all of this.
 
 You can also watch my [full talk here](https://youtu.be/nNbU26CoMWA?si=t3Mh1z6XfNwa5r7M) or refer to the [slides from the presentation](https://kakkoyun.me/notes/presentations/FOSDEM24+-+Profiling+Python+with+eBPF+-+A+New+Frontier+in+Performance+Analysis).
 
@@ -38,7 +39,7 @@ Traditional Python profiling tools, like [`cProfile`](https://docs.python.org/3/
 
 ## Existing Profiling Solutions in Python
 
-The Python ecosystem offers several profiling tools, each with unique strengths:
+Python has several profiling tools, each with unique strengths:
 
 - [`cProfile`](https://docs.python.org/3/library/profile.html): A built-in module for deterministic profiling.
 - [`pyinstrument`](https://github.com/joerick/pyinstrument): A call stack profiler for Python.
@@ -58,7 +59,7 @@ Originally designed for network packet filtering, [eBPF](https://ebpf.io/) has e
 - **Performance Monitoring Units (PMUs):** Efficient hardware units built into CPUs that track performance events like CPU cycles, cache misses, and branch predictions.
 - **[Perf subsystem](https://perf.wiki.kernel.org/index.php/Main_Page):** A Linux facility for hooking into kernel and user-space events, such as CPU activity, memory allocation, or I/O.
 
-By leveraging eBPF with PMUs, profiling becomes faster and more efficient than traditional approaches.
+By combining eBPF with PMUs, profiling becomes faster and more efficient than traditional approaches.
 
 ---
 
@@ -114,7 +115,7 @@ Here’s how Parca handles Python profiling:
 
 ---
 
-## Python 3.13: A Game-Changer for Profiling
+## Python 3.13: A Step Forward for Profiling
 
 The upcoming Python 3.13 release introduces a debug offset structure that simplifies stack unwinding. It provides precomputed offsets for key runtime fields, eliminating much of the manual reverse engineering required for earlier versions. This improvement marks a significant leap forward for tools like Parca.
 
@@ -140,7 +141,7 @@ Parca supports profiling for Python versions from 2.7 to 3.11, with ongoing work
 
 ## Conclusion
 
-Profiling Python applications with eBPF and Parca represents a new frontier in performance analysis. By leveraging eBPF and continuous profiling, we can gain invaluable insights into our applications, enabling effective performance optimization. I encourage you to explore Parca, provide feedback, and contribute to the project—it’s a collaborative effort that can benefit us all as we tackle the challenges of modern software development.
+Profiling Python applications with eBPF and Parca represents a new frontier in performance analysis. By using eBPF and continuous profiling, we can gain invaluable insights into our applications, enabling effective performance optimization. I encourage you to explore Parca, provide feedback, and contribute to the project—it’s a collaborative effort that can benefit us all as we tackle the challenges of modern software development.
 
 ### Get Started
 

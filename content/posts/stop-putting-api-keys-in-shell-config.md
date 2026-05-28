@@ -208,7 +208,7 @@ The advantage of 1Password over Keychain: cross-device sync, team sharing, audit
 
 ## The Agentic Boom Made This Worse
 
-A year ago, most developers had maybe one or two API keys. Now? I know people with **six or more** AI service keys in their shell config. Coding agents need them. MCP servers need them. Every new tool in the ecosystem asks you to "just export your API key" and the docs always show the hardcoded version because it's simpler to explain.
+A year ago, most developers had maybe one or two API keys. Now? I know people with **six or more** AI service keys in their shell config. Coding agents need them. MCP servers need them. Every new tool in this space asks you to "just export your API key" and the docs always show the hardcoded version because it's simpler to explain.
 
 MCP servers are the newest vector here. Tools like Claude Code, Cursor, and Windsurf use configuration files (`claude_desktop_config.json`, `mcp.json`) that store API keys for tool servers. The LLM itself never sees the secret values — the MCP server process does — but only if you inject them properly. Hardcoding keys in MCP configs is the same mistake as hardcoding them in `.zshrc`, just in a newer file. The `op` CLI works here too: use `op run` or environment variable references in your MCP server configs instead of raw keys.
 

@@ -1,0 +1,15 @@
+{{/* Newsletter publications shortcode
+Usage:
+  {{< newsletter-publications >}}
+Renders the publication bullet list from Site.Params.newsletter.publications
+so the config is the single source of truth. Each entry expects `slug`,
+`name`, and optionally `description`. The link points to /newsletter/<slug>/.
+*/}}
+{{- $publications := site.Params.newsletter.publications -}}
+{{- if $publications -}}
+<ul>
+{{- range $publications }}
+  <li><a href="/newsletter/{{ .slug }}/"><strong>{{ .name }}</strong></a>{{ with .description }} — {{ . }}{{ end }}</li>
+{{- end }}
+</ul>
+{{- end -}}

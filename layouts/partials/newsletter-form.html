@@ -1,0 +1,149 @@
+{{- /*
+  Newsletter subscription form (Hakanai Broadcast).
+
+  Renders one of two states based on whether a campaignId is resolvable:
+
+    - With campaignId  --> a real <form> that submits to
+      {hakanaiHost}/api/campaign/{campaignId}/subscribe?email=...
+      This URL pattern is what the campaign's Forms tab in the
+      Hakanai dashboard shows verbatim. A successful subscribe
+      returns HTTP 200 with the campaign metadata as JSON
+      ({"name":"...","url":"..."}) --- that response IS the success
+      signal; Hakanai sends the double-opt-in email asynchronously.
+
+      A small inline JS handler intercepts the submit, calls the API
+      via fetch(), and swaps the form for a thank-you message with
+      role=status + aria-live=polite + focus shift so screen readers
+      pick it up. Errors get role=alert + aria-live=assertive.
+      Without JS, the form submits via GET to the same URL --- the
+      API still subscribes the user, but they end up on Hakanai's
+      JSON response page; acceptable degradation.
+
+      The docs example at hakanai.io/docs/broadcast/forms uses
+      "https://hakanai.io/api/subscribe/your-campaign-id" as a
+      *placeholder*, not a literal URL --- the per-campaign Forms
+      tab is what gives you the real action URL, which lives on
+      broadcast.hakanai.io.
+
+    - Without campaignId --> a "coming soon" placeholder linking to email,
+      used on publication landing pages whose per-publication campaign
+      hasn't been wired up yet.
+
+  Callable shapes:
+
+      {{ partial "newsletter-form.html" . }}
+        -> main feed form (uses site.Params.newsletter.mainCampaignId)
+
+      {{ partial "newsletter-form.html" (dict "publication" "the-unwind") }}
+        -> looks up name + campaignId for the named publication
+
+      {{ partial "newsletter-form.html" (dict "campaignId" "..." "name" "...") }}
+        -> explicit override (used by shortcodes/tests)
+*/ -}}
+{{- $n := site.Params.newsletter -}}
+{{- $host := $n.hakanaiHost | default "https://broadcast.hakanai.io" -}}
+{{- $publication := .publication | default "" -}}
+{{- $campaignId := .campaignId | default "" -}}
+{{- $name := .name | default "" -}}
+{{- $contactEmail := site.Params.author.email -}}
+
+{{- /* Resolve from publication slug when one was passed in */ -}}
+{{- with $publication -}}
+  {{- range $n.publications -}}
+    {{- if eq .slug $publication -}}
+      {{- if not $name -}}{{- $name = .name -}}{{- end -}}
+      {{- if not $campaignId -}}{{- $campaignId = .campaignId -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Fall back to main feed when nothing else was provided */ -}}
+{{- if and (not $publication) (not $campaignId) -}}
+  {{- $campaignId = $n.mainCampaignId | default "" -}}
+  {{- if not $name -}}{{- $name = site.Title -}}{{- end -}}
+{{- end -}}
+
+{{- if not $name -}}{{- $name = "newsletter" -}}{{- end -}}
+{{- $inputId := printf "newsletter-email-%s" (or $publication "main") -}}
+
+{{- if $campaignId -}}
+<form class="newsletter-form" action="{{ $host }}/api/campaign/{{ $campaignId }}/subscribe" method="get" data-publication="{{ $publication }}" data-contact-email="{{ $contactEmail }}">
+  <div class="newsletter-form__row">
+    <input
+      id="{{ $inputId }}"
+      class="newsletter-form__email"
+      type="email"
+      name="email"
+      placeholder="you@example.com"
+      autocomplete="email"
+      aria-label="Email address for {{ $name }} newsletter"
+      required
+    />
+    <button type="submit" class="newsletter-form__submit">Subscribe</button>
+  </div>
+  <p class="newsletter-form__note">No spam. Unsubscribe anytime.</p>
+</form>
+<script>
+(function () {
+  var forms = document.querySelectorAll("form.newsletter-form");
+  for (var i = 0; i < forms.length; i++) {
+    (function (form) {
+      if (form.dataset.bound) return;
+      form.dataset.bound = "1";
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var emailInput = form.querySelector("input[type=email]");
+        var email = emailInput && emailInput.value;
+        if (!email) return;
+        var url = form.getAttribute("action") + "?email=" + encodeURIComponent(email);
+        var button = form.querySelector("button[type=submit]");
+        var originalLabel = button ? button.textContent : "";
+        if (button) { button.disabled = true; button.textContent = "Subscribing…"; }
+        var existingError = form.querySelector(".newsletter-form__error");
+        if (existingError) existingError.remove();
+        fetch(url, { method: "GET", headers: { Accept: "application/json" } })
+          .then(function (response) {
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            var thanks = document.createElement("p");
+            thanks.className = "newsletter-form__success";
+            thanks.setAttribute("role", "status");
+            thanks.setAttribute("aria-live", "polite");
+            thanks.setAttribute("tabindex", "-1");
+            thanks.textContent = "Thanks! Check your inbox for a confirmation email.";
+            form.replaceWith(thanks);
+            try { thanks.focus(); } catch (e) {}
+          })
+          .catch(function () {
+            if (button) {
+              button.disabled = false;
+              button.textContent = originalLabel || "Subscribe";
+            }
+            var contactEmail = form.dataset.contactEmail || "";
+            var err = document.createElement("p");
+            err.className = "newsletter-form__error";
+            err.setAttribute("role", "alert");
+            err.setAttribute("aria-live", "assertive");
+            err.textContent = "Subscription failed. Please try again";
+            if (contactEmail) {
+              err.appendChild(document.createTextNode(", or email "));
+              var link = document.createElement("a");
+              link.href = "mailto:" + contactEmail;
+              link.textContent = contactEmail;
+              err.appendChild(link);
+            }
+            err.appendChild(document.createTextNode("."));
+            form.appendChild(err);
+          });
+      });
+    })(forms[i]);
+  }
+})();
+</script>
+{{- else -}}
+<aside class="newsletter-form newsletter-form--placeholder" data-publication="{{ $publication }}" aria-label="Subscription form placeholder">
+  <strong>Subscribe to {{ $name }}</strong>
+  <p>Email subscription is coming soon. For now, email
+    <a href="mailto:{{ $contactEmail }}?subject=Newsletter">{{ $contactEmail }}</a>
+    with the subject &ldquo;Newsletter&rdquo; and I&rsquo;ll add you.</p>
+</aside>
+{{- end -}}

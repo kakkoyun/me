@@ -4,3 +4,6 @@
 [submodule "tools/buffer-cli"]
 	path = tools/buffer-cli
 	url = https://github.com/erickhun/buffer-cli.git
+[submodule "tools/humanizer"]
+	path = tools/humanizer
+	url = https://github.com/blader/humanizer.git

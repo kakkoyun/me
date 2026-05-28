@@ -19,11 +19,15 @@
                             {{- $img = $img.Resize "x30" }}
                         {{- end }}
                     {{- end }}
-                    <img src="{{ $img.Permalink }}" alt="" aria-label="logo"
-                        height="{{- site.Params.label.iconHeight | default "30" -}}">
+                    {{- $iconHeight := site.Params.label.iconHeight | default 30 }}
+                    {{- $iconWidth := site.Params.label.iconWidth | default $iconHeight }}
+                    <img src="{{ $img.Permalink }}" alt=""
+                        width="{{ $iconWidth }}" height="{{ $iconHeight }}">
                 {{- else }}
-                <img src="{{- site.Params.label.icon | absURL -}}" alt="" aria-label="logo"
-                    height="{{- site.Params.label.iconHeight | default "30" -}}">
+                    {{- $iconHeight := site.Params.label.iconHeight | default 30 }}
+                    {{- $iconWidth := site.Params.label.iconWidth | default $iconHeight }}
+                <img src="{{- site.Params.label.icon | absURL -}}" alt=""
+                    width="{{ $iconWidth }}" height="{{ $iconHeight }}">
                 {{- end -}}
                 {{- else if hasPrefix site.Params.label.iconSVG "<svg" }}
                     {{ site.Params.label.iconSVG | safeHTML }}
