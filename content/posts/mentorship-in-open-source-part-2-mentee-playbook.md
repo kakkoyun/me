@@ -28,7 +28,7 @@ cover:
 
 [Last time](/posts/mentorship-in-open-source/) I wrote about why I keep saying yes to open-source mentorship. This post is the *how*: specifically, how to be a mentee in 2026.
 
-I've spent the last few years on the mentor side of CNCF {{< tooltip term="LFX" >}}LFX Mentorship — the Linux Foundation's structured mentorship program. Cohorts run quarterly, projects are scoped to ~12 weeks, and mentees receive a stipend.{{< /tooltip >}}, [Google Summer of Code](https://summerofcode.withgoogle.com/) ({{< tooltip term="GSoC" >}}A Google-funded program where students contribute to open-source projects over the summer, paired with mentors from those projects.{{< /tooltip >}}), and [GoBridge](https://gobridge.org/), mostly through [Parca](https://github.com/parca-dev/parca), [Thanos](https://github.com/thanos-io/thanos), and now various [OpenTelemetry](https://github.com/open-telemetry) projects. Every cohort I've run, the same questions keep coming up from people who *want* to apply but don't know how to start.
+I've spent the last few years on the mentor side of CNCF {{< tooltip term="LFX" >}}LFX Mentorship — the Linux Foundation's structured mentorship program. Cohorts run quarterly, projects are scoped to ~12 weeks, and mentees receive a stipend.{{< /tooltip >}}, [Google Summer of Code](https://summerofcode.withgoogle.com/) ({{< tooltip term="GSoC" >}}A Google-funded program where students contribute to open-source projects over the summer, paired with mentors from those projects.{{< /tooltip >}}), and [GoBridge](https://gobridge.org/), mostly through [Thanos](https://github.com/thanos-io/thanos), [Prometheus](https://github.com/prometheus/prometheus), and now various [OpenTelemetry](https://github.com/open-telemetry) projects. Every cohort I've run, the same questions keep coming up from people who *want* to apply but don't know how to start.
 
 This is the post I wish I could send those folks.
 
@@ -57,9 +57,9 @@ And if your goal is a CV line, please pick a different path. "LFX mentee" looks 
 
 The mentorship is about helping and enabling. If you fit, apply enthusiastically. If you don't, apply later, or apply somewhere else.
 
-## The four programs I've worked through
+## The four programs
 
-I've personally been involved with four. There are more — these are the ones I can speak to with first-hand experience.
+I've personally mentored through three of these: LFX, GSoC, and GoBridge. Outreachy I include because it's the door I most want under-represented contributors to know about; the Outreachy section below is description from the outside, not first-hand experience. There are more programs out there — these are the ones I can speak to.
 
 ### CNCF LFX Mentorship
 
@@ -89,11 +89,13 @@ Most proposals get rejected for the same reasons. Most accepted proposals share 
 
 That last bullet is the one I see violated most often. A mentorship proposal is not a CV. It's a draft of the conversation we're going to have for the next three months.
 
+One more thing worth saying clearly, now that the agentic coding tools are everywhere: use AI to do reconnaissance in the codebase, summarize design docs, get up to speed on the project, learn unfamiliar concepts. All fine. Don't use it to write the proposal. We will ask questions in selection. We hold you accountable for the understanding the proposal claims. A proposal you can't defend in a thirty-minute conversation won't be picked, and the AI-drafted ones are usually obvious within two.
+
 ## What makes a good first contribution
 
 If you're not yet at proposal stage and just want to do *something*, start here.
 
-1. **Pick the project before the program.** Find a CNCF or Go project whose docs you've actually read for fun. Whose maintainers you've watched on a podcast or at a meet-up. {{< sidenote >}}If no project meets that bar yet, your first task is to find one. Spend a week with the [CNCF Landscape](https://landscape.cncf.io/) and the [TAG observability group](https://github.com/cncf/tag-observability).{{< /sidenote >}} Programs are the scaffolding. The project is the building.
+1. **Pick the project before the program.** Find a CNCF or Go project whose docs you've actually read for fun. Whose maintainers you've watched on a podcast or at a meet-up. {{< sidenote >}}If no project meets that bar yet, your first task is to find one. Start with the [CNCF Landscape](https://landscape.cncf.io/) and look at which projects are listed in the current LFX, GSoC, or Outreachy cohorts — that tells you who is actively running mentorships. Even better: some of the best applicants I've seen reached out to a project they loved and asked the maintainers whether they'd consider running a cohort. Brilliant move, every time.{{< /sidenote >}} Programs are the scaffolding. The project is the building.
 2. **Read the issue tracker for an hour.** Not to pick an issue — to understand the *vocabulary*. What does "OBI" mean to this project? What's a "sidecar" here? Who's `@nickname` and why do they have opinions?
 3. **Find a "good first issue" or a `help-wanted` that hasn't been touched in a few weeks.** If it's been claimed and abandoned, comment asking if you can pick it up. If it's untouched, comment with your understanding of the problem and a sketch of an approach *before* you write code.
 4. **Submit a small, working PR.** Tests included. Description that explains the *why*, not the *what*. Ask for review explicitly.
@@ -129,7 +131,7 @@ Don't be that person. Don't be selfish. We do this in the hope that the next gen
 
 ## Concrete examples (from my own cohorts)
 
-I've mentored on Parca, Thanos, and various OpenTelemetry projects through these programs. The most concrete current example, while this post goes live: [Dario Castañé](https://github.com/darccio) and I are about to start co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) in the LFX 2026 Jun–Aug cohort. The framing lives in [`opentelemetry-go-compile-instrumentation#446`](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/issues/446). Applications closed before this post published; we're choosing a mentee now, with the cohort itself starting in June. The next cohort's listings tend to land in [`cncf/mentoring`](https://github.com/cncf/mentoring) a few weeks before each term opens, so the next round to apply to will go up there. {{< sidenote side="alternate" >}}I'll add older mentee credits and merged-PR links here as I get clearance from the folks involved. Naming people in a blog post without asking is exactly the kind of thing I'm trying to teach mentees not to do.{{< /sidenote >}}
+I've mentored on Thanos, Prometheus, and various OpenTelemetry projects through these programs. The most concrete current example, while this post goes live: [Dario Castañé](https://github.com/darccio) and I are about to start co-mentoring [Expanding Go Compile-Time Instrumentation Support and Improving otelc Tooling](https://github.com/cncf/mentoring/blob/main/programs/lfx-mentorship/2026/02-Jun-Aug/README.md#expanding-go-compile-time-instrumentation-support-and-improving-otelc-tooling) in the LFX 2026 Jun–Aug cohort. The framing lives in [`opentelemetry-go-compile-instrumentation#446`](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/issues/446). Applications closed before this post published; we're choosing a mentee now, with the cohort itself starting in June. The next cohort's listings tend to land in [`cncf/mentoring`](https://github.com/cncf/mentoring) a few weeks before each term opens, so the next round to apply to will go up there. {{< sidenote side="alternate" >}}I'll add older mentee credits and merged-PR links here as I get clearance from the folks involved. Naming people in a blog post without asking is exactly the kind of thing I'm trying to teach mentees not to do.{{< /sidenote >}}
 
 A handful of patterns that show up across cohorts:
 
@@ -146,7 +148,7 @@ If you're thinking about applying:
 1. **Pick a current cohort.** Start with [`cncf/mentoring`](https://github.com/cncf/mentoring). For LFX, the [active terms page](https://mentorship.lfx.linuxfoundation.org/) lists what's open right now. For Outreachy, [outreachy.org](https://www.outreachy.org/) has the next intake. GSoC's calendar is at [summerofcode.withgoogle.com](https://summerofcode.withgoogle.com/).
 2. **Read three project descriptions, fully.** Not five. Three. Pick the one whose problem you find most interesting, not the one whose description is shortest.
 3. **Write a draft proposal *before* you contact a mentor.** A 500-word draft with one concrete milestone is enough.
-4. **Send it to me.** {{< sidenote >}}Please. I read these. I'd rather review your draft for an hour than read your rejection email later.{{< /sidenote >}} My DMs are on the [usual places](/about/#where-to-find-me). I will tell you honestly whether the scope fits, what the mentor will be looking for, and where the proposal needs work — for any program, on any CNCF project, not just the ones I'm directly involved in.
+4. **Send it to me, with one caveat.** If I'm on the selection committee for your target program, I can't review your draft; that would be unfair to other applicants and would turn selection into a spam channel. For LFX 2026 Jun–Aug on `opentelemetry-go-compile-instrumentation` (the cohort [Dario](https://github.com/darccio) and I are running): please don't send me a draft. For any other program, on any other CNCF project where I'm an outsider, my DMs are on the [usual places](/about/#where-to-find-me). {{< sidenote >}}I'd rather review your draft for an hour than read your rejection email later. Just not on programs where I have a vote.{{< /sidenote >}} I'll tell you honestly whether the scope fits, what the mentor will be looking for, and where the proposal needs work.
 
 There's no admission test for asking. The only failure mode is not asking.
 
