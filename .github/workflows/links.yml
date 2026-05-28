@@ -53,6 +53,12 @@ jobs:
           # --root-dir: resolves root-relative links (/posts/foo/, /uploads/x.jpg)
           #   against the built public/ directory. Required for absolute paths
           #   in offline mode.
+          # --index-files: when lychee resolves a root-relative href like /about/
+          #   to file:///public/about and finds a directory instead of a file, it
+          #   retries with file:///public/about/index.html. Required for Hugo's
+          #   clean URLs and --include-fragments to work together. lychee v0.23.0
+          #   regressed on the automatic directory→index.html fallback; this flag
+          #   restores that behavior explicitly without pinning an old version.
           # --include-fragments: verify #anchor targets exist in the linked page.
           #   Works because layouts/_default/_markup/render-heading.html emits
           #   id="<slug>" on every heading.
@@ -61,6 +67,7 @@ jobs:
             --no-progress
             --offline
             --root-dir "${{ github.workspace }}/public"
+            --index-files index.html,.
             --include-fragments
             './public/**/*.html'
           fail: true
