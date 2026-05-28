@@ -1,0 +1,8 @@
+{
+  "name": "kakkoyun-me-build",
+  "private": true,
+  "description": "Build-time dependencies for Netlify. Hugo (the static site generator) lives outside this file; npm is only used to resolve Netlify build plugins declared in netlify.toml.",
+  "devDependencies": {
+    "netlify-plugin-cache": "^1.0.3"
+  }
+}

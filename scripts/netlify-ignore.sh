@@ -32,6 +32,14 @@ BUILD_PATHS=(
   "themes/"
 )
 
+# Netlify exposes the build hook JSON body as INCOMING_HOOK_BODY. The
+# promote-post cron sets {"force":true} so future-dated posts can go live
+# on their publishDate even though no commit landed.
+if [[ "${INCOMING_HOOK_BODY:-}" == *'"force":true'* ]]; then
+  echo "netlify-ignore: incoming hook requested force build, building."
+  exit 1
+fi
+
 # First deploy on this branch — nothing to diff against. Build.
 if [[ -z "${CACHED_COMMIT_REF:-}" ]]; then
   echo "netlify-ignore: no cached commit, building."
