@@ -80,6 +80,7 @@ cover:                        # optional
 showToc: true                 # optional, for long technical posts
 tocOpen: false                # optional
 draft: true                   # for WIP content; use future publishDate for scheduled posts instead
+promote: false                # optional; skip social-media promotion (defaults to promotable when omitted)
 ---
 ```
 
@@ -89,6 +90,7 @@ draft: true                   # for WIP content; use future publishDate for sche
 - For multi-part posts, add `series:` field with the human-readable series title (e.g., `series: "Fantastic Symbols and Where to Find Them"`)
 - Do not quote scalar YAML values (dates, booleans) — only quote strings that contain special characters
 - Use `draft: true` for WIP content; use a future `publishDate` (with `draft` omitted) for scheduled posts
+- Set `promote: false` to publish a post but opt it out of the social-media promotion pipeline (`scripts/find-promotable-posts.sh`)
 
 ### Content Types
 

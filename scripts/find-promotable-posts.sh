@@ -13,15 +13,25 @@ set -euo pipefail
 MODE="${1:-push}"
 TODAY=$(date -u +%Y-%m-%d)
 
+frontmatter() {
+  # Emit only the YAML frontmatter block (lines between the first two `---`).
+  # Empty output when the file has no frontmatter — callers handle that as "no match".
+  awk 'BEGIN{n=0} /^---[[:space:]]*$/{n++; if (n==2) exit; next} n==1' "$1"
+}
+
 is_draft() {
-  grep -q '^draft: true' "$1"
+  frontmatter "$1" | grep -q '^draft: true'
+}
+
+skip_promotion() {
+  frontmatter "$1" | grep -q '^promote: false'
 }
 
 get_publish_date() {
   # Extract publishDate from YAML frontmatter, return date portion only (YYYY-MM-DD).
   # Returns empty (exit 0) when the field is missing — callers must handle that.
   local line
-  line=$(grep -m1 '^publishDate:' "$1" || true)
+  line=$(frontmatter "$1" | grep -m1 '^publishDate:' || true)
   [ -z "$line" ] && return 0
   echo "$line" | awk '{print $2}' | tr -d '"' | cut -dT -f1
 }
@@ -43,6 +53,11 @@ validate_post() {
 
   if is_draft "$post"; then
     echo "SKIP $post — draft" >&2
+    return 1
+  fi
+
+  if skip_promotion "$post"; then
+    echo "SKIP $post — promote: false" >&2
     return 1
   fi
 
@@ -86,6 +101,11 @@ case "$MODE" in
 
       if is_draft "$post"; then
         echo "SKIP $post — draft" >&2
+        continue
+      fi
+
+      if skip_promotion "$post"; then
+        echo "SKIP $post — promote: false" >&2
         continue
       fi
 
