@@ -157,6 +157,7 @@ GitHub Actions workflows:
 - **`build.yml`** -- Build & verify on push/PR to master. Runs production build + `verify-build.sh`, then Lighthouse CI (Performance >= 85, Accessibility >= 90, Best Practices >= 90, SEO >= 90). Auto-creates GitHub issue if Lighthouse scores drop.
 - **`links.yml`** -- Weekly + push/PR link checking via lychee. Excludes social platforms that block bots. Auto-creates issue on broken links.
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags.
+- **`deploy-scheduled.yml`** -- Daily cron at `00:10 UTC` (+ manual `workflow_dispatch`) that POSTs the Netlify build hook so **future-dated posts go live on their publish day**. The production build omits `--buildFuture` (see `netlify.toml`), so a post merged ahead of its `publishDate` stays hidden until a build runs at/after that date; a push to master only rebuilds when something is pushed, so this cron is what flips scheduled posts visible. It polls the live site for health instead of a blind sleep. Needs the `NETLIFY_BUILD_HOOK_URL` secret. Use the manual dispatch as a "publish now" button. **This is the publishing mechanism — promotion (below) no longer rebuilds.**
 - **`lint.yml`** -- ShellCheck on `scripts/` and actionlint on workflows. Reviewdog-based PR annotations.
 - **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block). Auto-fires on content paths.
 - **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
@@ -190,6 +191,13 @@ Automated via `.github/workflows/promote-post.yml` with three triggers:
 - **Push**: promotes newly added posts when `publishDate <= today`
 - **Nightly cron (6 AM UTC)**: promotes scheduled posts on their publish day
 - **Manual dispatch**: re-promote or promote any specific post
+
+Promotion does **not** rebuild the site — publishing is owned by `deploy-scheduled.yml`
+(00:10 UTC). The 6 AM promotion cron is deliberately later so the post is already live.
+Before posting, a **liveness guard** (`Verify posts are live`) maps each candidate to its
+public URL (`content/posts/<slug>.md` → `/posts/<slug>/`) and polls it; a post that is not
+reachable is dropped with a warning, so promotion never posts a link to a 404 (and push-mode
+promotion waits out an in-flight Netlify deploy instead of racing it).
 
 All date/draft validation is deterministic bash in `scripts/find-promotable-posts.sh`.
 Claude handles only the creative work: reading the post, crafting messages, posting to Buffer.

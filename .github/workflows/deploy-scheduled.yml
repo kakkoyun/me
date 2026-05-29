@@ -1,0 +1,64 @@
+name: Scheduled Deploy
+
+# Publishes future-dated posts on time. Hugo's production build omits
+# --buildFuture (see netlify.toml), so a post with a future publishDate stays
+# invisible until a production build runs at/after that date. A push to master
+# triggers a Netlify deploy, but a post merged ahead of its publishDate needs a
+# rebuild once the date arrives. This workflow is that rebuild.
+#
+# It runs just after midnight UTC so a post dated YYYY-MM-DDT00:00:00Z goes live
+# at the start of its publish day, and exposes a manual button (workflow_dispatch)
+# for an on-demand "publish now". It is intentionally separate from
+# promote-post.yml: publishing must not depend on the social-promotion cron.
+
+on:
+  schedule:
+    # 00:10 UTC daily — just after midnight so day-of posts publish on time,
+    # and offset off the top of the hour to dodge GitHub's cron rush.
+    - cron: '10 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Validate secret
+        run: |
+          if [ -z "$NETLIFY_BUILD_HOOK_URL" ]; then
+            echo "::error::NETLIFY_BUILD_HOOK_URL secret is not set. Add it under repo Settings → Secrets → Actions."
+            exit 1
+          fi
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+
+      - name: Trigger Netlify build
+        run: curl -fsS -X POST -d '{}' "$NETLIFY_BUILD_HOOK_URL"
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+
+      - name: Wait for the site to come back healthy
+        # Replaces a blind `sleep`: give Netlify a moment to start the build,
+        # then poll the live site until it answers 200, capped by the loop +
+        # the job timeout-minutes. Fails loudly if the site never recovers.
+        # (Netlify deploys are atomic, so a 200 here is a healthy site; precise
+        # "this exact deploy is live" verification would need the Netlify API
+        # and a NETLIFY_API_TOKEN — deliberately avoided to keep this secretless.)
+        run: |
+          set -euo pipefail
+          sleep 60   # let the build kick off before the first probe
+          url="https://kakkoyun.me/"
+          for attempt in $(seq 1 24); do   # 24 × 15s ≈ 6 min, under timeout-minutes
+            code=$(curl -fsS -o /dev/null -w '%{http_code}' --max-time 10 "$url" || echo "000")
+            if [ "$code" = "200" ]; then
+              echo "Site healthy after deploy trigger (HTTP $code, attempt $attempt)."
+              exit 0
+            fi
+            echo "Attempt $attempt: site returned HTTP $code, retrying in 15s…"
+            sleep 15
+          done
+          echo "::error::Site did not return HTTP 200 within the polling window after the build trigger."
+          exit 1
