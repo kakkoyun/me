@@ -66,35 +66,17 @@ jobs:
       - name: Verify posts are live
         id: live
         if: steps.find.outputs.should_run == 'true'
-        # Guard against promoting a dead link: a post is only worth a social
-        # post once its page is actually reachable. Maps each post file to its
-        # public URL (content/posts/<slug>.md → /posts/<slug>/) and polls it.
-        # This also lets push-mode promotion wait out an in-flight Netlify deploy
-        # instead of racing it. Posts that never come live are dropped with a
-        # warning; if none survive, promotion is skipped.
+        # Guard against promoting a dead link: a post is only worth a social post
+        # once its page is actually reachable. scripts/check-post-live.sh maps each
+        # post file to its public URL (content/posts/<slug>.md → /posts/<slug>/),
+        # polls it, and emits only the live ones (dropping the rest with a
+        # ::warning::). Extracted into a script so the mapping/filtering logic is
+        # unit-tested (scripts/test-check-post-live.sh) and shellcheck-linted,
+        # rather than living untested inside this YAML.
         run: |
           set -uo pipefail
-          base="https://kakkoyun.me"
-          live=""
-          while IFS= read -r path; do
-            [ -z "$path" ] && continue
-            slug=$(basename "$path" .md)
-            url="$base/posts/$slug/"
-            ok=""
-            for attempt in $(seq 1 20); do   # 20 × 15s ≈ 5 min for an in-flight deploy
-              code=$(curl -fsS -o /dev/null -w '%{http_code}' --max-time 10 "$url" || echo "000")
-              if [ "$code" = "200" ]; then ok="yes"; break; fi
-              echo "  $url → HTTP $code (attempt $attempt), retrying in 15s…"
-              sleep 15
-            done
-            if [ -n "$ok" ]; then
-              echo "Live: $url"
-              live="${live:+$live$'\n'}$path"
-            else
-              echo "::warning::Skipping promotion — $url is not live (last HTTP $code). The post may not have deployed yet."
-            fi
-          done <<< "${{ steps.find.outputs.posts }}"
-
+          chmod +x scripts/check-post-live.sh
+          live=$(scripts/check-post-live.sh <<< "${{ steps.find.outputs.posts }}")
           if [ -z "$live" ]; then
             echo "No live posts to promote"
             echo "should_run=false" >> "$GITHUB_OUTPUT"
