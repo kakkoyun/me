@@ -266,6 +266,7 @@ lint: shellcheck actionlint
 test:
 	@bash scripts/test-find-promotable-posts.sh
 	@bash scripts/test-check-post-live.sh
+	@bash scripts/test-posts-publishing-today.sh
 
 # Pre-commit gate: every static + dynamic check we run in CI.
 # Run this locally before pushing to catch issues before the PR opens.

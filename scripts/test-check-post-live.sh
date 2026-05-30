@@ -54,8 +54,10 @@ chmod +x "$TMP"/probe-*.sh
 
 run() {
   # run <stdin-string> — invokes the script with fast, stubbed settings.
-  # The probe is chosen by the caller via the LIVE_PROBE_CMD env it sets.
-  LIVE_RETRIES=1 LIVE_SLEEP=0 "$CHECK_SCRIPT"
+  # LIVE_MAX_WAIT=0 makes the global deadline already-passed, so a dead post is
+  # probed exactly once (no real waiting); the probe is chosen by the caller via
+  # the LIVE_PROBE_CMD env it sets.
+  LIVE_MAX_WAIT=0 LIVE_SLEEP=0 "$CHECK_SCRIPT"
 }
 
 echo "── check-post-live ─────────────────────────────────────"

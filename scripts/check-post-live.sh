@@ -6,13 +6,20 @@
 # whose page is reachable on stdout; logs a ::warning:: annotation for the rest.
 # Always exits 0 — a not-yet-live post is a skip, not a failure.
 #
-# Used by .github/workflows/promote-post.yml ("Verify posts are live") so a
-# social post is never published for a page that is not yet deployed, and so
-# push-mode promotion waits out an in-flight Netlify deploy instead of racing it.
+# Used by:
+#   - promote-post.yml ("Verify posts are live") so a social post is never
+#     published for a page that is not yet deployed.
+#   - deploy-scheduled.yml, to confirm a today-dated post actually went live
+#     after the rebuild (a fresh-build check, not just reachability).
+#
+# Retries share ONE global time budget (LIVE_MAX_WAIT), not a per-post budget:
+# we wait out the single in-flight deploy once, and every subsequent URL is then
+# checked against the same deadline. Worst-case runtime is bounded regardless of
+# how many posts are passed in.
 #
 # Tunables (env):
 #   BASE_URL        site origin (default https://kakkoyun.me)
-#   LIVE_RETRIES    probe attempts per URL (default 20)
+#   LIVE_MAX_WAIT   total seconds to keep retrying across all posts (default 300)
 #   LIVE_SLEEP      seconds between attempts (default 15)
 #   LIVE_PROBE_CMD  probe override for tests — a command that receives the URL as
 #                   $1 and exits 0 when live. Defaults to a curl probe that
@@ -20,8 +27,10 @@
 set -uo pipefail
 
 BASE_URL="${BASE_URL:-https://kakkoyun.me}"
-LIVE_RETRIES="${LIVE_RETRIES:-20}"
+LIVE_MAX_WAIT="${LIVE_MAX_WAIT:-300}"
 LIVE_SLEEP="${LIVE_SLEEP:-15}"
+
+deadline=$(( $(date +%s) + LIVE_MAX_WAIT ))
 
 # Map content/posts/<slug>.md -> BASE_URL/posts/<slug>/
 post_url() {
@@ -31,6 +40,9 @@ post_url() {
 }
 
 # Probe a URL. HTTP 200 == live. Overridable via LIVE_PROBE_CMD for offline tests.
+# No `curl -f`: --fail would mask the real status (404/500 → 000), making the
+# logs misleading. Without it, curl exits 0 and -w reports the true code; only a
+# transport error (no response) falls back to 000.
 probe() {
   local url="$1"
   if [ -n "${LIVE_PROBE_CMD:-}" ]; then
@@ -38,28 +50,29 @@ probe() {
     return
   fi
   local code
-  code=$(curl -fsS -o /dev/null -w '%{http_code}' --max-time 10 "$url" || echo "000")
-  [ "$code" = "200" ]
+  code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$url") || code="000"
+  [ "$code" = "200" ] && return 0
+  echo "  $url → HTTP $code" >&2
+  return 1
+}
+
+# Probe until live or the global deadline passes.
+probe_until_live() {
+  local url="$1"
+  while true; do
+    probe "$url" && return 0
+    [ "$(date +%s)" -ge "$deadline" ] && return 1
+    sleep "$LIVE_SLEEP"
+  done
 }
 
 while IFS= read -r path; do
   [ -z "$path" ] && continue
   url=$(post_url "$path")
-  ok=""
-  for ((attempt = 1; attempt <= LIVE_RETRIES; attempt++)); do
-    if probe "$url"; then
-      ok="yes"
-      break
-    fi
-    if [ "$attempt" -lt "$LIVE_RETRIES" ]; then
-      echo "  $url not live yet (attempt $attempt/$LIVE_RETRIES), retrying in ${LIVE_SLEEP}s…" >&2
-      sleep "$LIVE_SLEEP"
-    fi
-  done
-  if [ -n "$ok" ]; then
+  if probe_until_live "$url"; then
     echo "Live: $url" >&2
     printf '%s\n' "$path"
   else
-    echo "::warning::Skipping promotion — $url is not live. The post may not have deployed yet." >&2
+    echo "::warning::Skipping — $url is not live within the wait budget. The post may not have deployed yet." >&2
   fi
 done

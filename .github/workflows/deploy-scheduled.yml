@@ -40,25 +40,33 @@ jobs:
         env:
           NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
 
-      - name: Wait for the site to come back healthy
-        # Replaces a blind `sleep`: give Netlify a moment to start the build,
-        # then poll the live site until it answers 200, capped by the loop +
-        # the job timeout-minutes. Fails loudly if the site never recovers.
-        # (Netlify deploys are atomic, so a 200 here is a healthy site; precise
-        # "this exact deploy is live" verification would need the Netlify API
-        # and a NETLIFY_API_TOKEN — deliberately avoided to keep this secretless.)
+      - name: Verify the fresh build published today's posts
+        # Confirm the rebuild actually went live — not just that the site is up.
+        # Netlify deploys atomically, so the homepage keeps returning 200 off the
+        # OLD build while the new one builds; a homepage probe proves reachability,
+        # not freshness. Instead, find the post(s) whose publishDate is today (the
+        # content this rebuild is meant to flip visible) and poll until one is
+        # reachable. If nothing is due today there's nothing date-gated to confirm,
+        # so we fall back to a basic reachability smoke check.
         run: |
-          set -euo pipefail
-          sleep 60   # let the build kick off before the first probe
-          url="https://kakkoyun.me/"
-          for attempt in $(seq 1 24); do   # 24 × 15s ≈ 6 min, under timeout-minutes
-            code=$(curl -fsS -o /dev/null -w '%{http_code}' --max-time 10 "$url" || echo "000")
-            if [ "$code" = "200" ]; then
-              echo "Site healthy after deploy trigger (HTTP $code, attempt $attempt)."
-              exit 0
-            fi
-            echo "Attempt $attempt: site returned HTTP $code, retrying in 15s…"
-            sleep 15
-          done
-          echo "::error::Site did not return HTTP 200 within the polling window after the build trigger."
+          set -uo pipefail
+          chmod +x scripts/posts-publishing-today.sh scripts/check-post-live.sh
+          due=$(scripts/posts-publishing-today.sh)
+
+          if [ -z "$due" ]; then
+            echo "No posts dated today — nothing date-gated to confirm. Smoke-checking reachability."
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 https://kakkoyun.me/ || echo "000")
+            [ "$code" = "200" ] && { echo "Site reachable (HTTP $code)."; exit 0; }
+            echo "::error::Site did not return 200 after the build trigger (HTTP $code)."
+            exit 1
+          fi
+
+          echo "Posts due today:"; echo "$due"
+          # Wait out the in-flight build (Hugo on Netlify is ~1-3 min) within the job timeout.
+          live=$(LIVE_MAX_WAIT=300 LIVE_SLEEP=15 scripts/check-post-live.sh <<< "$due")
+          if [ -n "$live" ]; then
+            echo "Fresh build confirmed live:"; echo "$live"
+            exit 0
+          fi
+          echo "::error::Build was triggered but no today-dated post became live within the wait budget. The deploy may have failed."
           exit 1
