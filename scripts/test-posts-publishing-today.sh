@@ -37,7 +37,7 @@ make_post() {
   } > "$file"
 }
 
-run() { POSTS_DIR="$TMP" TODAY_OVERRIDE="$TODAY" "$SCRIPT"; }
+run() { POSTS_DIR="$TMP" TODAY_OVERRIDE="$TODAY" bash "$SCRIPT"; }
 
 echo "── posts-publishing-today ──────────────────────────────"
 

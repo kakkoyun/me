@@ -26,7 +26,7 @@ assert_eq() {
 
 # ── Probe stubs ───────────────────────────────────────────────────────────────
 # A probe receives the URL as $1 and exits 0 when "live". The tests inject these
-# via LIVE_PROBE_CMD. Runs are fast and offline: LIVE_RETRIES=1, LIVE_SLEEP=0.
+# via LIVE_PROBE_CMD. Runs are fast and offline: LIVE_MAX_WAIT=0, LIVE_SLEEP=0.
 
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
@@ -57,7 +57,7 @@ run() {
   # LIVE_MAX_WAIT=0 makes the global deadline already-passed, so a dead post is
   # probed exactly once (no real waiting); the probe is chosen by the caller via
   # the LIVE_PROBE_CMD env it sets.
-  LIVE_MAX_WAIT=0 LIVE_SLEEP=0 "$CHECK_SCRIPT"
+  LIVE_MAX_WAIT=0 LIVE_SLEEP=0 bash "$CHECK_SCRIPT"
 }
 
 echo "── check-post-live ─────────────────────────────────────"
