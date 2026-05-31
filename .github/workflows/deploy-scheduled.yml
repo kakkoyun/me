@@ -1,0 +1,76 @@
+name: Scheduled Deploy
+
+# Publishes future-dated posts on time. Hugo's production build omits
+# --buildFuture (see netlify.toml), so a post with a future publishDate stays
+# invisible until a production build runs at/after that date. A push to master
+# triggers a Netlify deploy, but a post merged ahead of its publishDate needs a
+# rebuild once the date arrives. This workflow is that rebuild.
+#
+# It runs just after midnight UTC so a post dated YYYY-MM-DDT00:00:00Z goes live
+# at the start of its publish day, and exposes a manual button (workflow_dispatch)
+# for an on-demand "publish now". It is intentionally separate from
+# promote-post.yml: publishing must not depend on the social-promotion cron.
+
+on:
+  schedule:
+    # 00:10 UTC daily — just after midnight so day-of posts publish on time,
+    # and offset off the top of the hour to dodge GitHub's cron rush.
+    - cron: '10 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          submodules: false
+
+      - name: Validate secret
+        run: |
+          if [ -z "$NETLIFY_BUILD_HOOK_URL" ]; then
+            echo "::error::NETLIFY_BUILD_HOOK_URL secret is not set. Add it under repo Settings → Secrets → Actions."
+            exit 1
+          fi
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+
+      - name: Trigger Netlify build
+        run: curl -fsS -X POST -d '{}' "$NETLIFY_BUILD_HOOK_URL"
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+
+      - name: Verify the fresh build published today's posts
+        # Confirm the rebuild actually went live — not just that the site is up.
+        # Netlify deploys atomically, so the homepage keeps returning 200 off the
+        # OLD build while the new one builds; a homepage probe proves reachability,
+        # not freshness. Instead, find the post(s) whose publishDate is today (the
+        # content this rebuild is meant to flip visible) and poll until one is
+        # reachable. If nothing is due today there's nothing date-gated to confirm,
+        # so we fall back to a basic reachability smoke check.
+        run: |
+          set -uo pipefail
+          chmod +x scripts/posts-publishing-today.sh scripts/check-post-live.sh
+          due=$(scripts/posts-publishing-today.sh)
+
+          if [ -z "$due" ]; then
+            echo "No posts dated today — nothing date-gated to confirm. Smoke-checking reachability."
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 https://kakkoyun.me/ || echo "000")
+            [ "$code" = "200" ] && { echo "Site reachable (HTTP $code)."; exit 0; }
+            echo "::error::Site did not return 200 after the build trigger (HTTP $code)."
+            exit 1
+          fi
+
+          echo "Posts due today:"; echo "$due"
+          # Wait out the in-flight build (Hugo on Netlify is ~1-3 min) within the job timeout.
+          live=$(LIVE_MAX_WAIT=300 LIVE_SLEEP=15 scripts/check-post-live.sh <<< "$due")
+          if [ -n "$live" ]; then
+            echo "Fresh build confirmed live:"; echo "$live"
+            exit 0
+          fi
+          echo "::error::Build was triggered but no today-dated post became live within the wait budget. The deploy may have failed."
+          exit 1
