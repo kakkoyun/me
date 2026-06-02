@@ -22,7 +22,42 @@ permissions:
   contents: read
 
 jobs:
+  # Cheap pre-flight gate: only fire the Netlify hook when something is actually
+  # due today. Reuses scripts/posts-publishing-today.sh — the same parser the
+  # post-build verification step (below) uses, so "do we need to rebuild?" and
+  # "did the rebuild flip the right post live?" stay answered by one script.
+  # workflow_dispatch (the "publish now" button) short-circuits the scan, since
+  # the human pressing it has already decided a rebuild is wanted.
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      should_deploy: ${{ steps.scan.outputs.should_deploy }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          submodules: false
+      - name: Scan for posts publishing today
+        id: scan
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — forcing a deploy."
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          chmod +x scripts/posts-publishing-today.sh
+          due=$(scripts/posts-publishing-today.sh)
+          if [ -n "$due" ]; then
+            echo "Publishing today:"; echo "$due"
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nothing publishing today — skipping Netlify rebuild to save a build minute."
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+
   deploy:
+    needs: [check]
+    if: needs.check.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

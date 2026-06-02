@@ -32,6 +32,39 @@ BUILD_PATHS=(
   "themes/"
 )
 
+# Netlify exposes the build hook JSON body as INCOMING_HOOK_BODY. The
+# promote-post cron sets {"force":true} so future-dated posts can go live
+# on their publishDate even though no commit landed. Tolerate whitespace
+# around the colon so a reformatted payload (e.g. {"force": true}) still
+# matches.
+if [[ "${INCOMING_HOOK_BODY:-}" =~ \"force\"[[:space:]]*:[[:space:]]*true ]]; then
+  echo "netlify-ignore: incoming hook requested force build, building."
+  exit 1
+fi
+
+# Bot-authored PRs (Renovate, Dependabot) don't need a Netlify preview —
+# build.yml already runs Hugo + verify + Lighthouse on every PR. Override
+# per-PR by pushing an empty commit with `[netlify]` in the subject:
+#   git commit --allow-empty -m "[netlify] preview please"
+# Scoped to non-production contexts so Renovate-merged commits landing on
+# master still deploy.
+if [[ "${CONTEXT:-}" != "production" ]]; then
+  head_subject=$(git log -1 --format='%s' HEAD 2>/dev/null || echo "")
+  head_author=$(git log -1 --format='%ae' HEAD 2>/dev/null || echo "")
+  if [[ "${head_subject}" != *'[netlify]'* ]]; then
+    case "${HEAD:-}" in
+      renovate/*|dependabot/*)
+        echo "netlify-ignore: bot branch ${HEAD}, skipping preview (build.yml validates this). Override with [netlify] in commit subject."
+        exit 0
+        ;;
+    esac
+    if [[ "${head_author}" == *renovate* ]] || [[ "${head_author}" == *dependabot* ]]; then
+      echo "netlify-ignore: bot author ${head_author}, skipping preview (build.yml validates this). Override with [netlify] in commit subject."
+      exit 0
+    fi
+  fi
+fi
+
 # First deploy on this branch — nothing to diff against. Build.
 if [[ -z "${CACHED_COMMIT_REF:-}" ]]; then
   echo "netlify-ignore: no cached commit, building."
