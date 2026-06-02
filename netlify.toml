@@ -20,6 +20,8 @@ HUGO_VERSION = "0.162.1"
 
 [context.branch-deploy]
 command = "hugo --gc --minify -b $DEPLOY_PRIME_URL"
+# Disable: don't render bare branch pushes that have no PR open. PR previews
+# still work via [context.deploy-preview]; production deploys via [context.production].
 ignore = "exit 0"
 
 [context.branch-deploy.environment]
