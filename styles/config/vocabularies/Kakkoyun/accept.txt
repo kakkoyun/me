@@ -10,7 +10,6 @@ Hakanai
 Obsidian
 
 Datadog
-DataDog
 Parca
 [Pp]olar [Ss]ignals
 PolarSignals
