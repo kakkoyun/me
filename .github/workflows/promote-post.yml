@@ -40,11 +40,17 @@ jobs:
 
       - name: Find promotable posts
         id: find
+        # POST_PATH is passed via env, not interpolated into the script body:
+        # `${{ ... }}` is expanded before bash runs, so a dispatch input containing
+        # $(...) or backticks would otherwise execute on the runner (script injection).
+        # As an env var it reaches bash as opaque data.
+        env:
+          POST_PATH: ${{ github.event.inputs.post_path }}
         run: |
           chmod +x scripts/find-promotable-posts.sh
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.post_path }}" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "$POST_PATH" ]; then
             # Manual run targeting one specific post (skips the date check).
-            POSTS=$(scripts/find-promotable-posts.sh manual "${{ github.event.inputs.post_path }}")
+            POSTS=$(scripts/find-promotable-posts.sh manual "$POST_PATH")
           else
             # Daily cron, or a manual run with no post_path: promote everything due today.
             POSTS=$(scripts/find-promotable-posts.sh schedule)
