@@ -186,18 +186,23 @@ The wrapper pattern means the upstream skill's `buffer get-account` / `buffer po
 
 ### Social Media Promotion Pipeline
 
-Automated via `.github/workflows/promote-post.yml` with three triggers:
+Automated via `.github/workflows/promote-post.yml` with two triggers:
 
-- **Push**: promotes newly added posts when `publishDate <= today`
-- **Nightly cron (6 AM UTC)**: promotes scheduled posts on their publish day
-- **Manual dispatch**: re-promote or promote any specific post
+- **Nightly cron (6 AM UTC)**: promotes posts on their publish day (`publishDate == today`)
+- **Manual dispatch**: the "promote now" button — give a `post_path` to promote one
+  specific post, or leave it blank to promote everything due today
+
+There is **no push trigger**: `claude-code-action` rejects the `push` event type
+("Unsupported event type: push"), so promotion runs only on supported automation
+events (`schedule`, `workflow_dispatch`). A post merged on its publish day *after*
+the 6 AM cron has run won't be auto-promoted that day — use the manual dispatch to
+promote it immediately.
 
 Promotion does **not** rebuild the site — publishing is owned by `deploy-scheduled.yml`
 (00:10 UTC). The 6 AM promotion cron is deliberately later so the post is already live.
 Before posting, a **liveness guard** (`Verify posts are live`) maps each candidate to its
 public URL (`content/posts/<slug>.md` → `/posts/<slug>/`) and polls it; a post that is not
-reachable is dropped with a warning, so promotion never posts a link to a 404 (and push-mode
-promotion waits out an in-flight Netlify deploy instead of racing it).
+reachable is dropped with a warning, so promotion never posts a link to a 404.
 
 All date/draft validation is deterministic bash in `scripts/find-promotable-posts.sh`.
 Claude handles only the creative work: reading the post, crafting messages, posting to Buffer.
@@ -209,9 +214,6 @@ Two skills shape the writing and are wired into both the local command and the C
 
 - **`kemal-voice`** (`.claude/skills/kemal-voice/SKILL.md`) — author voice, banned vocabulary, formulaic openers, patterns to scrutinize. Applied while drafting.
 - **`humanizer`** (`.claude/skills/humanizer/SKILL.md`) — AI-pattern detector from [blader/humanizer](https://github.com/blader/humanizer), vendored as a git submodule at `tools/humanizer/` with `.claude/skills/humanizer` as a symlink. Applied as a revision pass after drafting. The CI workflow initialises just this submodule (`tools/humanizer`) before the action runs; sync locally with `make humanizer-update`.
-
-Dedup: when a post is pushed with today's `publishDate`, the push trigger promotes it.
-The nightly cron skips posts added to git today (detected via `git log --diff-filter=A`).
 
 Local: `/project:promote-post content/posts/<slug>.md` in any Claude Code session.
 

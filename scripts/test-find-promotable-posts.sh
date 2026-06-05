@@ -174,51 +174,6 @@ with_repo() {
   return "$rc"
 }
 
-# ── push mode ─────────────────────────────────────────────────────────────────
-
-echo "── push mode ──────────────────────────────────────────"
-
-_push_today()   { make_post "content/posts/new.md" "$TODAY";     commit_at "content/posts/new.md" "$TODAY";     run_find push; }
-_push_future()  { make_post "content/posts/fut.md" "$TOMORROW";  commit_at "content/posts/fut.md" "$TODAY";     run_find push; }
-_push_draft()   { make_post "content/posts/d.md"   "$TODAY" true; commit_at "content/posts/d.md"  "$TODAY";     run_find push; }
-_push_no_post() {
-  echo "readme" > README.md
-  git add README.md
-  GIT_COMMITTER_DATE="${TODAY}T12:00:00Z" GIT_AUTHOR_DATE="${TODAY}T12:00:00Z" git commit -q -m "readme"
-  run_find push
-}
-_push_mixed() {
-  make_post "content/posts/ok.md"     "$TODAY"
-  make_post "content/posts/draft.md"  "$TODAY" true
-  make_post "content/posts/future.md" "$TOMORROW"
-  git add content/posts/
-  GIT_COMMITTER_DATE="${TODAY}T12:00:00Z" GIT_AUTHOR_DATE="${TODAY}T12:00:00Z" git commit -q -m "mixed"
-  run_find push
-}
-_push_no_promote() {
-  make_post "content/posts/quiet.md" "$TODAY" false true
-  commit_at "content/posts/quiet.md" "$TODAY"
-  run_find push
-}
-
-result=$(with_repo _push_today)
-assert_eq   "push: promotes new post with today's publishDate" "content/posts/new.md" "$result"
-
-result=$(with_repo _push_future)
-assert_empty "push: skips new post with future publishDate" "$result"
-
-result=$(with_repo _push_draft)
-assert_empty "push: skips draft post" "$result"
-
-result=$(with_repo _push_no_post)
-assert_empty "push: no output when commit has no posts" "$result"
-
-result=$(with_repo _push_mixed)
-assert_eq   "push: promotes only the publishable post from a mixed commit" "content/posts/ok.md" "$result"
-
-result=$(with_repo _push_no_promote)
-assert_empty "push: skips post with promote: false" "$result"
-
 # ── schedule mode ─────────────────────────────────────────────────────────────
 
 echo ""
@@ -233,21 +188,12 @@ _sched_no_promote() {
   commit_at "content/posts/quiet.md" "$YESTERDAY"
   run_find schedule
 }
-_sched_dedup() {
-  # pushed-today: committed today (should be deduped, push trigger ran it)
-  make_post "content/posts/pushed-today.md" "$TODAY"
-  commit_at "content/posts/pushed-today.md" "$TODAY"
-  # scheduled: committed yesterday, publishDate today → should promote
-  make_post "content/posts/scheduled.md" "$TODAY"
-  commit_at "content/posts/scheduled.md" "$YESTERDAY"
-  run_find schedule
-}
 
 result=$(with_repo _sched_yesterday)
 assert_eq   "schedule: promotes post committed yesterday with today's publishDate" "content/posts/sched.md" "$result"
 
 result=$(with_repo _sched_today)
-assert_empty "schedule: dedup — skips post added today (push trigger already ran)" "$result"
+assert_eq   "schedule: promotes post added today with today's publishDate (no push dedup)" "content/posts/same.md" "$result"
 
 result=$(with_repo _sched_future)
 assert_empty "schedule: skips post with future publishDate" "$result"
@@ -257,9 +203,6 @@ assert_empty "schedule: skips draft even when publishDate matches today" "$resul
 
 result=$(with_repo _sched_no_promote)
 assert_empty "schedule: skips post with promote: false" "$result"
-
-result=$(with_repo _sched_dedup)
-assert_eq   "schedule: dedup skips today-added, promotes yesterday-committed" "content/posts/scheduled.md" "$result"
 
 _sched_no_pub_alone() {
   # Legacy post with no publishDate — schedule scan must not crash on it.
@@ -316,19 +259,19 @@ _edge_datetime_pub() {
   # publishDate with time component — get_publish_date must strip T...
   make_post_raw "content/posts/dt.md" "${TODAY}T12:00:00Z"
   commit_at "content/posts/dt.md" "$TODAY"
-  run_find push
+  run_find schedule
 }
 _edge_missing_pub_date() {
-  # No publishDate field — validate_post must SKIP
+  # No publishDate field — schedule must SKIP
   make_post_no_date "content/posts/nodate.md"
   commit_at "content/posts/nodate.md" "$TODAY"
-  run_find push
+  run_find schedule
 }
 _edge_quoted_date() {
   # publishDate: "YYYY-MM-DD" — tr -d '"' branch in get_publish_date
   make_post_raw "content/posts/quoted.md" "\"${TODAY}\""
   commit_at "content/posts/quoted.md" "$TODAY"
-  run_find push
+  run_find schedule
 }
 _edge_sched_empty_dir() {
   # content/posts/ has no .md files — schedule must be a no-op, not a glob failure
@@ -347,29 +290,29 @@ _edge_body_promote_false() {
   # "promote: false" appears in body content at column 0 — must NOT skip
   make_post_with_body_line "content/posts/bodypromote.md" "$TODAY" "promote: false"
   commit_at "content/posts/bodypromote.md" "$TODAY"
-  run_find push
+  run_find schedule
 }
 _edge_body_draft_true() {
   # "draft: true" appears in body content at column 0 — must NOT mark as draft
   make_post_with_body_line "content/posts/bodydraft.md" "$TODAY" "draft: true"
   commit_at "content/posts/bodydraft.md" "$TODAY"
-  run_find push
+  run_find schedule
 }
 _edge_body_publish_date() {
   # "publishDate: ..." appears in body content at column 0 — frontmatter value wins
   make_post_with_body_line "content/posts/bodypub.md" "$TODAY" "publishDate: 2099-01-01T00:00:00Z"
   commit_at "content/posts/bodypub.md" "$TODAY"
-  run_find push
+  run_find schedule
 }
 
 result=$(with_repo _edge_datetime_pub)
-assert_eq    "edge: push handles publishDate with time component (get_publish_date strips T...)" "content/posts/dt.md" "$result"
+assert_eq    "edge: schedule handles publishDate with time component (get_publish_date strips T...)" "content/posts/dt.md" "$result"
 
 result=$(with_repo _edge_missing_pub_date)
-assert_empty "edge: push skips post with missing publishDate" "$result"
+assert_empty "edge: schedule skips post with missing publishDate" "$result"
 
 result=$(with_repo _edge_quoted_date)
-assert_eq    "edge: push handles quoted publishDate (tr -d '\"' branch)" "content/posts/quoted.md" "$result"
+assert_eq    "edge: schedule handles quoted publishDate (tr -d '\"' branch)" "content/posts/quoted.md" "$result"
 
 result=$(with_repo _edge_sched_empty_dir)
 assert_empty "edge: schedule is a no-op when content/posts has no .md files" "$result"
