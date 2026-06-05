@@ -8,9 +8,8 @@
 # is live. A today-dated post that becomes reachable does prove it.
 #
 # This is intentionally separate from find-promotable-posts.sh: that filters for
-# *promotion* (honours `promote: false`, dedups against the push trigger). For a
-# *publish* check we want every today-dated, non-draft post, including ones opted
-# out of social promotion.
+# *promotion* (honours `promote: false`). For a *publish* check we want every
+# today-dated, non-draft post, including ones opted out of social promotion.
 #
 # Output: newline-separated content/posts/*.md paths (empty = nothing due today).
 #

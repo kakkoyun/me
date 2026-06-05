@@ -3,14 +3,13 @@
 # All date/draft logic is deterministic — no AI involved.
 #
 # Usage:
-#   find-promotable-posts.sh push          # Push trigger: newly added, publishable today
-#   find-promotable-posts.sh schedule      # Cron trigger: any post with publishDate == today (deduped)
+#   find-promotable-posts.sh schedule      # Cron/manual: any post with publishDate == today
 #   find-promotable-posts.sh manual <path> # Manual: validate single post (skip date check)
 #
 # Output: newline-separated list of promotable post paths (empty = nothing to promote)
 set -euo pipefail
 
-MODE="${1:-push}"
+MODE="${1:-schedule}"
 TODAY=$(date -u +%Y-%m-%d)
 
 frontmatter() {
@@ -34,12 +33,6 @@ get_publish_date() {
   line=$(frontmatter "$1" | grep -m1 '^publishDate:' || true)
   [ -z "$line" ] && return 0
   echo "$line" | awk '{print $2}' | tr -d '"' | cut -dT -f1
-}
-
-file_added_date() {
-  # Date file was first added to git (for dedup between push and cron triggers).
-  # Returns empty (exit 0) when git has no record of the file.
-  git log --diff-filter=A --format=%cs -- "$1" 2>/dev/null | awk 'NR==1{print; exit}'
 }
 
 validate_post() {
@@ -78,19 +71,8 @@ validate_post() {
 }
 
 case "$MODE" in
-  push)
-    # Only newly added files in this commit
-    posts=$(git diff --diff-filter=A --name-only HEAD~1 HEAD -- 'content/posts/*.md' 2>/dev/null || true)
-    while IFS= read -r post; do
-      [ -z "$post" ] && continue
-      if validate_post "$post"; then
-        echo "$post"
-      fi
-    done <<< "$posts"
-    ;;
-
   schedule)
-    # Scan ALL posts for publishDate == today, with dedup
+    # Scan ALL posts for publishDate == today
     for post in content/posts/*.md; do
       [ -f "$post" ] || continue
 
@@ -106,13 +88,6 @@ case "$MODE" in
 
       if skip_promotion "$post"; then
         echo "SKIP $post — promote: false" >&2
-        continue
-      fi
-
-      # Dedup: if file was added today, push trigger already promoted it
-      add_date=$(file_added_date "$post")
-      if [ "$add_date" = "$TODAY" ]; then
-        echo "SKIP $post — added today, already promoted by push trigger" >&2
         continue
       fi
 

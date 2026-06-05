@@ -1,17 +1,14 @@
 name: Promote New Post
 
 on:
-  push:
-    branches: [master]
-    paths: ['content/posts/**']
   schedule:
     # Run every day at 6 AM UTC — catches scheduled posts on their publish day
     - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       post_path:
-        description: 'Path to post file (e.g., content/posts/my-post.md)'
-        required: true
+        description: 'Path to a specific post (content/posts/my-post.md). Leave blank to promote everything due today.'
+        required: false
         type: string
       dry_run:
         description: 'Install a stub buffer-cli that echoes instead of posting'
@@ -25,6 +22,11 @@ jobs:
   # live on its publish day regardless of whether this promotion cron fires.
   # Promotion here instead guards on liveness (see "Verify posts are live"
   # below): it will not post a social link to a page that is not yet reachable.
+  #
+  # Triggers: the daily cron promotes posts on their publish day; workflow_dispatch
+  # is the manual "promote now" button (one post via post_path, or everything due
+  # today when left blank). There is no push trigger — claude-code-action rejects
+  # the push event type ("Unsupported event type: push").
   promote:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -34,19 +36,24 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          fetch-depth: 0  # Full history needed for git log in schedule/dedup mode
           submodules: false
 
       - name: Find promotable posts
         id: find
+        # POST_PATH is passed via env, not interpolated into the script body:
+        # `${{ ... }}` is expanded before bash runs, so a dispatch input containing
+        # $(...) or backticks would otherwise execute on the runner (script injection).
+        # As an env var it reaches bash as opaque data.
+        env:
+          POST_PATH: ${{ github.event.inputs.post_path }}
         run: |
           chmod +x scripts/find-promotable-posts.sh
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            POSTS=$(scripts/find-promotable-posts.sh manual "${{ github.event.inputs.post_path }}")
-          elif [ "${{ github.event_name }}" = "schedule" ]; then
-            POSTS=$(scripts/find-promotable-posts.sh schedule)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "$POST_PATH" ]; then
+            # Manual run targeting one specific post (skips the date check).
+            POSTS=$(scripts/find-promotable-posts.sh manual "$POST_PATH")
           else
-            POSTS=$(scripts/find-promotable-posts.sh push)
+            # Daily cron, or a manual run with no post_path: promote everything due today.
+            POSTS=$(scripts/find-promotable-posts.sh schedule)
           fi
 
           if [ -z "$POSTS" ]; then
