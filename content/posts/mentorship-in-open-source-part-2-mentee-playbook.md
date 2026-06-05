@@ -154,4 +154,4 @@ There's no admission test for asking. The only failure mode is not asking.
 
 ---
 
-*Part 3 of this series, "Stewardship inside OpenTelemetry", is for the people on the other side of the table: the maintainers thinking about whether to sign up to mentor at all. Coming next week.*
+*Part 3 of this series, [Stewardship Inside OpenTelemetry](/posts/mentorship-in-open-source-part-3-stewardship/), is for the people on the other side of the table: the maintainers thinking about whether to sign up to mentor at all.*
