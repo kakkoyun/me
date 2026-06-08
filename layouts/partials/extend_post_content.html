@@ -8,7 +8,7 @@
 {{- if and (eq .Section "posts") site.Params.newsletter.mainCampaignId }}
 <section class="post-newsletter" aria-labelledby="post-newsletter-heading">
   <h3 id="post-newsletter-heading" class="post-newsletter__heading">Enjoyed this post?</h3>
-  <p class="post-newsletter__blurb">Get new posts in your inbox. No spam, unsubscribe anytime.</p>
+  <p class="post-newsletter__blurb">Get new posts in your inbox.</p>
   {{ partial "newsletter-form.html" (dict) }}
 </section>
 {{- end }}
