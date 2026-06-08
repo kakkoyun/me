@@ -1,0 +1,35 @@
+/* Post-footer declutter: leaner #tag style + a divider before the share row.
+   Overrides PaperMod's boxed `.post-tags a` pills inside `<footer class="post-footer">`.
+   All colors use theme variables so light/dark mode are handled automatically. */
+
+/* Divider between the tag list and the social-share icons. */
+.post-footer .post-tags {
+  gap: 14px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Strip the pill box and render tags as lean inline hashtags. */
+.post-footer .post-tags a {
+  display: inline;
+  padding: 0;
+  line-height: 1.6;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  color: var(--secondary);
+  transition: color 0.15s ease;
+}
+
+/* Hash glyph kept decorative so the link text stays clean for screen readers.
+   No text-transform: grandfathered mixed-case tags (eBPF, .Net, JVM) must keep
+   their casing. */
+.post-footer .post-tags a::before {
+  content: "#";
+  opacity: 0.5;
+}
+
+.post-footer .post-tags a:hover {
+  color: var(--primary);
+}
