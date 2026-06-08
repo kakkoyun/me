@@ -264,3 +264,25 @@
 .newsletter-form--placeholder p {
   margin: 0;
 }
+
+/* End-of-post call-to-action wrapper (layouts/partials/extend_post_content.html).
+   Sits after the post body, before the tag/share footer. The quiet 2px
+   var(--tertiary) top rule mirrors the .home-divider / PaperMod md-content hr
+   treatment above, so it adapts to light and dark themes automatically. The
+   inner .newsletter-form keeps its own styling (max-width, responsive stack).
+*/
+.post-newsletter {
+  margin: 2.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--tertiary);
+}
+
+.post-newsletter__heading {
+  margin: 0 0 0.25rem;
+}
+
+.post-newsletter__blurb {
+  margin: 0 0 0.75rem;
+  color: var(--secondary);
+  font-size: 0.95em;
+}

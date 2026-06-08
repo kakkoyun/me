@@ -1,0 +1,14 @@
+{{- /* Override of PaperMod's empty extend_post_content stub.
+       Renders an inline newsletter subscription form at the end of blog
+       posts (after the body, before the tag/share footer). Gated to the
+       posts section so talks, notes, and standalone pages stay clean.
+       Reuses the shared newsletter-form partial, which falls back to the
+       main feed campaign (site.Params.newsletter.mainCampaignId) when
+       called with an empty dict. */ -}}
+{{- if and (eq .Section "posts") site.Params.newsletter.mainCampaignId }}
+<section class="post-newsletter" aria-labelledby="post-newsletter-heading">
+  <h3 id="post-newsletter-heading" class="post-newsletter__heading">Enjoyed this post?</h3>
+  <p class="post-newsletter__blurb">Get new posts in your inbox.</p>
+  {{ partial "newsletter-form.html" (dict) }}
+</section>
+{{- end }}
