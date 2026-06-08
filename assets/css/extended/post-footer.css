@@ -1,0 +1,40 @@
+/* Post-footer declutter: leaner #tag style + a divider before the share row.
+   Tags are relocated above the newsletter form in layouts/_default/single.html;
+   this strips PaperMod's boxed `.post-tags a` pills and renders them as lean
+   inline hashtags. All colors use theme variables so light/dark mode adapt. */
+
+.post-tags {
+  margin: var(--content-gap) 0 0;
+  gap: 14px;
+}
+
+/* Strip the pill box and render tags as lean inline hashtags. */
+.post-tags a {
+  display: inline;
+  padding: 0;
+  line-height: 1.6;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  color: var(--secondary);
+  transition: color 0.15s ease;
+}
+
+/* Hash glyph prepended to each tag. */
+.post-tags a::before {
+  content: "#";
+  opacity: 0.5;
+}
+
+/* Match mouse and keyboard affordance. */
+.post-tags a:hover,
+.post-tags a:focus-visible {
+  color: var(--primary);
+}
+
+/* Divider before the social-share row. The footer now holds only the share
+   icons (and optional post-nav), since the tags moved above the newsletter. */
+.post-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+}
