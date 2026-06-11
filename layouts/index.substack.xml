@@ -33,7 +33,19 @@
 {{- $pages := where site.RegularPages "Section" "posts" }}
 {{- $pages = where $pages "Params.substack" "!=" false }}
 {{- $pages = where $pages "Params.hiddenInRss" "!=" true }}
-{{- $pages = sort $pages "PublishDate" "desc" }}
+{{- /* Skip cross-posts of cross-posts: posts whose canonical lives on a third
+       party (Polar Signals, Meltwater, …) are republished-with-permission
+       copies, so syndicating them to Substack would mirror a mirror. Keep a
+       post when it has no canonicalUrl, or its canonicalUrl points back at
+       this site. `substack: false` remains a manual override on top of this. */ -}}
+{{- $eligible := slice }}
+{{- range $pages }}
+  {{- $canon := .Params.canonicalUrl }}
+  {{- if not (and $canon (not (hasPrefix $canon $base))) }}
+    {{- $eligible = $eligible | append . }}
+  {{- end }}
+{{- end }}
+{{- $pages = sort $eligible "PublishDate" "desc" }}
 
 {{- $rfc822 := "Mon, 02 Jan 2006 15:04:05 -0700" -}}
 {{- $now := now.Format $rfc822 -}}
@@ -92,6 +104,26 @@
              code block. The sweep is idempotent (absolutised URLs no longer
              start with `/`); one pass suffices, the loop is belt-and-suspenders. */ -}}
       {{- $c := .Content }}
+      {{- /* Flatten Hugo/chroma syntax-highlighted code blocks. With lineNos
+             on, chroma renders each block as a line-number <table> wrapped in
+             ~hundreds of inline styles; Substack strips the styles and turns
+             the line-number column into garbage text prefixing every line.
+             Keep only the code column's <pre> (identified by its width:100%
+             <td>), drop the styling, and leave a clean <pre><code>. Genuine
+             markdown data tables carry no width:100% code column, so they are
+             untouched. The second pass handles any non-table chroma wrapper. */ -}}
+      {{- $c = $c | replaceRE "(?s)<div class=\"highlight\">.*?<td[^>]*width:100%[^>]*>\\s*(<pre[^>]*>.*?</pre>)\\s*</td>\\s*</tr>\\s*</table>\\s*</div>\\s*</div>" `${1}` }}
+      {{- $c = $c | replaceRE "(?s)<div class=\"highlight\">\\s*(<pre[^>]*>.*?</pre>)\\s*</div>" `${1}` }}
+      {{- $c = $c | replaceRE `<pre[^>]*>` `<pre>` }}
+      {{- $c = $c | replaceRE `<span style="[^"]*">` `<span>` }}
+      {{- /* Sidenotes and tooltips collapse to stray inline text on Substack,
+             which strips <aside> and the class-scoped CSS that positions them.
+             Fold them into the prose instead: drop the superscript ref marker,
+             turn each sidenote into a parenthetical, and render each tooltip as
+             "term (definition)". */ -}}
+      {{- $c = $c | replaceRE `(?s)<span class="sidenote-ref"[^>]*>.*?</span>` "" }}
+      {{- $c = $c | replaceRE `(?s)<aside class="sidenote[^>]*>.*?<span class="sidenote-content">(.*?)</span>.*?</aside>` ` (<em>${1}</em>)` }}
+      {{- $c = $c | replaceRE `(?s)<span class="tooltip"[^>]*>\s*<span class="tooltip-term"[^>]*>(.*?)</span>\s*<span role="tooltip"[^>]*>(.*?)</span>\s*</span>` `${1} (${2})` }}
       {{- $c = $c | replaceRE `(<[^>]+\shref=")(/[^/"][^"]*)` (printf `${1}%s${2}` $base) }}
       {{- $c = $c | replaceRE `(<[^>]+\ssrc=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
       {{- $c = $c | replaceRE `(<[^>]+\ssrcset=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
@@ -99,7 +131,19 @@
       {{- $c = $c | replaceRE `([0-9][wx],\s*)(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
       {{- end }}
       {{- $orig := printf `<p><em>Originally published at <a href="%s">kakkoyun.me</a>.</em></p>` .Permalink }}
-      {{- $body := printf "%s\n%s" $orig $c }}
+      {{- /* Hugo keeps the cover image in frontmatter, not the body, so Substack
+             imports would have no header image. Prepend it (absolutised) as the
+             first image so Substack picks it up as the featured image. */ -}}
+      {{- $cover := "" }}
+      {{- with .Params.cover }}
+        {{- $alt := .alt | default "" | replaceRE `"` "&quot;" }}
+        {{- with .image }}
+          {{- $src := . }}
+          {{- if hasPrefix $src "/" }}{{ $src = printf "%s%s" $base $src }}{{ end }}
+          {{- $cover = printf `<p><img src="%s" alt="%s"></p>` $src $alt }}
+        {{- end }}
+      {{- end }}
+      {{- $body := printf "%s\n%s\n%s" $orig $cover $c }}
       <content:encoded>{{ printf "<![CDATA[%s]]>" $body | safeHTML }}</content:encoded>
     </item>
     {{- end }}

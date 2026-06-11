@@ -19,10 +19,15 @@ A Substack-tuned RSS feed is published at **`https://kakkoyun.me/substack.xml`**
   excluded by the production build; opt a specific post out with `substack: false`
   in its frontmatter (mirrors `promote: false`). The shared `hiddenInRss: true`
   flag also excludes a post.
+- **Cross-posts of cross-posts are skipped automatically.** A post whose
+  `canonicalUrl` points to a third party (e.g. Polar Signals, Meltwater) is a
+  republished-with-permission copy, so syndicating it to Substack would mirror a
+  mirror. Such posts are dropped from the feed; a post with no `canonicalUrl`, or
+  one pointing back at this site, is kept.
 - **No item limit:** the whole eligible archive is in the feed, so the first
   import can backfill everything in one pass.
 
-It differs from the generic `/index.xml` feed in three ways, each compensating
+It differs from the generic `/index.xml` feed in several ways, each compensating
 for a Substack importer limitation:
 
 1. **Absolute URLs.** Substack does not re-host root-relative images
@@ -34,6 +39,16 @@ for a Substack importer limitation:
    nor manual), so the backlink above is the only attribution mechanism. Modern
    search engines are lenient about same-author duplicate content, so a body
    backlink is sufficient.
+4. **Flattened code blocks.** Hugo's chroma highlighter renders each code block
+   as a line-number `<table>` wrapped in hundreds of inline styles; Substack
+   strips the styles and turns the line-number column into garbage text. The
+   template rewrites those to a clean `<pre><code>` (real data tables are left
+   alone).
+5. **Inlined sidenotes/tooltips.** `{{< sidenote >}}` becomes a parenthetical and
+   `{{< tooltip >}}` becomes `term (definition)`, since Substack strips the
+   `<aside>`/class-scoped CSS that positions them.
+6. **Cover image in the body.** The frontmatter cover image is prepended
+   (absolutised) as the first image so Substack picks it up as the featured image.
 
 ## One-time setup
 
@@ -52,12 +67,13 @@ for a Substack importer limitation:
 The importer mangles things the feed can't fix. After each import, before
 publishing/sending on Substack:
 
-- **Images:** confirm every image rendered. Substack's image import is
-  unreliable; re-upload any that 404 to Substack's media library.
-- **Shortcodes:** the rendered HTML for `{{< sidenote >}}` / `{{< tooltip >}}`
-  (an `<aside>` / `<span class>`) is stripped by Substack to plain text. Only one
-  post currently uses these; reformat by hand if needed.
-- **Footnotes:** not converted to Substack footnotes; clean up if present.
+- **Images:** confirm every image rendered (including the prepended cover).
+  Substack's image import is unreliable; re-upload any that 404 to Substack's
+  media library.
+- **Code blocks:** the feed already flattens them to clean `<pre><code>`; just
+  confirm they imported as code blocks rather than plain paragraphs.
+- **Sidenotes/tooltips:** the feed inlines these (parenthetical / `term
+  (definition)`); skim the affected posts to check the parentheticals read well.
 - **Backlink:** confirm the "Originally published at" line survived at the top.
 
 ## Re-import caution
