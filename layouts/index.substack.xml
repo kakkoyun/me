@@ -116,6 +116,14 @@
       {{- $c = $c | replaceRE "(?s)<div class=\"highlight\">\\s*(<pre[^>]*>.*?</pre>)\\s*</div>" `${1}` }}
       {{- $c = $c | replaceRE `<pre[^>]*>` `<pre>` }}
       {{- $c = $c | replaceRE `<span style="[^"]*">` `<span>` }}
+      {{- /* Sidenotes and tooltips collapse to stray inline text on Substack,
+             which strips <aside> and the class-scoped CSS that positions them.
+             Fold them into the prose instead: drop the superscript ref marker,
+             turn each sidenote into a parenthetical, and render each tooltip as
+             "term (definition)". */ -}}
+      {{- $c = $c | replaceRE `(?s)<span class="sidenote-ref"[^>]*>.*?</span>` "" }}
+      {{- $c = $c | replaceRE `(?s)<aside class="sidenote[^>]*>.*?<span class="sidenote-content">(.*?)</span>.*?</aside>` ` (<em>${1}</em>)` }}
+      {{- $c = $c | replaceRE `(?s)<span class="tooltip"[^>]*>\s*<span class="tooltip-term"[^>]*>(.*?)</span>\s*<span role="tooltip"[^>]*>(.*?)</span>\s*</span>` `${1} (${2})` }}
       {{- $c = $c | replaceRE `(<[^>]+\shref=")(/[^/"][^"]*)` (printf `${1}%s${2}` $base) }}
       {{- $c = $c | replaceRE `(<[^>]+\ssrc=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
       {{- $c = $c | replaceRE `(<[^>]+\ssrcset=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
@@ -123,7 +131,19 @@
       {{- $c = $c | replaceRE `([0-9][wx],\s*)(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
       {{- end }}
       {{- $orig := printf `<p><em>Originally published at <a href="%s">kakkoyun.me</a>.</em></p>` .Permalink }}
-      {{- $body := printf "%s\n%s" $orig $c }}
+      {{- /* Hugo keeps the cover image in frontmatter, not the body, so Substack
+             imports would have no header image. Prepend it (absolutised) as the
+             first image so Substack picks it up as the featured image. */ -}}
+      {{- $cover := "" }}
+      {{- with .Params.cover }}
+        {{- $alt := .alt | default "" | replaceRE `"` "&quot;" }}
+        {{- with .image }}
+          {{- $src := . }}
+          {{- if hasPrefix $src "/" }}{{ $src = printf "%s%s" $base $src }}{{ end }}
+          {{- $cover = printf `<p><img src="%s" alt="%s"></p>` $src $alt }}
+        {{- end }}
+      {{- end }}
+      {{- $body := printf "%s\n%s\n%s" $orig $cover $c }}
       <content:encoded>{{ printf "<![CDATA[%s]]>" $body | safeHTML }}</content:encoded>
     </item>
     {{- end }}
