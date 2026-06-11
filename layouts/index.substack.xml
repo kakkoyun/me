@@ -76,14 +76,28 @@
       <guid>{{ .Permalink }}</guid>
       <description>{{ with .Description | html }}{{ . }}{{ else }}{{ .Summary | html }}{{ end -}}</description>
       {{- /* Absolutise root-relative URLs so Substack can fetch images and
-             internal links resolve. Go regexp has no lookbehind, so anchor
-             each match on an attribute/whitespace boundary to avoid
-             re-prefixing URLs that are already absolute. The third pass
-             catches additional /uploads/ entries inside srcset comma lists. */ -}}
+             internal links resolve. Go regexp (RE2) has no lookbehind, so each
+             pass anchors on the attribute name (or an srcset descriptor) to
+             stay scoped to URLs and skip body text. `/[^/"]` deliberately
+             excludes protocol-relative `//host` URLs (and bare `/`).
+
+             href / src / srcset each get their own pass so a tag bearing more
+             than one of them is fully covered (the render hook actually emits
+             <source srcset> and <img src> as separate tags, but raw HTML in a
+             post could combine them). Those passes catch the first URL token of
+             each attribute; the final sweep then absolutises the remaining
+             comma-separated candidates of a responsive srcset list. It anchors
+             on the preceding `NNNw`/`Nx` descriptor that Hugo's render-image
+             hook always emits, so it cannot touch a `, /path` sitting inside a
+             code block. The sweep is idempotent (absolutised URLs no longer
+             start with `/`); one pass suffices, the loop is belt-and-suspenders. */ -}}
       {{- $c := .Content }}
-      {{- $c = $c | replaceRE `(<a[^>]+href=")(/[^"]*)` (printf `${1}%s${2}` $base) }}
-      {{- $c = $c | replaceRE `(<(?:img|source)[^>]+(?:src|srcset)=")(/[^"]*)` (printf `${1}%s${2}` $base) }}
-      {{- $c = $c | replaceRE `([",\s])(/uploads/)` (printf `${1}%s${2}` $base) }}
+      {{- $c = $c | replaceRE `(<[^>]+\shref=")(/[^/"][^"]*)` (printf `${1}%s${2}` $base) }}
+      {{- $c = $c | replaceRE `(<[^>]+\ssrc=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- $c = $c | replaceRE `(<[^>]+\ssrcset=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- range seq 3 }}
+      {{- $c = $c | replaceRE `([0-9][wx],\s*)(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- end }}
       {{- $orig := printf `<p><em>Originally published at <a href="%s">kakkoyun.me</a>.</em></p>` .Permalink }}
       {{- $body := printf "%s\n%s" $orig $c }}
       <content:encoded>{{ printf "<![CDATA[%s]]>" $body | safeHTML }}</content:encoded>
