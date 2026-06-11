@@ -81,6 +81,7 @@ showToc: true                 # optional, for long technical posts
 tocOpen: false                # optional
 draft: true                   # for WIP content; use future publishDate for scheduled posts instead
 promote: false                # optional; skip social-media promotion (defaults to promotable when omitted)
+substack: false               # optional; exclude from the Substack syndication feed (included when omitted)
 ---
 ```
 
@@ -91,6 +92,7 @@ promote: false                # optional; skip social-media promotion (defaults 
 - Do not quote scalar YAML values (dates, booleans) — only quote strings that contain special characters
 - Use `draft: true` for WIP content; use a future `publishDate` (with `draft` omitted) for scheduled posts
 - Set `promote: false` to publish a post but opt it out of the social-media promotion pipeline (`scripts/find-promotable-posts.sh`)
+- Set `substack: false` to publish a post but exclude it from the Substack syndication feed (`/substack.xml`, see [docs/substack-syndication.md](docs/substack-syndication.md))
 
 ### Content Types
 
@@ -171,6 +173,7 @@ GitHub Actions workflows:
 - **Giscus:** Comments via GitHub Discussions on `kakkoyun/me`. Config in `config.yaml` under `params.giscus`.
 - **Plausible + Hakanai:** Dual analytics. Extend via `params.analytics` in `config.yaml`.
 - **Renovate:** Auto-updates Hugo version (in `.hugo-version` + `netlify.toml`), GitHub Actions, and PaperMod submodule.
+- **Substack:** Blog posts are syndicated to Substack via a dedicated, Substack-tuned RSS feed at `/substack.xml` (output format `substack` in `config.yaml`, template `layouts/index.substack.xml`). Hugo stays canonical; Substack is a one-directional mirror you feed via `Settings → Import`. The feed emits full-text `<content:encoded>` with absolutised image/link URLs and a top "Originally published at" backlink (Substack supports no canonical tag). Opt a post out with `substack: false`. Setup and post-import steps are in [docs/substack-syndication.md](docs/substack-syndication.md).
 
 ## Buffer CLI Integration
 

@@ -23,6 +23,19 @@ outputFormats:
     mediaType: text/plain
     isPlainText: true
     notAlternative: true
+  # Substack-tuned syndication feed (served at /substack.xml). Full-text
+  # <content:encoded> with absolutised image/link URLs and a top "Originally
+  # published at" backlink. Point Substack's Settings -> Import at this feed.
+  # See docs/substack-syndication.md.
+  substack:
+    name: substack
+    baseName: substack
+    mediaType: application/rss+xml
+    isPlainText: false
+    isHTML: false
+    noUgly: true
+    rel: alternate
+    notAlternative: true
 
 outputs:
   home:
@@ -30,6 +43,7 @@ outputs:
     - RSS
     - JSON
     - llms
+    - substack
   page:
     - HTML
     - MARKDOWN

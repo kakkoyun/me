@@ -1,0 +1,107 @@
+{{- /*
+  Substack syndication feed for kakkoyun.me (served at /substack.xml).
+
+  Hugo stays the canonical source of truth; Substack is a mirror you feed
+  via Settings -> Import. This feed is specialised for Substack's importer,
+  which differs from a generic RSS reader in three ways we compensate for:
+
+    1. It does NOT re-host relative image URLs, so we absolutise every
+       root-relative href/src/srcset against site.BaseURL.
+    2. It supports no canonical tag (neither auto nor manual), so we inject
+       an "Originally published at" backlink at the top of each body for
+       attribution and SEO.
+    3. It only reliably carries full bodies via <content:encoded>, which we
+       always emit.
+
+  Scope: blog posts only (content/posts). Drafts and future-dated posts are
+  excluded by the production build (buildDrafts: false, no --buildFuture);
+  per-post opt-out via `substack: false` and the shared `hiddenInRss` flag.
+  See docs/substack-syndication.md for the operator runbook.
+*/ -}}
+{{- $authorEmail := "" }}
+{{- $authorName := "" }}
+{{- with site.Params.author }}
+  {{- if reflect.IsMap . }}
+    {{- with .email }}{{ $authorEmail = . }}{{ end }}
+    {{- with .name }}{{ $authorName = . }}{{ end }}
+  {{- else }}
+    {{- $authorName = . }}
+  {{- end }}
+{{- end }}
+
+{{- $base := site.BaseURL | strings.TrimSuffix "/" }}
+{{- $pages := where site.RegularPages "Section" "posts" }}
+{{- $pages = where $pages "Params.substack" "!=" false }}
+{{- $pages = where $pages "Params.hiddenInRss" "!=" true }}
+{{- $pages = sort $pages "PublishDate" "desc" }}
+
+{{- $rfc822 := "Mon, 02 Jan 2006 15:04:05 -0700" -}}
+{{- $now := now.Format $rfc822 -}}
+{{- $lastBuildDate := $now -}}
+{{- $pubDate := $now -}}
+{{- with $pages -}}
+{{- $lastBuildDate = (index .ByLastmod.Reverse 0).Lastmod.Format $rfc822 -}}
+{{- $pubDate = (index .ByPublishDate.Reverse 0).PublishDate.Format $rfc822 -}}
+{{- end -}}
+
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{{ site.Title }}</title>
+    <link>{{ $base }}/</link>
+    <description>Posts from {{ site.Title }}, syndicated to Substack.</description>
+    {{- with site.Params.images }}
+    <image>
+      <title>{{ site.Title }}</title>
+      <url>{{ index . 0 | absURL }}</url>
+      <link>{{ index . 0 | absURL }}</link>
+    </image>
+    {{- end }}
+    <generator>Hugo</generator>
+    <language>{{ site.Language.Locale }}</language>{{ with $authorEmail }}
+    <managingEditor>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</managingEditor>{{ end }}{{ with $authorEmail }}
+    <webMaster>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</webMaster>{{ end }}{{ with site.Copyright }}
+    <copyright>{{ . | markdownify | plainify | strings.TrimPrefix "© " }}</copyright>{{ end }}
+    <lastBuildDate>{{ $lastBuildDate | safeHTML }}</lastBuildDate>
+    <pubDate>{{ $pubDate | safeHTML }}</pubDate>
+    {{- with .OutputFormats.Get "substack" }}
+    {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{- end }}
+    {{- range $pages }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{- with $authorEmail }}<author>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</author>{{ end }}
+      <guid>{{ .Permalink }}</guid>
+      <description>{{ with .Description | html }}{{ . }}{{ else }}{{ .Summary | html }}{{ end -}}</description>
+      {{- /* Absolutise root-relative URLs so Substack can fetch images and
+             internal links resolve. Go regexp (RE2) has no lookbehind, so each
+             pass anchors on the attribute name (or an srcset descriptor) to
+             stay scoped to URLs and skip body text. `/[^/"]` deliberately
+             excludes protocol-relative `//host` URLs (and bare `/`).
+
+             href / src / srcset each get their own pass so a tag bearing more
+             than one of them is fully covered (the render hook actually emits
+             <source srcset> and <img src> as separate tags, but raw HTML in a
+             post could combine them). Those passes catch the first URL token of
+             each attribute; the final sweep then absolutises the remaining
+             comma-separated candidates of a responsive srcset list. It anchors
+             on the preceding `NNNw`/`Nx` descriptor that Hugo's render-image
+             hook always emits, so it cannot touch a `, /path` sitting inside a
+             code block. The sweep is idempotent (absolutised URLs no longer
+             start with `/`); one pass suffices, the loop is belt-and-suspenders. */ -}}
+      {{- $c := .Content }}
+      {{- $c = $c | replaceRE `(<[^>]+\shref=")(/[^/"][^"]*)` (printf `${1}%s${2}` $base) }}
+      {{- $c = $c | replaceRE `(<[^>]+\ssrc=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- $c = $c | replaceRE `(<[^>]+\ssrcset=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- range seq 3 }}
+      {{- $c = $c | replaceRE `([0-9][wx],\s*)(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- end }}
+      {{- $orig := printf `<p><em>Originally published at <a href="%s">kakkoyun.me</a>.</em></p>` .Permalink }}
+      {{- $body := printf "%s\n%s" $orig $c }}
+      <content:encoded>{{ printf "<![CDATA[%s]]>" $body | safeHTML }}</content:encoded>
+    </item>
+    {{- end }}
+  </channel>
+</rss>
