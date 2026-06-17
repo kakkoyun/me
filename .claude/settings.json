@@ -3,7 +3,12 @@
     "allow": [
       "Bash(buffer:*)",
       "Bash(buffer-cli:*)",
-      "Skill(buffer)"
+      "Skill(buffer)",
+      "mcp__plausible__*",
+      "mcp__fal__*",
+      "mcp__pexels__*",
+      "mcp__pixabay__*"
     ]
-  }
+  },
+  "enabledMcpjsonServers": ["meme", "giphy", "readwise", "plausible", "fal", "pexels", "pixabay"]
 }
