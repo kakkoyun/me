@@ -52,8 +52,8 @@ styles/*
 !styles/config/
 !styles/config/**
 
-# Local MCP config (may contain credentials)
-.mcp.json
+# .mcp.json is committed: every server MUST use op:// references, never literal secrets.
+!.mcp.json
 
 # Things3 Task Migration
 .migration/
