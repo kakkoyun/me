@@ -1,13 +1,13 @@
 Hot out of my brain unfiltered! See [notes](/notes/) for more.
 
 <!-- NOTE-LIST:START -->
- - [Diffnav Configuration](https://kakkoyun.me/notes/resources/documentation/diffnav-configuration) 
+ - [Claude Focus Remote Workspaces](https://kakkoyun.me/notes/resources/documentation/claude-focus-remote-workspaces) 
 
- - [Claude Focus Workflow](https://kakkoyun.me/notes/resources/documentation/claude-focus-workflow) 
+ - [Atlassian CLI Configuration](https://kakkoyun.me/notes/resources/documentation/Atlassian+CLI+Configuration) 
 
- - [Ghostty Configuration](https://kakkoyun.me/notes/resources/documentation/ghostty-configuration) 
+ - [Claude Focus Sandbox Auth](https://kakkoyun.me/notes/resources/documentation/claude-focus-sandbox-auth) 
 
- - [Neovim Configuration](https://kakkoyun.me/notes/resources/documentation/neovim-configuration) 
+ - [cmux Configuration](https://kakkoyun.me/notes/resources/documentation/cmux-configuration) 
 
- - [Tmux Configuration](https://kakkoyun.me/notes/resources/documentation/tmux-configuration) 
+ - [qmd Configuration](https://kakkoyun.me/notes/resources/documentation/qmd-configuration) 
 <!-- NOTE-LIST:END -->
