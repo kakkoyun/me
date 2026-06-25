@@ -18,7 +18,7 @@ tocOpen: false
 draft: true
 ---
 
-I had three small bugs to fix on [`af`](https://github.com/kakkoyun/af) before lunch, the laptop was about to be in a meeting, and I did not want to context-switch.
+I had three small bugs to fix on `af` before lunch, the laptop was about to be in a meeting, and I did not want to context-switch.
 
 So I opened the desktop app, pointed a cloud session at the repo, gave it the three bugs from `TODO.md`, and put the lid down. By the time I got out of the meeting, there was a PR open with green CI and a note from past-me saying "drop the dependency, don't pin it." I read the diff, queued two comments in the review panel, and went to make coffee. The PR came back fixed.
 
