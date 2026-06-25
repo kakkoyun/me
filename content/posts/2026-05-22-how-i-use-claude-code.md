@@ -15,6 +15,7 @@ series: "How I Use Claude Code"
 showToc: true
 tocOpen: false
 draft: true
+promote: false
 ---
 
 I had twenty-three architectural decision records to write, and no idea in what order.
@@ -42,7 +43,7 @@ What I put in the plan prompt, every time:
 
 The plan that comes back is not a first draft. It is a contract for the direction of the work. The implementation step has its own review loop. {{< sidenote side="alternate" >}}Approving a plan exits plan mode and lets you pick the permission mode that follows (manual review, accept-edits, or auto). The default cycle from `Shift+Tab` is `default → acceptEdits → plan`.{{< /sidenote >}}
 
-Plan mode does not help with everything. When the right next move is "explore the codebase and tell me what's there," staying in plan mode just makes me exit it later. I sometimes spend ten minutes in default mode reading, then drop into plan mode once I have an actual question to plan around. Plan mode is for "what should we do next," not "what is going on here."
+Plan mode does not help with everything. When the right next move is "explore the codebase and tell me what's there," staying in plan mode just means exiting it a minute later. I sometimes spend ten minutes in default mode reading, then drop into plan mode once I have an actual question to plan around. Plan mode is for "what should we do next," not "what is going on here."
 
 ---
 
@@ -56,7 +57,7 @@ What gets re-established at the start of every session is what's on disk: projec
 
 A clean session means I haven't been arguing with Claude for an hour about a thing I was wrong about. The next prompt sees the project the way a stranger would, except with my CLAUDE.md preloaded as the briefing.
 
-Concretely: my global `~/.claude/settings.json` allowlist has 92 entries as I write this. That has been the working line for months. The first time Claude wanted to run `gh pr view`, I approved it once and added it. Every session since has run `gh pr view` without asking. Same for `git diff`, `make check`, `go test`, the rest. The cost of running a new session is effectively zero.
+Concretely: my global `~/.claude/settings.json` allowlist has 92 entries as I write this. That has been the working line for months. The first time Claude wanted to run `gh pr view`, I approved it once and added it. Every session since has run `gh pr view` without asking. Same for `git diff`, `make check`, `go test`, the rest. Because the allowlist has absorbed the prompts I'd otherwise be answering by hand, the cost of running a new session is effectively zero.
 
 A snippet of the kind of thing that lives in there:
 
