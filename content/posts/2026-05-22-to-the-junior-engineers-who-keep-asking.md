@@ -16,6 +16,7 @@ tags:
   - "agentic-coding"
 showToc: true
 tocOpen: false
+promote: false
 ---
 
 The junior engineers around me have started asking the same question, in slightly different wrappings.
@@ -74,9 +75,11 @@ Three things, mostly.
 
 **Learn the fundamentals like the tool does not exist.** Data structures, systems, how networks fail, how memory behaves, how concurrency goes wrong. Read code that is not yours. Understand what a stack trace actually means before pasting it into a model. This is not retro nostalgia. It is the foundation that lets you catch the model when it is confidently wrong. Without it, you are a transcriptionist with a fancier keyboard.
 
-**Write the test before you write the prompt.** Decide what "correct" looks like, by yourself, before the model gets a turn. Forces you to actually think about the problem. Then the model is a coding assistant, not a thinking assistant. Try this on the next ticket you pick up. The difference in your own understanding will be immediate.
+**Write the test before you write the prompt.** Decide what "correct" looks like, by yourself, before the model gets a turn. That forces you to actually think about the problem. Then the model is a coding assistant, not a thinking assistant. Try this on the next ticket you pick up. The difference in your own understanding will be immediate.
 
-**Periodically work without AI as a calibration check.** Not as a discipline contest — as a calibration check. Researchers at METR ran a randomized study of experienced open-source developers in mid-2025 and found something humbling: the developers thought AI assistance made them 20% faster on their own projects. In measured task completion, they were actually 19% slower.[^metr] Their perception was off by nearly 40 points. If experienced engineers cannot self-calibrate, neither can you. Pick something you have built recently with AI help, and rebuild it from scratch. The gaps in your mental model will show up fast, because you will be confused by your own code. Fill the gaps. Then go back to using the tool.
+**Periodically work without AI as a calibration check.** Not as a discipline contest — as a calibration check. Researchers at METR ran a randomized study of experienced open-source developers in mid-2025 and found something humbling: the developers thought AI assistance made them 20% faster on their own projects. In measured task completion, they were actually 19% slower.[^metr] Their perception was off by nearly 40 points. If experienced engineers cannot self-calibrate, neither can you.
+
+Pick something you have built recently with AI help, and rebuild it from scratch. The gaps in your mental model will show up fast, because you will be confused by your own code. Fill the gaps. Then go back to using the tool.
 
 That is the whole workflow. It is unglamorous. It works.
 
