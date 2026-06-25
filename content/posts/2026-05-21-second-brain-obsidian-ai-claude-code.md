@@ -2,7 +2,7 @@
 title: "Years of Notes I Didn't Know What to Do With"
 description: "I've been hoarding Markdown in Obsidian for years with no real system. Then AI tools learned to read it. This is what's possible now — and what I'm still figuring out."
 publishDate: 2026-07-01T00:00:00Z
-date: "2026-05-22T00:00:00Z"
+date: 2026-05-22T00:00:00Z
 draft: true
 categories:
   - "technical-findings"
@@ -18,6 +18,7 @@ tags:
   - "agentic-coding"
 showToc: true
 tocOpen: false
+promote: false
 ---
 
 I've been keeping notes in Obsidian for about four years.
@@ -62,8 +63,6 @@ That sounds dry. The practical effect is anything but.
 It means every disorganised Markdown file I've been hoarding for four years
 is now something an agent can read, search, link, and write to. The
 accumulated mess is suddenly a corpus.
-
-That accumulated mess turns out to have been the point.
 
 ## What's possible right now (with real tools)
 
@@ -113,7 +112,7 @@ Two public tools to look at:
 
 - [**Smart Connections**](https://github.com/brianpetro/obsidian-smart-connections)
   is the most popular Obsidian plugin for this. Local embeddings by default,
-  surfaces related notes as you navigate. Worth noting: it's *source-available*
+  surfaces related notes as you navigate. One caveat: it's *source-available*
   rather than traditional open source — the licence restricts redistribution
   for competing commercial offerings, and a paid Pro tier funds development.
 - [**Khoj**](https://github.com/khoj-ai/khoj) (Apache 2.0) is a fully open
