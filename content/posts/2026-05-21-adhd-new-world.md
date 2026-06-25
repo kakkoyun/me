@@ -75,6 +75,6 @@ What the map tells me now — the one I waited until my thirties to find — is 
 
 Some of those compensating systems are obsolete now. The friction I trained myself to push through is genuinely gone. The new question is: what does discipline mean when the wall is down?
 
-I don't fully know yet. I suspect it means learning to stop in a world that no longer stops you. It means building new edges where the old obstacles used to be. It means getting the map updated for the territory.
+I don't fully know yet. I suspect it means learning to stop in a world that no longer stops you. It means building new edges where the old obstacles used to be.
 
 After thirty-something years of a brain that felt like it was fighting itself, having a problem that's about *too much* flow instead of *not enough* is a strange and mostly welcome inversion. I'll take it.
