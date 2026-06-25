@@ -4,6 +4,7 @@ description: "How I structure focused work in mid-2026: Things3 for capture, one
 date: 2026-05-21T00:00:00Z
 publishDate: 2026-06-19T00:00:00Z
 draft: true
+promote: false
 categories:
   - journal
   - tools
