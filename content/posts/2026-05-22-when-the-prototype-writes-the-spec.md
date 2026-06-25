@@ -31,7 +31,7 @@ When OTel was announced in March 2019, the seed governance committee had to deli
 
 Two weeks isn't enough time for a multi-language working group to sit down, look at the prototype, and ask "okay, but how does this map to Go's `context.Context` and Python's `contextvars` and JavaScript's `AsyncLocalStorage`?" Those conversations happened later, in parallel with implementations, and a fair amount of what shipped in 2019 reflected what was natural to write in Java in 2019. That isn't anyone's fault. It's how the calendar shook out.
 
-Seven years later, the constraints of that early shape still leak. Java's thread-local context model is the cleanest case. Python had to graft OTel context onto `contextvars`, and the language version mattered: `asyncio.Task` only auto-copies contextvars from 3.7 onward, which produced a long tail of subtly-broken async traces.[^3] Go's eBPF-based auto-instrumentation explicitly notes the current design "correlates spans to the same trace if they are being executed by the same goroutine," with a TODO to track the goroutine tree properly later.[^4] None of these are bugs. They're impedance mismatches between a model and the languages it has to express itself in.
+Seven years later, the constraints of that early shape still leak. Java's thread-local context model is the cleanest case. Python had to graft OTel context onto `contextvars`, and the language version mattered: `asyncio.Task` only auto-copies contextvars from 3.7 onward, which produced a long tail of subtly broken async traces.[^3] Go's eBPF-based auto-instrumentation explicitly notes the current design "correlates spans to the same trace if they are being executed by the same goroutine," with a TODO to track the goroutine tree properly later.[^4] None of these are bugs. They're impedance mismatches between a model and the languages it has to express itself in.
 
 ## The pattern, written down
 
@@ -69,7 +69,7 @@ It's interesting to me that this is happening seven years in. The PoC-first inst
 
 Most teams I've worked on don't have the scale to run a Rust-style RFC process, and I don't think they should. The takeaway I keep landing on is smaller:
 
-If you're shipping a multi-language SDK, treat the first implementation as a prototype, and mean it. Put it behind a feature flag, or a clearly-labeled unstable major version, or both. Decline to ship it to general availability until at least one other language has implemented against the spec rather than against the prototype's source.
+If you're shipping a multi-language SDK, treat the first implementation as a prototype, and mean it. Put it behind a feature flag, or a clearly labeled unstable major version, or both. Decline to ship it to general availability until at least one other language has implemented against the spec rather than against the prototype's source.
 
 This will be annoying. It slows the first language down, forces a documentation step that nobody wants to do, and surfaces the assumptions that don't translate before any customers are affected. I'd rather find those during the second implementation than during the seventh.
 
