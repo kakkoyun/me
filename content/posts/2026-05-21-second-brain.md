@@ -15,6 +15,7 @@ tags:
   - tooling
 showToc: true
 draft: true
+promote: false
 ---
 
 A few months back I asked Claude a question about a book I had read. It gave me a decent answer. Then I pushed: "What about the thing Sönke Ahrens said about permanent notes?" Claude pulled the highlight from my Readwise sync, cross-referenced it with a zettelkasten note I had written, and produced an answer I could not have reached from memory alone.

@@ -15,6 +15,7 @@ tags:
   - tooling
 showToc: true
 draft: true
+promote: false
 ---
 
 It is 9:14am on a Wednesday. I open the laptop. The daily note for today is already there.
