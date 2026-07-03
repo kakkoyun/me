@@ -1,0 +1,36 @@
+{{- /* Series navigation box.
+       Rendered on posts that carry the `series` taxonomy (config.yaml).
+       Lists every part of the series in chronological order (`date`
+       ascending — parts can share a `publishDate`, see the Fantastic
+       Symbols pair), labels the box "Part N of M", links the series
+       title to its taxonomy term page, and renders the current post as
+       plain highlighted text instead of a self-link. Hidden while a
+       series has only one published part. Styles live in
+       assets/css/extended/series-nav.css. */ -}}
+{{- $page := . }}
+{{- range $page.GetTerms "series" }}
+{{- $series := . }}
+{{- $parts := $series.Pages.ByDate }}
+{{- $total := len $parts }}
+{{- if gt $total 1 }}
+{{- $current := 0 }}
+{{- range $i, $part := $parts }}
+{{- if $part.Eq $page }}{{ $current = add $i 1 }}{{ end }}
+{{- end }}
+<nav class="series-nav" aria-label="Series: {{ $series.LinkTitle }}">
+  <div class="series-nav__header">
+    <span class="series-nav__kicker">Part {{ $current }} of {{ $total }} in the series</span>
+    <a class="series-nav__series-title" href="{{ $series.RelPermalink }}">{{ $series.LinkTitle }}</a>
+  </div>
+  <ol class="series-nav__list">
+    {{- range $parts }}
+    {{- if .Eq $page }}
+    <li class="series-nav__item series-nav__item--current" aria-current="page">{{ .Title }}</li>
+    {{- else }}
+    <li class="series-nav__item"><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{- end }}
+    {{- end }}
+  </ol>
+</nav>
+{{- end }}
+{{- end }}

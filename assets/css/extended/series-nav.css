@@ -1,0 +1,70 @@
+/* Series navigation box
+   Rendered by layouts/partials/series-nav.html on posts that belong to a
+   `series` taxonomy term. A quiet boxed card between the post header and
+   the body: "Part N of M" kicker, series title linking to the term page,
+   and an ordered list of parts with the current one highlighted and
+   unlinked. All colors use theme variables so light/dark mode adapt. */
+
+.series-nav {
+  margin: var(--content-gap) 0;
+  padding: 1rem 1.25rem;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.series-nav__kicker {
+  display: block;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--secondary);
+}
+
+.series-nav__series-title {
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--tertiary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+.series-nav__series-title:hover,
+.series-nav__series-title:focus-visible {
+  text-decoration-color: var(--primary);
+}
+
+.series-nav__list {
+  margin: 0.75rem 0 0;
+  padding: 0 0 0 1.5rem;
+}
+
+.series-nav__item {
+  padding: 0.15rem 0;
+  color: var(--secondary);
+}
+
+/* Underline part links so they don't rely on colour alone (matches the
+   Recent Notes / Issues list treatment and Lighthouse's link-in-text-block
+   audit). */
+.series-nav__item a {
+  color: var(--secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--tertiary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: color 0.15s ease;
+}
+
+.series-nav__item a:hover,
+.series-nav__item a:focus-visible {
+  color: var(--primary);
+  text-decoration-color: var(--primary);
+}
+
+/* The post being read: highlighted, plain text, no self-link. */
+.series-nav__item--current {
+  color: var(--primary);
+  font-weight: 600;
+}
