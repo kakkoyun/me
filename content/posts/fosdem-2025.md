@@ -51,7 +51,7 @@ Sunday was all about observability, performance, and squeezing every bit of insi
 The **Monitoring and Observability DevRoom** had a strong lineup:
 
 - Richard "RichiH" Hartmann [set the stage](https://fosdem.org/2025/schedule/event/fosdem-2025-6715-monitoring-and-observability-devroom-opening/).
-- **"[The Performance Impact of Auto-Instrumentation](https://fosdem.org/2025/schedule/event/fosdem-2025-5502-the-performance-impact-of-auto-instrumentation/)"** – James Belchamber gave a fantastic talk on the hidden costs of auto-instrumentation.
+- **"[The Performance Impact of auto-instrumentation](https://fosdem.org/2025/schedule/event/fosdem-2025-5502-the-performance-impact-of-auto-instrumentation/)"** – James Belchamber gave a fantastic talk on the hidden costs of auto-instrumentation.
 - **"[Prometheus Version 3](https://fosdem.org/2025/schedule/event/fosdem-2025-6571-prometheus-version-3/)"** – Jan Fajerski and Bryan Boreham gave us the lowdown on what’s next for Prometheus.
   ![Prometheus 3 talk](/uploads/fosdem25_prometheus.jpeg)
 

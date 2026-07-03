@@ -35,7 +35,7 @@ The reasons are structural:
 - **Static compilation.** Go compiles to a single native binary. There is no intermediate bytecode to rewrite at load time, no classloader to intercept, no dynamic linking by default.
 - **No `LD_PRELOAD`.** Go's default static linking means the `LD_PRELOAD` trick that works for C/C++ applications (and that the [OTel Injector](https://github.com/open-telemetry/opentelemetry-injector) uses for Java, .NET, and Node.js) doesn't apply.
 - **Unique calling convention.** Go's ABI passes arguments in registers with a convention different from the platform C ABI. This makes dynamic hooking with tools like Frida or ptrace significantly harder — you can't just read standard frame pointers.
-- **Goroutine stack management.** Goroutines use segmented, growable stacks that the runtime can move at any time. Traditional stack-walking assumptions break.
+- **goroutine stack management.** goroutines use segmented, growable stacks that the runtime can move at any time. Traditional stack-walking assumptions break.
 
 The gap between "Go is great for production" and "Go is hard to auto-instrument" is real. This is the gap we set out to map.
 
@@ -52,7 +52,7 @@ We built a [demo repository](https://github.com/kakkoyun/fosdem-2026) with the s
 | 1 | `default` | None | Baseline. No instrumentation of any kind. |
 | 2 | `manual` | OTel SDK | Manual OpenTelemetry SDK integration — explicit tracer initialization, span creation via `otelhttp`, and context propagation. The "standard" way. |
 | 3 | `obi` | eBPF (OBI) | [OpenTelemetry eBPF Instrumentation](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation). Network-level eBPF hooks. Runs as a sidecar, attaches to the running process. No code changes. |
-| 4 | `ebpf` | eBPF (Auto) | [OpenTelemetry Go Auto-Instrumentation](https://github.com/open-telemetry/opentelemetry-go-instrumentation). Uprobe-based eBPF hooks targeting Go runtime functions. No code changes. |
+| 4 | `ebpf` | eBPF (Auto) | [OpenTelemetry Go auto-instrumentation](https://github.com/open-telemetry/opentelemetry-go-instrumentation). uprobe-based eBPF hooks targeting Go runtime functions. No code changes. |
 | 5 | `orchestrion` | Compile-time | [Datadog Orchestrion](https://github.com/datadog/orchestrion) with OTel SDK. AST transformation via `-toolexec` at compile time. Requires a rebuild but no source changes. |
 | 6 | `libstabst` | USDT (salp) | USDT probes via [salp](https://github.com/mmcshane/salp)/[libstapsdt](https://github.com/sthima/libstapsdt), consumed by a bpftrace sidecar that exports to OTLP. Proof of concept. |
 | 7 | `usdt` | USDT (native) | Native USDT probes via a [custom Go fork](https://github.com/kakkoyun/go/tree/poc_usdt) that adds probe points to `net/http`, `database/sql`, `crypto/tls`, and `net`. Proof of concept. |
@@ -93,7 +93,7 @@ This gives you full control — custom span attributes, context propagation, err
 
 ---
 
-### Compile-Time: Orchestrion and OTel Compile-Time Instrumentation
+### Compile-time: Orchestrion and OTel Compile-time Instrumentation
 
 Orchestrion uses Go's `-toolexec` flag to intercept the compilation pipeline. During the AST transformation phase, it injects instrumentation code — adding OTel spans, wrapping handlers, propagating context — without the developer modifying source files.
 
@@ -105,7 +105,7 @@ orchestrion go build -o myapp .
 
 The mechanism is aspect-oriented: you declare join points (e.g., "any function in package `main` named `LoadHandler`") and advice (e.g., "prepend a span creation statement"). The transformation happens at the AST level before the compiler emits machine code.
 
-Orchestrion supports OpenTelemetry natively — it is not Datadog-specific. In January 2025, Datadog and Alibaba began merging their compile-time instrumentation efforts into a unified solution under the [OpenTelemetry Compile-Time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation).
+Orchestrion supports OpenTelemetry natively — it is not Datadog-specific. In January 2025, Datadog and Alibaba began merging their compile-time instrumentation efforts into a unified solution under the [OpenTelemetry Compile-time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation).
 
 **Trade-offs:**
 - Requires a rebuild. You cannot instrument already-deployed binaries.
@@ -139,9 +139,9 @@ OBI runs as a sidecar container. It attaches to the target process's PID namespa
 - Protocol coverage is growing: HTTP/S, gRPC, TLS visibility.
 - Excellent for topology mapping and network observability beyond just tracing.
 
-#### OTel Go Auto-Instrumentation
+#### OTel Go auto-instrumentation
 
-The [OpenTelemetry Go Auto-Instrumentation](https://github.com/open-telemetry/opentelemetry-go-instrumentation) project uses uprobe-based eBPF hooks that target specific Go runtime functions. Unlike OBI's network-level approach, this hooks directly into Go function prologues.
+The [OpenTelemetry Go auto-instrumentation](https://github.com/open-telemetry/opentelemetry-go-instrumentation) project uses uprobe-based eBPF hooks that target specific Go runtime functions. Unlike OBI's network-level approach, this hooks directly into Go function prologues.
 
 This project is effectively in maintenance mode. Several of its contributors have moved to OBI. At [OTel Unplugged EU 2026](/posts/otel-unplugged-eu-2026/), the frank assessment was: the people moved to where the momentum is.
 
@@ -255,7 +255,7 @@ We ran each scenario under identical load conditions using a Docker-based observ
 |----------|-----|-------------|-------------|----------------|
 | Baseline (no instrumentation) | 10.2% | 202 MiB | 4.50 ms | 3.1k req/sec |
 | Manual OTel SDK | 10.3% (+0.1%) | 210 MiB (+8 MiB) | 3.02 ms | 13.97k req/sec |
-| eBPF Auto-Instrumentation | 10.0% (-0.3%) | 204 MiB (+2 MiB) | 3.07 ms | 4.57k req/sec |
+| eBPF auto-instrumentation | 10.0% (-0.3%) | 204 MiB (+2 MiB) | 3.07 ms | 4.57k req/sec |
 | Compile-time (Orchestrion) | 9.8% (-0.4%) | 210 MiB (+8 MiB) | 2.59 ms | 27.8k req/sec |
 
 A few things stand out. The CPU and memory overhead across all approaches is negligible for this workload. The throughput differences are more interesting — Orchestrion's compile-time approach achieved the highest throughput, likely because the OTel code injected at compile time benefits from the same optimizations as the rest of the application. The eBPF approach showed lower throughput, consistent with the overhead of crossing the kernel boundary for each intercepted call.
@@ -278,7 +278,7 @@ These approaches are not competing. They serve different deployment scenarios an
 |----------|-----------|----------|------------|
 | **Compile-time** (Orchestrion) | AST transformation via `-toolexec` | Deepest instrumentation, security-sensitive environments | Requires rebuild |
 | **eBPF/OBI** | Kernel-level network hooks | Runtime flexibility, multi-language, no restart | Needs kernel privileges |
-| **eBPF Auto** | Uprobe hooks on Go functions | Go-specific deep tracing without code changes | Maintenance mode, fragile across Go versions |
+| **eBPF Auto** | uprobe hooks on Go functions | Go-specific deep tracing without code changes | Maintenance mode, fragile across Go versions |
 | **Injector/SSI** | K8s operator + `LD_PRELOAD` | Lowest friction onboarding | Does not work for Go's static binaries |
 | **USDT** | Compiled probe points + bpftrace | Zero overhead when not tracing, future potential | Proof of concept, tooling still young |
 
@@ -290,7 +290,7 @@ The vision articulated at OTel Unplugged — `apt install opentelemetry` and eve
 
 Several threads from the talk and surrounding conversations point forward:
 
-- **OTel Compile-Time SIG.** The merger between Datadog's Orchestrion and Alibaba's compile-time instrumentation under the OpenTelemetry umbrella is the most significant near-term development. A vendor-neutral, community-maintained compile-time instrumentation tool for Go would change the adoption curve.
+- **OTel Compile-time SIG.** The merger between Datadog's Orchestrion and Alibaba's compile-time instrumentation under the OpenTelemetry umbrella is the most significant near-term development. A vendor-neutral, community-maintained compile-time instrumentation tool for Go would change the adoption curve.
 
 - **W3C context propagation in runtimes.** If language runtimes and compilers understand trace context natively, the instrumentation story simplifies fundamentally. This was a recurring theme at OTel Unplugged.
 
@@ -306,8 +306,8 @@ Several threads from the talk and surrounding conversations point forward:
 
 The instrumentation tax is real and unavoidable. The question is not whether to pay it, but how to manage it. For Go, the answer is increasingly "you have options" — and those options are getting better.
 
-The slides are available as [Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md) in the repository. The demo code, Docker setup, and benchmark scripts are all in the [fosdem-2026 repository](https://github.com/kakkoyun/fosdem-2026). The [recording is on YouTube](https://www.youtube.com/watch?v=0TvrSebuDPk).
+The slides are available as [Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md) in the repository. The demo code, Docker setup, and benchmark scripts are all in the [FOSDEM-2026 repository](https://github.com/kakkoyun/fosdem-2026). The [recording is on YouTube](https://www.youtube.com/watch?v=0TvrSebuDPk).
 
-If you want to get involved: the [OTel Compile-Time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://slack.cncf.io/) are where the discussions happen.
+If you want to get involved: the [OTel Compile-time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://slack.cncf.io/) are where the discussions happen.
 
 See also: [OTel Unplugged EU 2026 field notes](/posts/otel-unplugged-eu-2026/) for the broader community context.
