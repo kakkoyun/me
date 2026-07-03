@@ -27,7 +27,7 @@ This is Part 4 of *How I Use Claude Code*. Parts 1–3 are about working inside 
 
 ---
 
-The setup transfers. `CLAUDE.md`, `.claude/rules/`, the allowlist in `settings.json`, the skills under `.claude/skills/` — all of it loads in cloud sessions and SSH sessions the same way it loads when I run `claude` in my terminal.[^2] If I have already done the work of writing a `.claude/` directory at the repo root, the desktop app is not a fresh start. It is the same agent with different chrome and different hardware behind it.{{< sidenote side="alternate" >}}The cloud-sessions docs publish an explicit table of what is and is not available; CLAUDE.md, skills, agents, commands, and rules all carry. Local MCP servers do not.{{< /sidenote >}}
+The setup transfers. `CLAUDE.md`, `.claude/rules/`, the allowlist in `settings.json`, the skills under `.claude/skills/` — all of it loads in cloud sessions and SSH sessions the same way it loads when I run `claude` in my terminal.[^2] If I have already done the work of writing a `.claude/` directory at the repo root, the desktop app carries all of it forward. Same agent, different chrome, different hardware behind it.{{< sidenote side="alternate" >}}The cloud-sessions docs publish an explicit table of what is and is not available; CLAUDE.md, skills, agents, commands, and rules all carry. Local MCP servers do not.{{< /sidenote >}}
 
 ---
 
@@ -35,7 +35,7 @@ The setup transfers. `CLAUDE.md`, `.claude/rules/`, the allowlist in `settings.j
 
 Cloud VM sessions live in a 4 vCPU / 16 GB / 30 GB box that Anthropic spins up per session.[^2] The box is ephemeral. The repo is cloned fresh when the session starts and the container is reclaimed when the session ends; anything worth keeping has to be committed and pushed first.
 
-The useful part is not the spec. It is the fact that I can close the lid.
+The useful thing is that I can close the lid.
 
 The habit is this. When a task is well-defined enough to write in three lines (fix these bugs, rerun the migration, bump this dependency and update the call sites), I push it to a cloud session instead of running it on the laptop. The cloud session does not care that I closed the lid. It does not stall when my battery dies on the train. It does not block the terminal window I am using for something else. When it needs me, to answer a question or approve a permission prompt, the mobile app pokes me.
 
@@ -61,7 +61,7 @@ A small detail I did not expect to like: the SSH session shows up in the same de
 
 The desktop app puts the agent's pending diff in a panel.[^3] You can click into any hunk and leave a comment, the same way you would on a pull request. The comments queue. The next time you send a message, the queued comments go with it.
 
-This is the part that felt closest to pair-reviewing with a colleague who I wasn't interrupting.
+The diff panel is the closest I've come to pair-reviewing with a colleague who I wasn't interrupting.
 
 Concretely: I let the agent finish a hunk, scrolled the diff, and found three things to push back on. "Move this guard into the existing `validate()` function." "Stop renaming the variable, the old name is referenced from `docs/`." "This loop should early-exit on the first match." I left those as comments, sent one short message ("apply the comments, ask if anything is ambiguous"), and the agent worked through them.
 
@@ -77,9 +77,9 @@ This is the one that changed the day.
 
 When the desktop app opens a pull request, it can subscribe to the PR's GitHub events.[^4] CI runs and fails; the agent picks up the failure, reads the logs, tries a fix, pushes a new commit. A reviewer leaves a comment; the agent reads the comment, tries an interpretation, replies with the diff. Both of those used to be context-switches that landed on me.
 
-The setup is one prompt at the end of the session: "open a PR for this branch and watch it." The agent posts the PR, subscribes to the events, and the session keeps running in the background. What I get back, the next time I check, is not "the PR is open." It is "the PR is open, CI was red, here is the fix, CI is green, the reviewer left two comments, here are the responses."
+The setup is one prompt at the end of the session: "open a PR for this branch and watch it." The agent posts the PR, subscribes to the events, and the session keeps running in the background. The status I come back to reads like this: "the PR is open, CI was red, here is the fix, CI is green, the reviewer left two comments, here are the responses."
 
-I do not let it merge. The agent watches the PR; I still press the button. The autonomy I want is the loop closing on the obvious things (lint failure, test flake, a reviewer asking for a one-line rename), not the decision about whether the change is the right change.
+I do not let it merge. The agent watches the PR; I still press the button. The autonomy I want is the loop closing on the obvious things: lint failure, test flake, a reviewer asking for a one-line rename. Deciding whether the change is the right change stays with me.
 
 One rule of thumb on top of this. If the agent has tried three pushes on the same failure and CI is still red, the loop has stalled and the next move is mine. The auto-fix is a labor-saver, not an oracle.
 
@@ -97,11 +97,11 @@ The other rough edge worth naming: cloud sessions cost something. The docs are c
 
 ## What this changes about the other habits
 
-Plan mode still applies. The plan in front of a cloud session is more important than the plan in front of a terminal session, because I am not standing over its shoulder while it works. A bad plan in the terminal costs me an hour. A bad plan in a cloud session costs me whatever the cloud session does in that hour, which can be more.
+Plan mode still applies, and it matters more here. On my laptop I can catch a bad plan quickly, because I am standing over its shoulder. In a cloud session the machine keeps working through the bad plan until I check on it, which turns a bad plan into as much time as I leave it running.
 
 Fresh sessions still apply. The cloud VM is literally a fresh machine each time. The `.claude/` directory I committed to the repo is what re-establishes context, exactly as it does at the start of every local session.
 
-The on-disk canon from Part 1 (`PROGRESS.md`, `TODO.md`, `CLAUDE.md`) matters more, not less. When the session can fork onto a remote box I cannot see, the only state I trust is the state that survives the session ending. Disk is still the canon. Chat is still the working memory.
+The on-disk canon from Part 1 (`PROGRESS.md`, `TODO.md`, `CLAUDE.md`) matters more, not less. When the session can fork onto a remote box I cannot see, the only state I trust is the state that survives the session ending. Disk is still the canon; chat is scratch.
 
 ---
 
