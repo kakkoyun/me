@@ -59,7 +59,7 @@ This list is organized alphabetically and includes engineers, researchers, and t
 
 ### Frederic Branczyk
 
-- Website: [brancz.com](https://brancz.com/)
+- Website: [brancz.com](https://www.brancz.com/)
 - Twitter: [@fredbrancz](https://twitter.com/fredbrancz)
 - Focus: Observability, Prometheus, Kubernetes
 
@@ -195,7 +195,7 @@ This list is organized alphabetically and includes engineers, researchers, and t
 
 ### Polar Signals
 
-- Website: [polarsignals.com/blog](https://www.polarsignals.com/blog/)
+- Website: [polarsignals.com/blog](https://www.polarsignals.com/blog)
 - Focus: Continuous profiling, eBPF, performance
 
 ---

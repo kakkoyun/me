@@ -18,7 +18,7 @@ description: Discover how eBPF and Parca are transforming Python profiling, enab
 
 # Profiling Python with eBPF: A New Frontier in Performance Analysis
 
-Profiling Python applications can be challenging, especially in scenarios involving high-performance requirements or complex workloads. Existing tools often require code instrumentation, making them impractical for certain use cases. Enter [eBPF](https://ebpf.io/) (Extended Berkeley Packet Filter)—a versatile Linux technology—and the open-source project [Parca](https://parca.dev), which together are reshaping how Python profiling works.
+Profiling Python applications can be challenging, especially in scenarios involving high-performance requirements or complex workloads. Existing tools often require code instrumentation, making them impractical for certain use cases. Enter [eBPF](https://ebpf.io/) (Extended Berkeley Packet Filter)—a versatile Linux technology—and the open-source project [Parca](https://www.parca.dev), which together are reshaping how Python profiling works.
 
 I’ll cover how eBPF enables continuous profiling, the challenges of stack unwinding in Python, and what modern profiling tools can do with all of this.
 
@@ -57,7 +57,7 @@ While these tools are valuable, many require code instrumentation or introduce s
 Originally designed for network packet filtering, [eBPF](https://ebpf.io/) has evolved into a versatile event-driven system. It enables safe execution of custom programs inside the Linux kernel, using:
 
 - **Performance Monitoring Units (PMUs):** Efficient hardware units built into CPUs that track performance events like CPU cycles, cache misses, and branch predictions.
-- **[Perf subsystem](https://perf.wiki.kernel.org/index.php/Main_Page):** A Linux facility for hooking into kernel and user-space events, such as CPU activity, memory allocation, or I/O.
+- **[Perf subsystem](https://perfwiki.github.io/):** A Linux facility for hooking into kernel and user-space events, such as CPU activity, memory allocation, or I/O.
 
 By combining eBPF with PMUs, profiling becomes faster and more efficient than traditional approaches.
 
@@ -65,7 +65,7 @@ By combining eBPF with PMUs, profiling becomes faster and more efficient than tr
 
 ## Continuous Profiling with Parca
 
-[Parca](https://parca.dev) is an open-source project enabling continuous profiling. Its eBPF agent hooks into [perf events](https://perf.wiki.kernel.org/index.php/Tutorial), collects stack traces, and aggregates data for visualization. The process involves:
+[Parca](https://www.parca.dev) is an open-source project enabling continuous profiling. Its eBPF agent hooks into [perf events](https://perfwiki.github.io/), collects stack traces, and aggregates data for visualization. The process involves:
 
 1. **Hooking into CPU events** to monitor active functions.
 2. **Stack unwinding** to trace function calls.

@@ -189,10 +189,10 @@ _Please stay tuned!_
 Even though we simplified things a bit here, if you want to write a program to utilize symbolization, you still have a lot of work to do.
 Many open-source tools out there already handle nitty-gritty details of symbolization, like [`perf`](https://www.brendangregg.com/perf.html).
 
-The good news is we got you covered. If you are using [Parca Agent](https://github.com/parca-dev/parca-agent), we already do [the heavy lifting](https://www.parca.dev/docs/symbolization) for you to symbolize captured stack traces.
+The good news is we got you covered. If you are using [Parca Agent](https://github.com/parca-dev/parca-agent), we already do [the heavy lifting](https://www.parca.dev/docs/symbolization/) for you to symbolize captured stack traces.
 And we keep extending our support for the different languages and runtimes.
 
-Check [Parca](https://www.parca.dev/) out and let us know what you think, on [Discord](https://discord.gg/ZgUpYgpzXy) channel.
+Check [Parca](https://www.parca.dev/) out and let us know what you think, on [Discord](https://discord.com/invite/ZgUpYgpzXy) channel.
 
 ### Further reading
 

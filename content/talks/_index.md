@@ -120,7 +120,7 @@ Thanos is an open-source, CNCF’s Incubated project that horizontally scales Pr
 
 ## 2020
 
-### [Are you testing your observability?](http://are-you-testing-your-observability.now.sh)
+### [Are you testing your observability?](https://are-you-testing-your-observability.vercel.app/)
 
 Observability is the key to understand how your application runs and behaves in action. This is especially vital for distributed environments like Kubernetes, where users run Cloud-Native microservices often written in Go.
 
@@ -136,7 +136,7 @@ During this talk, we discuss valuable patterns and best practices for instrument
 
 * [GoDays Berlin 2020](https://www.godays.io/conferenceday1)
   * [Recording](https://youtu.be/LU6D5cNeHks)
-* [FOSDEM 2020](https://fosdem.org/2020/schedule/event/testing_observability/)
+* [FOSDEM 2020](https://archive.fosdem.org/2020/schedule/event/testing_observability/)
   * [Recording](https://www.youtube.com/watch?v=-jF4nWfrY3w)
 
 ### [The Zen of Prometheus](https://gitpitch.com/kakkoyun/the-zen-of-prometheus/master?p=presentation#/)

@@ -54,7 +54,7 @@ We built a [demo repository](https://github.com/kakkoyun/fosdem-2026) with the s
 | 3 | `obi` | eBPF (OBI) | [OpenTelemetry eBPF Instrumentation](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation). Network-level eBPF hooks. Runs as a sidecar, attaches to the running process. No code changes. |
 | 4 | `ebpf` | eBPF (Auto) | [OpenTelemetry Go auto-instrumentation](https://github.com/open-telemetry/opentelemetry-go-instrumentation). uprobe-based eBPF hooks targeting Go runtime functions. No code changes. |
 | 5 | `orchestrion` | Compile-time | [Datadog Orchestrion](https://github.com/datadog/orchestrion) with OTel SDK. AST transformation via `-toolexec` at compile time. Requires a rebuild but no source changes. |
-| 6 | `libstabst` | USDT (salp) | USDT probes via [salp](https://github.com/mmcshane/salp)/[libstapsdt](https://github.com/sthima/libstapsdt), consumed by a bpftrace sidecar that exports to OTLP. Proof of concept. |
+| 6 | `libstabst` | USDT (salp) | USDT probes via [salp](https://github.com/mmcshane/salp)/[libstapsdt](https://github.com/linux-usdt/libstapsdt), consumed by a bpftrace sidecar that exports to OTLP. Proof of concept. |
 | 7 | `usdt` | USDT (native) | Native USDT probes via a [custom Go fork](https://github.com/kakkoyun/go/tree/poc_usdt) that adds probe points to `net/http`, `database/sql`, `crypto/tls`, and `net`. Proof of concept. |
 
 Each scenario runs in Docker with an identical observability stack (OTel Collector, Jaeger, Prometheus) and is load-tested with identical parameters.
@@ -181,7 +181,7 @@ We built two proof-of-concept implementations.
 
 #### libstabst: USDT via salp and bpftrace
 
-The `libstabst` scenario uses [salp](https://github.com/mmcshane/salp), a Go binding to [libstapsdt](https://github.com/sthima/libstapsdt), to create USDT probes at runtime. The application defines probe points for request start and end:
+The `libstabst` scenario uses [salp](https://github.com/mmcshane/salp), a Go binding to [libstapsdt](https://github.com/linux-usdt/libstapsdt), to create USDT probes at runtime. The application defines probe points for request start and end:
 
 ```go
 probes = salp.NewProvider("fosdem")
@@ -308,6 +308,6 @@ The instrumentation tax is real and unavoidable. The question is not whether to 
 
 The slides are available as [Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md) in the repository. The demo code, Docker setup, and benchmark scripts are all in the [FOSDEM-2026 repository](https://github.com/kakkoyun/fosdem-2026). The [recording is on YouTube](https://www.youtube.com/watch?v=0TvrSebuDPk).
 
-If you want to get involved: the [OTel Compile-time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://slack.cncf.io/) are where the discussions happen.
+If you want to get involved: the [OTel Compile-time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://communityinviter.com/apps/cloud-native/cncf) are where the discussions happen.
 
 See also: [OTel Unplugged EU 2026 field notes](/posts/otel-unplugged-eu-2026/) for the broader community context.

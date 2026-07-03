@@ -194,7 +194,7 @@ You can't solve these with a slide deck. You need a room, a whiteboard, and hone
 
 As I always say — **the hallway track is the real conference.** OTel Unplugged is an entire day of hallway track, and it's exactly what the community needs.
 
-If you want to get involved: join the [CNCF Slack](https://slack.cncf.io/) and find the `#otel-prometheus`, `#otel-ebpf-instrumentation`, and `#otel-go-instrumentation` channels.
+If you want to get involved: join the [CNCF Slack](https://communityinviter.com/apps/cloud-native/cncf) and find the `#otel-prometheus`, `#otel-ebpf-instrumentation`, and `#otel-go-instrumentation` channels.
 The SIG meetings are open and listed on the [OTel community repo](https://github.com/open-telemetry/community).
 Show up, contribute, and help shape the future of observability.
 

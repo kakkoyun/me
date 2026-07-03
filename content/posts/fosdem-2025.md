@@ -29,10 +29,10 @@ Saturday kicked off in the **Go DevRoom**, before a (failed) mission to infiltra
 
 The **Go DevRoom** delivered as expected:
 
-- **"[The State of Go](https://fosdem.org/2025/schedule/event/fosdem-2025-5353-the-state-of-go/)"** – Maartje Eyskens gave a solid rundown on where Go is headed.
-- **"[Swiss Maps in Go](https://fosdem.org/2025/schedule/event/fosdem-2025-6049-swiss-maps-in-go/)"** – Bryan Boreham took us through these lightning-fast maps.
+- **"[The State of Go](https://archive.fosdem.org/2025/schedule/event/fosdem-2025-5353-the-state-of-go/)"** – Maartje Eyskens gave a solid rundown on where Go is headed.
+- **"[Swiss Maps in Go](https://archive.fosdem.org/2025/schedule/event/fosdem-2025-6049-swiss-maps-in-go/)"** – Bryan Boreham took us through these lightning-fast maps.
   ![Swiss Maps in Go talk](/uploads/fosdem25_swissmaps.jpeg)
-- **"[Go-ing Easy on Memory: Writing GC-Friendly Code](https://fosdem.org/2025/schedule/event/fosdem-2025-5343-go-ing-easy-on-memory-writing-gc-friendly-code/)"** – Sümer Cip’s talk was a timely reminder that, yes, your garbage collection problems are (probably) your fault.
+- **"[Go-ing Easy on Memory: Writing GC-Friendly Code](https://archive.fosdem.org/2025/schedule/event/fosdem-2025-5343-go-ing-easy-on-memory-writing-gc-friendly-code/)"** – Sümer Cip’s talk was a timely reminder that, yes, your garbage collection problems are (probably) your fault.
 
 #### **eBPF Fail**
 
@@ -50,9 +50,9 @@ Sunday was all about observability, performance, and squeezing every bit of insi
 
 The **Monitoring and Observability DevRoom** had a strong lineup:
 
-- Richard "RichiH" Hartmann [set the stage](https://fosdem.org/2025/schedule/event/fosdem-2025-6715-monitoring-and-observability-devroom-opening/).
-- **"[The Performance Impact of auto-instrumentation](https://fosdem.org/2025/schedule/event/fosdem-2025-5502-the-performance-impact-of-auto-instrumentation/)"** – James Belchamber gave a fantastic talk on the hidden costs of auto-instrumentation.
-- **"[Prometheus Version 3](https://fosdem.org/2025/schedule/event/fosdem-2025-6571-prometheus-version-3/)"** – Jan Fajerski and Bryan Boreham gave us the lowdown on what’s next for Prometheus.
+- Richard "RichiH" Hartmann [set the stage](https://archive.fosdem.org/2025/schedule/event/fosdem-2025-6715-monitoring-and-observability-devroom-opening/).
+- **"[The Performance Impact of auto-instrumentation](https://archive.fosdem.org/2025/schedule/event/fosdem-2025-5502-the-performance-impact-of-auto-instrumentation/)"** – James Belchamber gave a fantastic talk on the hidden costs of auto-instrumentation.
+- **"[Prometheus Version 3](https://archive.fosdem.org/2025/schedule/event/fosdem-2025-6571-prometheus-version-3/)"** – Jan Fajerski and Bryan Boreham gave us the lowdown on what’s next for Prometheus.
   ![Prometheus 3 talk](/uploads/fosdem25_prometheus.jpeg)
 
 ### Community Vibes
