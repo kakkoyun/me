@@ -121,6 +121,11 @@ params:
   author:
     name: "Kemal Akkoyun"
     email: "kakkoyun@gmail.com"
+  # Site-default social/schema image. PaperMod's get-page-images falls back to
+  # this when a page has no cover image, filling og:image, twitter:image, and
+  # the BlogPosting "image" field on cover-less pages.
+  images:
+    - "/img/android-chrome-512x512.png"
   schema:
     publisherType: "Person"
   keywords:
