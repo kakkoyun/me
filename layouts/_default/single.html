@@ -1,7 +1,10 @@
-{{- /* Override of PaperMod's single.html. The ONLY change from upstream is the
-       position of the `.post-tags` block: it is moved out of the footer to sit
-       directly under the article body, above the newsletter form rendered by
-       extend_post_content.html. Keep in sync with the theme on PaperMod bumps. */ -}}
+{{- /* Override of PaperMod's single.html. Changes from upstream:
+       1. The `.post-tags` block is moved out of the footer to sit directly
+          under the article body, above the newsletter form rendered by
+          extend_post_content.html.
+       2. The series-nav partial is rendered after the cover, before the
+          ToC/content, for posts that belong to a `series` taxonomy term.
+       Keep in sync with the theme on PaperMod bumps. */ -}}
 {{- define "main" }}
 
 <article class="post-single">
@@ -34,6 +37,7 @@
   </header>
   {{- $isHidden := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false }}
   {{- partial "cover.html" (dict "cxt" . "IsSingle" true "isHidden" $isHidden) }}
+  {{- partial "series-nav.html" . }}
   {{- if (.Param "ShowToc") }}
   {{- partial "toc.html" . }}
   {{- end }}
