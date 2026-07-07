@@ -142,7 +142,7 @@ They're complementary layers for different deployment scenarios:
 | **eBPF/OBI** | Kernel-level uprobe hooking | No app modification, needs kernel privileges |
 | **Injector/SSI** | K8s operator triggering instrumentation | Lowest friction onboarding, abstracts complexity |
 
-On the Kubernetes operations side, there was a concrete proposal: a **CRD for otel-operator** to deploy OBI daemonsets — with config validation and selective node deployment via workload labels. Not theoretical; the group was sketching the API surface.
+On the Kubernetes operations side, there was a concrete proposal: a **CRD for OTel-operator** to deploy OBI daemonsets — with config validation and selective node deployment via workload labels. Not theoretical; the group was sketching the API surface.
 
 ---
 
@@ -167,7 +167,7 @@ Other SIGs handle it manually. Some SIGs have tried a buddy/mentor system for on
 
 And a new problem: as one maintainer put it directly, *"AI slop creates a lot of work for maintainers."* Low-quality AI-generated PRs need review just like everything else, but they rarely lead to productive outcomes — creating a treadmill of review work that burns out the very people the project can't afford to lose.
 
-#### opentelemetry-go-auto: Quietly Fading
+#### OpenTelemetry-go-auto: Quietly Fading
 
 During the Go-focused session, someone asked about `opentelemetry-go-auto` — the eBPF-based Go auto-instrumentation project.
 The answer was frank: the project **"seems in maintenance mode, some of their maintainers are already contributing to OBI."** The group decided to keep it out of the discussions unless those maintainers want to participate.
