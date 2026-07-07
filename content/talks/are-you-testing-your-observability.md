@@ -34,5 +34,5 @@ During this talk, we discuss valuable patterns and best practices for instrument
 
 * [GoDays Berlin 2020](https://www.godays.io/conferenceday1)
   * [Recording](https://youtu.be/LU6D5cNeHks)
-* [FOSDEM 2020](https://fosdem.org/2020/schedule/event/testing_observability/)
+* [FOSDEM 2020](https://archive.fosdem.org/2020/schedule/event/testing_observability/)
   * [Recording](https://www.youtube.com/watch?v=-jF4nWfrY3w)

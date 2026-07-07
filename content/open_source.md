@@ -41,16 +41,16 @@ Kubernetes specific configuration for deploying Thanos.
 
 ### [parca](https://github.com/parca-dev/parca)
 
-Parca is a continuous profiling project for applications and infrastructure. It helps you save money, improve performance and understand incidents better. <https://parca.dev>
+Parca is a continuous profiling project for applications and infrastructure. It helps you save money, improve performance and understand incidents better. <https://www.parca.dev>
 
 ### [parca-agent](https://github.com/parca-dev/parca-agent)
 
-eBPF based always-on profiler auto-discovering targets in Kubernetes and systemd, zero code changes or restarts needed! <https://parca.dev>
+eBPF based always-on profiler auto-discovering targets in Kubernetes and systemd, zero code changes or restarts needed! <https://www.parca.dev>
 
 ### [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus)
 
 Use Prometheus to monitor Kubernetes and applications running on Kubernetes.
 
-### [drone-cache](https://github.com/meltwater/drone-cache)
+### [drone-cache](https://github.com/MeltwaterArchive/drone-cache)
 
 A Drone plugin for caching current workspace files between builds to reduce your build times. drone-cache is a small CLI program, written in Go without any external OS dependencies (such as tar, etc).

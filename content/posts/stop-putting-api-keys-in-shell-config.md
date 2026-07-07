@@ -97,7 +97,7 @@ This is the step people skip. **Do it now.** The old keys have been in plaintext
 
 - OpenAI: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 - Google AI: [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-- Anthropic: [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+- Anthropic: [console.anthropic.com/settings/keys](https://platform.claude.com/settings/keys)
 
 Generate new keys, update the 1Password items with `op item edit`, and you're done.
 
@@ -254,6 +254,6 @@ Install `op`, store your keys, replace the exports, rotate the old keys. Five mi
 - [Securing MCP Servers with 1Password](https://1password.com/blog/securing-mcp-servers-with-1password-stop-credential-exposure-in-your-agent) — 1Password's take on stopping credential exposure in agent configurations
 - [Secure Environment Variables for LLMs, MCPs, and AI Tools](https://williamcallahan.com/blog/secure-environment-variables-1password-doppler-llms-mcps-ai-tools) — William Callahan's walkthrough of using 1Password CLI and Doppler for AI tool secrets
 - [Where MCP Fits and Where It Doesn't](https://1password.com/blog/where-mcp-fits-and-where-it-doesnt) — 1Password on the security model of MCP and credential boundaries
-- [1Password CLI: Secret References](https://developer.1password.com/docs/cli/secret-references/) — official docs on the `op://` URI scheme
-- [1Password CLI: `op inject`](https://developer.1password.com/docs/cli/reference/commands/inject/) — batch-load secrets from template files
-- [1Password Shell Plugins](https://developer.1password.com/docs/cli/shell-plugins/) — native integrations for CLI tools like `gh`, `aws`, and `stripe`
+- [1Password CLI: Secret References](https://www.1password.dev/cli/secret-references) — official docs on the `op://` URI scheme
+- [1Password CLI: `op inject`](https://www.1password.dev/cli/reference/commands/inject) — batch-load secrets from template files
+- [1Password Shell Plugins](https://www.1password.dev/cli/shell-plugins) — native integrations for CLI tools like `gh`, `aws`, and `stripe`

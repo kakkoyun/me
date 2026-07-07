@@ -94,18 +94,18 @@ xkcd.com - How standards proliferate [https://xkcd.com/927/][https://xkcd.com/92
 
 _Originally published at_ [_underthehood.meltwater.com_](https://underthehood.meltwater.com/blog/2019/04/10/making-drone-builds-10-times-faster/) _on April 10, 2019._
 
-[drone-cache]: https://github.com/meltwater/drone-cache
-[drone]: https://drone.io/
-[travisci]: https://travis-ci.com/
+[drone-cache]: https://github.com/MeltwaterArchive/drone-cache
+[drone]: https://www.drone.io/
+[travisci]: https://www.travis-ci.com/
 [circleci]: https://circleci.com/
-[jenkins]: https://jenkins.io/
+[jenkins]: https://www.jenkins.io/
 [ci/cd-pipeline]: https://en.wikipedia.org/wiki/CI/CD
 [kubernetes]: https://kubernetes.io/
-[cloud-native]: https://github.com/cncf/toc/blob/master/DEFINITION.md
+[cloud-native]: https://github.com/cncf/toc/blob/main/DEFINITION.md
 [release-early,-release-often]: https://en.wikipedia.org/wiki/Release_early,_release_often
 [npm]: https://www.npmjs.com/
 [rubygems]: https://rubygems.org/
-[plugins]: http://plugins.drone.io/
+[plugins]: https://plugins.drone.io/
 [drone-volume-cache]: https://github.com/Drillster/drone-volume-cache
 [aws]: https://aws.amazon.com/
 [s3]: https://aws.amazon.com/s3/
@@ -113,9 +113,9 @@ _Originally published at_ [_underthehood.meltwater.com_](https://underthehood.me
 [plugin-starter]: https://github.com/drone/drone-plugin-starter
 [internal]: https://underthehood.meltwater.com/blog/2014/08/18/meltwhatever-innovation-day-at-meltwater/
 [hackathon]: https://en.wikipedia.org/wiki/Hackathon
-[workspace]: https://docs.drone.io/user-guide/pipeline/steps
+[workspace]: https://docs.drone.io/user-guide/pipeline/steps/
 [mix]: https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html
 [bundler]: https://bundler.io/
 [maven]: https://maven.apache.org/
-[your-own-custom-cache-key-templates]: https://github.com/meltwater/drone-cache/blob/master/docs/cache_key_templates.md
+[your-own-custom-cache-key-templates]: https://github.com/MeltwaterArchive/drone-cache/blob/master/docs/cache_key_templates.md
 [https://xkcd.com/927/]: https://xkcd.com/927/

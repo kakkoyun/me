@@ -19,7 +19,7 @@ tags:
 date: 2023-10-04T00:00:00Z
 publishDate: 2023-10-04T00:00:00Z
 showCanonicalLink: true
-canonicalUrl: https://www.polarsignals.com/blog/posts/2023/10/04/profiling-python-and-ruby-with-ebpf/
+canonicalUrl: https://www.polarsignals.com/blog/posts/2023/10/04/profiling-python-and-ruby-with-ebpf
 ---
 
-[https://www.polarsignals.com/blog/posts/2023/10/04/profiling-python-and-ruby-with-ebpf/](https://www.polarsignals.com/blog/posts/2023/10/04/profiling-python-and-ruby-with-ebpf/)
+[https://www.polarsignals.com/blog/posts/2023/10/04/profiling-python-and-ruby-with-ebpf/](https://www.polarsignals.com/blog/posts/2023/10/04/profiling-python-and-ruby-with-ebpf)

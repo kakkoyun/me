@@ -152,17 +152,17 @@ For example, in Python, the symbol mappings can be accessed using [`symtable`](h
 
 As a result, you need to craft a specific routine for each interpreter runtime (in some cases, each version of that runtime) to obtain symbol information.
 Educated eyes might have already noticed, it's not an easy undertaking considering the sheer amount of interpreted languages out there.
-For example, a very well known Ruby profiler, [rbspy](https://github.com/rbspy/rbspy/blob/master/ARCHITECTURE.md), generates code for reading internal structs of the Ruby runtime for each version.
+For example, a very well known Ruby profiler, [rbspy](https://github.com/rbspy/rbspy/blob/main/ARCHITECTURE.md), generates code for reading internal structs of the Ruby runtime for each version.
 
 If you were to write a general-purpose profiler, _like us_, you would need to write a special subroutine in your profiler for each runtime that you want to support.
 
 ## _Again_, don't worry, we got you covered
 
-The good news is we got you covered. If you are using [Parca Agent](https://github.com/parca-dev/parca-agent), we already do [the heavy lifting](https://www.parca.dev/docs/symbolization) for you to symbolize captured stack traces.
+The good news is we got you covered. If you are using [Parca Agent](https://github.com/parca-dev/parca-agent), we already do [the heavy lifting](https://www.parca.dev/docs/symbolization/) for you to symbolize captured stack traces.
 And we keep extending our support for the different languages and runtimes.
 For example, Parca has already support for parsing `perf` JIT interface to resolve the symbols for collected stack traces.
 
-Check [Parca](https://www.parca.dev/) out and let us know what you think, on [Discord](https://discord.gg/ZgUpYgpzXy) channel.
+Check [Parca](https://www.parca.dev/) out and let us know what you think, on [Discord](https://discord.com/invite/ZgUpYgpzXy) channel.
 
 ### Further reading
 
