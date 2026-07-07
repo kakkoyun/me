@@ -74,9 +74,6 @@ menu:
     - name: "About"
       weight: 11
       url: "/about/"
-    - name: "Start Here"
-      weight: 12
-      url: "/start-here/"
     # - name: "Uses"
     #   weight: 12
     #   url: "/uses/"
