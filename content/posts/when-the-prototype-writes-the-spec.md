@@ -2,7 +2,7 @@
 title: "When the prototype writes the spec"
 description: "OpenTelemetry's first reference implementation was slated to land two weeks before the cross-language working groups started. That order has consequences, and seven years later the project is still installing the gate it should have built in 2019."
 date: 2026-05-22T00:00:00Z
-publishDate: 2026-06-26T00:00:00Z
+publishDate: 2026-07-14T00:00:00Z
 categories:
   - engineering
 tags:
