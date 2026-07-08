@@ -45,11 +45,13 @@ The honest picture is this: the door has narrowed, the timing is brutal, and the
 
 ## What hasn't changed
 
-Here is the thing nobody seems to want to say plainly: the tools are remarkably capable, and you still make the judgment calls.
-
 I use AI assistants every day. I have seen them write code I would have been proud to write at thirty, in seconds. I have also seen them lie to me with the same confident cadence they use when they are right, and I have only caught the lies because I have been writing this kind of code for a long time and the seams looked wrong.
 
-That last sentence is the whole job.
+That last sentence is the whole job. Everything else in this post is why.
+
+<!-- TODO: one concrete seam anecdote goes here before un-drafting — a specific diff that looked plausible, what tipped me off, why only a mental model of the system caught it. -->
+
+The tools are remarkably capable. You still make the judgment calls.
 
 The model can generate plausible code. It cannot tell you that the plausible code will deadlock under load, or that the dependency it is reaching for was deprecated last quarter, or that the abstraction it just confidently proposed will not survive the next feature. Those calls are made by someone with a working model of the system in their head. Right now, that someone has to be you.
 
@@ -61,13 +63,9 @@ Andrej Karpathy named the failure mode in February 2025. He called it *vibe codi
 
 Addy Osmani wrote the response I would have written if I had thought of it first: *vibe coding is not the same as AI-assisted engineering*.[^osmani] One is a fun, low-stakes way to throw together a side project. The other is a disciplined practice — design, review, testing, ownership — that happens to use AI as a tool. Conflating the two, he argues, "risks both devaluing the discipline of engineering and giving newcomers a dangerously incomplete picture of what it takes to build robust, production-ready software."
 
-He is right, and the research is starting to back it up.
+He is right, and I have watched it play out on my own team. The engineers who trust the model most are the ones who question its output least. The ones who know their material push back — they read the diff, they ask why the model made the choice it made, they treat the answer as a draft, not a verdict. How you use the tool matters more than whether you use it. If you let it generate for you, you learn less; if you let it explain, you learn more.
 
-A Microsoft and Carnegie Mellon study at CHI 2025 surveyed 319 knowledge workers about their use of generative AI at work. The pattern: the more confident people were in the AI, the less critical thinking they reported doing. The more confident they were in their own expertise, the more they pushed back on AI output.[^msr_cmu] Expertise is what lets you treat AI as a draft instead of a verdict.
-
-A 2026 study on AI and skill formation in early-career developers found something sharper. When juniors used AI to *generate* code for them, comprehension scores dropped measurably. When they used AI to *explain* concepts and answer questions, learning was preserved or improved.[^skills] *How* you use the tool matters more than *whether* you use it.
-
-The message under all the noise: the people who get worse with AI are the ones who let it do their thinking. The people who get better with AI use it to sharpen their thinking. The difference is a habit.
+The people who get worse with AI let it do their thinking. The people who get better use it to sharpen theirs. The difference is a habit.
 
 ## What I tell the juniors on my team
 
@@ -102,9 +100,5 @@ That is what I tell them. It is the same thing senior engineers told me when I w
 [^karpathy]: Andrej Karpathy, post on X, February 2, 2025. <https://x.com/karpathy/status/1886192184808149383>
 
 [^osmani]: Addy Osmani, *Vibe Coding is Not the Same as AI-Assisted Engineering*, August 30, 2025. <https://addyo.substack.com/p/vibe-coding-is-not-the-same-as-ai>
-
-[^msr_cmu]: Hao-Ping (Hank) Lee et al., *The Impact of Generative AI on Critical Thinking: Self-Reported Reductions in Cognitive Effort and Confidence Effects From a Survey of Knowledge Workers*, CHI 2025. <https://dl.acm.org/doi/full/10.1145/3706598.3713778>
-
-[^skills]: Wendy Shen and Alex Tamkin, *How AI Impacts Skill Formation*, arXiv preprint 2601.20245, 2026. <https://arxiv.org/abs/2601.20245>
 
 [^metr]: Joel Becker et al., *Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity*, METR, July 2025; restatement, February 24, 2026. The 19% slowdown estimate has a confidence interval of +2% to +39% — the entire interval is slowdown, and the effect is statistically significant. The calibration point stands: developers forecast a 24% speedup before the study and, after being 19% slower, still believed they had been 20% faster. <https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/> and <https://metr.org/blog/2026-02-24-uplift-update/>
