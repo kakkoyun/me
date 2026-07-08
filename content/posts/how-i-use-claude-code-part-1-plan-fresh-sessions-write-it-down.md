@@ -122,7 +122,7 @@ Disk is the canon. Chat is the working memory.
 
 ## What's next
 
-Three habits — plan first, fresh sessions, write it down. They are not magic. They are the structure I built around the tool because the tool doesn't impose it. Your structure can look different. The point is to have one.
+Plan mode has a tax I still misjudge. I sometimes reach for it before I have a question worth planning, and ten minutes of reading in default mode would have gotten me further. What I'd like is a better instinct for when to press `Shift+Tab` in the first place: the signal that says "stop reading, start arguing about direction." I don't have it yet.
 
 Part 2 covers `claude-focus`: worktree-isolated sessions that keep `main` clean while agents work on branches. Part 3 is about output styles, including the [Explanatory](https://code.claude.com/docs/en/output-styles) style I used to draft this one, and what gets paid for in tokens.
 
