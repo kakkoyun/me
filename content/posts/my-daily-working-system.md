@@ -78,9 +78,7 @@ Claude Code accelerates the middle step. I describe the problem, it sketches an 
 
 For multi-issue work, `af` spawns subagents in their own sub-worktrees so they don't fight over files. Overkill most days; essential a few times a month.
 
-## A day in one workstream
-
-<!-- TODO(kakkoyun): trace one real workstream end to end.
+<!-- TODO(kakkoyun): add section "## A day in one workstream" — trace one real workstream end to end.
      Pick a recent issue; walk through:
        - `af create <issue>` — what was the task, what did the tmux/worktree/agent setup look like?
        - The subagent spawn — what did the two (or more) subagents do in parallel,
