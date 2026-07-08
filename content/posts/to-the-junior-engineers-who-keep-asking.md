@@ -33,7 +33,7 @@ The fear is honest, and most of the internet is unhelpful about it. Half the tak
 
 Start with the numbers, because the fear is grounded in something real.
 
-Stanford's Digital Economy Lab published *Canaries in the Coal Mine* in late 2025, looking at ADP payroll data covering millions of U.S. workers. Headcount for software developers aged 22–25 — the people just entering the industry — has fallen roughly 20% since October 2022. Workers aged 22–25 in the most AI-exposed occupations are down about 16% relative to older peers in the same roles.[^stanford]
+Stanford's Digital Economy Lab published *Canaries in the Coal Mine* in August 2025, looking at ADP payroll data covering millions of U.S. workers. Headcount for software developers aged 22–25 — the people just entering the industry — has fallen roughly 20% since October 2022. Workers aged 22–25 in the most AI-exposed occupations are down about 16% relative to older peers in the same roles.[^stanford]
 
 A separate working paper from two Harvard economics researchers found a similar pattern in firms that visibly adopted generative AI: junior employment fell about 9% within six quarters — roughly 10% in triple-difference estimates — while senior employment held steady or grew.[^harvard]
 
