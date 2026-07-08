@@ -45,7 +45,7 @@ A task is a branch, and a branch gets its own file tree and its own AI conversat
 
 This started as a shell function called `cf` (claude-focus), which I wrote up [here](/posts/one-command-isolated-claude-code-sessions/). `cf issue-42` does the whole setup; `cfr` resumes; `cfd` tears it down.
 
-The shell function is now growing a Go successor called `af` (agentic-flow / automatic-flow / as-fuck, pick your mood). Same job, but with proper lifecycle semantics, layered config, and a test harness instead of accumulating bash edge cases.
+The shell function is now growing a Go successor called `af` (agentic-flow / automatic-flow / as-fuck, pick your mood). Same job, but with proper lifecycle semantics, layered config, and a test suite instead of accumulating bash edge cases.
 
 `af` calls the worktree-plus-tmux-plus-agent triple a **workstream**:
 
@@ -73,7 +73,7 @@ Inside a worktree, the loop is intentionally boring:
 
 Claude Code accelerates the middle step. I describe the problem, it sketches an approach, I push back on the sketch, it implements, I read every diff. The AI's output is a draft; the test suite is the ground truth. I don't ship code I haven't read.
 
-For multi-issue work, `af` spawns subagents in their own sub-worktrees on sibling branches (`<branch>--<slot>`), so they don't fight over the same files. Overkill most days; essential a few times a month.
+For multi-issue work, `af` spawns subagents in their own sub-worktrees so they don't fight over files. Overkill most days; essential a few times a month.
 
 ## Notes: Obsidian + qmd
 
