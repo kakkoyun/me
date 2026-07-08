@@ -2,7 +2,7 @@
 title: "How I Use Claude Code, Part 1: Plan First, Fresh Sessions, Write It Down"
 description: "Three habits I actually use day-to-day on a single-user Go project, with one anecdote per habit and what the docs actually guarantee."
 date: 2026-05-22T00:00:00Z
-publishDate: 2026-05-22T00:00:00Z
+publishDate: 2026-09-01T00:00:00Z
 categories:
   - blogmentation
 tags:
@@ -11,6 +11,7 @@ tags:
   - ai
   - productivity
   - tools
+  - agentic-coding
 series: "How I Use Claude Code"
 showToc: true
 tocOpen: false
