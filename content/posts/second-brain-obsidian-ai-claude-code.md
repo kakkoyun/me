@@ -5,17 +5,17 @@ publishDate: 2026-07-01T00:00:00Z
 date: 2026-05-22T00:00:00Z
 draft: true
 categories:
-  - "technical-findings"
+  - technical-findings
 tags:
-  - "obsidian"
-  - "claude-code"
-  - "second-brain"
-  - "pkm"
-  - "ai"
-  - "mcp"
-  - "tools"
-  - "blog"
-  - "agentic-coding"
+  - obsidian
+  - claude-code
+  - second-brain
+  - pkm
+  - ai
+  - mcp
+  - tools
+  - blog
+  - agentic-coding
 showToc: true
 tocOpen: false
 promote: false
@@ -39,7 +39,7 @@ figured out the perfect structure. I never did the canonical PARA
 reorganisation the books recommend. I just kept dumping things into the vault
 because the habit felt right and I figured I'd sort it out later.
 
-Then, sometime last year, AI tools learned to read it.
+Then, starting in late 2024, AI tools learned to read it.
 
 This post is about that — and about how the four years of accidental hoarding
 turned out to be the whole investment.
@@ -60,21 +60,18 @@ Four years of disorganised notes became a corpus I could actually query.
 
 ## What I actually run
 
-My vault sits at around 4,000 Markdown files at the time of writing. Native
-Obsidian search is keyword-only, which stops being useful somewhere around a
-few hundred notes. "Find everything I've written about distributed tracing"
-returns either the whole vault or none of it.
+My vault sits at around 3,600 Markdown files — closer to 4,000 across the
+personal and work vaults combined. Native Obsidian search is keyword-only,
+which stops being useful somewhere around a few hundred notes. "Find
+everything I've written about distributed tracing" returns either the whole
+vault or none of it.
 
-The tool I reach for most is [`qmd`](https://github.com/kakkoyun/qmd) — a
-small CLI I built for exactly this vault. BM25 for lexical matching, local
-vector embeddings for semantics, a reranker to combine them. It runs
-entirely offline, indexes on save, and is the layer everything else in my
-stack calls into.
-
-<!-- TODO(kemal): paste one real `qmd query` invocation here — command,
-     ~10 lines of trimmed output, and timing. e.g.
-     `qmd query "distributed tracing tail sampling" — 3.8k notes in 240ms`.
-     This is the corpus proof the intro promises. -->
+The tool I reach for most is [`qmd`](https://github.com/tobi/qmd) — a small
+CLI by Tobi Lütke that does BM25 for lexical matching, local vector
+embeddings for semantics, and a reranker to combine them. It runs entirely
+offline, indexes on save, and is the layer everything else in my stack
+calls into. I go into how I actually use it — indexing choices, retrieval
+quality, the surprises — in a follow-up post on the architecture.
 
 The off-the-shelf pieces around it are shorter to describe:
 [`mcp-obsidian`](https://github.com/MarkusPfundstein/mcp-obsidian) (with the
@@ -161,9 +158,9 @@ The minimum useful stack, in order:
 That's the floor. Add semantic retrieval on top when keyword search runs out —
 [Smart Connections](https://github.com/brianpetro/obsidian-smart-connections)
 or [Khoj](https://github.com/khoj-ai/khoj) if you want something off the
-shelf, [`qmd`](https://github.com/kakkoyun/qmd) if you'd rather roll your
-own. Add [`basic-memory`](https://github.com/basicmachines-co/basic-memory)
-when you want structured memory persisting across sessions.
+shelf. I use [`qmd`](https://github.com/tobi/qmd) by Tobi Lütke. Add
+[`basic-memory`](https://github.com/basicmachines-co/basic-memory) when you
+want structured memory persisting across sessions.
 
 If you've been keeping notes for years and wondering whether the effort was
 worth it: yes, but for a different reason than the second-brain books
