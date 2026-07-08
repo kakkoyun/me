@@ -49,9 +49,7 @@ Plan mode does not help with everything. When the right next move is "explore th
 
 ## 2. Fresh sessions, persistent permissions
 
-Each Claude Code session begins with a fresh context window. That's not a side effect; it's the documented behavior:
-
-> Each Claude Code session begins with a fresh context window. Two mechanisms carry knowledge across sessions: CLAUDE.md files (instructions you write) and Auto memory (notes Claude writes itself based on your corrections and preferences).[^3]
+Each Claude Code session begins with a fresh context window.[^3] That's documented and deliberate.
 
 What gets re-established at the start of every session is what's on disk: project-root `CLAUDE.md`, auto-memory, the `.claude/rules/` directory, the allowlist in `settings.json`. What does *not* get re-established is the conversation. That's the single most useful default Claude Code has.
 
@@ -116,7 +114,7 @@ This isn't an obscure failure mode; I have caught it. From `PROGRESS.md` session
 
 > Agent B initially overwrote `PROGRESS.md` with a 10-line stub when it tried to update the file as part of its docs sync. The coordinator detected the regression in `git status`, reverted via `git checkout HEAD -- PROGRESS.md`, and (this session entry) is the authoritative update. No other agent touched outside their declared file boundaries.
 
-The interesting part isn't that an agent got a file wrong. It is that I detected the regression *because the file was on disk and `git status` told me*. If `PROGRESS.md` had only existed in the conversation, the bad stub would have replaced the good content silently, the compaction would have summarized over the original, and I would have lost it.
+What matters is that I detected the regression *because the file was on disk and `git status` told me*. If `PROGRESS.md` had only existed in the conversation, the bad stub would have replaced the good content silently, the compaction would have summarized over the original, and I would have lost it.
 
 Disk is the canon. Chat is the working memory.
 
