@@ -1,7 +1,7 @@
 ---
 title: "To the Junior Engineers Who Keep Asking"
 description: "Notes for the people on my team who are worried about their careers. The data is scarier than most posts admit. The answer is simpler."
-publishDate: 2026-06-24T00:00:00Z
+publishDate: 2026-08-18T00:00:00Z
 date: 2026-05-22T00:00:00Z
 draft: true
 categories:
