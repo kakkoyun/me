@@ -7,10 +7,10 @@ draft: true
 promote: false
 categories:
   - journal
-  - tools
 tags:
   - productivity
   - workflow
+  - tools
   - claude-code
   - tmux
   - obsidian
@@ -37,7 +37,7 @@ The query I open on Monday morning: `P0 + High Mental Energy`. Everything else c
 
 ## Isolation: one worktree per task
 
-A task is a branch, and a branch gets its own everything — file tree, terminal, AI conversation.
+A task is a branch, and a branch gets its own file tree and its own AI conversation.
 
 - Git worktrees check out one branch per directory at `~/Workspace/.worktrees/<repo>/<branch>/`.
 - tmux runs one named session per task.
@@ -56,9 +56,9 @@ af resume  issue-42  →  active again
 af done    issue-42  →  completed  (or abandoned)
 ```
 
-State lives at `~/.local/share/af/v1/sessions/<name>/state.toml` — no hidden tmux env vars, no fragile shell state [ADR-037, ADR-046]. The worktree layout, including subagent sub-worktrees at `<branch>--<slot>` on sibling branches, is pinned in [ADR-038]. Multiplexer is tmux-only [ADR-040]; agents are `claude`, `pi` (default), or `codex` behind a single Go interface [ADR-039, ADR-043].
+State lives at `~/.local/share/af/v1/sessions/<name>/state.toml`, so there are no hidden tmux env vars and no fragile shell state to babysit. The worktree layout, including subagent sub-worktrees at `<branch>--<slot>` on sibling branches, is pinned in ADR-038. Multiplexer is tmux-only; agents are `claude`, `pi` (default), or `codex` behind a single Go interface.
 
-`af`'s core (ADRs 031 through 065) is implementation-complete and runs my day. The heavy development right now is in newer ADRs — agent-session sync between VM and host, PR-state TTL caching, an `af review` command that drives a configurable PR review through any agent [ADR-073]. So this isn't a vapourware post; it's a tool I use, with new features showing up faster than I can blog about them.
+`af`'s core is implementation-complete and runs my day. The heavy development is in newer areas: agent-session sync between VM and host, PR-state TTL caching, and an `af review` command (ADR-073) that drives a configurable PR review through any agent. So this isn't a vapourware post; it's a tool I use, with new features showing up faster than I can blog about them.
 
 ## Development: TDD with Claude as draft generator
 
@@ -73,19 +73,19 @@ Inside a worktree, the loop is intentionally boring:
 
 Claude Code accelerates the middle step. I describe the problem, it sketches an approach, I push back on the sketch, it implements, I read every diff. The AI's output is a draft; the test suite is the ground truth. I don't ship code I haven't read.
 
-For multi-issue work, `af` spawns subagents in their own sub-worktrees on sibling branches (`<branch>--<slot>`), so they don't fight over the same files [ADR-038, ADR-039]. Overkill most days; essential a few times a month.
+For multi-issue work, `af` spawns subagents in their own sub-worktrees on sibling branches (`<branch>--<slot>`), so they don't fight over the same files. Overkill most days; essential a few times a month.
 
 ## Notes: Obsidian + qmd
 
 Two Obsidian vaults — personal and work — structured PARA-style. I search across them with `qmd`, a local-first tool I run via CLI or MCP that combines BM25 keyword search, vector embeddings, and LLM reranking. In practice it's `grep` for a corpus I can't remember the shape of: *"find the note where I was thinking about GLS leak detection"* → three results, pick the right one, full document in hand.
 
-The piece I haven't built yet: `af create` should stub out a note per workstream in the work vault, linked from `state.toml` [ADR-047]. Right now I keep the link manually, which means I sometimes don't.
+The piece I haven't built yet: `af create` should stub out a note per workstream in the work vault, linked from `state.toml`. Right now I keep the link manually, which means I sometimes don't.
 
 ## What's still rough
 
 - **Inbox triage.** Capture is working; triage is not. No tool fixes this — only doing it does.
 - **`af` ↔ `cf` overlap.** Both exist on my machine. I haven't migrated long-lived `cf` sessions to `af` yet, so I run both.
-- **Obsidian linking** is designed in [ADR-047] but not implemented.
+- **Obsidian linking** is designed but not implemented.
 - **Notes-to-blog pipeline.** Getting from a good Obsidian note to a published post has enough manual friction that this post is its own counterexample — three drafts and a slop-cleaning pass before shipping.
 
 ---
