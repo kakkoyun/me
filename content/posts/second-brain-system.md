@@ -60,7 +60,7 @@ If I had to defend the architecture in one sentence: it lets knowledge accumulat
 
 ## A morning when it paid off
 
-The retrieval engine across all of this is [qmd](https://github.com/kakkoyun/qmd) — local-first, BM25 plus vector embeddings plus an LLM reranker, no API call, useful hits across 4,000 files in under a second.
+The retrieval engine across all of this is [qmd](https://github.com/tobi/qmd) — Tobi Lütke's local-first CLI, BM25 plus vector embeddings plus an LLM reranker, no API call, useful hits across 4,000 files in under a second.
 
 A few weeks ago I was writing a section of a Go talk and asked Claude Code: *[FILL: real query, e.g. "what have I written about backpressure in event-stream consumers"]*. Three things came back from three folders, written months apart:
 
