@@ -27,6 +27,9 @@ I rebuild parts of this setup every few months and forget why I made the choices
 
 Everything possible goes into Things3. It's a capture-first inbox I triage on weekends, not a real-time tracker. The inbox currently holds around 970 items, which is somewhere between "honest capture" and "avoidance."
 
+<!-- TODO(kakkoyun): drop actual numbers here — how many of the 970 move on a typical weekend pass, median age of items still sitting in the inbox. Reviewer flag: "the honesty is already there; the data would make it bite." -->
+
+
 The tags do the actual work:
 
 - `P0` / `P1` / `P2` — I don't trust "Today" because every snoozed thing looks like today.
@@ -74,6 +77,18 @@ Inside a worktree, the loop is intentionally boring:
 Claude Code accelerates the middle step. I describe the problem, it sketches an approach, I push back on the sketch, it implements, I read every diff. The AI's output is a draft; the test suite is the ground truth. I don't ship code I haven't read.
 
 For multi-issue work, `af` spawns subagents in their own sub-worktrees so they don't fight over files. Overkill most days; essential a few times a month.
+
+## A day in one workstream
+
+<!-- TODO(kakkoyun): trace one real workstream end to end.
+     Pick a recent issue; walk through:
+       - `af create <issue>` — what was the task, what did the tmux/worktree/agent setup look like?
+       - The subagent spawn — what did the two (or more) subagents do in parallel,
+         and what did they touch that would have collided without sibling-branch sub-worktrees?
+       - `af suspend` / `af resume` — when did you step away, and what came back intact?
+       - `af done` — how did it wrap: merged, abandoned, split into follow-ups?
+     Reviewer flag: "the sibling-branch sub-worktree design saved you from two subagents
+     colliding on the same files" is the moment to name concretely. -->
 
 ## Notes: Obsidian + qmd
 
