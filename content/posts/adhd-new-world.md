@@ -12,14 +12,14 @@ tags:
   - ai
   - mental-health
   - personal
-  - reflection
   - career
 draft: true
+promote: false
 ---
 
 Six hours. I had planned to spend thirty minutes on a proof-of-concept.
 
-I know how this sounds. Engineers overrun estimates all the time. But this wasn't a planning failure — it was something I'd spent my whole adult life recognizing too late: hyperfocus. The kind where time doesn't slow down, it simply stops existing. My coffee went cold. I missed dinner. I surfaced at 11pm with more working code than I'd shipped in the previous three days combined.
+Engineers overrun estimates all the time. But this wasn't a planning failure — it was something I'd spent my whole adult life recognizing too late: hyperfocus. The kind where time doesn't slow down, it simply stops existing. My coffee went cold. I missed dinner. I surfaced at 11pm with more working code than I'd shipped in the previous three days combined.
 
 The twist: I was working with Claude Code. And I hadn't been writing much code at all.
 
@@ -33,15 +33,15 @@ Late diagnosis doesn't fix anything. But it does give you a map.
 
 ---
 
-So here I am in 2025-2026, holding this map, and the territory has changed completely.
+So here I am in 2026, holding this map, and the territory has changed completely.
 
 AI coding agents arrived and immediately did something strange for my brain: they fit. Not perfectly. But better than almost any other tool I'd used.
 
-Think about how executive dysfunction actually works. The bridge between "I know what to do" and "I am doing it" is missing or unreliable — not because of laziness or inability, but because of some structural gap in the signaling. You can stare at a task for forty minutes, completely aware of every step required, completely unable to begin the first one. The friction of starting is enormous.
+Think about how executive dysfunction actually works. The bridge between "I know what to do" and "I am doing it" is missing or unreliable — a structural gap in the signaling, not laziness. You can stare at a task for forty minutes, completely aware of every step required, completely unable to begin the first one. The friction of starting is enormous.
 
 These tools lowered that friction to almost nothing.
 
-"Hey, I want to explore this problem. Start here." You don't have to have the architecture worked out. You don't have to have the perfect name for the function yet. The act of *beginning* — which ADHD makes so hard — becomes nearly trivial. The conversation is the scaffold. The model fills in the gaps you'd normally spend executive resources on. You can start badly, vaguely, and iterate forward.
+"Hey, I want to explore this problem. Start here." You don't have to have the architecture worked out. You don't have to have the perfect name for the function yet. The act of *beginning* (which ADHD makes so hard) becomes nearly trivial. The conversation is the scaffold. The model fills in the gaps you'd normally spend executive resources on. You can start badly, vaguely, and iterate forward.
 
 This is not how most software development tools work. Most tools assume you've already started.
 
@@ -53,7 +53,7 @@ ADHD brains are famously bad at dopamine regulation. The reason tasks are hard t
 
 When the friction is gone, the brake is gone too.
 
-Steve Yegge wrote about this recently as a vampire dynamic: AI makes you 10x more productive, companies capture all of that 10x, and the worker burns out at 10x speed. That's a real structural problem. But for ADHD people, the vampire was already inside the house. I don't need a company to extract my productivity at scale. I'll do it to myself. I already do it to myself. The exhaustion isn't new — the acceleration is.
+Steve Yegge wrote about this [in February](https://steve-yegge.medium.com/the-ai-vampire-eda6e4f07163) as a vampire dynamic: AI makes you 10x more productive, companies capture all of that 10x, and the worker burns out at 10x speed. That's a real structural problem. But for ADHD people, the vampire was already inside the house. I don't need a company to extract my productivity at scale. I'll do it to myself. I already do it to myself. The exhaustion isn't new — the acceleration is.
 
 What I need is a new way to answer a question my brain has always been bad at: *when is enough?*
 
@@ -61,7 +61,7 @@ What I need is a new way to answer a question my brain has always been bad at: *
 
 Here's what I've learned, imperfectly, in the last year.
 
-Hyperfocus is a superpower with an invoice attached. AI amplifies it in both directions. A task that would have taken hours of overhead to warm up now lets me get to the interesting part immediately — and the interesting part is exactly where my brain thrives. I have shipped more working experiments in the last twelve months than in the three years before them combined. I have also lost more evenings, more weekends, more "just thirty minutes" that became five hours. The superpower doesn't come with a volume knob. You have to install one yourself.
+Hyperfocus is a superpower with an invoice attached. AI amplifies it in both directions. A task that would have taken hours of overhead to warm up now lets me get to the interesting part immediately — and the interesting part is exactly where my brain thrives. I have lost more evenings, more weekends, more "just thirty minutes" that became five hours. The superpower doesn't come with a volume knob. You have to install one yourself.
 
 Time blindness hasn't gone anywhere. Timers help. What actually works for me is externalizing time the same way I externalize memory: make it visible, make it loud, make it impossible to ignore. The agent tools won't do this for you. They have no concept of your dinner getting cold.
 
@@ -71,10 +71,10 @@ None of this is a reason not to use these tools. It's a reason to use them with 
 
 ---
 
-What the map tells me now — the one I waited until my thirties to find — is that my brain was never broken. It was mismatched: to school structures, to open-plan offices, to 9am standups, to the way most software development was expected to happen. I built compensating systems for all of it and called the effort "discipline."
+What the map tells me now (the one I waited until my thirties to find) is that my brain was never broken. It was mismatched: to school structures, to open-plan offices, to 9am standups, to the way most software development was expected to happen. I built compensating systems for all of it and called the effort "discipline."
 
-Some of those compensating systems are obsolete now. The friction I trained myself to push through is genuinely gone. The new question is: what does discipline mean when the wall is down?
+Some of those compensating systems are obsolete now. The friction I trained myself to push through is genuinely gone. The new question is: what does discipline mean when the friction is gone?
 
-I don't fully know yet. I suspect it means learning to stop in a world that no longer stops you. It means building new edges where the old obstacles used to be.
+I don't fully know yet. I suspect it means learning to stop in a world that no longer stops you.
 
 After thirty-something years of a brain that felt like it was fighting itself, having a problem that's about *too much* flow instead of *not enough* is a strange and mostly welcome inversion. I'll take it.
