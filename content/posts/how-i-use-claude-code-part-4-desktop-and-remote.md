@@ -2,7 +2,7 @@
 title: "How I Use Claude Code, Part 4: Desktop and Remote"
 description: "What changes when Claude Code leaves the terminal: cloud VM sessions, SSH to a real workspace, a diff panel you can comment on, and PRs that fix themselves."
 date: 2026-07-08T00:00:00Z
-publishDate: 2026-07-08T00:00:00Z
+publishDate: 2026-09-22T00:00:00Z
 categories:
   - blogmentation
 tags:
@@ -12,6 +12,7 @@ tags:
   - productivity
   - tools
   - developer-experience
+  - agentic-coding
 series: "How I Use Claude Code"
 showToc: true
 tocOpen: false
