@@ -36,9 +36,9 @@ The second is [Readwise](https://readwise.io). It syncs highlights from Kindle, 
 
 The third is obsidian-git. It commits the vault every 70 minutes and pushes every 7. I have not thought about backups in months.
 
-The Things 3, Whoop, Wakatime, Calendar, Jira, and GitHub data on this morning's daily note is stitched together by a small Python CLI I wrote called `pkm-tool`. It runs as a launchd job at 6am. By the time I open the laptop, the page exists and the activity is filled in.
+The Whoop score, the Wakatime row, and the PR queue in this morning's daily note are stitched together by a small Python CLI I wrote called `pkm-tool`. It pulls from GitHub (PRs opened, reviewed, merged), Jira (tickets resolved and commented on), Wakatime (time by project and language), Whoop (sleep quality, HRV, recovery score), Apple Calendar (meetings and blocks), Things 3 (tasks completed and scheduled), and Google Docs (documents created or edited). It runs as a launchd job at 6am. By the time I open the laptop, the page exists and the activity is filled in.
 
-That is the substrate. None of it is original — other Obsidian-PARA people have described all of it before. If the post ended here, it would not be worth your time.
+That is the substrate. Other Obsidian-PARA people have described all of it before. If the post ended here, it would not be worth your time.
 
 ## The one design choice
 
@@ -81,6 +81,8 @@ Three things, in order of how I would build it again.
 **Do not sync everything immediately.** Resist the urge to dump every Twitter favorite, web clip, and podcast highlight into one folder on day one. Start with one capture channel — books, or articles you actually read, or your daily journal — and live with it until "I captured something today and I can find it later" feels routine. Add channels once that rhythm exists.
 
 **Be honest about what the wiki layer needs from you.** The LLM Wiki pattern only compounds if you actually run it. My ingestion log is mostly empty. The schema landed in May and I have not pushed even half my Readwise backlog through INGEST. The structure works. The practice has not caught up. If you are skeptical of "second brain" hype because most setups die at the synthesis layer, you are not wrong. Mine has not proven it yet either.
+
+One thing to know before you set up your own version: the daily-note enrichment depends on four or five MCPs working at once (obsidian-mcp, Whoop, Things 3, Apple Calendar, Basic Memory). When one drops, the enrichment degrades silently — you get a page that looks right but is missing yesterday's tasks or your Whoop score. I do not have a health check for that yet.
 
 ## The one thing I cannot tell you yet
 
