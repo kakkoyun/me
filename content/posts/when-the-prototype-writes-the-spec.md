@@ -3,7 +3,6 @@ title: "When the prototype writes the spec"
 description: "OpenTelemetry's first reference implementation shipped two weeks before the cross-language working groups started. That order has consequences, and seven years later the project is still installing the gate it should have built in 2019."
 date: 2026-05-22T00:00:00Z
 publishDate: 2026-06-26T00:00:00Z
-slug: when-the-prototype-writes-the-spec
 categories:
   - engineering
 tags:
@@ -23,7 +22,7 @@ OpenTelemetry's first reference implementation shipped on April 24, 2019. It was
 
 I think about that timeline a lot, because I work on tracer libraries for a living, and the order in which a multi-language SDK gets built keeps mattering more than the documented process suggests.
 
-You can call this pattern "PoC first, RFC later." That's what we tell ourselves we're doing. In practice it tends to slide into "PoC ships, RFC never," and then six other languages spend the next year matching whatever the first implementation already did. I'd like to think there's a clean way out of this. I'm not sure there is. There's a less-messy way, though, and I want to write down what I think it looks like.
+You can call this pattern "PoC first, RFC later." That's what we tell ourselves we're doing. In practice it tends to slide into "PoC ships, RFC never," and then six other languages spend the next year matching whatever the first implementation already did. There's a less-messy way, though, and I want to write down what I think it looks like.
 
 ## What "first" looks like in OpenTelemetry
 
@@ -65,7 +64,7 @@ That's, structurally, the same shape as the Rust nightly/stable split. It's also
 
 It's interesting to me that this is happening seven years in. The PoC-first instinct produced a usable observability standard faster than waiting for a complete spec would have. I don't think anyone regrets that. The cost is showing up now as a governance project to retroactively install the gate that Rust had from the start.
 
-## So what do we do
+## Gate GA behind a flag and a second language
 
 Most teams I've worked on don't have the scale to run a Rust-style RFC process, and I don't think they should. The takeaway I keep landing on is smaller:
 
