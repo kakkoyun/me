@@ -26,7 +26,7 @@ You can call this pattern "PoC first, RFC later." That's what we tell ourselves 
 
 ## What "first" looks like in OpenTelemetry
 
-When the merger was announced in March 2019, the bootstrap committee had to deliver something that worked. They picked Java. The Java prototype was scheduled for April 24, and cross-language work formally kicked off on May 8.[^1] By September the project was aiming for parity with existing projects in C#, Go, Java, Node.js, and Python.[^1]
+When the merger was announced in March 2019, the bootstrap committee had to deliver something that worked.[^2] They picked Java. The Java prototype was scheduled for April 24, and cross-language work formally kicked off on May 8.[^1] By September the project was aiming for parity with existing projects in C#, Go, Java, Node.js, and Python.[^1]
 
 Two weeks isn't enough time for a multi-language working group to sit down, look at the prototype, and ask "okay, but how does this map to Go's `context.Context` and Python's `contextvars` and JavaScript's `AsyncLocalStorage`?" Those conversations happened later, in parallel with implementations, and a fair amount of what shipped in 2019 reflected what was natural to write in Java in 2019. That's how the calendar shook out.
 
@@ -76,9 +76,9 @@ I'm not certain about any of this. I'd be curious whether anyone reading this ha
 
 ## References
 
-[^1]: ["A Roadmap to Convergence" — Ted Young, OpenTracing on Medium (April 2019)](https://medium.com/opentracing/a-roadmap-to-convergence-b074e5815289). Java reference implementation date (April 24, 2019) and the May 8, 2019 cross-language kickoff.
+[^1]: ["A Roadmap to Convergence" — Ted Young, OpenTracing on Medium (April 2019)](https://medium.com/opentracing/a-roadmap-to-convergence-b074e5815289). The scheduled April 24, 2019 Java reference implementation, the May 8, 2019 cross-language kickoff, and the September 2019 target of parity with the existing projects for C#, Go, Java, Node.js, and Python.
 
-[^2]: ["OpenTelemetry: The Merger of OpenCensus and OpenTracing" — Google Open Source Blog (May 2019)](https://opensource.googleblog.com/2019/05/opentelemetry-merger-of-opencensus-and.html). Initial seed governance committee and the September 2019 parity target for C#, Go, Java, Node.js, and Python.
+[^2]: [Ben Sigelman, "Merging OpenTracing and OpenCensus: Goals and Non-Goals" — Medium (March 28, 2019)](https://medium.com/opentracing/merging-opentracing-and-opencensus-f0fe9c7ca6f0). The March 2019 merger announcement by the projects' joint bootstrap committee.
 
 [^3]: [`opentelemetry-python` issue #71 — asyncio context propagation in Python 3.5/3.6](https://github.com/open-telemetry/opentelemetry-python/issues/71). Historical record of the contextvars/asyncio integration gap and the version-dependent behavior.
 
