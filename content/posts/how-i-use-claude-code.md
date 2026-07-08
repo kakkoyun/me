@@ -89,7 +89,7 @@ The handover snapshot at the top of `TODO.md` in `af` currently reads:
 >
 > `make check` is green: 0 lint, all 21 packages pass `-race -count=1 -shuffle=on`.
 
-That's the canonical answer to "where were we." It is written by me, after each session. Not generated. Not summarized from chat. Manually written in plain English with commit hashes and ADR numbers. The first thing I read when I come back to the project. The first thing Claude reads, too, because `TODO.md` is referenced from `CLAUDE.md`.
+That's the canonical answer to "where were we." I write it by hand after each session, in plain English, with commit hashes and ADR numbers. The first thing I read when I come back to the project. The first thing Claude reads, too, because `TODO.md` is referenced from `CLAUDE.md`.
 
 I keep two files per project:
 
@@ -106,9 +106,9 @@ Inside a session I do use Claude Code's `TodoWrite` tool to track work in flight
 | Auto memory | Re-injected from disk |
 | Invoked skill bodies | Re-injected, with caps |
 | Path-scoped rules, nested CLAUDE.md | Lost until trigger file is read again |
-| The conversation itself | Replaced with a summary |
+| Hooks | Not applicable; hooks run as code, not context |
 
-The in-session task list rides with the conversation, which gets summarized. CLAUDE.md and auto-memory get re-injected verbatim. If I want a piece of state to mean the same thing tomorrow as it does now, it goes on disk in a file my own CLAUDE.md references.
+The conversation itself isn't in the table — the same docs page notes above it that the conversation is replaced with a summary. The in-session task list rides with that summary. CLAUDE.md and auto-memory get re-injected verbatim. If I want a piece of state to mean the same thing tomorrow as it does now, it goes on disk in a file my own CLAUDE.md references.
 
 This isn't an obscure failure mode; I have caught it. From `PROGRESS.md` session 8, verbatim:
 
