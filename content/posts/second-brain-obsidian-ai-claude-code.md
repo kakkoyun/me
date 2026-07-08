@@ -53,75 +53,39 @@ influencer. I forget where I put things constantly.
 But something genuinely shifted last year: tools like
 [Claude Code](https://www.anthropic.com/claude-code),
 [Claude Desktop](https://claude.ai/download), and Cursor learned to speak a
-new protocol — the [Model Context Protocol](https://modelcontextprotocol.io/),
-Anthropic's open standard for connecting AI applications to external systems.
-Their own metaphor on the spec site is *"like a USB-C port for AI
-applications."*
+new protocol — the [Model Context Protocol](https://modelcontextprotocol.io/).
+An agent can now open, search, and write to your Markdown directly. No
+copy-paste, no re-explaining projects from scratch, no plugin per client.
+Four years of disorganised notes became a corpus I could actually query.
 
-That sounds dry. The practical effect is anything but.
+## What I actually run
 
-It means every disorganised Markdown file I've been hoarding for four years
-is now something an agent can read, search, link, and write to. The
-accumulated mess is suddenly a corpus.
+My vault sits at around 4,000 Markdown files at the time of writing. Native
+Obsidian search is keyword-only, which stops being useful somewhere around a
+few hundred notes. "Find everything I've written about distributed tracing"
+returns either the whole vault or none of it.
 
-## What's possible right now (with real tools)
+The tool I reach for most is [`qmd`](https://github.com/kakkoyun/qmd) — a
+small CLI I built for exactly this vault. BM25 for lexical matching, local
+vector embeddings for semantics, a reranker to combine them. It runs
+entirely offline, indexes on save, and is the layer everything else in my
+stack calls into.
 
-Three concrete things you can wire up today. I'll be specific about which
-projects I'd actually point you at, with links.
+<!-- TODO(kemal): paste one real `qmd query` invocation here — command,
+     ~10 lines of trimmed output, and timing. e.g.
+     `qmd query "distributed tracing tail sampling" — 3.8k notes in 240ms`.
+     This is the corpus proof the intro promises. -->
 
-### 1. A bridge between Obsidian and your AI client
-
-[**`mcp-obsidian`**](https://github.com/MarkusPfundstein/mcp-obsidian) by
-Markus Pfundstein is the most popular Obsidian MCP server (around 3.8k stars
-at time of writing). It talks to your vault through the companion
-[Local REST API plugin](https://github.com/coddingtonbear/obsidian-local-rest-api)
-by Adam Coddington, which is the prerequisite — you install the plugin in
-Obsidian, generate an API token, then point the MCP server at it.
-
-Once wired in, your AI client can read, create, search, and update your notes
-directly. No more copy-pasting context into chat. No more re-explaining your
-projects from scratch every session.
-
-This is the moment your AI stops being a stranger to your own thinking. It
-can answer "what did I decide about X" by actually reading the note where
-you decided it.
-
-### 2. A persistent memory layer
-
-[**`basic-memory`**](https://github.com/basicmachines-co/basic-memory) by
-Basic Machines (open source, AGPL-3.0) goes a step further. Their tagline is
-the honest pitch:
-
-> *"AI conversations that actually remember. Never re-explain your project
-> to your AI again."*
-
-Every conversation can leave structured Markdown behind — observations (facts
-you've established) and relations (wiki-style links to other concepts) — that
-lives in your vault as plain files. Install with `uv tool install basic-memory`,
-add it to your MCP config, and your sessions stop being amnesiac across days
-and weeks.
-
-### 3. Semantic search over your vault
-
-Native Obsidian search is keyword-only. When you have thousands of notes,
-"find everything I've written about distributed tracing" returns either too
-much or nothing useful. What you want is semantic retrieval — finding notes
-that are *about* a concept, not just notes that contain the words.
-
-Two public tools to look at:
-
-- [**Smart Connections**](https://github.com/brianpetro/obsidian-smart-connections)
-  is the most popular Obsidian plugin for this. Local embeddings by default,
-  surfaces related notes as you navigate. One caveat: it's *source-available*
-  rather than traditional open source — the licence restricts redistribution
-  for competing commercial offerings, and a paid Pro tier funds development.
-- [**Khoj**](https://github.com/khoj-ai/khoj) (Apache 2.0) is a fully open
-  alternative that runs as a desktop app or service, indexes Markdown and
-  PDFs, and can also chat against your notes with local or hosted models.
-
-I personally run a small custom CLI for this — BM25 plus local vector
-embeddings plus reranking — but it's not public. If you want something today,
-those two are the honest recommendations.
+The off-the-shelf pieces around it are shorter to describe:
+[`mcp-obsidian`](https://github.com/MarkusPfundstein/mcp-obsidian) (with the
+[Local REST API plugin](https://github.com/coddingtonbear/obsidian-local-rest-api))
+bridges the vault to any MCP-speaking client;
+[`basic-memory`](https://github.com/basicmachines-co/basic-memory) persists
+structured observations across sessions so a conversation next week has last
+week's notes to draw on. If you don't want to build your own retrieval,
+[Smart Connections](https://github.com/brianpetro/obsidian-smart-connections)
+and [Khoj](https://github.com/khoj-ai/khoj) are the two I'd point you at.
+Their READMEs are better than my paraphrase would be.
 
 ## The compounding idea
 
@@ -159,6 +123,10 @@ Trying to be concrete here, because abstract claims are cheap.
   a retrospective or a status update — turns into "summarise my devlog notes
   for the past 7 days" and the agent does it in seconds.
 
+<!-- TODO(kemal): one more anecdote at the ADR-level specificity — an old
+     observability note (or similar technical note) surfacing exactly when
+     needed. Include date/topic pair so it lands concrete. -->
+
 None of these are magic. They're just years of accumulated context, finally
 legible to something that can act on it.
 
@@ -190,17 +158,16 @@ The minimum useful stack, in order:
    [Claude Desktop](https://claude.ai/download), or Cursor with the MCP config
    pointing at the bridge.
 
-That's the floor. From there: add
-[`basic-memory`](https://github.com/basicmachines-co/basic-memory) when you
-want structured memory persisting across sessions. Add
+That's the floor. Add semantic retrieval on top when keyword search runs out —
 [Smart Connections](https://github.com/brianpetro/obsidian-smart-connections)
-or [Khoj](https://github.com/khoj-ai/khoj) when keyword search isn't enough.
+or [Khoj](https://github.com/khoj-ai/khoj) if you want something off the
+shelf, [`qmd`](https://github.com/kakkoyun/qmd) if you'd rather roll your
+own. Add [`basic-memory`](https://github.com/basicmachines-co/basic-memory)
+when you want structured memory persisting across sessions.
 
 If you've been keeping notes for years and wondering whether the effort was
-worth it: it turns out the answer is yes — just not for the reasons most of
-the second-brain books predicted. Not because you'll go back and re-read
-them. Because they're finally readable by something that can do something
-with them.
+worth it: yes, but for a different reason than the second-brain books
+predicted. You probably won't go back and re-read them. Something else will.
 
 The unglamorous habit was the whole investment. The interesting part is just
 starting now.
