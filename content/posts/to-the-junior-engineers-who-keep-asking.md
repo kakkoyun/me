@@ -33,13 +33,13 @@ The fear is honest, and most of the internet is unhelpful about it. Half the tak
 
 Start with the numbers, because the fear is grounded in something real.
 
-Stanford's Digital Economy Lab published *Canaries in the Coal Mine* in late 2025, looking at ADP payroll data covering millions of U.S. workers. Headcount for software developers aged 22–25 — the people just entering the industry — has fallen roughly 20% since October 2022. Workers aged 22–25 in the most AI-exposed occupations are down about 13% relative to older peers in the same roles.[^stanford]
+Stanford's Digital Economy Lab published *Canaries in the Coal Mine* in late 2025, looking at ADP payroll data covering millions of U.S. workers. Headcount for software developers aged 22–25 — the people just entering the industry — has fallen roughly 20% since October 2022. Workers aged 22–25 in the most AI-exposed occupations are down about 16% relative to older peers in the same roles.[^stanford]
 
-A separate working paper from two Harvard economics researchers found a similar pattern in firms that visibly adopted generative AI: junior employment fell about 7.7% within six quarters, while senior employment held steady or grew.[^harvard]
+A separate working paper from two Harvard economics researchers found a similar pattern in firms that visibly adopted generative AI: junior employment fell about 9% within six quarters — roughly 10% in triple-difference estimates — while senior employment held steady or grew.[^harvard]
 
 If you are a junior engineer reading those numbers and feeling sick, that reaction is correct. Something is happening, and it is happening to your part of the market in particular.
 
-But the same papers are careful about what they do not show. The Stanford authors flag that the decline began so quickly after late 2022 that AI alone cannot explain it — the post-ZIRP correction, the layoffs, the hiring freezes all overlap with the AI story. The Harvard paper is a student working paper, not peer-reviewed. And Matt Garman, the CEO of AWS, was asked about replacing juniors with AI in a December 2025 interview and called it "one of the dumbest things I've ever heard," pointing out that the people you do not hire this year are the senior engineers you do not have ten years from now.[^garman]
+But the same papers are careful about what they show. The Stanford authors caveat only in the generic sense — their facts "may in part be influenced by factors other than generative AI." The stronger version of that caution is the standard counterargument: the post-ZIRP correction, the layoffs, and the hiring freezes all overlap with the AI story. It is the obvious rebuttal, and Stanford answers it head-on — their results survive robustness checks that isolate interest-rate exposure and exclude tech firms. The Harvard paper is a working paper, not peer-reviewed. And Matt Garman, the CEO of AWS, was asked about replacing juniors with AI in August 2025 and called it "one of the dumbest things I've ever heard," pointing out that the people you do not hire this year are the senior engineers you do not have ten years from now.[^garman]
 
 The honest picture is this: the door has narrowed, the timing is brutal, and the people running large engineering organizations are starting to push back on the strategy that narrowed it. Not "you are doomed." Not "this is fine." Somewhere harder than either.
 
@@ -59,7 +59,7 @@ This is not nostalgia. It is the structure of the work. A program is a set of de
 
 Andrej Karpathy named the failure mode in February 2025. He called it *vibe coding* — "you fully give in to the vibes, embrace exponentials, and forget that the code even exists... I 'Accept All' always, I don't read the diffs anymore."[^karpathy] He was being half-joking about his own weekend projects. The term escaped containment.
 
-Addy Osmani wrote the response I would have written if I had thought of it first: *vibe coding is not the same as AI-assisted engineering*.[^osmani] One is a fun, low-stakes way to throw together a side project. The other is a disciplined practice — design, review, testing, ownership — that happens to use AI as a tool. Conflating the two, he argues, "risks devaluing the discipline of engineering and giving newcomers a dangerously incomplete picture."
+Addy Osmani wrote the response I would have written if I had thought of it first: *vibe coding is not the same as AI-assisted engineering*.[^osmani] One is a fun, low-stakes way to throw together a side project. The other is a disciplined practice — design, review, testing, ownership — that happens to use AI as a tool. Conflating the two, he argues, "risks both devaluing the discipline of engineering and giving newcomers a dangerously incomplete picture of what it takes to build robust, production-ready software."
 
 He is right, and the research is starting to back it up.
 
@@ -77,7 +77,7 @@ Three things, mostly.
 
 **Write the test before you write the prompt.** Decide what "correct" looks like, by yourself, before the model gets a turn. That forces you to actually think about the problem. Then the model is a coding assistant, not a thinking assistant. Try this on the next ticket you pick up. The difference in your own understanding will be immediate.
 
-**Periodically work without AI as a calibration check.** Researchers at METR ran a randomized study of experienced open-source developers in mid-2025 and found something humbling: the developers thought AI assistance made them 20% faster on their own projects. In measured task completion, they were actually 19% slower.[^metr] Their perception was off by nearly 40 points. If experienced engineers cannot self-calibrate, neither can you.
+**Periodically work without AI as a calibration check.** Researchers at METR ran a randomized study of experienced open-source developers in mid-2025 and found something humbling: before the study started, the developers forecast a 24% speedup. In measured task completion, they were 19% slower. Handed that data, they still believed they had been 20% faster.[^metr] The perception did not budge. If experienced engineers cannot self-calibrate, neither can you.
 
 Pick something you have built recently with AI help, and rebuild it from scratch. The gaps in your mental model will show up fast, because you will be confused by your own code. Fill the gaps. Then go back to using the tool.
 
@@ -93,11 +93,11 @@ Do that, and the question of whether you will have a job in five years stops bei
 
 That is what I tell them. It is the same thing senior engineers told me when I was where they are, except the tools are different and the stakes feel louder. The advice still works.
 
-[^stanford]: Erik Brynjolfsson, Bharat Chandar, and Ruyu Chen, *Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence*, Stanford Digital Economy Lab, November 2025. <https://digitaleconomy.stanford.edu/publication/canaries-in-the-coal-mine-six-facts-about-the-recent-employment-effects-of-artificial-intelligence/>
+[^stanford]: Erik Brynjolfsson, Bharat Chandar, and Ruyu Chen, *Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence*, Stanford Digital Economy Lab, August 2025, revised November 2025. Numbers here reflect the November revision. <https://digitaleconomy.stanford.edu/publication/canaries-in-the-coal-mine-six-facts-about-the-recent-employment-effects-of-artificial-intelligence/>
 
-[^harvard]: Seyed Mahdi Hosseini Maasoum and Guy Lichtinger, *Generative AI as Seniority-Biased Technological Change: Evidence from U.S. Résumé and Job Posting Data*, SSRN working paper, August 2025. The paper is preliminary and not peer-reviewed; cited here as corroborating evidence, not as a settled finding. <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5425555>
+[^harvard]: Seyed Mahdi Hosseini Maasoum and Guy Lichtinger, *Generative AI as Seniority-Biased Technological Change: Evidence from U.S. Résumé and Job Posting Data*, SSRN working paper, August 2025, revised October 2025. Numbers here reflect the October revision. The paper is preliminary and not peer-reviewed; cited here as corroborating evidence, not as a settled finding. <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5425555>
 
-[^garman]: Matt Garman, AWS CEO, interview on WIRED's *The Big Interview* podcast, December 16, 2025. <https://www.wired.com/story/the-big-interview-podcast-matt-garman-ceo-aws/>
+[^garman]: Matt Garman, AWS CEO, interview on Matthew Berman's YouTube channel, August 2025; coverage in Thomas Claburn, *AWS CEO calls the idea of AI replacing junior engineers "one of the dumbest things I've ever heard"*, *The Register*, August 21, 2025. <https://www.theregister.com/2025/08/21/aws_ceo_entry_level_jobs_opinion/>
 
 [^karpathy]: Andrej Karpathy, post on X, February 2, 2025. <https://x.com/karpathy/status/1886192184808149383>
 
@@ -107,4 +107,4 @@ That is what I tell them. It is the same thing senior engineers told me when I w
 
 [^skills]: Wendy Shen and Alex Tamkin, *How AI Impacts Skill Formation*, arXiv preprint 2601.20245, 2026. <https://arxiv.org/abs/2601.20245>
 
-[^metr]: Joel Becker et al., *Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity*, METR, July 2025. The headline finding is a perception gap, not a definitive slowdown — the confidence interval includes a small speedup. The point is calibration: developers were systematically off about their own productivity. <https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/>
+[^metr]: Joel Becker et al., *Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity*, METR, July 2025; restatement, February 24, 2026. The 19% slowdown estimate has a confidence interval of +2% to +39% — the entire interval is slowdown, and the effect is statistically significant. The calibration point stands: developers forecast a 24% speedup before the study and, after being 19% slower, still believed they had been 20% faster. <https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/> and <https://metr.org/blog/2026-02-24-uplift-update/>
