@@ -35,7 +35,9 @@ Memory also flows the other way. A small CLI I call `recall` indexes the transcr
 
 Some policies have to hold no matter which agent is driving. The load-bearing one for me: no edits on `main` or `master` outside a worktree, ever.
 
-In Claude Code that is a `PreToolUse` hook calling a guard script. In pi it is a small TypeScript extension that intercepts the write tools and shells out to the *same script*. For codex, the same script again. One law, three courthouses. When the policy changes, I edit one file of bash and every agent obeys at once.
+The rule has a scar behind it: before the guard existed, a long agent session would occasionally land a commit on `main` by accident. One hook deleted the entire failure mode.
+
+In Claude Code that is a `PreToolUse` hook calling a guard script. In pi it is a small TypeScript extension that intercepts the write tools and shells out to the *same script*. For codex, the same script again. One law, three courthouses. When the policy changes, I edit one file of bash and every agent obeys at once — which is also why the guard scripts have their own tests. A broken hook blocks all three agents simultaneously; that is production code whether I like it or not.
 
 This matters more for pi than for the others, because pi has no permission popups by design. The guard script is not a second layer of defense there; it is the layer.
 
@@ -45,7 +47,7 @@ Claude Code is batteries-included: plan mode, permission prompts, compaction, su
 
 Claude Code is a furnished apartment. pi is a well-plumbed empty one. I keep keys to both.
 
-`af` from [Part 2](/posts/how-i-use-agents-part-2/) treats them as interchangeable providers behind one interface ([ADR-043](https://github.com/kakkoyun/af/blob/main/docs/adr/043-agent-providers.md)), and the seams show exactly where the philosophies differ. Claude launches with a deterministic `--session-id` and has a skip-permissions flag I only allow inside sandboxes; pi launches bare, resumes with `--continue`, and has no such flag at all, because approvals are its own internal business. codex, the third key on the ring, splits the difference with two profiles: one configured to plan, one to implement. Real differences — and all of them below the habit layer. Plan first, fresh sessions, write it down: none of that cares which binary is running. My own logs make the case better than I can: fifty-one plan-mode approvals in the last week, and the single most common opening prompt across my history is, verbatim, "Implement the following plan:".
+`af` from [Part 2](/posts/how-i-use-agents-part-2/) treats them as interchangeable providers behind one interface ([ADR-043](https://github.com/kakkoyun/af/blob/main/docs/adr/043-agent-providers.md)), and the seams show exactly where the philosophies differ. Claude launches with a deterministic `--session-id` and has a skip-permissions flag I only allow inside sandboxes; pi launches bare, resumes with `--continue`, and has no such flag at all, because approvals are its own internal business. codex, the third key on the ring, is honestly a retired key: still configured, still symlinked into the shared memory, last used as a driver in May. It survives as a cross-model second opinion behind an MCP server rather than a seat at the table. Real differences — and all of them below the habit layer. Plan first, fresh sessions, write it down: none of that cares which binary is running. My own logs make the case better than I can: fifty-one plan-mode approvals in the last week, and the single most common opening prompt across my history is, verbatim, "Implement the following plan:".
 
 ## The router
 
@@ -55,7 +57,9 @@ The router has no loyalty. As I write this, pi's default model is not an Anthrop
 
 ## Where each wins, for me, today
 
-Deep work on code I do not know: Claude Code, running its plan-then-execute model split (a big model argues about direction, a cheaper one types), because plan mode plus the review loop is still the best thinking surface I have used. Cheap parallel chores, and any day I want to change how the harness itself behaves: pi, because changing pi is a TypeScript file, not a feature request.
+Engineering: Claude Code, running its plan-then-execute model split (a big model argues about direction, a cheaper one types), because plan mode plus the review loop is still the best thinking surface I have used. Vault synthesis, dotfiles work, and any day I want to change how the harness itself behaves: pi — partly because open-ended questions like "what does my Q2 journal say about energy management" benefit from a different model's perspective, and partly because changing pi is a TypeScript file, not a feature request.
+
+I earned this division the slow way. For a while all three agents ran the same kinds of tasks, and the context fragmented — three half-memories of every decision. One lane per agent fixed what no amount of configuration had.
 
 A postscript that proves the theme: Part 1 of this series was drafted with Claude Code's Explanatory output style. Between drafting and publication, the standalone `/output-style` command was deprecated and removed (gone in v2.1.91; it is a settings field now). A post in this series aged out of a command before it aged into print, which is most of the argument for keeping your habits one level above anyone's feature list.
 
