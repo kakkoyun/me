@@ -21,7 +21,7 @@ promote: false
 
 I had twenty-three architectural decision records to write, and no idea in what order.
 
-This was day one of pivoting `af` (a workflow CLI of mine, not yet public) from Rust to Go. I knew the scope (Go module layout, CLI framework, multi-agent model, tmux integration, SSH remote, sandbox, secrets, lint, …). What I didn't know was the dependency graph — which decisions blocked which.
+This was day one of pivoting [`af`](https://github.com/kakkoyun/af) from Rust to Go. I knew the scope (Go module layout, CLI framework, multi-agent model, tmux integration, SSH remote, sandbox, secrets, lint, …). What I didn't know was the dependency graph — which decisions blocked which.
 
 So I pressed `Shift+Tab` twice. That switches Claude Code into [plan mode](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode), where it reads and explores but cannot write or run commands.[^1] The session became a forty-minute argument about ordering. Zero files touched.
 
@@ -31,7 +31,7 @@ This is the post about why I do that, and two other habits that work alongside i
 
 ## 1. Plan first
 
-The plan we settled on that day became Stages A through E in `PROGRESS.md`: archive the old docs (A), scaffold v1 docs (B), write the spec and conventions (C), land 23 ADRs (D), build the index (E). One commit per ADR. The whole thing is logged under `2026-05-06 — Session 0` in the repo's `PROGRESS.md`.[^2]
+The plan we settled on that day became Stages A through E in `PROGRESS.md`: archive the old docs (A), scaffold v1 docs (B), write the spec and conventions (C), land 23 ADRs (D), build the index (E). One commit per ADR. The whole thing is logged under `2026-05-06 — Session 0` in [PROGRESS.md](https://github.com/kakkoyun/af/blob/main/PROGRESS.md).[^2]
 
 The plan didn't write itself, and I'm not pretending it could. What plan mode does is make you commit to the *shape* of the work before any line of it goes on disk. Without that step, by ADR-036 I would have realized that 033 depended on a decision I'd made implicitly in 031, and the next hour would have been reconciliation.
 
@@ -133,7 +133,7 @@ Part 2 covers `claude-focus`: worktree-isolated sessions that keep `main` clean 
 
 [^1]: "Plan mode tells Claude to research and propose changes without making them. Claude reads files, runs shell commands to explore, and writes a plan, but does not edit your source." — [Permission modes — Analyze before you edit](https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode).
 
-[^2]: `af/PROGRESS.md`, Session 0 (2026-05-06). The repo is not yet public; excerpts here are quoted verbatim from the file.
+[^2]: [`af/PROGRESS.md`, Session 0 (2026-05-06)](https://github.com/kakkoyun/af/blob/main/PROGRESS.md).
 
 [^3]: [Memory — How Claude remembers your project](https://code.claude.com/docs/en/memory).
 
