@@ -1,5 +1,5 @@
 ---
-title: "How I Use Claude Code, Part 1: Plan First, Fresh Sessions, Write It Down"
+title: "How I Use Agents, Part 1: Plan First, Fresh Sessions, Write It Down"
 description: "Three habits I actually use day-to-day on a single-user Go project, with one anecdote per habit and what the docs actually guarantee."
 date: 2026-05-22T00:00:00Z
 publishDate: 2026-09-01T00:00:00Z
@@ -12,7 +12,7 @@ tags:
   - productivity
   - tools
   - agentic-coding
-series: "How I Use Claude Code"
+series: "How I Use Agents"
 showToc: true
 tocOpen: false
 draft: true
@@ -84,17 +84,17 @@ Two corrections to my own first instinct. The first: Claude Code does not "remem
 
 The handover snapshot at the top of `TODO.md` in `af` currently reads:
 
-> **Status at HEAD `9f0227c`** (2026-05-22, after Stage 11 + the gap-analysis pass + ADR-073 design):
+> **Status on `main`** (2026-05-22, after merge `1d63290`):
 >
-> Every numbered ADR from **031 to 065** is `implementation: complete`. `pending` ADRs: **066** (VM agent-session export), **067** (automatic agent-session sync), **068–072** (operational UX, boundary & privacy, session selection, PR state cache, state.toml schema), **073** (`af review` repo-aware PR review).
->
-> `make check` is green: 0 lint, all 21 packages pass `-race -count=1 -shuffle=on`.
+> - ADR status is closed for v1: **42 complete**, **1 n/a** (ADR-032), **0 pending**.
+> - Stages 0–14 are implemented and documented.
+> - This handover starts **Implementation Stage 15 — v1.0.0 release prep**.
 
 That's the canonical answer to "where were we." I write it by hand after each session, in plain English, with commit hashes and ADR numbers. The first thing I read when I come back to the project. The first thing Claude reads, too, because `TODO.md` is referenced from `CLAUDE.md`.
 
 I keep two files per project:
 
-**`PROGRESS.md`** is a chronological narrative log, append-only. One section per work session: goal, what got done, what's blocked, next step. The `af` project's log is at 1,740 lines and eleven sessions. I write the entry at the *end* of the session, when I know what actually happened rather than what I hoped would happen.
+**`PROGRESS.md`** is a chronological narrative log, append-only. One section per work session: goal, what got done, what's blocked, next step. The `af` project's log is at 3,012 lines and 47 sessions. I write the entry at the *end* of the session, when I know what actually happened rather than what I hoped would happen.
 
 **`TODO.md`** is a snapshot of what's pending. Updated as work moves. Has a "Handover snapshot" block at the top that I refresh after each session.
 
@@ -125,7 +125,7 @@ Disk is the canon. Chat is the working memory.
 
 Plan mode has a tax I still misjudge. I sometimes reach for it before I have a question worth planning, and ten minutes of reading in default mode would have gotten me further. What I'd like is a better instinct for when to press `Shift+Tab` in the first place: the signal that says "stop reading, start arguing about direction." I don't have it yet.
 
-Part 2 covers `claude-focus`: worktree-isolated sessions that keep `main` clean while agents work on branches. Part 3 is about output styles, including the [Explanatory](https://code.claude.com/docs/en/output-styles) style I used to draft this one, and what gets paid for in tokens.
+Part 2 covers workstreams: the worktree-plus-tmux isolation that keeps `main` clean while agents work on branches, and [`af`](https://github.com/kakkoyun/af), the Go tool that grew out of a shell function to manage them. Part 3 is about running many agents on one set of habits — Claude Code and [pi](https://pi.dev) sharing a single memory file, the same guard scripts, and a model router deciding who does the work.
 
 ---
 
