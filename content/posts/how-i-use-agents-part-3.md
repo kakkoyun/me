@@ -37,7 +37,7 @@ Some policies have to hold no matter which agent is driving. The load-bearing on
 
 The rule has a scar behind it: before the guard existed, a long agent session would occasionally land a commit on `main` by accident. One hook deleted the entire failure mode.
 
-In Claude Code that is a `PreToolUse` hook calling a guard script. In pi it is a small TypeScript extension that intercepts the write tools and shells out to the *same script*. For codex, the same script again. One law, three courthouses. When the policy changes, I edit one file of bash and every agent obeys at once — which is also why the guard scripts have their own tests. A broken hook blocks all three agents simultaneously; that is production code whether I like it or not.
+In Claude Code that is a `PreToolUse` hook calling a guard script. In pi it is a small TypeScript extension that intercepts the write tools and shells out to the *same script*. For codex, the same script again. One law, three courthouses. When the policy changes, I edit one file of bash and every agent obeys at once, which is also why the guard scripts have their own tests. A broken hook blocks all three agents simultaneously; that is production code whether I like it or not.
 
 This matters more for pi than for the others, because pi has no permission popups by design. The guard script is not a second layer of defense there; it is the layer.
 
