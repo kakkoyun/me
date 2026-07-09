@@ -24,7 +24,7 @@ I had three small bugs to fix on `af` before lunch, the laptop was about to be i
 
 So I opened the desktop app, pointed a cloud session at the repo, gave it the three bugs from `TODO.md`, and put the lid down. By the time I got out of the meeting, there was a PR open with green CI and a note from past-me saying "drop the dependency, don't pin it." I read the diff, queued two comments in the review panel, and went to make coffee. The PR came back fixed.
 
-This is Part 4 of *How I Use Agents*. Parts 1–3 are about working inside terminal harnesses: plan mode[^1], fresh sessions, and the on-disk canon (Part 1); one workstream per task (Part 2); one memory shared across Claude Code and [pi](https://pi.dev) (Part 3). Part 4 is what changes when the agent — here, Claude Code — runs on a machine that isn't mine.
+This is Part 4 of *How I Use Agents*. Parts 1–3 are about working inside terminal harnesses: plan mode[^1], fresh sessions, and the on-disk canon (Part 1); one workstream per task (Part 2); one memory shared across Claude Code and [pi](https://pi.dev) (Part 3). Part 4 is what changes when the agent (here, Claude Code) runs on a machine that isn't mine.
 
 ---
 
