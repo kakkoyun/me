@@ -1,6 +1,6 @@
 ---
 title: "How I Use Agents, Part 2: One Workstream per Task"
-description: "The 1,778-line shell function that ran my task isolation for a year, the Go tool replacing it, and why every agent task gets its own worktree, tmux session, and conversation."
+description: "The 1,777-line shell function that ran my task isolation for a year, the Go tool replacing it, and why every agent task gets its own worktree, tmux session, and conversation."
 date: 2026-07-09T00:00:00Z
 publishDate: 2026-09-08T00:00:00Z
 categories:
@@ -20,7 +20,7 @@ draft: true
 promote: false
 ---
 
-The shell function that runs my task isolation is 1,778 lines long, and the TODO file next to it schedules it for deletion.
+The shell function that runs my task isolation is 1,777 lines long, and the TODO file next to it schedules it for deletion.
 
 Both facts are correct, and the distance between them is this post. [Part 1](/posts/how-i-use-agents/) argued for fresh sessions: every conversation starts clean, and context comes from disk. This part is about where the freshness comes from, because a fresh conversation is not worth much if it opens in a dirty working tree.
 
@@ -28,7 +28,7 @@ Both facts are correct, and the distance between them is this post. [Part 1](/po
 
 One task, one branch, one worktree, one tmux session, one agent conversation.
 
-If any of those is shared between two tasks, the two tasks eventually share a mistake. You ask an agent to fix a bug while a half-staged refactor sits in the same tree, and twenty minutes later `git status` is archaeology: which of these changes is the fix, which is the refactor, and which is the agent helpfully "cleaning up" something it was never asked about. I stopped debugging that class of accident by making it impossible.
+If any of those is shared between two tasks, the two tasks eventually share a mistake. You ask an agent to fix a bug while a half-staged refactor sits in the same tree, and twenty minutes later `git status` is archaeology: which of these changes is the fix, which is the refactor, and which is the agent helpfully "cleaning up" something it was never asked about. I stopped debugging that class of accident by making it impossible. Three weeks of my own session logs agree it stuck: 885 agent sessions, and nearly all of the code work happened inside a task worktree, never on `main`.
 
 ## `cf`: the shell function
 
@@ -36,7 +36,7 @@ The first implementation was a zsh function called `cf` (claude-focus). `cf issu
 
 The uuid5 is the part I would keep if I had to throw away the rest. A deterministic ID means the same task always resumes the same conversation, on purpose, even after a reboot. No scrolling through a session picker trying to remember which of nine conversations was the one about the flaky test.
 
-Around `cf` grew a small family: `cfr` resumes (and falls back to `claude --continue` inside the worktree when the tmux session died with the machine), `cfd` tears down the session, worktree, and branch in one motion, `cfl` lists everything and flags orphans, and `cfgc` garbage-collects worktrees whose branches merged. There is a hard cap of ten live sessions. The cap exists because it has been hit.
+Around `cf` grew a small family: `cfr` resumes (and falls back to `claude --continue` inside the worktree when the tmux session died with the machine), `cfd` tears down the session, worktree, and branch in one motion, `cfl` lists everything and flags orphans, `cf --from-pr 42` forks a worktree straight off a pull request, and `cfgc` garbage-collects worktrees whose branches merged. Unnamed tasks get generated names, so my session history reads like a ship manifest: `eloquent-cohen`, `naughty-dubinsky`, `clever-chaum`. There is a hard cap of ten live sessions. The cap exists because it has been hit.
 
 Then the backends multiplied. Some tasks want the agent inside a microVM sandbox with the worktree mounted in. Some want the worktree local but the agent watched. Some want the whole session on a remote machine over SSH, where the build caches live. `cf` grew a flag for each.
 
@@ -65,7 +65,7 @@ af done    issue-42  →  completed  (or abandoned)
 
 State lives in a `state.toml` under `~/.local/share/af/v1/sessions/<name>/`, so there is nothing to reconstruct from tmux environment variables and no sidecar files to lose. When a task needs parallel subagents, each gets a sibling branch and sibling worktree named `<branch>--<slot>`, which is [ADR-038](https://github.com/kakkoyun/af/blob/main/docs/adr/038-workstream-and-worktree-layout.md)'s answer to two agents fighting over one file tree: full git isolation, and merge-back stays deliberately manual in v1 because I want to read what comes back. One Go interface drives all three agents ([ADR-043](https://github.com/kakkoyun/af/blob/main/docs/adr/043-agent-providers.md)) — that abstraction is Part 3's whole subject.
 
-Honest status: the v1 ADRs are closed (42 complete, one not-applicable, zero pending) and the remaining work is tagging v1.0.0. "Binaries are not published; this is a single-user tool," says the README, and it is right. Also honest: `cf` and `af` are both on my machine today. The migration is a task in the inbox, which is its own small joke.
+Honest status: the v1 ADRs are closed (42 complete, one not-applicable, zero pending) and the remaining work is tagging v1.0.0. "Binaries are not published; this is a single-user tool," says the README, and it is right. Also honest: the migration is underway, not done. `cf` still lingers on my machine while `af` takes over task by task, and the primitive shell scripts get to watch their replacement being raised in a proper test suite.
 
 ## What transfers
 
