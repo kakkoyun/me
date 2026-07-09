@@ -34,7 +34,7 @@ If any of those is shared between two tasks, the two tasks eventually share a mi
 
 The first implementation was a zsh function called `cf` (claude-focus). `cf issue-42` does five things in order: fetches and resolves the base branch, checks out a fresh worktree at `~/Workspace/.worktrees/<repo>/issue-42`, derives a session ID as uuid5 over the repo and branch, creates a detached tmux session named after the branch, and launches Claude Code with that session ID.
 
-The uuid5 is the part I would keep if I had to throw away the rest. A deterministic ID means the same task always resumes the same conversation, on purpose, even after a reboot. No scrolling through a session picker trying to remember which of nine conversations was the one about the flaky test.
+The uuid5 is the part I would keep if I had to throw away the rest. A deterministic ID means the same task always resumes the same conversation, on purpose, even after a reboot, so I never end up scrolling a session picker trying to remember which of nine conversations was the one about the flaky test.
 
 Around `cf` grew a small family: `cfr` resumes (and falls back to `claude --continue` inside the worktree when the tmux session died with the machine), `cfd` tears down the session, worktree, and branch in one motion, `cfl` lists everything and flags orphans, `cf --from-pr 42` forks a worktree straight off a pull request, and `cfgc` garbage-collects worktrees whose branches merged. Unnamed tasks get generated names, so my session history reads like a ship manifest: `eloquent-cohen`, `naughty-dubinsky`, `clever-chaum`. There is a hard cap of ten live sessions. The cap exists because it has been hit.
 
@@ -54,7 +54,7 @@ The request was granted. [`af`](https://github.com/kakkoyun/af) is the Go succes
 
 > **af** manages isolated AI-agent workstreams across git worktrees, tmux sessions, sandboxes, and SSH remotes.
 
-Its [SPEC](https://github.com/kakkoyun/af/blob/main/docs/SPEC.md) names the unit `cf` never had a word for. A **workstream** is the triple of a worktree, a tmux session, and one or more agents — [pi](https://pi.dev) by default, `claude` or `codex` on demand. The lifecycle is a state machine instead of a pile of flags:
+Its [SPEC](https://github.com/kakkoyun/af/blob/main/docs/SPEC.md) names the unit `cf` never had a word for. A **workstream** is the triple of a worktree, a tmux session, and one or more agents ([pi](https://pi.dev) by default, `claude` or `codex` on demand). The lifecycle is a state machine instead of a pile of flags:
 
 ```
 af create issue-42   →  active
@@ -63,12 +63,12 @@ af resume  issue-42  →  active again
 af done    issue-42  →  completed  (or abandoned)
 ```
 
-State lives in a `state.toml` under `~/.local/share/af/v1/sessions/<name>/`, so there is nothing to reconstruct from tmux environment variables and no sidecar files to lose. When a task needs parallel subagents, each gets a sibling branch and sibling worktree named `<branch>--<slot>`, which is [ADR-038](https://github.com/kakkoyun/af/blob/main/docs/adr/038-workstream-and-worktree-layout.md)'s answer to two agents fighting over one file tree: full git isolation, and merge-back stays deliberately manual in v1 because I want to read what comes back. One Go interface drives all three agents ([ADR-043](https://github.com/kakkoyun/af/blob/main/docs/adr/043-agent-providers.md)) — that abstraction is Part 3's whole subject.
+State lives in a `state.toml` under `~/.local/share/af/v1/sessions/<name>/`, so there is nothing to reconstruct from tmux environment variables and no sidecar files to lose. When a task needs parallel subagents, each gets a sibling branch and sibling worktree named `<branch>--<slot>`, which is [ADR-038](https://github.com/kakkoyun/af/blob/main/docs/adr/038-workstream-and-worktree-layout.md)'s answer to two agents fighting over one file tree: full git isolation, and merge-back stays deliberately manual in v1 because I want to read what comes back. One Go interface drives all three agents ([ADR-043](https://github.com/kakkoyun/af/blob/main/docs/adr/043-agent-providers.md)). That abstraction is Part 3's whole subject.
 
 Honest status: the v1 ADRs are closed (42 complete, one not-applicable, zero pending) and the remaining work is tagging v1.0.0. "Binaries are not published; this is a single-user tool," says the README, and it is right. Also honest: the migration is underway, not done. `cf` still lingers on my machine while `af` takes over task by task, and the primitive shell scripts get to watch their replacement being raised in a proper test suite.
 
 ## What transfers
 
-If you use a different harness, or no harness, three things carry over anyway. Deterministic names buy you resumability for free; anything derived from `repo/branch` means never asking "which session was that." State belongs on disk, in a file you can `cat`, not in whatever your shell happened to export. And teardown deserves as much design as create — `cfd` and `af done` are the reason my machine has worktrees instead of a worktree midden.
+If you use a different harness, or no harness, three things carry over anyway. Deterministic names buy you resumability for free; anything derived from `repo/branch` means never asking "which session was that." State belongs on disk, in a file you can `cat`, not in whatever your shell happened to export. And teardown deserves as much design as create: `cfd` and `af done` are the reason my machine has worktrees instead of a worktree midden.
 
 The old ceiling on parallel work was typing speed. The new one is review bandwidth: ten concurrent workstreams fit in tmux, but they do not fit in my head. Claude Code's own usage report puts a number on it — this week, 39% of my messages were sent while at least one other session was running in parallel. [WakaTime](https://wakatime.com) keeps the other half of the ledger: where the hours actually went, by repo and by language, agent sessions included via its Claude Code plugin. The feeling of "that took all afternoon" gets checked against a number too. Some weeks my real number is three; some weeks it is one. If you run agents in parallel, I would genuinely like to know yours.
