@@ -4,7 +4,7 @@ description: "What I actually built, what does most of the work, and the one des
 date: 2026-05-22T00:00:00Z
 publishDate: 2026-08-11T00:00:00Z
 categories:
-  - blogmentation
+  - technical-findings
 tags:
   - blog
   - obsidian
@@ -20,7 +20,7 @@ promote: false
 
 It is 9:14am on a Wednesday. I open the laptop. The daily note for today is already there.
 
-Above the fold: a Whoop recovery score of 62 (fine), a Wakatime row showing 4h 21m on the OpenTelemetry contrib repo yesterday, three GitHub PRs waiting on review, and a Things 3 task that has been sliding forward for nine days: *[FILL: real task, e.g. "Reply to <person> about <thing>"]*. Each previous day the task migrated, the journal entry from that day is one click away. The reason it kept slipping is in those entries somewhere.
+Above the fold: a Whoop recovery score of 62 (fine), a Wakatime row showing 4h 21m on the OpenTelemetry contrib repo yesterday, three GitHub PRs waiting on review, and a Things 3 task that has been sliding forward for nine days: *[FILL: real task, e.g. "Reply to <person> about <thing>"]*. Each previous day the task migrated, and the journal entry from that day is one click away. The reason it kept slipping is in those entries somewhere.
 
 The system did not make the task less unpleasant. It made the unpleasantness traceable. That is the smaller of the two things this setup buys me. The larger one is that an LLM has been quietly reading everything I capture and writing a layer of synthesis on top, and once a week that synthesis answers a question I would not have been able to ask my past self without it.
 
@@ -30,11 +30,11 @@ This is the description of what I built, and the one design choice I think makes
 
 Three workhorses. None of them are interesting.
 
-The first is [PARA](https://fortelabs.com/blog/para/) — Projects, Areas, Resources, Archive — across roughly 3,600 markdown files in an Obsidian vault. PARA's only job is to give every note an obvious home, which it does. There are people who prefer Johnny Decimal or PROST or their own taxonomies, and they are correct that PARA has rough edges. They are also wrong that the rough edges matter. The point of PARA is to stop you from re-litigating where things go.
+The first is [PARA](https://fortelabs.com/blog/para/) — Projects, Areas, Resources, Archive — across roughly 3,600 markdown files in an Obsidian vault. PARA's only job is to give every note an obvious home, which it does. There are people who prefer [Johnny Decimal](https://johnnydecimal.com/) or [ACCESS](https://www.linkingyourthinking.com/) or their own taxonomies, and they are correct that PARA has rough edges. They are also wrong that the rough edges matter. The point of PARA is to stop you from re-litigating where things go.
 
 The second is [Readwise](https://readwise.io). It syncs highlights from Kindle, Reader, Twitter, and any podcast clipping I tag into `curation/readwise/`. I do not curate at this layer. Everything lands. A highlight from a book I read in 2023 is still there.
 
-The third is obsidian-git. It commits the vault every 70 minutes and pushes every 7. I have not thought about backups in months.
+The third is obsidian-git. It commits the vault every 7 minutes and pushes every 70. I have not thought about backups in months.
 
 The Whoop score, the Wakatime row, and the PR queue in this morning's daily note are stitched together by a small Python CLI I wrote called `pkm-tool`. It pulls from GitHub (PRs opened, reviewed, merged), Jira (tickets resolved and commented on), Wakatime (time by project and language), Whoop (sleep quality, HRV, recovery score), Apple Calendar (meetings and blocks), Things 3 (tasks completed and scheduled), and Google Docs (documents created or edited). It runs as a launchd job at 6am. By the time I open the laptop, the page exists and the activity is filled in.
 
@@ -46,7 +46,7 @@ Here is the part that distinguishes this setup from every other Obsidian-plus-AI
 
 **The LLM never edits a source.**
 
-Most AI-PKM tools work by chewing on your notes and offering to rewrite, tag, or restructure them. Smart Connections nudges you to edit. Copilot for Obsidian extends inline. Notion AI is happy to rewrite a page. The implicit contract is: your notes are a substrate the AI improves.
+Most AI-PKM tools work by chewing on your notes and offering to rewrite, tag, or restructure them. [Copilot for Obsidian](https://github.com/logancyang/obsidian-copilot) edits selected text in-editor. Notion AI is happy to rewrite a page. The implicit contract is: your notes are a substrate the AI improves.
 
 I do not want that. I want my raw captures — the Readwise highlights, the meeting notes I scribbled in a hurry, the half-baked journal entries — to stay exactly as they were when they hit the disk. Those are the historical record. If a synthesis is wrong, I want to look at the source and see *why* it went wrong, without finding that the LLM has already "improved" the source out from under me.
 
@@ -60,7 +60,7 @@ If I had to defend the architecture in one sentence: it lets knowledge accumulat
 
 ## A morning when it paid off
 
-The retrieval engine across all of this is [qmd](https://github.com/tobi/qmd) — Tobi Lütke's local-first CLI, BM25 plus vector embeddings plus an LLM reranker, no API call, useful hits across 4,000 files in under a second.
+The retrieval engine across all of this is [qmd](https://github.com/tobi/qmd) — Tobi Lütke's local-first CLI, BM25 plus vector embeddings plus an LLM reranker, no API call, useful hits across the whole vault in under a second.
 
 A few weeks ago I was writing a section of a Go talk and asked Claude Code: *[FILL: real query, e.g. "what have I written about backpressure in event-stream consumers"]*. Three things came back from three folders, written months apart:
 
@@ -90,7 +90,7 @@ There is a question I have not settled.
 
 When the LLM maintains the synthesis pages, and I read one of those pages six months from now, will it feel like *my* thinking or like a summary someone handed me?
 
-The Karpathy pattern bets the answer is fine — the citations point back to raw sources, the synthesis is regenerable, and over time the synthesis pages become more useful precisely because they are not subject to my forgetting. Tiago Forte's *Building a Second Brain* makes a related argument from the other direction: progressive summarization is the act of thinking, regardless of who does the summarizing.
+The Karpathy pattern bets the answer is fine — the citations point back to raw sources, the synthesis is regenerable, and over time the synthesis pages become more useful precisely because they are not subject to my forgetting. Tiago Forte argues progressive summarization *is* the thinking; I am testing whether that holds when the summarizer is not me.
 
 I am not yet sure I agree. The synthesis pages in my vault from the last month read fluently and cite real sources and make connections I would not have made unaided. They also do not always feel like me. Something about the shape of the paragraphs. Something about which details get kept and which get smoothed away.
 
