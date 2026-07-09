@@ -25,9 +25,11 @@ It points at a file named `AGENTS.md`, and that file does not care which agent i
 
 ## One memory
 
-Each agent gets the same file through whatever door it prefers. [pi](https://pi.dev) reads `~/AGENTS.md` natively. codex reads a symlink at its own config path. Claude Code imports it from the global `CLAUDE.md` with a one-line `@~/AGENTS.md`. The rules live exactly once: coding style, security posture, git workflow, the worktree policy from [Part 2](/posts/how-i-use-agents-part-2/), and every correction I have caught myself making twice — [Part 1](/posts/how-i-use-agents/)'s rule about promoting repeated chat corrections into files applies across agents, not per agent.
+Each agent gets the same file through whatever door it prefers. [pi](https://pi.dev) reads `~/AGENTS.md` natively. codex reads a symlink at its own config path. Claude Code imports it from the global `CLAUDE.md` with a one-line `@~/AGENTS.md`. The rules live exactly once: coding style, security posture, git workflow, the worktree policy from [Part 2](/posts/how-i-use-agents-part-2/), and every correction I have caught myself making twice — [Part 1](/posts/how-i-use-agents/)'s rule about promoting repeated chat corrections into files applies across agents, not per agent. At the top sits a five-clause working agreement, priority-ordered: ask don't assume, right-size the solution, stay in scope, flag uncertainty, suggest better ways.
 
 The vendor-named file is an entry point, not a source of truth.
+
+Memory also flows the other way. A small CLI I call `recall` indexes the transcripts of all of it — Claude Code, codex, pi, and Claude Desktop — into one searchable store (full-text plus BM25 plus recency). "What did I decide about the retry backoff" is one query across every agent I have ever discussed it with, which is the point: the conversations belong to me, not to whichever harness hosted them. Three weeks in, that index holds 885 sessions and just under twenty thousand messages.
 
 ## One set of guards
 
@@ -43,7 +45,7 @@ Claude Code is batteries-included: plan mode, permission prompts, compaction, su
 
 Claude Code is a furnished apartment. pi is a well-plumbed empty one. I keep keys to both.
 
-`af` from [Part 2](/posts/how-i-use-agents-part-2/) treats them as interchangeable providers behind one interface ([ADR-043](https://github.com/kakkoyun/af/blob/main/docs/adr/043-agent-providers.md)), and the seams show exactly where the philosophies differ. Claude launches with a deterministic `--session-id` and has a skip-permissions flag I only allow inside sandboxes; pi launches bare, resumes with `--continue`, and has no such flag at all, because approvals are its own internal business. Real differences — and all of them below the habit layer. Plan first, fresh sessions, write it down: none of that cares which binary is running.
+`af` from [Part 2](/posts/how-i-use-agents-part-2/) treats them as interchangeable providers behind one interface ([ADR-043](https://github.com/kakkoyun/af/blob/main/docs/adr/043-agent-providers.md)), and the seams show exactly where the philosophies differ. Claude launches with a deterministic `--session-id` and has a skip-permissions flag I only allow inside sandboxes; pi launches bare, resumes with `--continue`, and has no such flag at all, because approvals are its own internal business. codex, the third key on the ring, splits the difference with two profiles: one configured to plan, one to implement. Real differences — and all of them below the habit layer. Plan first, fresh sessions, write it down: none of that cares which binary is running. My own logs make the case better than I can: fifty-one plan-mode approvals in the last week, and the single most common opening prompt across my history is, verbatim, "Implement the following plan:".
 
 ## The router
 
@@ -53,7 +55,7 @@ The router has no loyalty. As I write this, pi's default model is not an Anthrop
 
 ## Where each wins, for me, today
 
-Deep work on code I do not know: Claude Code, because plan mode plus the review loop is still the best thinking surface I have used. Cheap parallel chores, and any day I want to change how the harness itself behaves: pi, because changing pi is a TypeScript file, not a feature request.
+Deep work on code I do not know: Claude Code, running its plan-then-execute model split (a big model argues about direction, a cheaper one types), because plan mode plus the review loop is still the best thinking surface I have used. Cheap parallel chores, and any day I want to change how the harness itself behaves: pi, because changing pi is a TypeScript file, not a feature request.
 
 A postscript that proves the theme: Part 1 of this series was drafted with Claude Code's Explanatory output style. Between drafting and publication, the standalone `/output-style` command was deprecated and removed (gone in v2.1.91; it is a settings field now). A post in this series aged out of a command before it aged into print, which is most of the argument for keeping your habits one level above anyone's feature list.
 
