@@ -29,7 +29,7 @@ Each agent gets the same file through whatever door it prefers. [pi](https://pi.
 
 The vendor-named file is an entry point, not a source of truth.
 
-Memory also flows the other way. A small CLI I call `recall` indexes the transcripts of all of it — Claude Code, codex, pi, and Claude Desktop — into one searchable store (full-text plus BM25 plus recency). "What did I decide about the retry backoff" is one query across every agent I have ever discussed it with, which is the point: the conversations belong to me, not to whichever harness hosted them. Three weeks in, that index holds 885 sessions and just under twenty thousand messages.
+Memory also flows the other way. A small CLI I call `recall` indexes the transcripts of all of it (Claude Code, codex, pi, and Claude Desktop) into one searchable store (full-text plus BM25 plus recency). "What did I decide about the retry backoff" is one query across every agent I have ever discussed it with, which is the point: the conversations belong to me, not to whichever harness hosted them. Three weeks in, that index holds 885 sessions and just under twenty thousand messages.
 
 ## One set of guards
 
