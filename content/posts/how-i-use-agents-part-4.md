@@ -1,5 +1,5 @@
 ---
-title: "How I Use Claude Code, Part 4: Desktop and Remote"
+title: "How I Use Agents, Part 4: Desktop and Remote"
 description: "What changes when Claude Code leaves the terminal: cloud VM sessions, SSH to a real workspace, a diff panel you can comment on, and PRs that fix themselves."
 date: 2026-07-08T00:00:00Z
 publishDate: 2026-09-22T00:00:00Z
@@ -13,7 +13,7 @@ tags:
   - tools
   - developer-experience
   - agentic-coding
-series: "How I Use Claude Code"
+series: "How I Use Agents"
 showToc: true
 tocOpen: false
 draft: true
@@ -24,7 +24,7 @@ I had three small bugs to fix on `af` before lunch, the laptop was about to be i
 
 So I opened the desktop app, pointed a cloud session at the repo, gave it the three bugs from `TODO.md`, and put the lid down. By the time I got out of the meeting, there was a PR open with green CI and a note from past-me saying "drop the dependency, don't pin it." I read the diff, queued two comments in the review panel, and went to make coffee. The PR came back fixed.
 
-This is Part 4 of *How I Use Claude Code*. Parts 1–3 are about working inside the terminal CLI: plan mode[^1], fresh sessions, the on-disk canon, and the worktree- and output-style habits Parts 2 and 3 will cover. Part 4 is what changes when the same agent runs on a machine that isn't mine.
+This is Part 4 of *How I Use Agents*. Parts 1–3 are about working inside terminal harnesses: plan mode[^1], fresh sessions, and the on-disk canon (Part 1); one workstream per task (Part 2); one memory shared across Claude Code and [pi](https://pi.dev) (Part 3). Part 4 is what changes when the agent — here, Claude Code — runs on a machine that isn't mine.
 
 ---
 
