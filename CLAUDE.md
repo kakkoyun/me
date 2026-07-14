@@ -50,7 +50,7 @@ make prose              # Alias for vale with a summary count
 - `layouts/_partials/templates/schema_json.html` -- Rich JSON-LD `@graph` (home: WebSite+Person with sameAs; posts/newsletter: BlogPosting+BreadcrumbList; talks: Article; lists: CollectionPage). Replaces PaperMod's stock schema partial; deliberately emits no `articleBody`
 - `layouts/partials/functions/link-index.html` -- Site-wide internal-link index built by scanning `.RawContent` (markdown links + reference definitions). **Contract: call only as `partialCached "functions/link-index.html" site`** — never with variant args, never as plain `partial`. Deliberately NOT a render hook, so rendered HTML/feeds stay byte-identical to stock output
 - `layouts/partials/page-links.html` -- "Links to / Linked from" nav on posts/talks/newsletter singles, fed by the link index
-- `layouts/_default/graph.html` + `layouts/_default/graph.json.json` -- `/graph/` content-graph page and its JSON endpoint (`/graph/index.json`); rendering via dependency-free canvas force sim in `assets/js/graph.js` (~4 KB minified, loads only on that page)
+- `layouts/_default/graph.html` + `layouts/_default/graph.json.json` -- `/graph/` content-graph page and its JSON endpoint (`/graph/index.json`); rendering via dependency-free canvas force sim in `assets/js/graph.js` (~5.5 KB minified, loads only on that page; wheel/pinch zoom, background-drag pan, keyboard-accessible view controls)
 - `layouts/robots.txt` -- Explicitly welcomes AI crawlers, references llms.txt
 
 ### Custom Shortcodes
