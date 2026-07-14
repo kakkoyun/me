@@ -46,7 +46,7 @@ jobs:
           HUGO_ENV: production
 
       - name: Check internal links with lychee
-        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
           # --offline: skip all http/https URLs. External rot is handled by the
           #   weekly cron pass below.
@@ -110,7 +110,7 @@ jobs:
 
       - name: Check external links in new posts/talks
         if: steps.detect.outputs.files != ''
-        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
           # Args mirror links-external below (same accept codes, retries,
           # excludes) so a passing PR check guarantees the cron will pass on
@@ -182,7 +182,7 @@ jobs:
 
       - name: Check external links with lychee
         id: lychee
-        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
           # --accept 200..=299,403,429: lychee v2 (lychee >=0.15) treats --accept as a
           #   whitelist that REPLACES the default accepted codes; 200..=299 must be listed
