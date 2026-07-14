@@ -17,7 +17,7 @@
     {{- /* Category · Series kicker above the title. */ -}}
     {{- $cats := .GetTerms "categories" }}
     {{- $series := .GetTerms "series" }}
-    {{- if or $cats $series }}
+    {{- if and (not (.Param "hideMeta")) (or $cats $series) }}
     <div class="post-kicker">
       {{- with $cats }}{{ (index . 0).LinkTitle }}{{ end -}}
       {{- with $series }}{{ if $cats }} · {{ end }}Series: {{ (index . 0).LinkTitle }}{{ end -}}
