@@ -15,3 +15,13 @@
 .entry-header h2 {
   color: var(--accent);
 }
+
+/* Titles now carry the amber --accent, which collides with the kicker (the
+   category/series/date meta line above the title) that also used --accent.
+   Move the kickers to the secondary teal accent (--accent-2, from
+   tags-links-accent.css) so the meta line reads distinct from the title.
+   The .entry-kicker <time> stays --secondary (set in reading.css). */
+.post-kicker,
+.entry-kicker {
+  color: var(--accent-2);
+}
