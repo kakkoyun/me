@@ -182,3 +182,25 @@
 .first-entry .entry-footer {
   display: none;
 }
+
+/* Warm the list/section/search pages too. PaperMod gives `body.list` a
+   var(--code-bg) background (grayish) to set list pages apart; with the warmer
+   --theme that reads as an inconsistent grey next to single/standalone pages.
+   Override just the page background back to --theme (body.list out-specifies
+   PaperMod's .list) — --code-bg stays grayish for code blocks, as intended. */
+body.list {
+  background: var(--theme);
+}
+
+/* Warm the neutral surface tone too. PaperMod's --code-bg is a cool grey, used
+   as the background for every quiet panel — the TOC (details.toc), series-nav,
+   sidenotes, the newsletter placeholder, pagination and inline code. Against
+   the warm --theme those read as cool-grey patches, the same inconsistency as
+   body.list. Warm it so panels sit as a subtle warm tint above the page. Code
+   BLOCKS use --code-block-bg (dark) and are unaffected. */
+:root {
+  --code-bg: #f4f0e9;
+}
+:root[data-theme="dark"] {
+  --code-bg: #2a2620;
+}
