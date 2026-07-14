@@ -1,0 +1,17 @@
+/* Experimental: accent-colored titles — isolated for easy revert.
+   Delete this one file (or revert the PR) to undo. Sorts last in
+   css/extended/, so it wins over reading.css's title rules cleanly.
+
+   Contrast: amber #b45309 on #fdfcfa ~4.85:1, #e09b4c on #191813 ~8:1 —
+   well past WCAG AA, and titles are large text (3:1 bar). */
+
+/* Single post / page / graph title (h1). */
+.post-title {
+  color: var(--accent);
+}
+
+/* Post-list entry titles (home, section lists, tag pages). Remove this block
+   if amber on every list card is too much and you want only single titles. */
+.entry-header h2 {
+  color: var(--accent);
+}
