@@ -21,7 +21,8 @@
         aria-label="Map of pages on this site and the links between them"
         data-graph-src="{{ (.OutputFormats.Get "json").RelPermalink }}"></canvas>
     </div>
-    <noscript><p>The graph needs JavaScript. Browse <a href="/posts/">posts</a>, <a href="/talks/">talks</a> and the <a href="/newsletter/">newsletter</a> instead.</p></noscript>
+    <p class="graph-alt-nav">Prefer a list? Browse <a href="/posts/">posts</a>, <a href="/talks/">talks</a> and the <a href="/newsletter/">newsletter</a>.</p>
+    <noscript><p>The graph needs JavaScript.</p></noscript>
   </div>
 </article>
 {{- end }}

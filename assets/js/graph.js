@@ -63,6 +63,7 @@
     }
     resize(); place();
     var alpha = 1, hovered = null, dragged = null, rafId = null;
+    var prevX = 0, prevY = 0, travel = Infinity;
 
     function tick() {
       var cx = width / 2, cy = height / 2, i, j;
@@ -133,6 +134,11 @@
     } else {
       rafId = requestAnimationFrame(loop);
     }
+    function reheat() {
+      if (reduced) return;
+      alpha = Math.max(alpha, 0.3);
+      if (!rafId) rafId = requestAnimationFrame(loop);
+    }
 
     function pointerPos(e) {
       var rect = canvas.getBoundingClientRect();
@@ -152,36 +158,49 @@
       var p = pointerPos(e), hit = hitTest(p.x, p.y);
       if (hit !== hovered) { hovered = hit; canvas.style.cursor = hit ? "pointer" : ""; draw(); }
     });
-    canvas.addEventListener("click", function (e) {
-      var p = pointerPos(e), hit = hitTest(p.x, p.y);
-      if (hit) window.location.href = hit.id;
-    });
     canvas.addEventListener("pointerdown", function (e) {
-      var p = pointerPos(e), hit = hitTest(p.x, p.y);
+      var p = pointerPos(e);
+      prevX = p.x; prevY = p.y; travel = 0;
+      var hit = hitTest(p.x, p.y);
       if (!hit) return;
       dragged = hit;
       canvas.setPointerCapture(e.pointerId);
     });
     canvas.addEventListener("pointermove", function (e) {
-      if (!dragged) return;
       var p = pointerPos(e);
+      travel += Math.hypot(p.x - prevX, p.y - prevY);
+      prevX = p.x; prevY = p.y;
+      if (!dragged) return;
       dragged.x = p.x; dragged.y = p.y; dragged.vx = 0; dragged.vy = 0;
       draw();
     });
-    function endDrag() {
+    canvas.addEventListener("pointerup", function (e) {
+      var wasDrag = dragged !== null;
+      dragged = null;
+      if (travel < 5) {
+        var p = pointerPos(e), hit = hitTest(p.x, p.y);
+        if (hit) { window.location.href = hit.id; return; }
+      }
+      if (wasDrag) reheat();
+    });
+    canvas.addEventListener("pointercancel", function () {
       if (!dragged) return;
       dragged = null;
-      if (reduced) return;
-      alpha = Math.max(alpha, 0.3);
-      if (!rafId) rafId = requestAnimationFrame(loop);
-    }
-    canvas.addEventListener("pointerup", endDrag);
-    canvas.addEventListener("pointercancel", endDrag);
+      reheat();
+    });
 
     var resizeTimer = null;
     window.addEventListener("resize", function () {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function () { resize(); draw(); }, 150);
+      resizeTimer = setTimeout(function () {
+        resize();
+        nodes.forEach(function (n) {
+          n.x = Math.max(10, Math.min(width - 10, n.x));
+          n.y = Math.max(10, Math.min(height - 10, n.y));
+        });
+        reheat();
+        draw();
+      }, 150);
     });
     new MutationObserver(function () { colors = readColors(); draw(); })
       .observe(document.body, { attributeFilter: ["class"] });

@@ -29,6 +29,7 @@ body.dark {
   content: ""; display: inline-block; width: 10px; height: 10px;
   border-radius: 50%; margin-right: 6px; vertical-align: baseline;
 }
+.graph-alt-nav { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--secondary); }
 .graph-legend__item--posts::before      { background: var(--graph-node-posts); }
 .graph-legend__item--talks::before      { background: var(--graph-node-talks); }
 .graph-legend__item--newsletter::before { background: var(--graph-node-newsletter); }
