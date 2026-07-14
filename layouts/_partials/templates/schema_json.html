@@ -1,0 +1,132 @@
+{{- /*
+  JSON-LD structured data. Overrides PaperMod's stock templates/schema_json.html
+  (which emits articleBody and a URL-split breadcrumb) with a richer,
+  always-valid graph built entirely from Go dicts/slices -- no hand-written
+  JSON, exactly one <script> emission per page.
+*/}}
+
+{{- /* Shared values */}}
+{{- $personID := printf "%s#person" site.Home.Permalink }}
+{{- $person := dict "@type" "Person" "@id" $personID "name" site.Params.author.name "url" site.Home.Permalink }}
+{{- with site.Params.images }}
+  {{- $person = merge $person (dict "image" (absURL (index . 0))) }}
+{{- end }}
+
+{{- /* sameAs: every social icon URL except links back to this site itself (drops the
+      RSS self-link). Origin-anchored on purpose: external profiles whose path merely
+      contains the domain (e.g. bsky.app/profile/kakkoyun.me) must be kept. */}}
+{{- $siteOrigin := strings.TrimSuffix "/" site.Home.Permalink }}
+{{- $sameAs := slice }}
+{{- range site.Params.socialIcons }}
+  {{- if not (or (eq .url $siteOrigin) (hasPrefix .url (printf "%s/" $siteOrigin))) }}
+    {{- $sameAs = $sameAs | append .url }}
+  {{- end }}
+{{- end }}
+
+{{- /* Page-context image: mirrors the cover logic in templates/opengraph.html. */}}
+{{- $image := "" }}
+{{- if .Params.cover.image }}
+  {{- if ne .Params.cover.relative true }}
+    {{- $image = .Params.cover.image | absURL }}
+  {{- else }}
+    {{- $image = (path.Join .RelPermalink .Params.cover.image) | absURL }}
+  {{- end }}
+{{- else }}
+  {{- with site.Params.images }}
+    {{- $image = absURL (index . 0) }}
+  {{- end }}
+{{- end }}
+
+{{- /* Dates: dateModified falls back to datePublished when Lastmod is zero. */}}
+{{- $rfc3339 := "2006-01-02T15:04:05Z07:00" }}
+{{- $datePublished := "" }}
+{{- if not .PublishDate.IsZero }}
+  {{- $datePublished = .PublishDate.Format $rfc3339 }}
+{{- end }}
+{{- $dateModified := $datePublished }}
+{{- if not .Lastmod.IsZero }}
+  {{- $dateModified = .Lastmod.Format $rfc3339 }}
+{{- end }}
+
+{{- /* Optional fields shared by BlogPosting and Article, each individually guarded. */}}
+{{- $optional := dict }}
+{{- with $image }}
+  {{- $optional = merge $optional (dict "image" .) }}
+{{- end }}
+{{- with (.Description | default .Summary | plainify | htmlUnescape | chomp) }}
+  {{- $optional = merge $optional (dict "description" .) }}
+{{- end }}
+{{- with $datePublished }}
+  {{- $optional = merge $optional (dict "datePublished" .) }}
+{{- end }}
+{{- with $dateModified }}
+  {{- $optional = merge $optional (dict "dateModified" .) }}
+{{- end }}
+{{- with .Params.tags }}
+  {{- $optional = merge $optional (dict "keywords" .) }}
+{{- end }}
+{{- with .Params.categories }}
+  {{- $optional = merge $optional (dict "articleSection" (index . 0)) }}
+{{- end }}
+
+{{- $graph := slice }}
+{{- $needsBreadcrumb := false }}
+
+{{- if .IsHome }}
+  {{- $website := dict "@type" "WebSite" "name" site.Title "url" site.Home.Permalink "inLanguage" "en" "publisher" (dict "@id" $personID) "author" (dict "@id" $personID) }}
+  {{- with site.Params.description }}
+    {{- $website = merge $website (dict "description" .) }}
+  {{- end }}
+  {{- $personHome := $person }}
+  {{- if $sameAs }}
+    {{- $personHome = merge $person (dict "sameAs" $sameAs) }}
+  {{- end }}
+  {{- $graph = $graph | append $website | append $personHome }}
+{{- else if and .IsPage (in (slice "posts" "newsletter") .Section) }}
+  {{- /* Fragment @id: the article node must not share an @id with the WebPage in
+        mainEntityOfPage -- identical @ids merge into one node in JSON-LD. */}}
+  {{- $post := dict "@type" "BlogPosting" "@id" (printf "%s#article" .Permalink) "headline" (.Title | plainify) "url" .Permalink "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) "author" $person "publisher" $person "wordCount" .WordCount "timeRequired" (printf "PT%dM" .ReadingTime) "inLanguage" "en" }}
+  {{- $post = merge $post $optional }}
+  {{- /* .FirstSection, not .Parent: newsletter issues nest under /newsletter/<publication>/ but must attach to /newsletter/. */}}
+  {{- with .FirstSection }}
+    {{- $post = merge $post (dict "isPartOf" (dict "@type" "Blog" "@id" .Permalink "name" .Title)) }}
+  {{- end }}
+  {{- $graph = $graph | append $post }}
+  {{- $needsBreadcrumb = true }}
+{{- else if and .IsPage (eq .Section "talks") }}
+  {{- $article := dict "@type" "Article" "@id" (printf "%s#article" .Permalink) "headline" (.Title | plainify) "url" .Permalink "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) "author" $person "publisher" $person "wordCount" .WordCount "timeRequired" (printf "PT%dM" .ReadingTime) "inLanguage" "en" "genre" "talk" }}
+  {{- $article = merge $article $optional }}
+  {{- $graph = $graph | append $article }}
+  {{- $needsBreadcrumb = true }}
+{{- else if .IsPage }}
+  {{- $webpage := dict "@type" "WebPage" "headline" (.Title | plainify) "url" .Permalink }}
+  {{- with (.Description | default .Summary | plainify | htmlUnescape | chomp) }}
+    {{- $webpage = merge $webpage (dict "description" .) }}
+  {{- end }}
+  {{- $graph = $graph | append $webpage }}
+  {{- $needsBreadcrumb = true }}
+{{- else if or .IsSection (in (slice "term" "taxonomy") .Kind) }}
+  {{- $collection := dict "@type" "CollectionPage" "name" (.Title | plainify) "url" .Permalink "inLanguage" "en" }}
+  {{- with (.Description | default site.Params.description) }}
+    {{- $collection = merge $collection (dict "description" .) }}
+  {{- end }}
+  {{- $graph = $graph | append $collection }}
+  {{- $needsBreadcrumb = true }}
+{{- end }}
+
+{{- if $needsBreadcrumb }}
+  {{- $items := slice }}
+  {{- range .Ancestors.Reverse }}
+    {{- $name := .Title | plainify }}
+    {{- if .IsHome }}
+      {{- $name = site.Title }}
+    {{- end }}
+    {{- $items = $items | append (dict "@type" "ListItem" "position" (len $items | add 1) "name" $name "item" .Permalink) }}
+  {{- end }}
+  {{- $items = $items | append (dict "@type" "ListItem" "position" (len $items | add 1) "name" (.Title | plainify) "item" .Permalink) }}
+  {{- $graph = $graph | append (dict "@type" "BreadcrumbList" "itemListElement" $items) }}
+{{- end }}
+
+{{- if $graph }}
+<script type="application/ld+json">{{ dict "@context" "https://schema.org" "@graph" $graph | jsonify | safeJS }}</script>
+{{- end }}
