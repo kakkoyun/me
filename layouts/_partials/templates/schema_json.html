@@ -83,7 +83,9 @@
   {{- end }}
   {{- $graph = $graph | append $website | append $personHome }}
 {{- else if and .IsPage (in (slice "posts" "newsletter") .Section) }}
-  {{- $post := dict "@type" "BlogPosting" "@id" .Permalink "headline" (.Title | plainify) "url" .Permalink "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) "author" $person "publisher" $person "wordCount" .WordCount "timeRequired" (printf "PT%dM" .ReadingTime) "inLanguage" "en" }}
+  {{- /* Fragment @id: the article node must not share an @id with the WebPage in
+        mainEntityOfPage -- identical @ids merge into one node in JSON-LD. */}}
+  {{- $post := dict "@type" "BlogPosting" "@id" (printf "%s#article" .Permalink) "headline" (.Title | plainify) "url" .Permalink "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) "author" $person "publisher" $person "wordCount" .WordCount "timeRequired" (printf "PT%dM" .ReadingTime) "inLanguage" "en" }}
   {{- $post = merge $post $optional }}
   {{- /* .FirstSection, not .Parent: newsletter issues nest under /newsletter/<publication>/ but must attach to /newsletter/. */}}
   {{- with .FirstSection }}
@@ -92,7 +94,7 @@
   {{- $graph = $graph | append $post }}
   {{- $needsBreadcrumb = true }}
 {{- else if and .IsPage (eq .Section "talks") }}
-  {{- $article := dict "@type" "Article" "@id" .Permalink "headline" (.Title | plainify) "url" .Permalink "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) "author" $person "publisher" $person "wordCount" .WordCount "timeRequired" (printf "PT%dM" .ReadingTime) "inLanguage" "en" "genre" "talk" }}
+  {{- $article := dict "@type" "Article" "@id" (printf "%s#article" .Permalink) "headline" (.Title | plainify) "url" .Permalink "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) "author" $person "publisher" $person "wordCount" .WordCount "timeRequired" (printf "PT%dM" .ReadingTime) "inLanguage" "en" "genre" "talk" }}
   {{- $article = merge $article $optional }}
   {{- $graph = $graph | append $article }}
   {{- $needsBreadcrumb = true }}
