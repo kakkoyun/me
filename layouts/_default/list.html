@@ -131,6 +131,16 @@
   {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
   {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
   <header class="entry-header">
+    {{- /* Reading-first kicker: category · date · reading time above the title.
+           Styled by assets/css/extended/reading.css (.entry-kicker). */ -}}
+    {{- $cats := .GetTerms "categories" }}
+    {{- if not (.Param "hideMeta") }}
+    <div class="entry-kicker">
+      {{- with $cats }}{{ (index . 0).LinkTitle }} · {{ end -}}
+      {{- with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format site.Params.dateFormat }}</time>{{- end -}}
+      {{- if (and (.Param "ShowReadingTime") .ReadingTime) }} · {{ .ReadingTime }} min{{ end -}}
+    </div>
+    {{- end }}
     <h2 class="entry-hint-parent">
       {{- .Title }}
       {{- if .Draft }}

@@ -1,0 +1,184 @@
+/* Reading-first refinement.
+   Targets long-form reading comfort and spacing rhythm without leaving
+   PaperMod's structure. Everything here is theme-aware via the existing
+   CSS custom properties, so light + dark adapt automatically (same
+   :root[data-theme="dark"] pattern used in newsletter.css).
+
+   Pairs with:
+     - layouts/partials/extend_head.html  (loads Source Serif 4 + Inter)
+     - layouts/_default/list.html         (emits the .entry-kicker line)
+
+   What it changes:
+     1. Serif body for long-form reading (post + summaries); sans stays on
+        UI, nav and headings.
+     2. Narrower measure (~68 chars) + larger type and looser leading.
+     3. A single warm accent (amber) for links, active nav, blockquote rule,
+        and the list kickers.
+     4. Post list de-boxed: bordered cards -> clean divided list.
+*/
+
+:root {
+  /* Warm off-white page tone (subtle; keeps PaperMod's near-neutral feel). */
+  --theme: #fdfcfa;
+  --entry: #fdfcfa;
+
+  /* Single accent, light theme. */
+  --accent: #b45309;
+  --accent-soft: #e6c9a3;
+
+  /* Optimal measure: ~42rem == ~672px == ~68 characters. */
+  --main-width: 42rem;
+
+  /* Keep the existing sans stack available for headings + UI. */
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --serif: "Source Serif 4", Georgia, Cambria, "Times New Roman", serif;
+}
+
+:root[data-theme="dark"] {
+  /* Warm dark, matching the 2b mock. */
+  --theme: #191813;
+  --entry: #201e17;
+  --accent: #e09b4c;
+  --accent-soft: #6e5433;
+}
+
+/* ---- Long-form reading body -------------------------------------------- */
+
+.post-content {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.75;
+}
+
+.post-content p {
+  margin-bottom: 1.4rem;
+}
+
+/* Headings inside the body stay on the sans stack for contrast + hierarchy. */
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+  font-family: var(--sans);
+  letter-spacing: -0.015em;
+}
+
+.post-content h2 {
+  margin-top: 2.4rem;
+  font-size: 25px;
+}
+
+/* Code should not inherit the serif. */
+.post-content code,
+.post-content pre {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    monospace;
+}
+
+/* Summaries on list/home entries: quiet serif, a touch smaller. */
+.entry-content {
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* ---- Accent -------------------------------------------------------------- */
+
+.post-content a {
+  color: var(--accent);
+  text-decoration-color: var(--accent-soft);
+}
+
+.post-content a:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* Active nav item: accent instead of the underline box. */
+.nav .logo-switches + #menu .active,
+#menu .active {
+  color: var(--accent);
+  box-shadow: none;
+}
+
+/* Blockquote gets the accent rule. */
+.post-content blockquote {
+  border-inline-start: 3px solid var(--accent);
+  color: var(--secondary);
+  font-family: var(--serif);
+  font-style: italic;
+}
+
+/* ---- Post title + meta rhythm ------------------------------------------- */
+
+.post-title {
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.post-meta {
+  gap: 0.75rem;
+  padding-bottom: 1.4rem;
+  margin-bottom: 1.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---- Post list: de-box into a clean divided list ------------------------ */
+
+.post-entry,
+.first-entry {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 20px 0;
+  margin: 0;
+  min-height: 0;
+}
+
+.post-entry:hover,
+.first-entry:hover {
+  transform: none;
+}
+
+.entry-header h2 {
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+/* The category · date · reading-time kicker emitted by list.html. */
+.entry-kicker {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.entry-kicker time {
+  color: var(--secondary);
+}
+
+/* Section labels on the homepage ("Recent Posts" etc). */
+.home-info + * .page-header h2,
+.page-header h2 {
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 768px) {
+  .post-content {
+    font-size: 18px;
+  }
+}
+
+/* Kicker is the single meta line on list/home cards — hide the duplicate
+   footer meta (post_meta.html re-emits date + reading time below the card). */
+.post-entry .entry-footer,
+.first-entry .entry-footer {
+  display: none;
+}

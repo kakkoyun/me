@@ -6,12 +6,23 @@
           ToC/content, for posts that belong to a `series` taxonomy term.
        3. The page-links partial (incoming/outgoing internal links) renders
           after the tags, before the newsletter form.
+       4. A `.post-kicker` line (category · series) sits above the title,
+          styled by assets/css/extended/fragments.css.
        Keep in sync with the theme on PaperMod bumps. */ -}}
 {{- define "main" }}
 
 <article class="post-single">
   <header class="post-header">
     {{ partial "breadcrumbs.html" . }}
+    {{- /* Category · Series kicker above the title. */ -}}
+    {{- $cats := .GetTerms "categories" }}
+    {{- $series := .GetTerms "series" }}
+    {{- if and (not (.Param "hideMeta")) (or $cats $series) }}
+    <div class="post-kicker">
+      {{- with $cats }}{{ (index . 0).LinkTitle }}{{ end -}}
+      {{- with $series }}{{ if $cats }} · {{ end }}Series: {{ (index . 0).LinkTitle }}{{ end -}}
+    </div>
+    {{- end }}
     <h1 class="post-title entry-hint-parent">
       {{ .Title }}
       {{- if .Draft }}
