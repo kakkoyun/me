@@ -169,6 +169,11 @@
       var w = toWorld(pointerPos(e)), hit = hitTest(w.x, w.y);
       if (hit !== hovered) { hovered = hit; canvas.style.cursor = hit ? "pointer" : ""; draw(); }
     });
+    canvas.addEventListener("mouseleave", function () {
+      if (dragged || panning || !hovered) return;
+      hovered = null; canvas.style.cursor = "";
+      draw();
+    });
     canvas.addEventListener("wheel", function (e) {
       e.preventDefault();
       var p = pointerPos(e);
