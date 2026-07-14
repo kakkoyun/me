@@ -1,0 +1,23 @@
+{{- /* GitHub/Obsidian-style alert blockquotes (admonitions).
+       Alerts:  > [!NOTE] / > [!tip] Custom Title  (types: note tip important warning caution)
+       Regular blockquotes MUST keep Hugo's default output shape.
+       Styles: assets/css/extended/admonitions.css */ -}}
+{{- if eq .Type "alert" }}
+{{- $icons := dict
+      "note"      `<svg class="admonition-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`
+      "tip"       `<svg class="admonition-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>`
+      "important" `<svg class="admonition-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v2"/><path d="M12 13h.01"/></svg>`
+      "warning"   `<svg class="admonition-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`
+      "caution"   `<svg class="admonition-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`
+}}
+<blockquote class="admonition admonition-{{ .AlertType }}">
+  <p class="admonition-title">{{ with index $icons .AlertType }}{{ . | safeHTML }}{{ end }}<span>
+    {{- with .AlertTitle }}{{ . }}{{ else }}{{ title .AlertType }}{{ end -}}
+  </span></p>
+  <div class="admonition-content">{{ .Text }}</div>
+</blockquote>
+{{- else }}
+<blockquote>
+{{ .Text }}
+</blockquote>
+{{- end }}

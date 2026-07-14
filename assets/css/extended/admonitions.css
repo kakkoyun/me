@@ -1,0 +1,36 @@
+/* Admonitions — tinted alert boxes for GitHub/Obsidian-style blockquote alerts.
+   Markup from layouts/_default/_markup/render-blockquote.html:
+   <blockquote class="admonition admonition-note"><p class="admonition-title">svg<span>Note</span></p>
+   <div class="admonition-content">…</div></blockquote> */
+
+.post-content .admonition {
+  --adm-accent: var(--primary);
+  --adm-bg: var(--code-bg);
+  margin: var(--content-gap) 0;
+  padding: 0.75rem 1rem;
+  border-inline-start: 3px solid var(--adm-accent);   /* overrides PaperMod's blockquote border */
+  border-radius: var(--radius);
+  background: var(--adm-bg);
+  font-style: normal;
+  color: var(--content);
+}
+.post-content .admonition-note      { --adm-accent: #316dca; --adm-bg: rgba(49, 109, 202, 0.07); }
+.post-content .admonition-tip       { --adm-accent: #347d39; --adm-bg: rgba(52, 125, 57, 0.07); }
+.post-content .admonition-important { --adm-accent: #8256d0; --adm-bg: rgba(130, 86, 208, 0.07); }
+.post-content .admonition-warning   { --adm-accent: #966600; --adm-bg: rgba(150, 102, 0, 0.07); }
+.post-content .admonition-caution   { --adm-accent: #c93c37; --adm-bg: rgba(201, 60, 55, 0.07); }
+body.dark .post-content .admonition-note      { --adm-accent: #4c8dff; --adm-bg: rgba(76, 141, 255, 0.10); }
+body.dark .post-content .admonition-tip       { --adm-accent: #57ab5a; --adm-bg: rgba(87, 171, 90, 0.10); }
+body.dark .post-content .admonition-important { --adm-accent: #986ee2; --adm-bg: rgba(152, 110, 226, 0.10); }
+body.dark .post-content .admonition-warning   { --adm-accent: #c69026; --adm-bg: rgba(198, 144, 38, 0.10); }
+body.dark .post-content .admonition-caution   { --adm-accent: #e5534b; --adm-bg: rgba(229, 83, 75, 0.10); }
+.post-content .admonition-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  color: var(--adm-accent);
+}
+.post-content .admonition-title .admonition-icon { flex: 0 0 auto; }
+.post-content .admonition-content > :last-child { margin-bottom: 0; }
