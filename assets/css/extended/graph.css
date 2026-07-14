@@ -1,0 +1,35 @@
+/* Content-graph page (/graph/): canvas container, legend, node palette.
+   Colors are single-sourced here; graph.js reads them via getComputedStyle. */
+:root {
+  --graph-node-posts: #2e7dd1;
+  --graph-node-talks: #8256d0;
+  --graph-node-newsletter: #347d39;
+  --graph-node-pages: #966600;
+  --graph-edge: rgba(128, 128, 128, 0.35);
+  --graph-label: #555;
+}
+body.dark {
+  --graph-node-posts: #539bf5;
+  --graph-node-talks: #986ee2;
+  --graph-node-newsletter: #57ab5a;
+  --graph-node-pages: #c69026;
+  --graph-edge: rgba(200, 200, 200, 0.25);
+  --graph-label: #aaa;
+}
+.graph-canvas-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--entry);
+  touch-action: none;
+  overflow: hidden;
+}
+.graph-canvas-wrap canvas { display: block; width: 100%; }
+.graph-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.5rem 0 1rem; font-size: 0.85rem; color: var(--secondary); }
+.graph-legend__item::before {
+  content: ""; display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 6px; vertical-align: baseline;
+}
+.graph-legend__item--posts::before      { background: var(--graph-node-posts); }
+.graph-legend__item--talks::before      { background: var(--graph-node-talks); }
+.graph-legend__item--newsletter::before { background: var(--graph-node-newsletter); }
+.graph-legend__item--pages::before      { background: var(--graph-node-pages); }
