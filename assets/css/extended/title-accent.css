@@ -1,4 +1,5 @@
-/* Experimental: accent-colored titles — isolated for easy revert.
+/* Experimental: accent placement (titles, greeting, kickers, social icons).
+   Isolated for easy revert.
    Delete this one file (or revert the PR) to undo. Sorts last in
    css/extended/, so it wins over reading.css's title rules cleanly.
 
@@ -24,4 +25,23 @@
 .post-kicker,
 .entry-kicker {
   color: var(--accent-2);
+}
+
+/* Homepage greeting — "Hey, I'm Kemal" (the ## in content/_index.md). Targeted
+   by its heading anchor (home-only); primary amber accent. */
+#hey-im-kemal {
+  color: var(--accent);
+}
+
+/* Colorize the social icons: amber by default, secondary teal + a subtle lift
+   on hover (ties both accents together). The icons are stroke=currentColor, so
+   `color` tints them. */
+.social-icons a {
+  color: var(--accent);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.social-icons a:hover,
+.social-icons a:focus-visible {
+  color: var(--accent-2);
+  transform: translateY(-1px);
 }
