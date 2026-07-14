@@ -4,6 +4,8 @@
           extend_post_content.html.
        2. The series-nav partial is rendered after the cover, before the
           ToC/content, for posts that belong to a `series` taxonomy term.
+       3. The page-links partial (incoming/outgoing internal links) renders
+          after the tags, before the newsletter form.
        Keep in sync with the theme on PaperMod bumps. */ -}}
 {{- define "main" }}
 
@@ -59,6 +61,7 @@
     {{- end }}
   </ul>
   {{- end }}
+  {{- partial "page-links.html" . }}
 
   {{- partial "extend_post_content.html" . }}
 

@@ -1,0 +1,58 @@
+/* Connected-pages nav ("Links to" / "Linked from")
+   Rendered by layouts/partials/page-links.html after the tags block on single
+   pages of posts/talks/newsletter, from the site-wide link index built by the
+   render-link.html hook. Two groups side by side on wide viewports, stacked
+   below. All colors use theme variables so light/dark mode adapt. */
+
+.page-links {
+  margin: var(--content-gap) 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .page-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .page-links__group {
+    flex: 1 1 240px;
+  }
+}
+
+.page-links__heading {
+  display: block;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--secondary);
+  margin: 0 0 0.5rem;
+}
+
+.page-links__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.page-links__list li {
+  padding: 0.25rem 0;
+  font-size: 0.95rem;
+}
+
+.page-links__list a {
+  color: var(--secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--tertiary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: color 0.15s ease;
+}
+
+.page-links__list a:hover,
+.page-links__list a:focus-visible {
+  color: var(--primary);
+  text-decoration-color: var(--primary);
+}
