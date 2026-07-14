@@ -19,11 +19,15 @@
 .post-content .admonition-important { --adm-accent: #8256d0; --adm-bg: rgba(130, 86, 208, 0.07); }
 .post-content .admonition-warning   { --adm-accent: #966600; --adm-bg: rgba(150, 102, 0, 0.07); }
 .post-content .admonition-caution   { --adm-accent: #c93c37; --adm-bg: rgba(201, 60, 55, 0.07); }
-body.dark .post-content .admonition-note      { --adm-accent: #4c8dff; --adm-bg: rgba(76, 141, 255, 0.10); }
-body.dark .post-content .admonition-tip       { --adm-accent: #57ab5a; --adm-bg: rgba(87, 171, 90, 0.10); }
-body.dark .post-content .admonition-important { --adm-accent: #986ee2; --adm-bg: rgba(152, 110, 226, 0.10); }
-body.dark .post-content .admonition-warning   { --adm-accent: #c69026; --adm-bg: rgba(198, 144, 38, 0.10); }
-body.dark .post-content .admonition-caution   { --adm-accent: #e5534b; --adm-bg: rgba(229, 83, 75, 0.10); }
+
+/* Dark mode. NOTE: switched from `body.dark` to `:root[data-theme="dark"]` to
+   match the actual theme-toggle attribute (same selector as newsletter.css and
+   reading.css). The old `body.dark` rules never applied. */
+:root[data-theme="dark"] .post-content .admonition-note      { --adm-accent: #4c8dff; --adm-bg: rgba(76, 141, 255, 0.10); }
+:root[data-theme="dark"] .post-content .admonition-tip       { --adm-accent: #57ab5a; --adm-bg: rgba(87, 171, 90, 0.10); }
+:root[data-theme="dark"] .post-content .admonition-important { --adm-accent: #986ee2; --adm-bg: rgba(152, 110, 226, 0.10); }
+:root[data-theme="dark"] .post-content .admonition-warning   { --adm-accent: #c69026; --adm-bg: rgba(198, 144, 38, 0.10); }
+:root[data-theme="dark"] .post-content .admonition-caution   { --adm-accent: #e5534b; --adm-bg: rgba(229, 83, 75, 0.10); }
 .post-content .admonition-title {
   display: flex;
   align-items: center;

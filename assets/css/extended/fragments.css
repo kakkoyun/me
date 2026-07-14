@@ -1,0 +1,123 @@
+/* Fragment consistency pass — companion to reading.css.
+   Extends the reading-first refresh to every remaining blog fragment so the
+   whole site shares one system (serif prose, warm amber accent, sans UI,
+   theme-aware light/dark). Depends on the --accent / --serif / --sans custom
+   properties declared in reading.css — ship both files together.
+
+   Pairs with the modified partials in this package:
+     - layouts/_default/single.html  (emits .post-kicker above the title)
+     - layouts/404.html              (theme-var restyle)
+*/
+
+/* ---- Post header (single) ----------------------------------------------- */
+
+.post-kicker {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.9rem;
+}
+
+.post-header .breadcrumbs {
+  color: var(--secondary);
+}
+
+.post-header .breadcrumbs a {
+  color: var(--accent);
+}
+
+/* ---- Breadcrumbs / list chrome ------------------------------------------ */
+
+.breadcrumbs a {
+  color: var(--accent);
+}
+
+/* ---- Pagination --------------------------------------------------------- */
+
+.pagination .prev,
+.pagination .next {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.page-footer .pagination {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+/* ---- Tag / category cloud (terms.html) ---------------------------------- */
+
+.terms-tags li a {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.terms-tags li a sup {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---- Share icons (post footer) ------------------------------------------ */
+
+.share-buttons a svg {
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.share-buttons a:hover svg {
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* ---- Code blocks -------------------------------------------------------- */
+
+.post-content .highlight,
+.post-content pre {
+  border-radius: 10px;
+}
+
+/* PaperMod's copy-code button: accent affordance on hover. */
+.copy-code {
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.copy-code:hover {
+  color: var(--accent);
+}
+
+/* ---- Newsletter accent (main + post CTA) -------------------------------- */
+
+/* Override newsletter.css's --primary button with the shared accent so the
+   form matches links and the active nav item. */
+.newsletter-form .newsletter-form__submit {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.newsletter-form .newsletter-form__submit:hover,
+.newsletter-form .newsletter-form__submit:focus-visible {
+  background: var(--accent);
+  color: var(--theme);
+}
+
+.newsletter-form .newsletter-form__email:focus {
+  border-color: var(--accent);
+}
+
+.post-single .post-newsletter {
+  border-top-color: var(--border);
+}
+
+.post-newsletter__heading {
+  letter-spacing: -0.01em;
+}
+
+/* ---- Series-nav accent (also patched in series-nav.css) ----------------- */
+/* Kept here too so the accent applies even if series-nav.css lags a bump. */
+.series-nav {
+  border-inline-start: 3px solid var(--accent);
+}

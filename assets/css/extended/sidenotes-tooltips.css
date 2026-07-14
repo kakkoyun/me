@@ -5,14 +5,14 @@
 
 /* --- Sidenotes --- */
 .sidenote-ref { font-size: 0.8em; }
-.sidenote-ref a { text-decoration: none; }
+.sidenote-ref a { text-decoration: none; color: var(--accent, #b45309); }
 
 .sidenote {
   display: block;
   margin: 0.75rem 0;
   padding: 0.6rem 0.75rem;
-  background: var(--note-bg, rgba(0,0,0,0.03));
-  border-left: 3px solid var(--note-accent, #888);
+  background: var(--note-bg, var(--code-bg, rgba(0,0,0,0.03)));
+  border-left: 3px solid var(--note-accent, var(--accent, #888));
   font-size: 0.9em;
   line-height: 1.35;
   position: relative;
@@ -21,8 +21,9 @@
 .sidenote .sidenote-label {
   font-weight: 600;
   margin-right: 0.4rem;
+  color: var(--primary);
 }
-.sidenote-back { font-size: 0.75em; margin-left: 0.5rem; text-decoration: none; }
+.sidenote-back { font-size: 0.75em; margin-left: 0.5rem; text-decoration: none; color: var(--accent, #b45309); }
 
 /* Wide layout: float or position to the side */
 @media (min-width: 1100px) {
@@ -38,12 +39,12 @@
 
 /* --- Tooltips --- */
 .tooltip { position: relative; cursor: help; }
-.tooltip-term { border-bottom: 1px dotted currentColor; }
+.tooltip-term { border-bottom: 1px dotted var(--accent, currentColor); color: var(--accent, inherit); }
 .tooltip-term:focus { outline: 2px solid var(--accent, #6aa0ff); outline-offset: 2px; }
 
 .tooltip-bubble {
-  --tooltip-bg: var(--tooltip-bg-color, #222);
-  --tooltip-fg: var(--tooltip-fg-color, #fff);
+  --tooltip-bg: var(--tooltip-bg-color, #1c1b19);
+  --tooltip-fg: var(--tooltip-fg-color, #f5f0e6);
   position: absolute;
   z-index: 40;
   background: var(--tooltip-bg);
@@ -89,9 +90,11 @@
 .tooltip[data-placement="bottom"] .tooltip-bubble::after { bottom: 100%; left: 50%; transform: translate(-50%, 50%) rotate(45deg); }
 .tooltip[data-placement="left"] .tooltip-bubble::after { right: -4px; top: 50%; transform: translate(50%, -50%) rotate(45deg); }
 
-/* Dark mode adjustments if theme sets body.dark */
-body.dark .sidenote { background: rgba(255,255,255,0.06); border-left-color: #aaa; }
-body.dark .tooltip-bubble { --tooltip-bg: #111; --tooltip-fg: #eee; }
+/* Dark mode. NOTE: switched from `body.dark` to `:root[data-theme="dark"]` to
+   match the actual theme-toggle attribute (same selector as newsletter.css and
+   reading.css). The old `body.dark` rules never applied. */
+:root[data-theme="dark"] .sidenote { background: var(--code-bg, rgba(255,255,255,0.06)); border-left-color: var(--accent, #aaa); }
+:root[data-theme="dark"] .tooltip-bubble { --tooltip-bg: #000; --tooltip-fg: #e9e4d8; }
 
 /* Print: show sidenotes inline */
 @media print {

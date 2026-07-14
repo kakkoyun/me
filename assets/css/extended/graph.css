@@ -8,7 +8,7 @@
   --graph-edge: rgba(128, 128, 128, 0.35);
   --graph-label: #555;
 }
-body.dark {
+:root[data-theme="dark"] {
   --graph-node-posts: #539bf5;
   --graph-node-talks: #986ee2;
   --graph-node-newsletter: #57ab5a;

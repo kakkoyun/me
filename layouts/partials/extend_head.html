@@ -2,6 +2,16 @@
 <link href="{{ with .OutputFormats.Get "MARKDOWN" }}{{ .Permalink }}{{ end }}" rel="alternate" type="text/markdown"
     title="{{ .Title }}" />
 {{ end }}
+
+{{/* Reading-first typography: Source Serif 4 for long-form body, Inter for UI.
+     Loaded here so it applies site-wide. Self-host into static/ later if you
+     want to drop the third-party request (see PULL_REQUEST.md). */}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
 <script async defer data-domain="{{ .Site.Params.analytics.plausible.domain }}"
     src="https://{{ .Site.Params.analytics.plausible.serverURL | default "plausible.io" }}/js/script{{if
     .Site.Params.analytics.plausible.fileDownloadsTracking}}.file-downloads{{end}}{{if
