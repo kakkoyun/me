@@ -1,0 +1,46 @@
+/* De-carded list entries + year headings for section archives (TIL-inspired).
+   Year headings are emitted by layouts/_default/list.html for section lists
+   only (posts/talks); home and term pages keep the flat, unheaded layout.
+
+   PaperMod's card look lives in themes/PaperMod/assets/css/common/post-entry.css:
+     .post-entry { background: var(--entry); border: 1px solid var(--border);
+                   border-radius: var(--radius); padding: var(--gap); ... }
+     .post-entry:hover, .post-entry:focus-within {
+       transform: translateY(-2px); border-color: var(--tertiary); }
+   We override only the box-look properties (background/border/border-radius/
+   padding/margin) to flatten the entry. `position: relative` is left
+   untouched -- .entry-link's full-cover overlay anchor depends on the entry
+   being its positioning context. The theme's hover/focus-within rule also
+   recolors the border to --tertiary, which would redraw a card outline on
+   hover even with a transparent background, so that one property
+   (border-color) is neutralized here too; the translateY lift is left as-is
+   since it isn't part of the boxed-card look. */
+
+.post-entry,
+.first-entry {
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 12px 0;
+  margin-bottom: 8px;
+}
+
+.post-entry:hover,
+.post-entry:focus-within {
+  background: var(--code-bg);
+  border-color: transparent;
+  border-radius: var(--radius);
+}
+
+.post-entry .entry-header h2 {
+  font-size: 22px;
+}
+
+.archive-year {
+  margin: 28px 0 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 1.1rem;
+}
