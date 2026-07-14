@@ -1,0 +1,47 @@
+/* Experimental: accent placement (titles, greeting, kickers, social icons).
+   Isolated for easy revert.
+   Delete this one file (or revert the PR) to undo. Sorts last in
+   css/extended/, so it wins over reading.css's title rules cleanly.
+
+   Contrast: amber #b45309 on #fdfcfa ~4.85:1, #e09b4c on #191813 ~8:1 —
+   well past WCAG AA, and titles are large text (3:1 bar). */
+
+/* Single post / page / graph title (h1). */
+.post-title {
+  color: var(--accent);
+}
+
+/* Post-list entry titles (home, section lists, tag pages). Remove this block
+   if amber on every list card is too much and you want only single titles. */
+.entry-header h2 {
+  color: var(--accent);
+}
+
+/* Titles now carry the amber --accent, which collides with the kicker (the
+   category/series/date meta line above the title) that also used --accent.
+   Move the kickers to the secondary teal accent (--accent-2, from
+   tags-links-accent.css) so the meta line reads distinct from the title.
+   The .entry-kicker <time> stays --secondary (set in reading.css). */
+.post-kicker,
+.entry-kicker {
+  color: var(--accent-2);
+}
+
+/* Homepage greeting — "Hey, I'm Kemal" (the ## in content/_index.md). Targeted
+   by its heading anchor (home-only); primary amber accent. */
+#hey-im-kemal {
+  color: var(--accent);
+}
+
+/* Colorize the social icons: amber by default, secondary teal + a subtle lift
+   on hover (ties both accents together). The icons are stroke=currentColor, so
+   `color` tints them. */
+.social-icons a {
+  color: var(--accent);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.social-icons a:hover,
+.social-icons a:focus-visible {
+  color: var(--accent-2);
+  transform: translateY(-1px);
+}
