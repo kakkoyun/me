@@ -60,3 +60,6 @@ styles/*
 
 # Newsletter sidecar briefs (raw aggregation data, not for committing)
 content/newsletter/the-unwind/.brief-*.md
+
+# Claude Code agent worktrees (session-local checkouts)
+.claude/worktrees/

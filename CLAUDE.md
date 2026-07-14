@@ -46,6 +46,11 @@ make prose              # Alias for vale with a summary count
 - `layouts/_default/list.md` -- Markdown alternate template for list/taxonomy pages (LLM-friendly output)
 - `layouts/_default/single.md` -- Markdown alternate template for single posts (LLM-friendly output)
 - `layouts/_default/_markup/render-image.html` -- Responsive images with WebP srcset generation
+- `layouts/_default/_markup/render-blockquote.html` -- GitHub/Obsidian-style admonitions (see Admonitions under Content Conventions)
+- `layouts/_partials/templates/schema_json.html` -- Rich JSON-LD `@graph` (home: WebSite+Person with sameAs; posts/newsletter: BlogPosting+BreadcrumbList; talks: Article; lists: CollectionPage). Replaces PaperMod's stock schema partial; deliberately emits no `articleBody`
+- `layouts/partials/functions/link-index.html` -- Site-wide internal-link index built by scanning `.RawContent` (markdown links + reference definitions). **Contract: call only as `partialCached "functions/link-index.html" site`** — never with variant args, never as plain `partial`. Deliberately NOT a render hook, so rendered HTML/feeds stay byte-identical to stock output
+- `layouts/partials/page-links.html` -- "Links to / Linked from" nav on posts/talks/newsletter singles, fed by the link index
+- `layouts/_default/graph.html` + `layouts/_default/graph.json.json` -- `/graph/` content-graph page and its JSON endpoint (`/graph/index.json`); rendering via dependency-free canvas force sim in `assets/js/graph.js` (~5.5 KB minified, loads only on that page; wheel/pinch zoom, background-drag pan, keyboard-accessible view controls)
 - `layouts/robots.txt` -- Explicitly welcomes AI crawlers, references llms.txt
 
 ### Custom Shortcodes
@@ -125,6 +130,20 @@ Each category has a distinct purpose, tone, and structure:
 - Blog posts: local images stored in `static/uploads/`, referenced as `/uploads/filename.jpeg`
 - Talks: YouTube thumbnail URLs — `https://img.youtube.com/vi/{VIDEO_ID}/maxresdefault.jpg`
 - Always include `alt` text; `caption` is optional
+
+### Admonitions
+
+GitHub-style alert blockquotes render as tinted admonition boxes with icons (types: `note`, `tip`, `important`, `warning`, `caution`):
+
+```markdown
+> [!NOTE]
+> Body with **markdown**.
+
+> [!tip] Custom Title
+> Obsidian-style custom titles work too.
+```
+
+Rendered by `layouts/_default/_markup/render-blockquote.html`, styled in `assets/css/extended/admonitions.css` (light + dark). Regular blockquotes are unaffected. The raw syntax degrades gracefully on GitHub and in the `/index.md` markdown alternates.
 
 ### Talk Frontmatter
 
