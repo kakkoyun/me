@@ -188,19 +188,15 @@ The problem was warmup. The JVM compiles methods on the fly (JIT compilation). E
 
 From the experiments:
 
-> [!tip] Tip 1
-> Run benchmarks long enough to uncover perturbations like warmup effects.
+**Tip 1**: Run benchmarks long enough to uncover perturbations like warmup effects.
 
-> [!tip] Tip 2
-> Collect enough samples to reduce intra-run variation. N >= 30 is a reasonable minimum.
+**Tip 2**: Collect enough samples to reduce intra-run variation. N >= 30 is a reasonable minimum.
 
-> [!tip] Tip 3
-> Rerun benchmarks multiple times to reduce inter-run variation. M >= 5 runs helps account for [random initial state effects](https://link.springer.com/chapter/10.1007/11758525_26) (cache layout, memory placement).
+**Tip 3**: Rerun benchmarks multiple times to reduce inter-run variation. M >= 5 runs helps account for [random initial state effects](https://link.springer.com/chapter/10.1007/11758525_26) (cache layout, memory placement).
 
 Applying all three tips reduced the coefficient of variation from **11.80% to 2.94%** — a 4x improvement from benchmark design alone, before any environment control.
 
-> [!tip] Tip 4
-> Use deterministic inputs. Non-deterministic data leads to non-deterministic measurements.
+**Tip 4**: Use deterministic inputs. Non-deterministic data leads to non-deterministic measurements.
 
 ---
 
