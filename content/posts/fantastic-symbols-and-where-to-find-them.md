@@ -103,6 +103,7 @@ Symbol table '.symtab' contains 13199 entries:
     10: 0000000000401646 5 FUNC LOCAL HIDDEN 1 x_cgo_munmap.cold
 ```
 
+> [!NOTE]
 > Go has a unique table (of course). It stores its symbols in a section called [`.gopclntab`](https://pkg.go.dev/debug/gosym#LineTable). This is a table of functions, line numbers and addresses.
 > Go does this because it needs to be able to render human-readable stack traces when a panic occurs in runtime;
 

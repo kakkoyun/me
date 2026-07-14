@@ -30,6 +30,7 @@ showCanonicalLink: true
 canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them-part-2
 ---
 
+> [!IMPORTANT]
 > This is a blog post series. If you haven’t read [Part 1](https://www.polarsignals.com/blog/posts/2022/01/13/fantastic-symbols-and-where-to-find-them) we recommend you to do so first!
 
 In [the first blog post](https://www.polarsignals.com/blog/posts/2022/01/13/fantastic-symbols-and-where-to-find-them), we learned about the fantastic symbols ([debug symbols](https://en.wikipedia.org/wiki/Debug_symbol)), how the symbolization process works and lastly, how to find the symbolic names of addresses in a compiled binary.
@@ -134,6 +135,7 @@ So these symbols are also helpful for debugging.
 
 ![Node Stack Trace](https://www.polarsignals.com/blog/posts/2022/01/node_stack_trace.png)
 
+> [!WARNING]
 > Most of the runtimes are compiled with `production` mode, and they most likely lack the debug symbols in their release binaries.
 > You might need to manually compile your runtime in `debug mode` to actually have them in the resulting binary.
 > Some runtimes, such as Node.js, already have them in their `production` distributions.
