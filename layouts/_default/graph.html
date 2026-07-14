@@ -1,0 +1,33 @@
+{{- define "main" }}
+{{- with resources.Get "js/graph.js" }}
+{{- $js := . | js.Build (dict "minify" true "target" "es2018") | fingerprint }}
+<script defer src="{{ $js.RelPermalink }}"></script>
+{{- end }}
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">{{ .Title }}</h1>
+    {{- with .Description }}<div class="post-description">{{ . }}</div>{{- end }}
+  </header>
+  <div class="post-content">
+    {{ .Content }}
+    <div class="graph-legend" aria-hidden="true">
+      <span class="graph-legend__item graph-legend__item--posts">Posts</span>
+      <span class="graph-legend__item graph-legend__item--talks">Talks</span>
+      <span class="graph-legend__item graph-legend__item--newsletter">Newsletter</span>
+      <span class="graph-legend__item graph-legend__item--pages">Pages</span>
+    </div>
+    <div class="graph-canvas-wrap">
+      <canvas id="site-graph" role="img"
+        aria-label="Map of pages on this site and the links between them"
+        data-graph-src="{{ (.OutputFormats.Get "json").RelPermalink }}"></canvas>
+      <div class="graph-controls">
+        <button type="button" data-zoom="in" aria-label="Zoom in">+</button>
+        <button type="button" data-zoom="out" aria-label="Zoom out">−</button>
+        <button type="button" data-zoom="reset" aria-label="Reset view">⌂</button>
+      </div>
+    </div>
+    <p class="graph-alt-nav">Prefer a list? Browse <a href="/posts/">posts</a>, <a href="/talks/">talks</a> and the <a href="/newsletter/">newsletter</a>.</p>
+    <noscript><p>The graph needs JavaScript.</p></noscript>
+  </div>
+</article>
+{{- end }}

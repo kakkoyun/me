@@ -1,0 +1,32 @@
+{{- /* "Connected pages" nav: outgoing ("Links to") and incoming ("Linked from")
+       internal links, from the cached site link index. Rendered on single pages
+       of posts/talks/newsletter only (single.html). Styles: page-links.css */ -}}
+{{- if in (slice "posts" "talks" "newsletter") .Section }}
+{{- $idx := partialCached "functions/link-index.html" site }}
+{{- $incoming := index $idx.incoming .RelPermalink }}
+{{- $outgoing := index $idx.outgoing .RelPermalink }}
+{{- if or $incoming $outgoing }}
+<nav class="page-links" aria-label="Connected pages">
+  {{- with $outgoing }}
+  <div class="page-links__group">
+    <h3 class="page-links__heading">Links to</h3>
+    <ul class="page-links__list">
+      {{- range sort . "Title" }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+  {{- with $incoming }}
+  <div class="page-links__group">
+    <h3 class="page-links__heading">Linked from</h3>
+    <ul class="page-links__list">
+      {{- range sort . "Title" }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+</nav>
+{{- end }}
+{{- end }}

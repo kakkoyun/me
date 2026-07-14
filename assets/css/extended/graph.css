@@ -1,0 +1,52 @@
+/* Content-graph page (/graph/): canvas container, legend, node palette.
+   Colors are single-sourced here; graph.js reads them via getComputedStyle. */
+:root {
+  --graph-node-posts: #2e7dd1;
+  --graph-node-talks: #8256d0;
+  --graph-node-newsletter: #347d39;
+  --graph-node-pages: #966600;
+  --graph-edge: rgba(128, 128, 128, 0.35);
+  --graph-label: #555;
+}
+body.dark {
+  --graph-node-posts: #539bf5;
+  --graph-node-talks: #986ee2;
+  --graph-node-newsletter: #57ab5a;
+  --graph-node-pages: #c69026;
+  --graph-edge: rgba(200, 200, 200, 0.25);
+  --graph-label: #aaa;
+}
+.graph-canvas-wrap {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--entry);
+  touch-action: none;
+  overflow: hidden;
+}
+.graph-canvas-wrap canvas { display: block; width: 100%; }
+.graph-controls {
+  position: absolute; top: 8px; right: 8px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.graph-controls button {
+  width: 28px; height: 28px; padding: 0;
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--secondary);
+  font: inherit; line-height: 1;
+  cursor: pointer;
+}
+.graph-controls button:hover,
+.graph-controls button:focus-visible { color: var(--primary); }
+.graph-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.5rem 0 1rem; font-size: 0.85rem; color: var(--secondary); }
+.graph-legend__item::before {
+  content: ""; display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 6px; vertical-align: baseline;
+}
+.graph-alt-nav { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--secondary); }
+.graph-legend__item--posts::before      { background: var(--graph-node-posts); }
+.graph-legend__item--talks::before      { background: var(--graph-node-talks); }
+.graph-legend__item--newsletter::before { background: var(--graph-node-newsletter); }
+.graph-legend__item--pages::before      { background: var(--graph-node-pages); }

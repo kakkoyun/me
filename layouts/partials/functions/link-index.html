@@ -1,0 +1,55 @@
+{{- /* Site-wide link index. Returns dict: "outgoing"/"incoming",
+       each mapping RelPermalink -> Pages.
+       Built by scanning every page's .RawContent for markdown link
+       destinations — deliberately NOT a render hook, so the rendered
+       HTML/feeds stay byte-identical to stock output.
+       Catches inline links [t](/path) and reference definitions [r]: /path.
+       Known, accepted misses: raw HTML <a> tags and links produced by
+       shortcodes; destinations containing parens or spaces are never
+       captured by the inline-link regex at all ([^()\s]+ excludes them),
+       so an internal URL with parens/spaces would also be missed (none
+       exist on this site today).
+       CONTRACT: call ONLY as `partialCached "functions/link-index.html" site`
+       with NO variant args — a per-page variant would rerun the O(N) scan N times. */ -}}
+{{- $byPermalink := dict -}}
+{{- range site.RegularPages -}}{{- $byPermalink = merge $byPermalink (dict .RelPermalink .) -}}{{- end -}}
+{{- $base := urls.Parse site.Home.Permalink -}}
+{{- $out := dict -}}
+{{- $in := dict -}}
+{{- range $source := site.RegularPages -}}
+  {{- $paths := slice -}}
+  {{- $dests := slice -}}
+  {{- range findRESubmatch `\]\(([^()\s]+)(?:\s+"[^"]*")?\)` $source.RawContent -}}
+    {{- $dests = $dests | append (index . 1) -}}
+  {{- end -}}
+  {{- range findRESubmatch `(?m)^\[[^\]]+\]:\s+(\S+)` $source.RawContent -}}
+    {{- $dests = $dests | append (index . 1) -}}
+  {{- end -}}
+  {{- range $d := $dests -}}
+    {{- $u := urls.Parse $d -}}
+    {{- $internal := false -}}
+    {{- if and (eq $u.Scheme "") (eq $u.Host "") (hasPrefix $u.Path "/") -}}
+      {{- $internal = true -}}
+    {{- else if and (eq $u.Host $base.Host) (or (eq $u.Scheme "http") (eq $u.Scheme "https")) -}}
+      {{- $internal = true -}}
+    {{- end -}}
+    {{- if $internal -}}
+      {{- $p := $u.Path -}}
+      {{- if and (ne $p "") (eq (path.Ext $p) "") (not (hasSuffix $p "/")) -}}{{- $p = printf "%s/" $p -}}{{- end -}}
+      {{- if ne $p "" -}}{{- $paths = $paths | append $p -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $targets := slice -}}
+  {{- range (sort (uniq $paths)) -}}
+    {{- $t := index $byPermalink . -}}
+    {{- if and $t (ne $t $source) -}}{{- $targets = $targets | append $t -}}{{- end -}}
+  {{- end -}}
+  {{- if $targets -}}
+    {{- $out = merge $out (dict $source.RelPermalink $targets) -}}
+    {{- range $targets -}}
+      {{- $cur := index $in .RelPermalink | default slice -}}
+      {{- $in = merge $in (dict .RelPermalink ($cur | append $source)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return (dict "outgoing" $out "incoming" $in) -}}
