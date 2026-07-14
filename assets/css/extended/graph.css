@@ -17,6 +17,7 @@ body.dark {
   --graph-label: #aaa;
 }
 .graph-canvas-wrap {
+  position: relative;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--entry);
@@ -24,6 +25,21 @@ body.dark {
   overflow: hidden;
 }
 .graph-canvas-wrap canvas { display: block; width: 100%; }
+.graph-controls {
+  position: absolute; top: 8px; right: 8px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.graph-controls button {
+  width: 28px; height: 28px; padding: 0;
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--secondary);
+  font: inherit; line-height: 1;
+  cursor: pointer;
+}
+.graph-controls button:hover,
+.graph-controls button:focus-visible { color: var(--primary); }
 .graph-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.5rem 0 1rem; font-size: 0.85rem; color: var(--secondary); }
 .graph-legend__item::before {
   content: ""; display: inline-block; width: 10px; height: 10px;

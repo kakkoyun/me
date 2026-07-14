@@ -24,6 +24,7 @@
     var ctx = canvas.getContext("2d"), wrap = canvas.parentElement;
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var colors = readColors(), width = 0, height = 0;
+    var k = 1, tx = 0, ty = 0, dpr = 1;
     var nodesById = {};
     var nodes = Object.keys(data.pages).map(function (id) {
       var p = data.pages[id];
@@ -50,9 +51,8 @@
     function resize() {
       width = wrap.getBoundingClientRect().width;
       height = Math.min(window.innerHeight * 0.7, 600);
-      var dpr = window.devicePixelRatio || 1;
+      dpr = window.devicePixelRatio || 1;
       canvas.width = width * dpr; canvas.height = height * dpr; canvas.style.height = height + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     function place() {
       var cx = width / 2, cy = height / 2, maxR = 0.4 * Math.min(width, height);
@@ -64,6 +64,7 @@
     resize(); place();
     var alpha = 1, hovered = null, dragged = null, rafId = null;
     var prevX = 0, prevY = 0, travel = Infinity;
+    var pointers = new Map(), pinchDist = 0, panning = false;
 
     function tick() {
       var cx = width / 2, cy = height / 2, i, j;
@@ -102,9 +103,11 @@
     }
 
     function draw() {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
+      ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * tx, dpr * ty);
       var neigh = hovered ? neighborsOf(hovered) : null;
-      ctx.strokeStyle = colors.edge; ctx.lineWidth = 1;
+      ctx.strokeStyle = colors.edge; ctx.lineWidth = 1 / k;
       links.forEach(function (l) {
         ctx.globalAlpha = hovered && l.source !== hovered && l.target !== hovered ? 0.25 : 1;
         ctx.beginPath(); ctx.moveTo(l.source.x, l.source.y); ctx.lineTo(l.target.x, l.target.y); ctx.stroke();
@@ -115,12 +118,12 @@
         ctx.fillStyle = colors[n.section] || colors.pages;
         ctx.beginPath(); ctx.arc(n.x, n.y, radius(n), 0, Math.PI * 2); ctx.fill();
       });
-      ctx.globalAlpha = 1; ctx.font = "11px system-ui, sans-serif";
+      ctx.globalAlpha = 1; ctx.font = (11 / k) + "px system-ui, sans-serif";
       ctx.fillStyle = colors.label; ctx.textBaseline = "middle";
       nodes.forEach(function (n) {
         var isNeighbor = n === hovered || (neigh && neigh[n.id]);
         var show = hovered ? isNeighbor : n.degree >= 3;
-        if (show) ctx.fillText(n.title, n.x + radius(n) + 3, n.y);
+        if (show) ctx.fillText(n.title, n.x + radius(n) + 3 / k, n.y);
       });
     }
 
@@ -144,6 +147,7 @@
       var rect = canvas.getBoundingClientRect();
       return { x: e.clientX - rect.left, y: e.clientY - rect.top };
     }
+    function toWorld(p) { return { x: (p.x - tx) / k, y: (p.y - ty) / k }; }
     function hitTest(x, y) {
       var best = null, bestD = Infinity;
       nodes.forEach(function (n) {
@@ -152,41 +156,90 @@
       });
       return best;
     }
+    function zoomAt(sx, sy, factor) {
+      var nk = Math.max(0.5, Math.min(4, k * factor));
+      tx = sx - ((sx - tx) / k) * nk;
+      ty = sy - ((sy - ty) / k) * nk;
+      k = nk;
+      draw();
+    }
 
     canvas.addEventListener("mousemove", function (e) {
-      if (dragged) return;
-      var p = pointerPos(e), hit = hitTest(p.x, p.y);
+      if (dragged || panning || pointers.size > 1) return;
+      var w = toWorld(pointerPos(e)), hit = hitTest(w.x, w.y);
       if (hit !== hovered) { hovered = hit; canvas.style.cursor = hit ? "pointer" : ""; draw(); }
     });
+    canvas.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      var p = pointerPos(e);
+      zoomAt(p.x, p.y, Math.exp(-e.deltaY * 0.0015));
+    }, { passive: false });
+
     canvas.addEventListener("pointerdown", function (e) {
       var p = pointerPos(e);
-      prevX = p.x; prevY = p.y; travel = 0;
-      var hit = hitTest(p.x, p.y);
-      if (!hit) return;
-      dragged = hit;
+      pointers.set(e.pointerId, p);
       canvas.setPointerCapture(e.pointerId);
+      pinchDist = 0;
+      if (pointers.size === 2) {
+        dragged = null; panning = false; canvas.style.cursor = ""; travel = Infinity;
+        return;
+      }
+      if (pointers.size > 2) return;
+      prevX = p.x; prevY = p.y; travel = 0;
+      var w = toWorld(p), hit = hitTest(w.x, w.y);
+      if (hit) { dragged = hit; }
+      else { panning = true; canvas.style.cursor = "grabbing"; }
     });
     canvas.addEventListener("pointermove", function (e) {
       var p = pointerPos(e);
-      travel += Math.hypot(p.x - prevX, p.y - prevY);
+      if (pointers.has(e.pointerId)) pointers.set(e.pointerId, p);
+      if (pointers.size === 2) {
+        var pts = Array.from(pointers.values());
+        var d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        if (pinchDist > 0) zoomAt((pts[0].x + pts[1].x) / 2, (pts[0].y + pts[1].y) / 2, d / pinchDist);
+        pinchDist = d;
+        return;
+      }
+      if (pointers.size > 2) return;
+      var dx = p.x - prevX, dy = p.y - prevY;
+      travel += Math.hypot(dx, dy);
       prevX = p.x; prevY = p.y;
-      if (!dragged) return;
-      dragged.x = p.x; dragged.y = p.y; dragged.vx = 0; dragged.vy = 0;
-      draw();
+      if (dragged) {
+        var w = toWorld(p);
+        dragged.x = w.x; dragged.y = w.y; dragged.vx = 0; dragged.vy = 0;
+        draw();
+      } else if (panning) {
+        tx += dx; ty += dy;
+        draw();
+      }
     });
     canvas.addEventListener("pointerup", function (e) {
+      var wasPinch = pointers.size >= 2;
+      pointers.delete(e.pointerId);
+      pinchDist = 0;
+      if (wasPinch) { travel = Infinity; return; }
       var wasDrag = dragged !== null;
-      dragged = null;
+      dragged = null; panning = false; canvas.style.cursor = "";
       if (travel < 5) {
-        var p = pointerPos(e), hit = hitTest(p.x, p.y);
+        var w = toWorld(pointerPos(e)), hit = hitTest(w.x, w.y);
         if (hit) { window.location.href = hit.id; return; }
       }
       if (wasDrag) reheat();
     });
-    canvas.addEventListener("pointercancel", function () {
-      if (!dragged) return;
-      dragged = null;
-      reheat();
+    canvas.addEventListener("pointercancel", function (e) {
+      pointers.delete(e.pointerId);
+      pinchDist = 0; travel = Infinity;
+      var wasDrag = dragged !== null;
+      dragged = null; panning = false; canvas.style.cursor = "";
+      if (wasDrag) reheat();
+    });
+
+    document.querySelectorAll(".graph-controls button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var mode = btn.getAttribute("data-zoom");
+        if (mode === "reset") { k = 1; tx = 0; ty = 0; draw(); }
+        else zoomAt(width / 2, height / 2, mode === "in" ? 1.4 : 1 / 1.4);
+      });
     });
 
     var resizeTimer = null;
