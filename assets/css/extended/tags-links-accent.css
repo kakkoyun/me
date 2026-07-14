@@ -1,0 +1,56 @@
+/* Extra accent usage — experimental, isolated for easy revert.
+
+   Two deliberate colors:
+   - Post tags + tag-cloud links adopt the shared amber --accent (from
+     reading.css), so tags read as "of the brand".
+   - The "Links to / Linked from" internal-link nav gets a DISTINCT cool
+     accent (--accent-2, teal) so navigation reads apart from in-content
+     links. Warm tags vs cool nav.
+
+   Named to sort LAST in css/extended/ so it wins the cascade over
+   post-footer.css, page-links.css and fragments.css (same-specificity
+   selectors, later file wins). Delete this one file to revert everything. */
+
+:root {
+  --accent-2: #0e7490;        /* teal, ~5.2:1 on the warm off-white bg */
+  --accent-2-soft: #9dccd6;
+}
+
+:root[data-theme="dark"] {
+  --accent-2: #54b9cc;        /* lighter teal, ~8:1 on the warm dark bg */
+  --accent-2-soft: #2f5a63;
+}
+
+/* ---- Tags -> amber accent ------------------------------------------------- */
+
+/* Inline #hashtags under each post (layouts/_default/single.html). */
+.post-tags a {
+  color: var(--accent);
+}
+
+.post-tags a:hover,
+.post-tags a:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-soft);
+  text-underline-offset: 0.2em;
+}
+
+/* Tag/category cloud on term-list pages (/tags/, /categories/). The count
+   <sup> is already amber via fragments.css; this brings the label along. */
+.terms-tags li a {
+  color: var(--accent);
+}
+
+/* ---- Internal-link nav -> distinct cool accent --------------------------- */
+
+.page-links__list a {
+  color: var(--accent-2);
+  text-decoration-color: var(--accent-2-soft);
+}
+
+.page-links__list a:hover,
+.page-links__list a:focus-visible {
+  color: var(--accent-2);
+  text-decoration-color: var(--accent-2);
+}
