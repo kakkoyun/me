@@ -1,0 +1,23 @@
+{{- /* Graph data endpoint (/graph/index.json) for the /graph/ page.
+       Reuses the cached site link index (see functions/link-index.html).
+       Shape: {pages: {permalink: {permalink,title,section}}, graph: {permalink: {in:[], out:[]}}} */ -}}
+{{- $idx := partialCached "functions/link-index.html" site -}}
+{{- $skip := slice "search" "archives" "graph" -}}
+{{- $pagesDict := dict -}}
+{{- $graphDict := dict -}}
+{{- range site.RegularPages -}}
+  {{- if in $skip .Layout }}{{ continue }}{{ end -}}
+  {{- $sec := .Section -}}
+  {{- if eq $sec "" }}{{ $sec = "pages" }}{{ end -}}
+  {{- $pagesDict = merge $pagesDict (dict .RelPermalink (dict "permalink" .RelPermalink "title" (.Title | plainify) "section" $sec)) -}}
+  {{- $out := slice -}}
+  {{- range (index $idx.outgoing .RelPermalink | default slice) -}}
+    {{- if not (in $skip .Layout) -}}{{- $out = $out | append .RelPermalink -}}{{- end -}}
+  {{- end -}}
+  {{- $in := slice -}}
+  {{- range (index $idx.incoming .RelPermalink | default slice) -}}
+    {{- if not (in $skip .Layout) -}}{{- $in = $in | append .RelPermalink -}}{{- end -}}
+  {{- end -}}
+  {{- $graphDict = merge $graphDict (dict .RelPermalink (dict "in" $in "out" $out)) -}}
+{{- end -}}
+{{- dict "pages" $pagesDict "graph" $graphDict | jsonify -}}

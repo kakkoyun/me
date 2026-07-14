@@ -104,6 +104,9 @@ menu:
     # - name: "Archives"
     #   weight: 101
     #   url: "/archives/"
+    - name: "Graph"
+      weight: 101
+      url: "/graph/"
     - name: "Search"
       weight: 102
       url: "/search/"
