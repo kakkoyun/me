@@ -1,8 +1,9 @@
 /* Connected-pages nav ("Links to" / "Linked from")
    Rendered by layouts/partials/page-links.html after the tags block on single
-   pages of posts/talks/newsletter, from the site-wide link index built by the
-   render-link.html hook. Two groups side by side on wide viewports, stacked
-   below. All colors use theme variables so light/dark mode adapt. */
+   pages of posts/talks/newsletter, fed by the RawContent-scanning link index
+   in layouts/partials/functions/link-index.html. Two groups side by side on
+   wide viewports, stacked below. All colors use theme variables so light/dark
+   mode adapt. */
 
 .page-links {
   margin: var(--content-gap) 0 0;

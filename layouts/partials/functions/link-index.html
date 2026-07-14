@@ -5,9 +5,10 @@
        HTML/feeds stay byte-identical to stock output.
        Catches inline links [t](/path) and reference definitions [r]: /path.
        Known, accepted misses: raw HTML <a> tags and links produced by
-       shortcodes; parenthesized external URLs truncate at the first ")"
-       and are dropped by the page-match filter (no internal URL on this
-       site contains parens/spaces).
+       shortcodes; destinations containing parens or spaces are never
+       captured by the inline-link regex at all ([^()\s]+ excludes them),
+       so an internal URL with parens/spaces would also be missed (none
+       exist on this site today).
        CONTRACT: call ONLY as `partialCached "functions/link-index.html" site`
        with NO variant args — a per-page variant would rerun the O(N) scan N times. */ -}}
 {{- $byPermalink := dict -}}
