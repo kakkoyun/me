@@ -42,7 +42,7 @@ make prose              # Alias for vale with a summary count
 - `layouts/partials/comments.html` -- Giscus (GitHub Discussions) comment integration
 - `layouts/partials/home_info.html` -- Custom homepage info block (overrides PaperMod default)
 - `layouts/partials/author.html` -- Custom author bio partial
-- `layouts/_default/list.html` -- Custom homepage with "Recent Notes" section; year-grouped section lists (`/posts/`, `/talks/`) via `GroupByDate "2006"` (home and term pages stay flat)
+- `layouts/_default/list.html` -- Custom homepage with "Recent Notes" section
 - `layouts/_default/list.md` -- Markdown alternate template for list/taxonomy pages (LLM-friendly output)
 - `layouts/_default/single.md` -- Markdown alternate template for single posts (LLM-friendly output)
 - `layouts/_default/_markup/render-image.html` -- Responsive images with WebP srcset generation
