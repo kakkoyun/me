@@ -12,14 +12,13 @@
   {{- $person = merge $person (dict "image" (absURL (index . 0))) }}
 {{- end }}
 
-{{- /* sameAs: every social icon URL except links back to this site itself (drops the RSS self-link). */}}
-{{- $siteHost := site.BaseURL }}
-{{- $siteHost = strings.TrimSuffix "/" $siteHost }}
-{{- $siteHost = strings.TrimPrefix "https://" $siteHost }}
-{{- $siteHost = strings.TrimPrefix "http://" $siteHost }}
+{{- /* sameAs: every social icon URL except links back to this site itself (drops the
+      RSS self-link). Origin-anchored on purpose: external profiles whose path merely
+      contains the domain (e.g. bsky.app/profile/kakkoyun.me) must be kept. */}}
+{{- $siteOrigin := strings.TrimSuffix "/" site.Home.Permalink }}
 {{- $sameAs := slice }}
 {{- range site.Params.socialIcons }}
-  {{- if not (strings.Contains .url $siteHost) }}
+  {{- if not (or (eq .url $siteOrigin) (hasPrefix .url (printf "%s/" $siteOrigin))) }}
     {{- $sameAs = $sameAs | append .url }}
   {{- end }}
 {{- end }}
