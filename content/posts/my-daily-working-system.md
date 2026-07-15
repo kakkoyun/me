@@ -2,7 +2,7 @@
 title: "My Daily Working System"
 description: "How I structure focused work in mid-2026: Things3 for capture, one isolated worktree per task with tmux and Claude Code, and a Go CLI called af that's absorbing the shell glue."
 date: 2026-05-21T00:00:00Z
-publishDate: 2026-07-21T00:00:00Z
+publishDate: 2026-07-31T00:00:00Z
 draft: true
 promote: false
 categories:
