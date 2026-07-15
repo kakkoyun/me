@@ -2,7 +2,7 @@
 title: "How I Use Agents, Part 3: One Memory, Many Harnesses"
 description: "My CLAUDE.md is a symlink. One AGENTS.md and one set of guard scripts serve Claude Code, pi, and codex, and a model router decides who does the work."
 date: 2026-07-09T00:00:00Z
-publishDate: 2026-09-15T00:00:00Z
+publishDate: 2026-09-18T00:00:00Z
 categories:
   - blogmentation
 tags:
