@@ -2,7 +2,7 @@
 title: "My Second Brain System: PARA, Readwise, and an LLM That Takes Notes"
 description: "What I actually built, what does most of the work, and the one design choice that distinguishes this from every other Obsidian-plus-AI setup."
 date: 2026-05-22T00:00:00Z
-publishDate: 2026-08-11T00:00:00Z
+publishDate: 2026-08-21T00:00:00Z
 categories:
   - technical-findings
 tags:
