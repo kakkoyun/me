@@ -188,7 +188,9 @@ params:
     mapping: "title"
     strict: "0"
     reactionsEnabled: "1"
-    theme: "preferred_color_scheme"
+    theme: "preferred_color_scheme"   # initial / no-JS fallback (follows OS)
+    themeLight: "light"               # applied when the site theme is light
+    themeDark: "dark"                 # applied when the site theme is dark
   editPost:
     URL: "https://github.com/kakkoyun/me/edit/master/content"
     Text: "Suggest Changes"
