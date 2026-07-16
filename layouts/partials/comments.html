@@ -16,15 +16,15 @@
 </script>
 <script>
 // Sync the giscus theme with the site's light/dark toggle. The giscus tag stays
-// declarative (data-theme="preferred_color_scheme") for the no-JS / un-toggled
-// case; this corrects it when the site theme disagrees with the OS preference.
+// declarative (data-theme="preferred_color_scheme") as the no-JS fallback; this
+// drives giscus to the *site* theme once its iframe is ready and on every toggle.
 (function () {
   var LIGHT = {{ .Site.Params.giscus.themeLight | default "light" | jsonify }};
   var DARK  = {{ .Site.Params.giscus.themeDark  | default "dark"  | jsonify }};
   function want() {
     return document.documentElement.dataset.theme === 'dark' ? DARK : LIGHT;
   }
-  function push() {
+  function send() {
     var f = document.querySelector('iframe.giscus-frame');
     if (f && f.contentWindow) {
       f.contentWindow.postMessage(
@@ -33,12 +33,25 @@
       );
     }
   }
-  var synced = false;
+  // giscus silently drops a setConfig sent before its app is ready (an early
+  // resize message can arrive first), so each sync fires a few bounded retries
+  // to land once the iframe can actually apply the theme.
+  function sync() {
+    send();
+    setTimeout(send, 300);
+    setTimeout(send, 900);
+    setTimeout(send, 2000);
+  }
+  // First message from giscus means its iframe exists and is booting; kick the
+  // initial sync once (retries recover the early, dropped sends). This covers a
+  // lazy-loaded widget and the case where the OS theme disagrees with the site.
+  var kicked = false;
   window.addEventListener('message', function (e) {
     if (e.origin !== 'https://giscus.app' || !e.data || !e.data.giscus) return;
-    if (!synced) { synced = true; push(); } // one-time initial sync once ready
+    if (!kicked) { kicked = true; sync(); }
   });
-  new MutationObserver(push).observe(
+  // Re-sync on every site theme toggle (data-theme flips on <html>).
+  new MutationObserver(sync).observe(
     document.documentElement,
     { attributes: true, attributeFilter: ['data-theme'] }
   );
