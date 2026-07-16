@@ -14,3 +14,33 @@
         crossorigin="anonymous"
         async>
 </script>
+<script>
+// Sync the giscus theme with the site's light/dark toggle. The giscus tag stays
+// declarative (data-theme="preferred_color_scheme") for the no-JS / un-toggled
+// case; this corrects it when the site theme disagrees with the OS preference.
+(function () {
+  var LIGHT = {{ .Site.Params.giscus.themeLight | default "light" | jsonify }};
+  var DARK  = {{ .Site.Params.giscus.themeDark  | default "dark"  | jsonify }};
+  function want() {
+    return document.documentElement.dataset.theme === 'dark' ? DARK : LIGHT;
+  }
+  function push() {
+    var f = document.querySelector('iframe.giscus-frame');
+    if (f && f.contentWindow) {
+      f.contentWindow.postMessage(
+        { giscus: { setConfig: { theme: want() } } },
+        'https://giscus.app'
+      );
+    }
+  }
+  var synced = false;
+  window.addEventListener('message', function (e) {
+    if (e.origin !== 'https://giscus.app' || !e.data || !e.data.giscus) return;
+    if (!synced) { synced = true; push(); } // one-time initial sync once ready
+  });
+  new MutationObserver(push).observe(
+    document.documentElement,
+    { attributes: true, attributeFilter: ['data-theme'] }
+  );
+})();
+</script>
