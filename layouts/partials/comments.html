@@ -19,8 +19,8 @@
 // declarative (data-theme="preferred_color_scheme") as the no-JS fallback; this
 // drives giscus to the *site* theme once its iframe is ready and on every toggle.
 (function () {
-  var LIGHT = {{ .Site.Params.giscus.themeLight | default "light" | jsonify }};
-  var DARK  = {{ .Site.Params.giscus.themeDark  | default "dark"  | jsonify }};
+  var LIGHT = '{{ .Site.Params.giscus.themeLight | default "light" }}';
+  var DARK  = '{{ .Site.Params.giscus.themeDark  | default "dark"  }}';
   function want() {
     return document.documentElement.dataset.theme === 'dark' ? DARK : LIGHT;
   }
