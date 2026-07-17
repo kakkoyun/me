@@ -2,7 +2,28 @@
 # Wrapper: injects BUFFER_AUTH_TOKEN from 1Password if not already set, then execs buffer-cli.
 set -euo pipefail
 
+if ! command -v buffer-cli &>/dev/null; then
+  echo "Error: buffer-cli not found on PATH." >&2
+  echo "Install: gh release download v0.1.0 --repo erickhun/buffer-cli \\" >&2
+  echo "         --pattern 'buffer-darwin-arm64' --output ~/.local/bin/buffer-cli" >&2
+  echo "         && chmod +x ~/.local/bin/buffer-cli" >&2
+  exit 1
+fi
+
 if [ -z "${BUFFER_AUTH_TOKEN:-}" ]; then
+  if ! command -v op &>/dev/null; then
+    echo "Error: 1Password CLI (op) not found. Install: brew install 1password-cli" >&2
+    echo "Or set BUFFER_AUTH_TOKEN directly to skip 1Password." >&2
+    exit 1
+  fi
+
+  if ! op whoami --account my.1password.com &>/dev/null; then
+    echo "Error: 1Password session expired or not signed in." >&2
+    echo "Fix: eval \$(op signin --account my.1password.com)" >&2
+    echo "Or:  export BUFFER_AUTH_TOKEN=<token>" >&2
+    exit 1
+  fi
+
   BUFFER_AUTH_TOKEN="$(op read 'op://Private/Buffer API Token/credential' --account my.1password.com)"
   export BUFFER_AUTH_TOKEN
 fi
