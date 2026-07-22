@@ -4,7 +4,7 @@ description: >
   Drafts the next issue of the CoreDump newsletter from coding-session logs — technical
   problem/solution write-ups, one per solve, with the literal error output and the fix that
   worked. Produces issue-NNN.md (draft: true) with a gitignored sidecar brief and Vale
-  pre-check. Runs interactively or fully UNATTENDED (headless CI/cron). USE WHEN user says
+  pre-check. Runs interactively, or unattended (defers interview questions into the draft). USE WHEN user says
   "draft coredump", "next coredump issue", "coredump newsletter", or "coredump NNN".
 disable-model-invocation: false
 argument-hint: "[--days N | --since YYYY-MM-DD] [--until YYYY-MM-DD] [--issue NNN] [--unattended]"
@@ -27,8 +27,8 @@ humanizer skill, de-slop skill, and kemal-voice checklist before publishing.
 - `--since YYYY-MM-DD` — explicit window start date
 - `--until YYYY-MM-DD` — window end date (default: today)
 - `--issue NNN` — force a specific issue number (skip auto-detection)
-- `--unattended` — headless mode: skip the Step 3 interview and defer its questions into the
-  issue (see Step 3). Use for CI/cron runs.
+- `--unattended` — skip the Step 3 interview and defer its questions into the draft instead
+  (see Step 3), for a quick first pass without stopping to interview you.
 
 ---
 
@@ -52,20 +52,29 @@ item must include its source session path or URL — the draft cites from this.
 The heart of every issue. List recent sessions across all three agents:
 
 ```bash
-python3 ~/.agents/skills/recall/scripts/recall.py --days $DAYS --source claude --limit 30
-python3 ~/.agents/skills/recall/scripts/recall.py --days $DAYS --source codex --limit 30
-python3 ~/.agents/skills/recall/scripts/recall.py --days $DAYS --source pi --limit 30
+recall --days $DAYS --source claude --limit 30
+recall --days $DAYS --source codex --limit 30
+recall --days $DAYS --source pi --limit 30
 ```
 
+`recall` and `read-session` are PATH wrappers over `~/.agents/skills/recall/scripts/{recall,read_session}.py`.
 List mode (no query) returns session titles and file paths sorted by recency. For sessions that
 look like a real *solve* based on their title (a bug fixed, an error chased down, a config wrestled
 into shape — not trivial housekeeping), read the full session:
 
 ```bash
-python3 ~/.agents/skills/recall/scripts/read_session.py <path> --pretty
+read-session <path> --pretty
 ```
 
-Limit `read_session` calls to the 3–5 most substantive sessions per source to keep context bounded.
+For a sharper first pass, `ctx` (semantic + keyword search over the same session store) surfaces
+solves that recall's title listing misses. Use whichever finds the real work:
+
+```bash
+ctx search "bug fixed | error resolved | root cause" --since ${DAYS}d
+ctx show session <ctx-session-id>
+```
+
+Limit full-transcript reads to the 3–5 most substantive sessions per source to keep context bounded.
 
 For each real **SOLVE**, extract three things — this is what the write-up is built from:
 1. **The problem statement** — what was broken, in one line.
@@ -174,7 +183,7 @@ answer has been received.
 
 ### Unattended mode (`--unattended`)
 
-**Skip the interview entirely — do not block on author input.** A headless run must complete on its
+**Skip the interview entirely — do not block on author input.** An unattended run drafts on its
 own. Instead:
 
 1. Draft directly to `draft: true` from the brief and the extracted solves (Step 4).
@@ -240,7 +249,7 @@ In `--unattended` mode, also append at the very end of the issue:
 ~~~markdown
 ## Open questions for the author
 
-<!-- Deferred from the headless run — resolve these, then delete this block before publishing. -->
+<!-- Deferred from an unattended run — resolve these, then delete this block before publishing. -->
 
 1. <question drawn from the brief>
 2. <...>
@@ -303,7 +312,7 @@ Brief:   content/newsletter/coredump/.brief-NNN.md  (gitignored)
 
 Vale pre-check: N suggestion(s), M warning(s), P error(s)
 <If errors > 0: ⚠ Vale errors found — see brief § Vale pre-check>
-<If --unattended: ⚠ Drafted headless — see § Open questions for the author in the issue>
+<If --unattended: ⚠ Drafted unattended — see § Open questions for the author in the issue>
 
 Next steps:
   1. Read the draft; answer any Open questions for the author; revise as needed.

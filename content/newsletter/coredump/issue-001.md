@@ -21,10 +21,9 @@ now ends up nowhere.
 The honest part is how it gets written. The first draft is pulled straight
 from my coding-session logs by a tool that reads back the week, finds the real
 solves, and hands me a rough issue instead of a blank page. Then I edit it,
-because a machine transcript of my week is not something I'd inflict on your
-inbox unread. If the automation works, most weeks you'll get a short, useful
-dump with my fingerprints on top. If it doesn't, you'll get a quieter week and
-I'll tell you why.
+because a machine transcript of my week is not something I'd publish unread.
+If the automation works, most weeks there'll be a short, useful dump here with
+my fingerprints on top. If it doesn't, it'll be a quieter week and I'll say why.
 
 That's the whole experiment: make writing it down cheap enough that it keeps
 happening. Future issues will actually have the solves in them. This one is

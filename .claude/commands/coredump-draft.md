@@ -14,6 +14,6 @@ Supported overrides:
 - `--unattended`        headless mode: skip the author interview and defer its questions
                         into the issue (for CI/cron runs)
 
-Invoke the full `coredump` skill workflow with the arguments above. Follow all six steps:
-resolve window → aggregate session logs → write brief → interview author (or defer, when
-`--unattended`) → draft issue → Vale check → hand off.
+Invoke the full `coredump` skill workflow with the arguments above. Follow all seven steps
+(Step 0–6): resolve window → aggregate session logs → write brief → interview author (or
+defer, when `--unattended`) → draft issue → Vale check → hand off.

@@ -235,8 +235,7 @@ params:
         campaignId: "b350b0eb-605b-469c-8c49-8f0f33b1e78c"
       - slug: coredump
         name: "CoreDump"
-        description: "A roughly-weekly dump of the problems I hit and how I fixed them, drafted from my coding sessions."
-        campaignId: ""
+        description: "A roughly-weekly dump of the problems I hit and how I fixed them, drafted from my coding sessions. Website only."
   assets:
     favicon: "img/favicon.ico"
     theme_color: "#000000"
