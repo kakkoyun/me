@@ -11,7 +11,6 @@ tags:
   - llms
   - writing
   - developer-experience
-draft: true
 ---
 
 For years my debugging reflex was muscle memory. Copy the error, paste it into Google, click the Stack Overflow result, scroll to the green-checked answer from 2014 with four hundred upvotes and a comment thread arguing about the edge cases. It worked so well I stopped noticing it was a system. Someone, years before me, had hit the exact wall I was hitting, written down what fixed it, and left it out in the open where I could find it.
