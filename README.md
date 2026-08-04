@@ -66,9 +66,6 @@ Download selected media into `static/uploads/` instead of depending on remote
 URLs. Keep the provider attribution with the image and add descriptive cover alt
 text. fal model execution can incur charges, so check pricing first.
 
-Pi is a separate terminal coding agent. It does not load `.mcp.json`; use an
-equivalent CLI or extension integration instead.
-
 ## What does it include?
 
 * Overview page
