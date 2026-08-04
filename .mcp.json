@@ -1,53 +1,87 @@
 {
   "mcpServers": {
     "meme": {
-      "command": "sh",
-      "args": [
-        "-c",
-        "IMGFLIP_USERNAME=$(op read 'op://Private/ImgFlip/username' --account my.1password.com) IMGFLIP_PASSWORD=$(op read 'op://Private/ImgFlip/password' --account my.1password.com) npx -y meme-mcp"
-      ]
+      "type": "http",
+      "url": "https://memebo.at/mcp"
     },
     "giphy": {
-      "command": "sh",
+      "command": "op",
       "args": [
-        "-c",
-        "GIPHY_API_KEY=$(op read 'op://Private/Giphy API Key/credential' --account my.1password.com) npx -y mcp-server-giphy"
-      ]
+        "--account",
+        "my.1password.com",
+        "run",
+        "--",
+        "npx",
+        "-y",
+        "mcp-server-giphy@1.0.3"
+      ],
+      "env": {
+        "GIPHY_API_KEY": "op://Private/Giphy API Key/credential"
+      }
     },
     "readwise": {
-      "command": "sh",
-      "args": [
-        "-c",
-        "ACCESS_TOKEN=$(op read 'op://Private/Readwise API Key/credential' --account my.1password.com) npx -y @readwise/readwise-mcp"
-      ]
+      "type": "http",
+      "url": "https://mcp2.readwise.io/mcp"
     },
     "plausible": {
-      "command": "sh",
+      "command": "op",
       "args": [
+        "--account",
+        "my.1password.com",
+        "run",
+        "--",
+        "sh",
         "-c",
-        "npx -y mcp-remote https://plausible-mcp.sentry.dev/mcp --header \"Authorization: Bearer $(op read 'op://Private/Plausible API Key/credential' --account my.1password.com)\""
-      ]
+        "exec npx -y mcp-remote@0.1.38 https://plausible-mcp.sentry.dev/mcp --header \"Authorization: Bearer $PLAUSIBLE_API_KEY\""
+      ],
+      "env": {
+        "PLAUSIBLE_API_KEY": "op://Private/Plausible API Key/credential"
+      }
     },
     "fal": {
-      "command": "sh",
+      "command": "op",
       "args": [
+        "--account",
+        "my.1password.com",
+        "run",
+        "--",
+        "sh",
         "-c",
-        "npx -y mcp-remote https://mcp.fal.ai/mcp --header \"Authorization: Bearer $(op read 'op://Private/Fal API Key/credential' --account my.1password.com)\""
-      ]
+        "exec npx -y mcp-remote@0.1.38 https://mcp.fal.ai/mcp --header \"Authorization: Bearer $FAL_KEY\""
+      ],
+      "env": {
+        "FAL_KEY": "op://Private/Fal API Key/credential"
+      }
     },
     "pexels": {
-      "command": "sh",
+      "command": "op",
       "args": [
-        "-c",
-        "PEXELS_API_KEY=$(op read 'op://Private/Pexels API Key/credential' --account my.1password.com) npx -y mcp-pexels"
-      ]
+        "--account",
+        "my.1password.com",
+        "run",
+        "--",
+        "npx",
+        "-y",
+        "mcp-pexels@1.0.2"
+      ],
+      "env": {
+        "PEXELS_API_KEY": "op://Private/Pexels API Key/credential"
+      }
     },
     "pixabay": {
-      "command": "sh",
+      "command": "op",
       "args": [
-        "-c",
-        "PIXABAY_API_KEY=$(op read 'op://Private/Pixabay API Key/credential' --account my.1password.com) npx -y pixabay-mcp@latest"
-      ]
+        "--account",
+        "my.1password.com",
+        "run",
+        "--",
+        "npx",
+        "-y",
+        "pixabay-mcp@0.3.0"
+      ],
+      "env": {
+        "PIXABAY_API_KEY": "op://Private/Pixabay API Key/credential"
+      }
     }
   }
 }
