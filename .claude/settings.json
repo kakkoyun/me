@@ -10,5 +10,8 @@
       "mcp__pixabay__*"
     ]
   },
-  "enabledMcpjsonServers": ["meme", "giphy", "readwise", "plausible", "fal", "pexels", "pixabay"]
+  "enabledMcpjsonServers": ["meme", "giphy", "readwise", "plausible", "fal", "pexels", "pixabay"],
+  "env": {
+    "MCP_TIMEOUT": "60000"
+  }
 }

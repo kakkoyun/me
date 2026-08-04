@@ -39,6 +39,35 @@ Update the theme later with:
 git submodule update --remote --merge
 ```
 
+## Creative writing tools
+
+The project-level `.mcp.json` gives Claude Code tools for finding references,
+checking analytics, and adding visual material:
+
+| Server | Use |
+| --- | --- |
+| Memeboat | Search meme templates and create captioned images |
+| GIPHY | Search rated GIFs and stickers |
+| Readwise | Search highlights and Reader documents |
+| Plausible | Query site analytics |
+| fal | Find and run generative-media models |
+| Pexels | Search stock photos and videos |
+| Pixabay | Search stock photos, illustrations, vectors, and videos |
+
+The credential-backed servers require Node.js 20 or newer and the 1Password
+CLI. Their API keys remain as `op://` references and are resolved only when each
+server starts. Clones outside the author's 1Password account must replace those
+references and the `--account` value.
+
+Run `claude`, open `/mcp`, approve the project servers, and authenticate Readwise.
+`claude mcp list` shows their connection status.
+
+Download selected media into `static/uploads/` instead of depending on remote
+URLs. Keep the provider attribution with the image and add descriptive cover alt
+text. fal model execution can incur charges, so check pricing first.
+
+Pi does not load `.mcp.json`; it needs an equivalent CLI or extension integration.
+
 ## What does it include?
 
 * Overview page
