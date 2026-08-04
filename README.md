@@ -46,13 +46,13 @@ checking analytics, and adding visual material:
 
 | Server | Use |
 | --- | --- |
-| Memeboat | Search meme templates and create captioned images |
-| GIPHY | Search rated GIFs and stickers |
-| Readwise | Search highlights and Reader documents |
-| Plausible | Query site analytics |
-| fal | Find and run generative-media models |
-| Pexels | Search stock photos and videos |
-| Pixabay | Search stock photos, illustrations, vectors, and videos |
+| `meme` | Search meme templates and create captioned images |
+| `giphy` | Search rated GIFs and stickers |
+| `readwise` | Search highlights and Reader documents |
+| `plausible` | Query site analytics |
+| `fal` | Find and run generative-media models |
+| `pexels` | Search stock photos and videos |
+| `pixabay` | Search stock photos, illustrations, vectors, and videos |
 
 The credential-backed servers require Node.js 20 or newer and the 1Password
 CLI. Their API keys remain as `op://` references and are resolved only when each
@@ -66,7 +66,8 @@ Download selected media into `static/uploads/` instead of depending on remote
 URLs. Keep the provider attribution with the image and add descriptive cover alt
 text. fal model execution can incur charges, so check pricing first.
 
-Pi does not load `.mcp.json`; it needs an equivalent CLI or extension integration.
+Pi is a separate terminal coding agent. It does not load `.mcp.json`; use an
+equivalent CLI or extension integration instead.
 
 ## What does it include?
 
