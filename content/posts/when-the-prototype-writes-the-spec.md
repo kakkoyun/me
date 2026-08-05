@@ -22,13 +22,15 @@ OpenTelemetry's reference implementation was slated to land on April 24, 2019. I
 
 I think about that timeline a lot, because I work on tracer libraries for a living, and the order in which a multi-language SDK gets built keeps mattering more than the documented process suggests.
 
+One caveat before any of this. I wasn't in the room for those 2019 decisions. What follows about OTel's early years is reconstructed from public roadmaps, issues, and design docs, so I can tell you what the record shows and not what anyone was thinking.
+
 You can call this pattern "PoC first, RFC later." That's what we tell ourselves we're doing. In practice it tends to slide into "PoC ships, RFC never," and then six other languages spend the next year matching whatever the first implementation already did. There's a less-messy way, though, and I want to write down what I think it looks like.
 
 ## What "first" looks like in OpenTelemetry
 
 When the merger was announced in March 2019, the bootstrap committee handed the details of the API and reference implementation to a small technical committee.[^2] What came out was Java. The prototype was scheduled for April 24, and work began in all the other languages on May 8.[^1] By September the project was aiming for parity with existing projects in C#, Go, Java, Node.js, and Python.[^1]
 
-A first draft of the cross-language specification was on the schedule too, due the same day work began in every language.[^1] Two weeks isn't enough time for a multi-language working group to sit down, look at the prototype, and ask "okay, but how does this map to Go's `context.Context` and Python's `contextvars` and JavaScript's `AsyncLocalStorage`?" Those conversations happened later, in parallel with implementations, and a fair amount of what shipped in 2019 reflected what was natural to write in Java in 2019. That's how the calendar shook out.
+A first draft of the cross-language specification was on the schedule too, due the same day work began in every language.[^1] Two weeks isn't enough time for a multi-language working group to sit down, look at the prototype, and ask "okay, but how does this map to Go's `context.Context` and Python's `contextvars` and JavaScript's `AsyncLocalStorage`?" Those conversations happened later, in parallel with implementations, and some of what shipped in 2019 carried the shape of the language it was written in first. That's how the calendar shook out.
 
 Seven years later, the constraints of that early shape still leak. Java's thread-local context model is the cleanest case. Python had to graft OTel context onto `contextvars`, and the language version mattered: `contextvars`, and asyncio's automatic per-task copy of them, only exist from Python 3.7 onward. There was a PyPI backport for 3.5 and 3.6, but it didn't integrate with asyncio, which is why the proposal to depend on it was closed unmerged; Python carried a thread-local fallback instead and eventually dropped both versions.[^3] Go's eBPF auto-instrumentation is the case that did get fixed, and the paper trail is the interesting part. The original design proposal noted that the implementation "correlates spans to the same trace if they are being executed by the same goroutine," with proper goroutine-tree tracking listed as future work. The tracking shipped about a year later. The design proposal was never updated to match, which is its own small version of the same pattern.[^4] None of these are bugs. They're impedance mismatches between a model and the languages it has to express itself in.
 
@@ -40,11 +42,11 @@ If I tighten the screws, the pattern looks like this:
 2. The prototype ships, because shipping is good and we have customers.
 3. The features people use become the spec by accumulation.
 4. When languages two through ten run into mismatches, the conversation defaults to "but the reference does X."
-5. By the time anyone writes a formal cross-language spec, it's mostly archaeology.
+5. By the time anyone writes a formal cross-language spec, a lot of it is archaeology.
 
-Step one is genuinely useful. Trying to write a credible RFC for something you've never built is mostly creative fiction. The PoC tells you which corners of the design are sharp. The trouble is step three, where the things you wrote down to *learn* what the design could be become the thing the design *is*, mostly because nobody scheduled the meeting to decide otherwise.
+Step one is genuinely useful. Trying to write a credible RFC for something you've never built usually produces creative fiction. The PoC tells you which corners of the design are sharp. The trouble is step three, where the things you wrote down to *learn* what the design could be become the thing the design *is*, mostly because nobody scheduled the meeting to decide otherwise.
 
-I keep finding myself in step four. The specifics usually belong to an employer rather than to me, so here is the pattern rather than the story. Someone reports that one language behaves differently from another. You go and read what the reference implementation does. Whatever you find there tends to settle it, because the other implementations already match it and moving all of them costs more than absorbing the difference. Nobody in that conversation chose the 2019 constraint. Everyone is working around a calendar.
+I keep finding myself in step four. The specifics aren't mine to publish, so here is the pattern rather than the story. Someone reports that one language behaves differently from another. You go and read what the reference implementation does. Whatever you find there tends to settle it, because the other implementations already match it and moving all of them costs more than absorbing the difference. Nobody in that conversation chose the 2019 constraint. Everyone is working around a calendar.
 
 ## Rust wrote the gate down on purpose
 
