@@ -1,8 +1,8 @@
 ---
 title: "Before CI: Can You Trust a Benchmark on Your Own Laptop?"
 description: "Same benchmark, three conditions — idle host, fully saturated host, and a container pinned to one core under the same load. The numbers show what container isolation actually buys you on macOS, and where the ceiling is."
-date: 2026-09-15T00:00:00Z
-publishDate: 2026-09-15T00:00:00Z
+date: 2026-09-11T00:00:00Z
+publishDate: 2026-09-11T00:00:00Z
 draft: true
 categories:
   - engineering
@@ -113,7 +113,7 @@ The `--kthread=on` flag is critical — without it, kernel threads still run on 
 `nice` raises the scheduling priority of the benchmark process relative to other processes on the system:
 
 ```bash
-nice -n -5 go test -bench=. -count=10 ./...
+sudo nice -n -5 go test -bench=. -count=10 ./...
 ```
 
 The effect is modest on a quiet machine but meaningful when the system is under moderate load. For dedicated benchmarking machines, `chrt -f` (SCHED_FIFO) provides real-time scheduling:
@@ -198,7 +198,7 @@ For the inner development loop, [`benchdiff`](https://github.com/willabides/benc
 
 ```bash
 go install github.com/willabides/benchdiff/cmd/benchdiff@latest
-benchdiff --base=main --benchmem --count=10 --benchtime=2s ./...
+benchdiff --base-ref=main --benchmem --count=10 --benchtime=2s ./...
 ```
 
 `benchdiff` handles the git operations, runs both sides under the same conditions, and pipes results to `benchstat` — removing the friction from the comparison workflow.
@@ -225,11 +225,11 @@ Before any serious benchmark session, a handful of low-effort changes compound:
 
 - Close the browser, IDE, and Slack to cut CPU and memory contention from the most expensive background processes.
 - On macOS, disable Spotlight indexing with `sudo mdutil -a -i off` to stop the indexer spiking mid-run — undo with `sudo mdutil -a -i on`.
-- Enable airplane mode to eliminate NIC interrupt coalescing and background network traffic.
+- Enable airplane mode to eliminate NIC interrupts and background network traffic.
 - For IO-sensitive benchmarks, run once as a throwaway to warm the page cache before capturing.
 - For cold-start IO benchmarks, drop the page cache with `sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'` before each run (Linux only, requires root).
 
-None of these require root on macOS — on a noisy machine, closing the browser alone can shift CV from 5% to 3% before you touch anything else.
+Apart from the two `sudo` commands, none of these require elevation — on a noisy machine, closing the browser alone can shift CV from 5% to 3% before you touch anything else.
 
 ---
 
@@ -245,7 +245,7 @@ What to use, where:
 | Docker `--cpuset-cpus` | Linux: full isolation / macOS: VM ceiling | Low | Medium on Linux; marginal but real on Mac | Linux yes; Mac conditionally |
 | `taskset -c` | Linux only | None | Stops scheduler migration | Yes (Linux) |
 | `perflock` | Linux only (effective) | One-time install | Pins CPU frequency | Yes (Linux) |
-| `nice -n -5` | Linux | None | Raises scheduling priority | Yes (Linux) |
+| `nice -n -5` | Linux | Root | Raises scheduling priority | Yes (Linux) |
 | DFS / Turbo Boost disable | Linux sysfs | Low (root) | Eliminates frequency variance | Dedicated machine |
 | `cset shield` | Linux | Medium (root) | Very high isolation | Dedicated machine / CI |
 | SMT disable | Linux sysfs | Low (root) | ~100× variance reduction | CI / dedicated only |
