@@ -1,8 +1,8 @@
 ---
 title: "Three Questions Before You Trust a Benchmark"
 description: "A closing synthesis of the Why Your Go Benchmarks Are Lying series — the OPERA analogy, a real CI regression that turned out to be a speedup, and three questions you can answer with three CLIs before you merge."
-date: 2026-09-29T00:00:00Z
-publishDate: 2026-09-29T00:00:00Z
+date: 2026-09-25T00:00:00Z
+publishDate: 2026-09-25T00:00:00Z
 draft: true
 categories:
   - engineering
@@ -52,7 +52,7 @@ Step three: build `main` and `#4891` on the same machine and compare with `bench
 
 **#4891 was faster.** CI had flagged a regression; the same-machine A/B showed the opposite.
 
-The mechanism: restructuring `context.go` shifted function addresses across the `ddtrace/tracer` package. That moved the hot `proto.Size` loop's instruction fetch window relative to cache-line and branch-target buffer boundaries. At ~390 ns per iteration, small alignment shifts produce several-percent swings in either direction — enough to flip the verdict from "improvement" to "regression" on a shared runner that cannot lock CPU frequency.
+The mechanism: restructuring `context.go` shifted function addresses across the `ddtrace/tracer` package. That moved the hot `proto.Size` loop's instruction fetch window relative to cache-line and branch-target buffer boundaries. At the sub-microsecond scale of this benchmark (the table above), small alignment shifts produce several-percent swings in either direction — enough to flip the verdict from "improvement" to "regression" on a shared runner that cannot lock CPU frequency.
 
 The resolution: nothing. No code change. The PR shipped as written. Pushing a speculative "fix" to quiet the benchmark would have been chasing shadows.
 
@@ -78,7 +78,7 @@ Each question gates the next. A benchmark the compiler has optimised away answer
 >
 > Tobi Lütke (@tobi), [X, 5 May 2024](https://x.com/tobi/status/1787139157078188180)
 
-A Google experiment found that a half-second increase in search result page generation time caused a 20% drop in traffic. The Google search team measured the difference and caught it before shipping. Measurement errors work in both directions: they block improvements and wave through regressions.
+A Google experiment [reported by Marissa Mayer in 2006](http://glinden.blogspot.com/2006/11/marissa-mayer-at-web-20.html) found that a half-second increase in search result page generation time caused a 20% drop in traffic. They could act on it because they had measured it. Measurement errors work in both directions: they block improvements and wave through regressions.
 
 ---
 
@@ -191,13 +191,13 @@ Three tools, under an hour to wire up, applicable to any Go project. The benchma
 ### Resources
 
 - [Why Your Go Benchmarks Are Lying (And How to Stop Them)](https://github.com/kakkoyun/gopherconuk-26) — GopherCon UK 2026 talk repo, demo module, and CLIs
-- [The Benchmarks That Measure Themselves Away](/posts/go-benchmarks-lying-compiler-honesty/) — post 1: dead-code elimination, inlining, the sink pattern
-- [Your Benchmark's Mean Is a Lie](/posts/go-benchmarks-lying-statistics/) — post 2: distributions, `benchstat`, CV
-- [What Tene's Coordinated Omission Means for `testing.B`](/posts/go-benchmarks-lying-local-reproduction/) — post 3: `b.StopTimer()` misuse, GC pause hiding
+- [The Go Benchmark That Measured Nothing: Compiler Honesty in testing.B](/posts/go-benchmarks-lying-compiler-honesty/) — post 1: dead-code elimination, inlining, the sink pattern
+- [A Single Benchmark Number Is a Lie](/posts/go-benchmarks-lying-statistics/) — post 2: distributions, `benchstat`, CV
+- [Before CI: Can You Trust a Benchmark on Your Own Laptop?](/posts/go-benchmarks-lying-local-reproduction/) — post 3: idle vs. saturated host, container CPU pinning, what isolation actually buys you locally
 - [Benchmark CI That Doesn't Lie](/posts/go-benchmarks-lying-ci/) — post 4: `benchdiff` workflow, statistical significance gates, bare-metal vs shared runners
 - [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/) — language-agnostic companion (FOSDEM 2026)
-- Tene, G. — [How NOT to Measure Latency](https://www.youtube.com/watch?v=lJ8ydIuPFeU)
+- Tene, G. — [How NOT to Measure Latency](https://www.youtube.com/watch?v=lJ8ydIuPFeU) — coordinated omission and latency-measurement pitfalls beyond this series' scope
 - Gregg, B. — [Frequency Trails: Outliers](https://www.brendangregg.com/FrequencyTrails/outliers.html)
 - Bakhvalov, D. — [Performance Analysis and Tuning on Modern CPUs](https://github.com/dendibakh/perf-book)
-- CERN, [OPERA experiment reports anomaly in flight time of neutrinos from CERN to Gran Sasso](https://home.cern/news/press-release/cern/opera-experiment-reports-anomaly-flight-time-neutrinos-cern-gran-sasso) (press release, 22 February 2012)
+- CERN, [OPERA experiment reports anomaly in flight time of neutrinos from CERN to Gran Sasso](https://home.cern/opera-experiment-reports-anomaly-in-flight-time-of-neutrinos-from-cern-to-gran-sasso/) (press release, 23 September 2011)
 - Cartlidge, E., "Error Undoes Faster-Than-Light Neutrino Results," *Science* 335(6072):1027, doi:[10.1126/science.335.6072.1027](https://doi.org/10.1126/science.335.6072.1027) (2012)
