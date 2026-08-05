@@ -1,8 +1,8 @@
 ---
 title: "Benchmark CI That Doesn't Lie"
 description: "Shared CI runners introduce variance that swamps real signals. This post covers why, and how to build a two-tier benchmark CI: a fast PR gate plus a nightly pinned suite, with GitHub Actions, golang.org/x/perf, and a concrete tool recommendation."
-date: 2026-09-22T00:00:00Z
-publishDate: 2026-09-22T00:00:00Z
+date: 2026-09-18T00:00:00Z
+publishDate: 2026-09-18T00:00:00Z
 draft: true
 categories:
   - engineering
@@ -83,7 +83,7 @@ Runs on every pull request. Goal: catch unambiguous regressions before they merg
 - Target five minutes or less on a pinned runner
 - Run a curated subset: benchmarks that have regressed before, or benchmarks directly exercised by the PR
 - Use `-count=6 -benchtime=2s` as a floor — enough for `benchstat` to compute a meaningful confidence interval
-- Compare against a stored baseline from `main`, maintained as a CI artifact
+- Compare against a stored baseline from `main`, maintained as a GitHub Actions cache (not an artifact — artifacts don't carry over between separate workflow runs)
 - Block only when `benchstat` shows a delta whose confidence interval excludes zero with p < 0.05
 
 {{< sidenote side="alternate" label="threshold" >}}A raw percentage threshold ("block if >5% slower") is dangerous in both directions. It blocks a 5.1% improvement and passes a 4.9% regression. Pairing the threshold with `benchstat`'s confidence interval avoids both: a result of "+8% ±12%" at p=0.3 should not block; "+8% ±2%" at p=0.001 should.{{< /sidenote >}}
@@ -172,11 +172,13 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Download baseline
-        uses: actions/download-artifact@v4
+      - name: Restore baseline cache
+        uses: actions/cache/restore@v4
         with:
-          name: bench-baseline
-          path: .
+          path: bench-baseline.txt
+          key: bench-baseline-${{ github.run_id }}
+          restore-keys: |
+            bench-baseline-
 
       - name: Apply environment controls
         run: |
@@ -193,14 +195,22 @@ jobs:
 
       - name: Compare with baseline
         run: |
-          go run golang.org/x/perf/cmd/benchstat@latest \
-            bench-baseline.txt bench-new.txt
+          if [ -f bench-baseline.txt ]; then
+            go run golang.org/x/perf/cmd/benchstat@latest \
+              bench-baseline.txt bench-new.txt
+          else
+            echo "No cached baseline yet — this run establishes one."
+          fi
 
-      - name: Upload new baseline
-        uses: actions/upload-artifact@v4
+      - name: Promote new baseline
+        run: cp bench-new.txt bench-baseline.txt
+
+      - name: Save baseline cache
+        if: always()
+        uses: actions/cache/save@v4
         with:
-          name: bench-baseline
-          path: bench-new.txt
+          path: bench-baseline.txt
+          key: bench-baseline-${{ github.run_id }}
 ```
 
 For the PR gate, the same structure applies with two changes: swap `runs-on` to a dedicated (but lighter) pinned runner, drop the count and benchtime to fit the time budget, and run only the curated benchmark subset.
@@ -281,7 +291,7 @@ A few entries deserve explicit warning labels.
 
 *Team with a dedicated CI runner:* use **bencher.dev self-hosted**. The self-hosted binary is free — equivalent to the cloud Free tier — and running it on a noise-controlled machine removes the biggest source of CI benchmark noise. Configure the `t_test` threshold model — it handles small sample sizes correctly and gives a principled false-positive rate. Wire `--error-on-alert` to block PRs. The `go_bench` adapter requires no changes to your benchmark code.
 
-*Large org wanting change-point detection:* use **Nyrkiö with Apache Otava** as the detection backend. The [e-divisive algorithm](https://aakinshin.net/posts/edpelt/) finds persistent shifts in a full time series rather than comparing each run against a rolling window — it adapts to each benchmark's individual noise floor automatically. The Apache Otava incubation (November 2024) provides long-term governance. Nyrkiö 2.0.0 (February 2026) added GitHub Runners for reproducible benchmarking. For teams requiring fully on-premises operation, Apache Otava can run directly against a self-hosted time-series store; Nyrkiö is the hosted integration layer on top.
+*Large org wanting change-point detection:* use **Nyrkiö with Apache Otava** as the detection backend. The [e-divisive algorithm](https://arxiv.org/abs/2003.00584) finds persistent shifts in a full time series rather than comparing each run against a rolling window — it adapts to each benchmark's individual noise floor automatically. The Apache Otava incubation (November 2024) provides long-term governance. Nyrkiö 2.0.0 (February 2026) added GitHub Runners for reproducible benchmarking. For teams requiring fully on-premises operation, Apache Otava can run directly against a self-hosted time-series store; Nyrkiö is the hosted integration layer on top.
 
 In every scenario: use `golang.org/x/perf/cmd/benchstat` for local development comparisons and in PR descriptions. It is the only tool in this list that gives you a confidence interval and a p-value on the comparison — the ground truth for whether a change is real.
 
