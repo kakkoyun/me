@@ -1,8 +1,8 @@
 ---
 title: "A Single Benchmark Number Is a Lie"
 description: "One benchmark run is one sample from a distribution you haven't seen. Go's benchstat and a twenty-line awk script give you the tools to ask whether your results are real — and whether your environment is stable enough to answer."
-date: 2026-09-08T00:00:00Z
-publishDate: 2026-09-08T00:00:00Z
+date: 2026-09-04T00:00:00Z
+publishDate: 2026-09-04T00:00:00Z
 draft: true
 categories:
   - engineering
@@ -96,7 +96,7 @@ When the p-value exceeds 0.05, benchstat prints `~` instead of a delta — the c
 
 ### What Benchstat Doesn't Tell You
 
-The `± 5%` and `± 25%` figures hint at spread, but they describe how tightly the geomean is estimated, not whether your *environment* is stable enough to trust any comparison you run in it. For that you need a different number: the **coefficient of variation**.
+The `± 5%` and `± 25%` figures hint at spread — the range of the sampled runs around the median — but they do not tell you whether your *environment* is stable enough to trust any comparison you run in it. For that you need a different number: the **coefficient of variation**.
 
 CV = σ / μ, expressed as a percentage. Where benchstat answers "is A different from B?", CV answers "is this machine a reliable place to ask that question?" Benchstat deliberately does not report CV — it is designed to compare two distributions, not to characterize the environment producing them. That is a separate pass.
 
@@ -142,7 +142,7 @@ The CV of 18.88% catches the problem numerically. But the raw data is showing yo
 
 ### How Many Runs Are Enough?
 
-`-count=10` is the practical floor. Benchstat needs enough samples to estimate the geomean with confidence; below ten the estimates become unreliable. Use `-count=20` for anything you intend to report or check into a CI baseline. [Kalibera and Jones (ECOOP 2013)](https://dl.acm.org/doi/10.1145/2509136.2509184) establish that N ≥ 30 is needed for robust inter-run statistics; 20 is a reasonable engineering compromise between rigor and machine time.
+`-count=10` is the practical floor. Benchstat needs enough samples to estimate the median with confidence; below ten the estimates become unreliable. Use `-count=20` for anything you intend to report or check into a CI baseline. [Kalibera and Jones (ISMM 2013)](https://dl.acm.org/doi/10.1145/2464157.2464160) argue for statistically principled repetition counts based on measured variance; 20 is a reasonable engineering compromise between rigor and machine time.
 
 | `-count` | Use case |
 |----------|---------|
@@ -193,7 +193,7 @@ Recognizing it in practice:
 
 A low p-value tells you the difference is unlikely to be zero. It does not tell you the difference matters.
 
-With 100 samples, a 0.3% change will clear p=0.05 with ease. A 0.3% improvement to an HTTP handler running at 200 µs saves 600 picoseconds per request. Statistically real, practically irrelevant. The code complexity required to achieve it will cost more in maintenance than it saves in latency.
+With 100 samples, a 0.3% change will clear p=0.05 with ease. A 0.3% improvement to an HTTP handler running at 200 µs saves 600 nanoseconds per request. Statistically real, practically irrelevant. The code complexity required to achieve it will cost more in maintenance than it saves in latency.
 
 The inverse is also true: with five samples, a 15% regression might not reach statistical significance, but 15% on a critical path is worth investigating regardless. More data changes the answer; dismissing the signal does not.
 
@@ -218,6 +218,6 @@ For PR-level comparisons, benchstat covers this well. For continuous benchmarkin
 - [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/) — the language-agnostic statistical foundation; read this first
 - [Post 1: Compiler Honesty](/posts/go-benchmarks-lying-compiler-honesty/) — confirming the compiler is actually running your code
 - [Post 3: Local Reproduction](/posts/go-benchmarks-lying-local-reproduction/) — what to do when CV says your machine is the problem
-- Kalibera, T. and Jones, R. — [Rigorous Benchmarking in Reasonable Time](https://dl.acm.org/doi/10.1145/2509136.2509184) (ECOOP 2013)
+- Kalibera, T. and Jones, R. — [Rigorous Benchmarking in Reasonable Time](https://dl.acm.org/doi/10.1145/2464157.2464160) (ISMM 2013)
 - Gregg, B. — [Frequency Trails: Outliers](https://www.brendangregg.com/FrequencyTrails/outliers.html)
 - "Why Your Go Benchmarks Are Lying (And How to Stop Them)", GopherCon UK 2026
