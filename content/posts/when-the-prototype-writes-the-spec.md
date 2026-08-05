@@ -44,7 +44,7 @@ If I tighten the screws, the pattern looks like this:
 
 Step one is genuinely useful. Trying to write a credible RFC for something you've never built is mostly creative fiction. The PoC tells you which corners of the design are sharp. The trouble is step three, where the things you wrote down to *learn* what the design could be become the thing the design *is*, mostly because nobody scheduled the meeting to decide otherwise.
 
-I keep finding myself in step four, defending or apologizing for a decision made by a calendar in 2019.
+I keep finding myself in step four. The specifics usually belong to an employer rather than to me, so here is the pattern rather than the story. Someone reports that one language behaves differently from another. You go and read what the reference implementation does. Whatever you find there tends to settle it, because the other implementations already match it and moving all of them costs more than absorbing the difference. Nobody in that conversation chose the 2019 constraint. Everyone is working around a calendar.
 
 ## Rust wrote the gate down on purpose
 
