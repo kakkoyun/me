@@ -1,12 +1,12 @@
 ---
 title: "CoreDump #1: Cold start"
 description: "Why this newsletter exists, what will be in it, and how it gets written."
-date: 2026-07-22T00:00:00Z
-publishDate: 2026-07-22T00:00:00Z
+date: 2026-08-14T00:00:00Z
+publishDate: 2026-08-14T00:00:00Z
 draft: true
 ---
 
-A few days ago I published a post arguing that we should write down the
+I just published a post arguing that we should write down the
 problems we solve, out in the open, so the next human and the next model can
 find them instead of relearning the same fix at 3am.
 [Write it down. The models are reading.](/posts/write-it-down-the-models-are-reading/)

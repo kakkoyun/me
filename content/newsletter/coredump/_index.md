@@ -12,8 +12,8 @@ what each issue is.
 The first draft of every issue is pulled from my coding-session logs by a
 tool, then edited by hand before it's published. No raw machine output goes
 up unread. It's an experiment in making "write down what you solved" cheap
-enough that I actually do it. The story behind that is in
-[Write it down. The models are reading.](/posts/write-it-down-the-models-are-reading/)
+enough that I actually do it. The story behind that is in my post
+*Write it down. The models are reading.*
 
 Every issue lives here on the site and stays readable forever. There's no
 email list — read them here, or follow along by

@@ -1,8 +1,8 @@
 ---
 title: "Write it down. The models are reading."
 description: "Stack Overflow is dead, we lean on frozen training data, and the answers to recent problems aren't getting posted anywhere. A case for writing down what you solved, and for telling the models to go read the web."
-date: 2026-07-22T00:00:00Z
-publishDate: 2026-07-22T00:00:00Z
+date: 2026-08-14T00:00:00Z
+publishDate: 2026-08-14T00:00:00Z
 categories:
   - reflection
 tags:
