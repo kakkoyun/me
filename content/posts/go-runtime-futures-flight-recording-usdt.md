@@ -1,8 +1,8 @@
 ---
 title: "Go runtime futures: flight recording, USDT, and the instrumentation hook problem"
 description: "Go 1.25's flight recorder shipped, HTTP client tracing still has gaps, and USDT probes show one possible future for Go runtime observability."
-date: 2026-08-02T00:00:00Z
-publishDate: 2026-08-02T00:00:00Z
+date: 2026-09-29T00:00:00Z
+publishDate: 2026-09-29T00:00:00Z
 draft: true
 categories:
   - engineering

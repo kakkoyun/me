@@ -1,8 +1,8 @@
 ---
 title: "Why Go can't be monkey-patched (and what people do about it)"
 description: "Go is structurally hostile to zero-touch instrumentation, from the missing classloader to a goroutine-local storage hack that patches the runtime at compile time."
-date: 2026-07-28T00:00:00Z
-publishDate: 2026-07-28T00:00:00Z
+date: 2026-09-01T00:00:00Z
+publishDate: 2026-09-01T00:00:00Z
 draft: true
 categories:
   - engineering

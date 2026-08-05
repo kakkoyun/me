@@ -1,8 +1,8 @@
 ---
 title: "The third signal: continuous profiling without code changes"
 description: "Why stripped Go binaries still carry enough runtime metadata for eBPF profiling, and where OpenTelemetry's profiling signal fits in a zero-touch observability stack."
-date: 2026-07-31T00:00:00Z
-publishDate: 2026-07-31T00:00:00Z
+date: 2026-09-22T00:00:00Z
+publishDate: 2026-09-22T00:00:00Z
 draft: true
 categories:
   - engineering
