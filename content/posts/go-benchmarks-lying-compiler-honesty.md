@@ -265,7 +265,7 @@ A single number is not a result. It is one sample from a distribution. Two bench
 - Talk: "Why Your Go Benchmarks Are Lying (And How to Stop Them)", GopherCon UK 2026
 - Prerequisite post: [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/)
 - Dave Cheney — [How to write benchmarks in Go](https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go)
-- Go Team — [Evolving the Go benchmark API](https://go.dev/blog/testing-b-loop) (the `testing.B.Loop` announcement post)
+- Go Team — [More predictable benchmarking with testing.B.Loop](https://go.dev/blog/testing-b-loop) (the `testing.B.Loop` announcement post)
 - Austin Clements — [Go proposal #61515: testing: add testing.B.Loop for iteration](https://github.com/golang/go/issues/61515)
 - Go standard library — [`testing` package documentation](https://pkg.go.dev/testing)
 - Go 1.24 Release Notes — [testing.B.Loop](https://go.dev/doc/go1.24)
