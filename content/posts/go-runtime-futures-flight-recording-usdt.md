@@ -14,8 +14,7 @@ tags:
   - tracing
   - usdt
   - ebpf
-series:
-  - How to Instrument Go Without Changing a Single Line of Code
+series: "How to Instrument Go Without Changing a Single Line of Code"
 showToc: true
 tocOpen: false
 ---
@@ -48,7 +47,7 @@ if _, err := fr.WriteTo(&buf); err != nil {
 
 The `go.dev/blog/flight-recorder` post (published September 2025) covers the design. One constraint worth knowing: only one goroutine can call `WriteTo` at a time; concurrent snapshots return an error. Set `MinAge` to roughly 2x the time window of the event you're trying to capture.
 
-This is directly useful for production debugging. OBI and the eBPF profiler tell you something is slow; flight recording tells you what the Go runtime was doing during that window, on demand, without always-on trace overhead. You deploy the flight recorder, wire `WriteTo` to your error handler or a GODEBUG endpoint, and get trace data only when something goes wrong.
+This is directly useful for production debugging. OBI and the eBPF profiler tell you something is slow; flight recording tells you what the Go runtime was doing during that window, on demand, without always-on trace overhead. You deploy the flight recorder, wire `WriteTo` to your error handler or a debug HTTP endpoint (`net/http/pprof`-style), and get trace data only when something goes wrong.
 
 ## The httptrace gap that breaks HTTP/2 spans
 

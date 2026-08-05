@@ -12,8 +12,7 @@ tags:
   - observability
   - opentelemetry
   - compile-time-instrumentation
-series:
-  - How to Instrument Go Without Changing a Single Line of Code
+series: "How to Instrument Go Without Changing a Single Line of Code"
 showToc: true
 tocOpen: false
 ---
@@ -98,4 +97,4 @@ The decision rule I use:
 
 For GopherCon UK 2026, otelc landing at v1.0.1 two weeks before the conference is the most timely piece of the story. The first stable release of an OTel-native compile-time Go instrumentation tool is a meaningful moment in the "Go without a single line of code" narrative, even if "without a single line" really means "with one build command substitution and Go 1.25 on your toolchain."
 
-The `-toolexec` mechanism is one of Go's least-discussed build features. It was designed for code coverage and cgo toolchains — the Go team did not plan it as an instrumentation API. It turns out to be exactly the right hook for compile-time AOP anyway.
+The `-toolexec` mechanism is one of Go's least-discussed build features. Its documented purpose is generic: a program to invoke toolchain steps like `vet` and `asm` through, useful for cross-compile wrappers, emulators, and tools like garble. The Go team did not plan it as an instrumentation API. It turns out to be exactly the right hook for compile-time AOP anyway.

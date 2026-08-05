@@ -14,8 +14,7 @@ tags:
   - ebpf
   - ai
   - tooling
-series:
-  - How to Instrument Go Without Changing a Single Line of Code
+series: "How to Instrument Go Without Changing a Single Line of Code"
 showToc: true
 tocOpen: false
 ---
@@ -102,7 +101,7 @@ The useful part is the named checklist. A runbook can say: "for production servi
 
 ## kubectl-obi: one command to instrument a cluster
 
-For the Kubernetes path specifically, `kubectl-obi` is a krew plugin that wraps the DaemonSet lifecycle:
+For the Kubernetes path specifically, I'm building `kubectl-obi` for this talk: a `kubectl` plugin, in the krew style, that wraps the DaemonSet lifecycle so zero-touch instrumentation is a single verb instead of a multi-step YAML exercise. It is not published to the krew index and there's no public source yet — treat what follows as the interface design, not a tool you can install today:
 
 ```bash
 # Instrument everything on every node
@@ -118,9 +117,9 @@ kubectl obi attach my-service --mode=sidecar --namespace=production
 kubectl obi detach
 ```
 
-The plugin handles the DaemonSet apply/delete without requiring you to remember the manifest URL or manage YAML manually. `kubectl obi attach` is the zero-argument case that does the right thing for most clusters.
+The plugin is meant to handle the DaemonSet apply/delete without requiring you to remember the manifest URL or manage YAML manually, with `kubectl obi attach` as the zero-argument case that does the right thing for most clusters.
 
-The current implementation is a skeleton. The flag parsing and command structure are complete, and the actual Kubernetes API calls are wired up but need a cluster to finish validating. The interface design is the point: zero-touch instrumentation should be a single verb, not a multi-step YAML exercise.
+The current implementation is a skeleton: flag parsing and command structure are done, the Kubernetes API calls are wired up but unvalidated against a real cluster, and it isn't released anywhere yet. I'll link the source here once it's public.
 
 ## What I would automate next
 

@@ -13,8 +13,7 @@ tags:
   - opentelemetry
   - ebpf
   - compile-time-instrumentation
-series:
-  - How to Instrument Go Without Changing a Single Line of Code
+series: "How to Instrument Go Without Changing a Single Line of Code"
 showToc: true
 tocOpen: false
 ---
@@ -29,7 +28,7 @@ That matters because it closes off the standard instrumentation escape hatches:
 
 - No bytecode means you can't rewrite classes at load time. Java agents work because the JVM can intercept `ClassLoader.defineClass` and transform bytecodes before they execute. Go has no equivalent: the compiler runs on your machine, not on the server.
 - No classloader means there's no intercept point between "file on disk" and "code executing."
-- Go links statically by default. The `LD_PRELOAD` trick, the classic Linux mechanism for injecting a shared library into any process, requires the dynamic linker to run, and Go's internal linker doesn't invoke it. To use `LD_PRELOAD` with a Go binary, you have to force external linking with `-linkmode=external`. That's not a supported feature; it's a workaround with its own sharp edges. Dynatrace's OneAgent documentation says outright: static Go binaries with cgo are unsupported.
+- Go links statically by default. The `LD_PRELOAD` trick, the classic Linux mechanism for injecting a shared library into any process, requires the dynamic linker to run, and Go's internal linker doesn't invoke it. To use `LD_PRELOAD` with a Go binary, you have to force external linking with `-linkmode=external`. That's not a supported feature; it's a workaround with its own sharp edges. Dynatrace's OneAgent documentation is explicit about this, and the wording trips people up: it's static Go binaries *built with cgo* that are unsupported, because they still carry a static dependency on libc that can conflict with the one OneAgent injects. Pure static binaries (`CGO_ENABLED=0`, no cgo at all) are fine.
 - Go exposes no general runtime hook API. Go has an internal `exithook` mechanism, but it is scoped strictly to program termination, not a general interception surface.
 
 What about `go:linkname`? It lets packages access unexported runtime symbols, and you'll find it used in tracers. But the Go runtime source contains this comment in `proc.go`:
@@ -89,7 +88,7 @@ getg().__dd_gls_v2 = nil
 
 The consumer side in dd-trace-go checks whether Orchestrion is present at init time and falls back to a no-op if it isn't.
 
-This is genuinely impressive engineering. It's also a sign of how desperate things are: you're patching the Go runtime struct layout at compile time, using `go:linkname` for variable aliasing (which broke between Go 1.22 and 1.23, tracked in golang/go#72032), and relying on a YAML file that references the Go team's own `HACKING.md`. The Go team considers this access pattern deeply unofficial.
+This is genuinely impressive engineering. It's also a sign of how desperate things are: you're patching the Go runtime struct layout at compile time, using `go:linkname` for variable aliasing (which broke between Go 1.22 and 1.23, tracked in golang/go#72032 — a side effect of the broader linkname lockdown in golang/go#67401), and relying on a YAML file that references the Go team's own `HACKING.md`. The Go team considers this access pattern deeply unofficial.
 
 Every other major runtime has a designed hook point for this kind of thing. Thread-local storage in Java, `contextvars` in Python, `AsyncLocalStorage` in Node.js. Go's goroutine-local storage solution is: patch the runtime struct and hope the linker's symbol resolution stays stable.
 

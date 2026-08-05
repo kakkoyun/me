@@ -12,8 +12,7 @@ tags:
   - observability
   - opentelemetry
   - ebpf
-series:
-  - How to Instrument Go Without Changing a Single Line of Code
+series: "How to Instrument Go Without Changing a Single Line of Code"
 showToc: true
 tocOpen: false
 ---

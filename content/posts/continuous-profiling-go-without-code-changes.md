@@ -13,8 +13,7 @@ tags:
   - opentelemetry
   - ebpf
   - profiling
-series:
-  - How to Instrument Go Without Changing a Single Line of Code
+series: "How to Instrument Go Without Changing a Single Line of Code"
 showToc: true
 tocOpen: false
 ---
@@ -35,7 +34,7 @@ For C and C++ code, the profiler takes a different path. It uses `.eh_frame` dat
 
 ## What the profiler actually is
 
-The project started as Elastic Universal Profiling Agent. Elastic donated it to OpenTelemetry in June 2024, completing the transfer via [OTel community issue #1918](https://github.com/open-telemetry/community/issues/1918). It now lives at `github.com/open-telemetry/opentelemetry-ebpf-profiler` and ships as an official OpenTelemetry Collector receiver called `otelcol-ebpf-profiler`. The current version tag is `v0.0.202627` — the project uses calendar-week versioning (ISO week 27 of 2026) rather than numbered releases.
+The project started as Elastic Universal Profiling Agent. Elastic donated it to OpenTelemetry in June 2024, completing the transfer via [OTel community issue #1918](https://github.com/open-telemetry/community/issues/1918). It now lives at `github.com/open-telemetry/opentelemetry-ebpf-profiler`. The receiver itself is the `go.opentelemetry.io/ebpf-profiler` Go module; the project also publishes an official Collector distribution built from it, `otelcol-ebpf-profiler`, in `opentelemetry-collector-releases` — that's the supported path, not the same-named test binary that lives in this repo's own `cmd/` directory for internal use only. As of this writing the version tag is `v0.0.202627`, which reads as ISO week 27 of 2026 — the project uses calendar-week versioning rather than numbered releases, so check the repo for the current tag before you deploy.
 
 The mechanism is straightforward: an eBPF program fires on CPU sample events at the kernel level and reads process-internal data structures from outside the target process. No LD_PRELOAD, no ptrace, no agent injection. The profiler attaches from the kernel side; the profiled application is completely unaware. The README states it plainly: "No need to load agents or libraries into the processes that are being profiled. No need for any reconfiguration, instrumentation or restarts."
 
