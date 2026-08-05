@@ -1,7 +1,7 @@
 ---
-title: "My Second Brain System: PARA, Readwise, and an LLM That Captures My Thoughts"
-description: "What I actually built, what does most of the work, and the one design choice that distinguishes this from every other Obsidian-plus-AI setup."
-date: 2026-08-21T00:00:00Z
+title: "My Second Brain System: PARA, Readwise, and an LLM captures my thoughts"
+description: "What I built, what does most of the work, and why the LLM never edits a source note."
+date: 2026-05-22T00:00:00Z
 publishDate: 2026-08-21T00:00:00Z
 categories:
   - technical-findings
@@ -17,79 +17,81 @@ showToc: true
 promote: false
 ---
 
-It is 9:14am on a Wednesday. I open the laptop. The daily briefing for today is already there.
+At 9:14 a.m. on a Wednesday, I open the laptop. The daily briefing for today is already there.
 
 Above the fold: a Whoop recovery score of 62 (fine), a Wakatime row showing 4h 21m on the OpenTelemetry Go compile-time instrumentation repo yesterday, three GitHub PRs waiting on review, and a Things 3 task that has been sliding forward for nine days: *Review that thing from X*. Each previous day the task migrated, and the journal entry from that day is one click away. The reason it kept slipping is in those entries somewhere.
 
-The system did not make the task less unpleasant. It made the unpleasantness traceable. That is the smaller of the two things this setup buys me. The larger one is that an LLM has been quietly reading everything I capture and writing a layer of synthesis on top, and once a week that synthesis answers a question I would not have been able to ask my past self without it.
+The system did not make the task less unpleasant. It made the unpleasantness traceable. That is the smaller of the two things this setup buys me. The larger one is the synthesis layer: an LLM reads what I capture and writes connections back into the vault without editing the original notes.
 
-This is the description of what I built, and the one design choice I think makes the whole thing work. I am going to lead with the boring parts on purpose.
+This is what I built, plus the one design choice I think makes the whole thing work. I am going to lead with the boring parts on purpose.
 
 ## The 80% that does the work
 
 Three workhorses. None of them are interesting.
 
-The first is [PARA](https://www.buildingasecondbrain.com/para) (Projects, Areas, Resources, Archive) across roughly 3,600 markdown files in an Obsidian vault. PARA's only job is to give every note an obvious home, which it does. There are people who prefer [Johnny Decimal](https://johnnydecimal.com/) or [ACCESS](https://www.linkingyourthinking.com/) or their own taxonomies, and they are correct that PARA has rough edges. They are also wrong that the rough edges matter. The point of PARA is to stop you from re-litigating where things go.
+The first is [PARA](https://www.buildingasecondbrain.com/para) (Projects, Areas, Resources, Archives). It gives roughly 4,000 Markdown files in an Obsidian vault an obvious home, which is its only job. People who prefer [Johnny Decimal](https://johnnydecimal.com/), [ACCESS](https://www.linkingyourthinking.com/), or their own taxonomies are correct that PARA has rough edges. They are also wrong that the rough edges matter. The point of PARA is to stop you from re-litigating where things go.
 
 The second is [Readwise](https://readwise.io). It syncs highlights from Kindle, Reader, Twitter (yes, still Twitter for me), and any podcast clipping I tag into `curation/readwise/`. I do not curate at this layer. Everything lands. A highlight from a book I read in 2023 is still there.
 
-The third is [`obsidian-git`](https://github.com/Vinzent03/obsidian-git). It commits the vault every 7 minutes and pushes every 70. I have not thought about backups in months.
+The third is [`obsidian-git`](https://github.com/Vinzent03/obsidian-git). It commits the vault every 70 minutes and pushes every 7. I have not thought about backups in months.
 
-The Whoop score, the Wakatime row, and the PR queue in this morning's daily note are stitched together by a small Python CLI I wrote called [`pkm-tool`](https://github.com/kakkoyun/pkm-tool) (even though, I don't use this anymore, I wanted to mention). It pulls from GitHub (PRs opened, reviewed, merged), Jira (tickets resolved and commented on), Wakatime (time by project and language), Whoop (sleep quality, HRV, recovery score), Apple Calendar (meetings and blocks), Things 3 (tasks completed and scheduled), and Google Docs (documents created or edited). It runs as a launchd job at 6am. By the time I open the laptop, the page exists and the activity is filled in.
+The Whoop score, the Wakatime row, and the PR queue in that morning's daily note came from a Python CLI I wrote called [`pkm-tool`](https://github.com/kakkoyun/pkm-tool). It pulled GitHub, Jira, Wakatime, Whoop, Apple Calendar, Things 3, and Google Docs into one report. The experiment worked, but it also turned my daily note into a small integration platform I had to maintain.
 
-That is the substrate. Other people have described all of it before. If the post ended here, it would not be worth your time.
+I no longer use it. Today I prefer small deterministic scripts, Obsidian cron jobs, and official connectors where they exist. A handful of small capture jobs now assemble the note instead of one aggregator.
+
+That is the substrate. Other people have described it before. If the post ended here, it would not be worth your time.
 
 ## The one design choice
 
-Here is the part that distinguishes this setup from every other Obsidian-plus-AI build I have tried, and from what most "AI second brain" tools ship.
+The part I care about most is the boundary between source material and synthesis.
 
 **The LLM never edits a source.**
 
 Most AI-PKM tools work by chewing on your notes and offering to rewrite, tag, or restructure them. [Copilot for Obsidian](https://github.com/logancyang/obsidian-copilot) edits selected text in-editor. Notion AI is happy to rewrite a page. The implicit contract is: your notes are a substrate the AI improves.
 
-I do not want that. I want my raw captures — the Readwise highlights, the meeting notes I scribbled in a hurry, the half-baked journal entries — to stay exactly as they were when they hit the disk. Those are the historical record. If a synthesis is wrong, I want to look at the source and see *why* it went wrong, without finding that the LLM has already "improved" the source out from under me.
+I do not want that. I want my raw captures to stay exactly as they were when they hit the disk. That includes Readwise highlights, meeting notes I scribbled in a hurry, and half-baked journal entries. Those are the historical record. If a synthesis is wrong, I want to look at the source and see *why* it went wrong, without finding that the LLM has already "improved" the source out from under me.
 
-So the vault has two halves with a wall between them. On one side, raw, immutable, never edited by anyone but me at the moment of capture: `curation/`, `journal/`, the daily notes. On the other side, written and maintained by an LLM (mostly Claude Code) that reads those sources: `zettelkasten/`, `resources/concepts/`, `decisions/`, `reflections/`.
+The vault has two halves with a wall between them. On one side are raw sources such as `curation/`, `journal/`, `devlog/`, and `meetings/`. On the other are pages written and maintained by an LLM (Claude Code in my case): `zettelkasten/`, `resources/concepts/`, `decisions/`, and `reflections/`.
 
-The synthesis layer can be wrong. The synthesis layer can be regenerated. The raw layer is ground truth.
+The synthesis layer can be wrong, and I can regenerate it. The raw layer remains the source of truth.
 
 This is the [Karpathy LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) applied to a PARA vault. The schema lives in `system/wiki/SCHEMA.md` and declares three operations the LLM is allowed to perform. **Ingest** reads a new source and writes synthesis pages without touching the source. **Query** answers a question and files the answer back as new wiki content if it produced new insight. **Lint** walks the synthesis graph looking for orphans, stale references, and contradictions to flag for me to resolve.
 
 If I had to defend the architecture in one sentence: it lets knowledge accumulate across LLM sessions without letting the LLM rewrite the past. Almost every other choice in the setup followed from that.
 
-## A morning when it paid off
+## Where it paid off
 
-The retrieval engine across all of this is [qmd](https://github.com/tobi/qmd) — Tobi Lütke's local-first CLI, BM25 plus vector embeddings plus an LLM reranker, no API call, useful hits across the whole vault in under a second.
+The retrieval engine is [qmd](https://github.com/tobi/qmd), Tobi Lütke's local-first CLI. It combines BM25, vector embeddings, and local models for query expansion and reranking without sending my notes to an API.
 
-A few weeks ago I was writing a section of a Go talk and asked Claude Code: *[FILL: real query, e.g. "what have I written about backpressure in event-stream consumers"]*. Three things came back from three folders, written months apart:
+On July 21, while preparing a GopherCon UK talk, I ran:
 
-1. A Readwise highlight from *[FILL: book + month, e.g. Designing Data-Intensive Applications, March]*, with a passage I had underlined about *[FILL: the concept]*
-2. A meeting note from a *[FILL: project]* design review in *[FILL: month]*, where someone had sketched a whiteboard solution I had transcribed
-3. A Sunday journal entry from *[FILL: month]* in which I had written half a paragraph about a similar problem I had hit at *[FILL: previous job]* and forgotten I had thought about
+```sh
+qmd query "benchmark overhead auto-instrumentation Go latency allocations" -n 8
+```
 
-I had not connected the three. The LLM did, and pointed at the shared idea. The synthesis page that came out of that morning is in `resources/concepts/[FILL: filename].md`. It cites all three sources. If I read it next year and disagree, I can walk the citations back and see what I was reading.
+It found an older GopherCon proposal in `creation/`, a raw auto-instrumentation note imported from iCloud, a saved article about measuring Go performance, and work notes on auto-instrumentation and code origins. None of that material was new. I had forgotten some of those notes existed. The agent used those documents as the starting material for the talk instead of rebuilding the context from scratch.
 
-This is the kind of retrieval that makes me trust the system. It is not magical. It is searched-and-ranked. But "searched-and-ranked across everything you have ever read or thought, with an LLM doing the connection work" is qualitatively different from "I remembered I had a note somewhere."
+On August 3, the synthesis side did something different. A connection pass updated `resources/concepts/Go Programming Expertise.md` from a July 24 daily note about Go 1.24 and 1.25 and an August 3 work devlog about benchmark internals. The page links the release-tracking habit to the compiler and benchmarking work behind the talk, cites both source notes, and labels its confidence as low.
+
+That combination is why I trust the design: qmd finds old material, and the wiki records connections without changing the sources. I can follow every claim back to the note that produced it.
 
 ## If you are starting from zero
 
-Three things, in order of how I would build it again.
+If I rebuilt it, I would do these in this order.
 
-**Get retrieval working before synthesis.** Run `qmd` (or any decent local search — there are several now) over whatever notes you have today. If you cannot search what you have in under a second, the synthesis layer will not save you. Most of the value of a "second brain" is retrieval, not generation.
+**Get retrieval working before synthesis.** Run `qmd` or another local search over whatever notes you have today. If you cannot reliably find what you have, the synthesis layer will not save you. Most of the value of a "second brain" is retrieval, not generation.
 
-**Do not sync everything immediately.** Resist the urge to dump every Twitter favorite, web clip, and podcast highlight into one folder on day one. Start with one capture channel — books, or articles you actually read, or your daily journal — and live with it until "I captured something today and I can find it later" feels routine. Add channels once that rhythm exists.
+**Do not sync everything immediately.** Resist the urge to dump every Twitter favorite, web clip, and podcast highlight into one folder on day one. Start with one capture channel, such as books, articles you actually read, or your daily journal, and live with it until "I captured something today and I can find it later" feels routine. Add channels once that rhythm exists.
 
-**Be honest about what the wiki layer needs from you.** The LLM Wiki pattern only compounds if you actually run it. My ingestion log is mostly empty. The schema landed in May and I have not pushed even half my Readwise backlog through INGEST. The structure works. The practice has not caught up. If you are skeptical of "second brain" hype because most setups die at the synthesis layer, you are not wrong. Mine has not proven it yet either.
+**Be honest about what the wiki layer needs from you.** The LLM Wiki pattern only improves if you actually run it. My ingestion logs are busy now, but the Readwise backlog is still waiting. The structure works. The practice is still catching up. If you are skeptical of "second brain" hype because most setups die at the synthesis layer, you are not wrong. Mine has not proven itself over the long term either.
 
-One thing to know before you set up your own version: the daily-note enrichment depends on four or five MCPs working at once (obsidian-mcp, Whoop, Things 3, Apple Calendar, Basic Memory). When one drops, the enrichment degrades silently — you get a page that looks right but is missing yesterday's tasks or your Whoop score. I do not have a health check for that yet.
+The capture layer still has failure modes. The live jobs run inside Obsidian through Cron, Shell Commands, Templater, and connectors, so they depend on Obsidian being open. A failed capture can leave a section empty without making the note look broken. I still do not have one health check for the whole pipeline.
 
-## The one thing I cannot tell you yet
-
-There is a question I have not settled.
+## What I cannot tell you yet
 
 When the LLM maintains the synthesis pages, and I read one of those pages six months from now, will it feel like *my* thinking or like a summary someone handed me?
 
-The Karpathy pattern bets the answer is fine — the citations point back to raw sources, the synthesis is regenerable, and over time the synthesis pages become more useful precisely because they are not subject to my forgetting. Tiago Forte argues progressive summarization *is* the thinking; I am testing whether that holds when the summarizer is not me.
+The Karpathy pattern makes that trade: citations point back to raw sources, and the synthesis can be regenerated as the wiki changes. [Tiago Forte describes progressive summarization](https://fortelabs.com/blog/progressive-summarization-a-practical-technique-for-designing-discoverable-notes/) as "opportunistic compression" that makes notes discoverable later. I am testing what changes when the summarizer is not me.
 
 I am not yet sure I agree. The synthesis pages in my vault from the last month read fluently and cite real sources and make connections I would not have made unaided. They also do not always feel like me. Something about the shape of the paragraphs. Something about which details get kept and which get smoothed away.
 
