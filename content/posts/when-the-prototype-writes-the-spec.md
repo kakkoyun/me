@@ -62,7 +62,7 @@ Here's the part I find genuinely encouraging. The OpenTelemetry Governance Commi
 
 That's, structurally, the same shape as the Rust nightly/stable split. It's also an admission that the original "let things stabilize through use" approach produced too many de-facto-stable-but-officially-experimental features that downstream vendors and instrumentation authors are now stuck with.
 
-It's interesting to me that this is happening six and a half years in. The PoC-first instinct produced a usable observability standard faster than waiting for a complete spec would have. I don't think anyone regrets that. The cost is showing up now as a governance project to retroactively install the gate that Rust had from the start.
+It's interesting to me that this is happening seven years in. The PoC-first instinct produced a usable observability standard faster than waiting for a complete spec would have. I don't think anyone regrets that. The cost is showing up now as a governance project to retroactively install the gate that Rust had from the start.
 
 ## Gate GA behind a flag and a second language
 
