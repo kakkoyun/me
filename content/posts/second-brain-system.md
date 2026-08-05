@@ -1,5 +1,5 @@
 ---
-title: "My Second Brain System: PARA, Readwise, and an LLM That Takes Notes"
+title: "My Second Brain System: PARA, Readwise, and an LLM captures my thoughts"
 description: "What I actually built, what does most of the work, and the one design choice that distinguishes this from every other Obsidian-plus-AI setup."
 date: 2026-05-22T00:00:00Z
 publishDate: 2026-08-21T00:00:00Z
@@ -14,13 +14,12 @@ tags:
   - claude-code
   - tooling
 showToc: true
-draft: true
 promote: false
 ---
 
-It is 9:14am on a Wednesday. I open the laptop. The daily note for today is already there.
+It is 9:14am on a Wednesday. I open the laptop. The daily briefing for today is already there.
 
-Above the fold: a Whoop recovery score of 62 (fine), a Wakatime row showing 4h 21m on the OpenTelemetry contrib repo yesterday, three GitHub PRs waiting on review, and a Things 3 task that has been sliding forward for nine days: *[FILL: real task, e.g. "Reply to <person> about <thing>"]*. Each previous day the task migrated, and the journal entry from that day is one click away. The reason it kept slipping is in those entries somewhere.
+Above the fold: a Whoop recovery score of 62 (fine), a Wakatime row showing 4h 21m on the OpenTelemetry Go compile-time instrumentation repo yesterday, three GitHub PRs waiting on review, and a Things 3 task that has been sliding forward for nine days: *Review that thing form X*. Each previous day the task migrated, and the journal entry from that day is one click away. The reason it kept slipping is in those entries somewhere.
 
 The system did not make the task less unpleasant. It made the unpleasantness traceable. That is the smaller of the two things this setup buys me. The larger one is that an LLM has been quietly reading everything I capture and writing a layer of synthesis on top, and once a week that synthesis answers a question I would not have been able to ask my past self without it.
 
@@ -30,15 +29,15 @@ This is the description of what I built, and the one design choice I think makes
 
 Three workhorses. None of them are interesting.
 
-The first is [PARA](https://fortelabs.com/blog/para/) — Projects, Areas, Resources, Archive — across roughly 3,600 markdown files in an Obsidian vault. PARA's only job is to give every note an obvious home, which it does. There are people who prefer [Johnny Decimal](https://johnnydecimal.com/) or [ACCESS](https://www.linkingyourthinking.com/) or their own taxonomies, and they are correct that PARA has rough edges. They are also wrong that the rough edges matter. The point of PARA is to stop you from re-litigating where things go.
+The first is [PARA](https://www.buildingasecondbrain.com/para) —Projects, Areas, Resources, Archive— across roughly 3,600 markdown files in an Obsidian vault. PARA's only job is to give every note an obvious home, which it does. There are people who prefer [Johnny Decimal](https://johnnydecimal.com/) or [ACCESS](https://www.linkingyourthinking.com/) or their own taxonomies, and they are correct that PARA has rough edges. They are also wrong that the rough edges matter. The point of PARA is to stop you from re-litigating where things go.
 
-The second is [Readwise](https://readwise.io). It syncs highlights from Kindle, Reader, Twitter, and any podcast clipping I tag into `curation/readwise/`. I do not curate at this layer. Everything lands. A highlight from a book I read in 2023 is still there.
+The second is [Readwise](https://readwise.io). It syncs highlights from Kindle, Reader, Twitter (yes, still Twitter for me), and any podcast clipping I tag into `curation/readwise/`. I do not curate at this layer. Everything lands. A highlight from a book I read in 2023 is still there.
 
-The third is obsidian-git. It commits the vault every 7 minutes and pushes every 70. I have not thought about backups in months.
+The third is [`obsidian-git`](https://github.com/Vinzent03/obsidian-git). It commits the vault every 7 minutes and pushes every 70. I have not thought about backups in months.
 
-The Whoop score, the Wakatime row, and the PR queue in this morning's daily note are stitched together by a small Python CLI I wrote called `pkm-tool`. It pulls from GitHub (PRs opened, reviewed, merged), Jira (tickets resolved and commented on), Wakatime (time by project and language), Whoop (sleep quality, HRV, recovery score), Apple Calendar (meetings and blocks), Things 3 (tasks completed and scheduled), and Google Docs (documents created or edited). It runs as a launchd job at 6am. By the time I open the laptop, the page exists and the activity is filled in.
+The Whoop score, the Wakatime row, and the PR queue in this morning's daily note are stitched together by a small Python CLI I wrote called [`pkm-tool`](https://github.com/kakkoyun/pkm-tool) (even though, I don't use this anymore, I wanted to mention). It pulls from GitHub (PRs opened, reviewed, merged), Jira (tickets resolved and commented on), Wakatime (time by project and language), Whoop (sleep quality, HRV, recovery score), Apple Calendar (meetings and blocks), Things 3 (tasks completed and scheduled), and Google Docs (documents created or edited). It runs as a launchd job at 6am. By the time I open the laptop, the page exists and the activity is filled in.
 
-That is the substrate. Other Obsidian-PARA people have described all of it before. If the post ended here, it would not be worth your time.
+That is the substrate. Other people have described all of it before. If the post ended here, it would not be worth your time.
 
 ## The one design choice
 
@@ -48,7 +47,7 @@ Here is the part that distinguishes this setup from every other Obsidian-plus-AI
 
 Most AI-PKM tools work by chewing on your notes and offering to rewrite, tag, or restructure them. [Copilot for Obsidian](https://github.com/logancyang/obsidian-copilot) edits selected text in-editor. Notion AI is happy to rewrite a page. The implicit contract is: your notes are a substrate the AI improves.
 
-I do not want that. I want my raw captures — the Readwise highlights, the meeting notes I scribbled in a hurry, the half-baked journal entries — to stay exactly as they were when they hit the disk. Those are the historical record. If a synthesis is wrong, I want to look at the source and see *why* it went wrong, without finding that the LLM has already "improved" the source out from under me.
+I do not want that. I want my raw captures: the Readwise highlights, the meeting notes I scribbled in a hurry, the half-baked journal entries. To stay exactly as they were when they hit the disk. Those are the historical record. If a synthesis is wrong, I want to look at the source and see *why* it went wrong, without finding that the LLM has already "improved" the source out from under me.
 
 So the vault has two halves with a wall between them. On one side, raw, immutable, never edited by anyone but me at the moment of capture: `curation/`, `journal/`, the daily notes. On the other side, written and maintained by an LLM (mostly Claude Code) that reads those sources: `zettelkasten/`, `resources/concepts/`, `decisions/`, `reflections/`.
 
