@@ -1,7 +1,7 @@
 ---
 title: "How I Use Agents, Part 2: One Workstream per Task"
 description: "The 1,777-line shell function that ran my task isolation for a year, the Go tool replacing it, and why every agent task gets its own worktree, tmux session, and conversation."
-date: 2026-07-09T00:00:00Z
+date: 2026-09-08T00:00:00Z
 publishDate: 2026-09-08T00:00:00Z
 categories:
   - blogmentation
