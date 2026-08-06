@@ -1,8 +1,8 @@
 ---
 title: "When the prototype writes the spec"
 description: "OpenTelemetry's reference implementation was slated to land two weeks before work began in every other language. That order has consequences, and seven years later the project is adding the gate that its early speed made it rational to skip."
-date: 2026-08-06T00:00:00Z
-publishDate: 2026-08-06T00:00:00Z
+date: 2026-05-21T00:00:00Z
+publishDate: 2026-08-07T00:00:00Z
 categories:
   - engineering
 tags:
@@ -22,7 +22,8 @@ OpenTelemetry's reference implementation was slated to land on April 24, 2019. I
 
 I think about that timeline a lot, because I work on tracer libraries for a living, and the order in which a multi-language SDK gets built keeps mattering more than the documented process suggests.
 
-One caveat before any of this. I wasn't in the room for those 2019 decisions. What follows about OTel's early years is reconstructed from public roadmaps, issues, and design docs, so I can tell you what the record shows and not what anyone was thinking.
+> [!NOTE]
+> One caveat before any of this. I wasn't in the room for those 2019 decisions. What follows about OTel's early years is reconstructed from public roadmaps, issues, and design docs, so I can tell you what the record shows and not what anyone was thinking.
 
 You can call this pattern "PoC first, RFC later." That's what we tell ourselves we're doing. In practice it tends to slide into "PoC ships, RFC never," and then six other languages spend the next year matching whatever the first implementation already did. There's a less-messy way, though, and I want to write down what I think it looks like.
 
@@ -32,7 +33,7 @@ When the merger was announced in March 2019, the bootstrap committee handed the 
 
 A first draft of the cross-language specification was on the schedule too, due the same day work began in every language.[^1] Two weeks isn't enough time for a multi-language working group to sit down, look at the prototype, and ask "okay, but how does this map to Go's `context.Context` and Python's `contextvars` and Node's `AsyncLocalStorage`?" Those conversations happened later, in parallel with implementations, and some of what shipped in 2019 carried the shape of the language it was written in first. That's how the calendar shook out.
 
-Seven years later, the constraints of that early shape still leak. Java's thread-local context model is the cleanest case. Python had to graft OTel context onto `contextvars`, and the language version mattered: `contextvars`, and asyncio's automatic per-task copy of them, only exist from Python 3.7 onward. There was a PyPI backport for 3.5 and 3.6, but it didn't integrate with asyncio, which is why the proposal to depend on it was closed unmerged. The Python SDK carried a thread-local fallback instead, and eventually dropped both versions.[^3]
+Seven years later, the constraints of that early shape still leak. Java's thread-local context model is the cleanest case. Python had to graft OTel context onto `contextvars`, and the language version mattered: `contextvars`, and `asyncio`'s automatic per-task copy of them, only exist from Python 3.7 onward. There was a PyPI backport for 3.5 and 3.6, but it didn't integrate with asyncio, which is why the proposal to depend on it was closed unmerged. The Python SDK carried a thread-local fallback instead, and eventually dropped both versions.[^3]
 
 Go's eBPF auto-instrumentation is the case that did get fixed, and the paper trail is the interesting part. The original design proposal noted that the implementation "correlates spans to the same trace if they are being executed by the same goroutine," with proper goroutine-tree tracking listed as future work. The tracking shipped about a year later. The design proposal was never updated to match, which is its own small version of the same pattern.[^4] None of these are bugs. They're impedance mismatches between a model and the languages it has to express itself in.
 
@@ -78,7 +79,7 @@ This will be annoying. It slows the first language down, forces a documentation 
 
 One thing has changed since 2019 that makes this cheaper than it used to be. The expensive part of the gate was always the second implementation: another team, another quarter. Coding agents have taken a bite out of that. A scratch implementation in a second language, written against the spec and nothing else, costs days now rather than a team-quarter, and its only job is to fail wherever the spec is vague. Then you throw it away. Simon Willison's caveat is the thing worth keeping in view: writing code got cheap, but delivering *good* code did not, and the spec is the good part.[^7] The current enthusiasm for spec-driven development looks like a lot of people arriving at the same place from the other direction, and rediscovering, as Birgitta Böckeler found, "the pitfalls and challenges of writing an unambiguous and complete specification."[^8]
 
-I'm not certain about any of this. I'd be curious whether anyone reading this has watched a project actually hold that GA gate, and what it cost them in time-to-market versus what it bought them in coherence later. The Rust crowd has the only example I know of where the gate worked at scale, and Rust is unusual in a lot of ways, not least that it only ever has one implementation to keep honest. If you've seen something closer to home, I want to hear about it.
+I'm **NOT** certain about any of this. I'd be curious whether anyone reading this has watched a project actually hold that GA gate, and what it cost them in time-to-market versus what it bought them in coherence later. The Rust crowd has the only example I know of where the gate worked at scale, and Rust is unusual in a lot of ways, not least that it only ever has one implementation to keep honest. If you've seen something closer to home, I want to hear about it.
 
 ## References
 
