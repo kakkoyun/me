@@ -1,6 +1,6 @@
 ---
 title: "When the prototype writes the spec"
-description: "OpenTelemetry's reference implementation was slated to land two weeks before work began in every other language. That order has consequences, and seven years later the project is adding the gate that its early speed made it rational to skip."
+description: "Prototype first and spec second was always the right instinct. It works better now that coding agents make a second implementation cheap enough to use as a test of the spec."
 date: 2026-05-21T00:00:00Z
 publishDate: 2026-08-07T00:00:00Z
 categories:
@@ -23,7 +23,7 @@ OpenTelemetry's reference implementation was slated to land on April 24, 2019. I
 I think about that timeline a lot, because I work on tracer libraries for a living, and the order in which a multi-language SDK gets built keeps mattering more than the documented process suggests.
 
 > [!NOTE]
-> One caveat before any of this. I wasn't in the room for those 2019 decisions. What follows about OTel's early years is reconstructed from public roadmaps, issues, and design docs, so I can tell you what the record shows and not what anyone was thinking.
+> OpenTelemetry is the example here because its history is public. Every multi-language SDK I have worked on has some version of this story; OTel's is simply the one you can read from the outside. I wasn't in those 2019 rooms, so what follows is reconstructed from roadmaps, issues, and design docs. It shows what the record says rather than what anyone intended.
 
 You can call this pattern "PoC first, RFC later." That's what we tell ourselves we're doing. In practice it tends to slide into "PoC ships, RFC never," and then six other languages spend the next year matching whatever the first implementation already did. There's a less-messy way, though, and I want to write down what I think it looks like.
 
@@ -61,7 +61,7 @@ Most SDK projects don't have either of these things. The flag, maybe, in the for
 
 Rust did set out to solve this, and wrote down why. The contributor docs give the reasoning behind the feature gate directly: users must not "accidentally depend on that new feature," because otherwise it "would end up de facto stable and we'll not be able to make changes in it without breaking people's code." The same page adds a line I wish every SDK project would post on a wall: "Features do not gain tenure by being unstable and unchanged for long periods of time."[^5] Compilers probably got there first because shipping a breaking change is unusually catastrophic for them, but the mechanism travels. It gives the PoC somewhere to live that isn't your customers' code. Most multi-language SDK projects have nowhere to put a PoC, so it ends up in the customers' code by default.
 
-## OTel's slow course correction
+## OTel's course correction
 
 Here's the part I find genuinely encouraging. The OpenTelemetry Governance Committee announced a "stable by default" proposal in November 2025.[^6] The headline is that OTel distributions should ship stable behavior by default, and users should have to opt in to experimental features through a standardized mechanism. They explicitly want a "single, clear, and consistent set of criteria for stability that includes documentation, performance testing, benchmarks…" There's also mention of "epoch releases" so that downstream consumers can adopt changes on a cadence they can plan around.
 
