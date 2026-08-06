@@ -45,18 +45,19 @@ Both paths require an OTel Collector or Jaeger to receive the output. OBI additi
 
 ## What OBI actually covers
 
-OBI instruments 13 Go libraries out of the box: `net/http`, gin, gRPC, gorilla/mux, go-redis, Kafka, `database/sql`, and others. It attaches from outside the process: no LD_PRELOAD, no restart, no rebuild. For Kubernetes, one DaemonSet covers every pod on every node:
+OBI instruments 13 Go libraries out of the box: `net/http`, gin, gRPC, gorilla/mux, go-redis, Kafka, `database/sql`, and others. It attaches from outside the process: no LD_PRELOAD, no restart, no rebuild. For Kubernetes, the Helm chart installs the DaemonSet path:
 
 ```bash
-kubectl apply -f https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/releases/download/v0.10.0/obi-daemonset.yaml
-kubectl get pods -n obi-system
+helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm install obi -n obi --create-namespace open-telemetry/opentelemetry-ebpf-instrumentation
+kubectl get pods -n obi
 ```
 
 For Docker Compose, add an OBI container alongside your service:
 
 ```yaml
 obi:
-  image: ghcr.io/open-telemetry/opentelemetry-ebpf-instrumentation:v0.10.0
+  image: otel/ebpf-instrument:v0.10.0
   pid: host
   privileged: true
   environment:
@@ -117,7 +118,7 @@ kubectl obi attach my-service --mode=sidecar --namespace=production
 kubectl obi detach
 ```
 
-The plugin is meant to handle the DaemonSet apply/delete without requiring you to remember the manifest URL or manage YAML manually, with `kubectl obi attach` as the zero-argument case that does the right thing for most clusters.
+The plugin is meant to handle the DaemonSet apply/delete without requiring you to remember the manifest URL or manage YAML manually. `kubectl obi` becomes the zero-memorization path: attach a target, inspect status, detach, and never paste a release URL from memory.
 
 The current implementation is a skeleton: flag parsing and command structure are done, the Kubernetes API calls are wired up but unvalidated against a real cluster, and it isn't released anywhere yet. I'll link the source here once it's public.
 

@@ -60,7 +60,7 @@ The OTel profiling signal occupies an interesting position in the spec maturity 
 
 The profiler's README is explicit: "Implements the Alpha OTel Profiles signal." Do not read "OTel Collector receiver" and assume this is production-stable in the OTel spec sense. Alpha means evolving, not backward-compatibility-guaranteed.
 
-What the profiler does produce today, reliably: CPU profiling at the OS-thread level, with correct Go function names via `.gopclntab`. goroutine-level profiling (as distinct from OS threads) is not confirmed in the current release. Neither is allocation profiling. The core use case works: always-on CPU flame graphs for production Go services with zero source changes.
+What the profiler does produce today, reliably: CPU profiling at the OS-thread level, with correct Go function names via `.gopclntab`. The current release does not confirm profiling at the goroutine level, as distinct from OS threads. Neither is allocation profiling. The core use case works: always-on CPU flame graphs for production Go services with zero source changes.
 
 ## The third signal
 
