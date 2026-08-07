@@ -1,7 +1,7 @@
 ---
 title: "When the prototype writes the spec"
 description: "Prototype first and spec second was always the right instinct. It works better now that coding agents make a second implementation cheap enough to use as a test of the spec."
-date: 2026-05-21T00:00:00Z
+date: 2026-08-07T00:00:00Z
 publishDate: 2026-08-07T00:00:00Z
 categories:
   - engineering
@@ -79,7 +79,7 @@ This will be annoying. It slows the first language down, forces a documentation 
 
 One thing has changed since 2019 that makes this cheaper than it used to be. The expensive part of the gate was always the second implementation: another team, another quarter. Coding agents have taken a bite out of that. A scratch implementation in a second language, written against the spec and nothing else, costs days now rather than a team-quarter, and its only job is to fail wherever the spec is vague. Then you throw it away. Simon Willison's caveat is the thing worth keeping in view: writing code got cheap, but delivering *good* code did not, and the spec is the good part.[^7] The current enthusiasm for spec-driven development looks like a lot of people arriving at the same place from the other direction, and rediscovering, as Birgitta Böckeler found, "the pitfalls and challenges of writing an unambiguous and complete specification."[^8]
 
-I'm **NOT** certain about any of this. I'd be curious whether anyone reading this has watched a project actually hold that GA gate, and what it cost them in time-to-market versus what it bought them in coherence later. The Rust crowd has the only example I know of where the gate worked at scale, and Rust is unusual in a lot of ways, not least that it only ever has one implementation to keep honest. If you've seen something closer to home, I want to hear about it.
+I'm not certain about any of this. I'd be curious whether anyone reading this has watched a project actually hold that GA gate, and what it cost them in time-to-market versus what it bought them in coherence later. The Rust crowd has the only example I know of where the gate worked at scale, and Rust is unusual in a lot of ways, not least that it only ever has one implementation to keep honest. If you've seen something closer to home, I want to hear about it.
 
 ## References
 
