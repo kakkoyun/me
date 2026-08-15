@@ -41,7 +41,9 @@ list; GitHub permissions are the permissions.
 
 Commits made through the CMS use the `commit_messages` templates in
 `config.yml`, so they land as `post: create <slug>` and match the repo's commit
-style.
+style. The prefix is `{{collection}}`, which Sveltia renders as the collection's
+`label_singular` — that is why those are lowercase in the config. A talk commits
+as `talk: update <slug>`, a newsletter issue as `newsletter: update <slug>`.
 
 ### Rotating credentials
 
@@ -87,7 +89,16 @@ that never set the field, quietly making the whole archive non-promotable.
 
 Because the failure is silent, it is enforced in CI rather than trusted to
 memory. The script reads every frontmatter key in the CMS-managed content
-directories and asserts each one is declared somewhere in `config.yml`.
+directories and asserts each one is declared on the collection that owns that
+directory.
+
+The check is per-collection, matching what Sveltia actually does on save.
+`series` being declared on posts does not license a `series` key on a talk — the
+talks collection has no such field, so Sveltia would drop it. The directories to
+scan are not configured anywhere: they are the `folder:` of every collection in
+`config.yml`, which is by definition every directory the CMS can write to.
+Section pages (`_index.md`) are skipped, since a folder collection hides them
+unless it sets `index_file`, and none do.
 
 ```bash
 bash scripts/check-cms-fields.sh
@@ -98,19 +109,22 @@ It also runs as part of `make test`, which `lint.yml` runs on every PR.
 A failure looks like this:
 
 ```
-UNDECLARED: 'newKey' found in posts/ but not in .../static/admin/config.yml
+UNDECLARED: 'newKey' found in content/posts/ but not declared on that collection
+in .../static/admin/config.yml
 
-Add the missing key(s) as 'widget: hidden' fields in .../static/admin/config.yml
-to prevent Sveltia CMS from silently dropping them on save.
+Add the missing key(s) as 'widget: hidden' fields to that collection in
+.../static/admin/config.yml to prevent Sveltia CMS from silently dropping them
+on save.
 ```
 
-The fix is always the same: add the key to `config.yml`. Do not delete the key
-from the post to make the check pass.
+The fix is always the same: add the key to that collection in `config.yml`. Do
+not delete the key from the entry to make the check pass.
 
 Two env vars tune it, mostly for testing:
 
 - `CMS_CONFIG` — path to the config (default `static/admin/config.yml`)
-- `CMS_CONTENT_DIRS` — colon-separated dirs to scan (default `content/posts`)
+- `CMS_CONTENT_ROOT` — directory the `folder:` paths resolve against (default:
+  the repo root)
 
 ## Bumping the CMS version
 

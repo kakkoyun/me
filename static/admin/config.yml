@@ -7,10 +7,14 @@ backend:
   name: github
   repo: kakkoyun/me
   branch: master
+  # {{collection}} renders the collection's label_singular, which is why those
+  # are lowercase below: it produces `post: update x`, `talk: update x`,
+  # `newsletter: update x` — the repo's commit convention. A hard-coded `post:`
+  # prefix would mislabel every talk and newsletter save.
   commit_messages:
-    create: 'post: create {{slug}}'
-    update: 'post: update {{slug}}'
-    delete: 'post: delete {{slug}}'
+    create: '{{collection}}: create {{slug}}'
+    update: '{{collection}}: update {{slug}}'
+    delete: '{{collection}}: delete {{slug}}'
 
 site_url: https://kakkoyun.me
 media_folder: static/uploads
@@ -31,7 +35,7 @@ slug:
 collections:
   - name: posts
     label: Posts
-    label_singular: Post
+    label_singular: post
     folder: content/posts
     sortable_fields:
       fields: [publishDate, title, date]
@@ -154,3 +158,133 @@ collections:
         widget: hidden
       - name: image
         widget: hidden
+
+  # Hugo's _index.md is hidden from a folder collection unless index_file is
+  # set. Neither collection below sets it, so the `comments: false` those two
+  # index pages carry is never routed through the CMS and cannot be dropped.
+  - name: talks
+    label: Talks
+    label_singular: talk
+    folder: content/talks
+    sortable_fields:
+      fields: [publishDate, title, date]
+      default:
+        field: publishDate
+        direction: descending
+    summary: '{{title}}'
+    preview_path: 'talks/{{slug}}'
+    # The default slug template derives the filename from the title, and every
+    # talk title carries a "talk: " prefix — so a new entry saves as
+    # talk-ebpf-safety-first.md rather than ebpf-safety-first.md. Rename the
+    # file after creating a talk. An editable {{fields._slug}} template would
+    # fix this but blocks saving existing entries (dropped in PR1).
+    fields:
+      - label: Title
+        name: title
+        widget: string
+        hint: 'Prefix with "talk: " by convention, e.g. talk: eBPF? Safety First!'
+
+      - label: Description
+        name: description
+        widget: string
+        required: false
+
+      - label: Date
+        name: date
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm:ss[Z]'
+        picker_utc: true
+
+      - label: Publish Date
+        name: publishDate
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm:ss[Z]'
+        picker_utc: true
+        default: '{{now}}'
+
+      # Always exactly one value, "talks". multiple: true keeps it a YAML list
+      # — a plain select serializes a scalar and changes the shape Hugo reads.
+      - label: Category
+        name: categories
+        widget: select
+        multiple: true
+        min: 1
+        max: 1
+        options:
+          - talks
+        default:
+          - talks
+
+      - label: Tags
+        name: tags
+        widget: list
+        default:
+          - talks
+
+      - label: Cover Image
+        name: cover
+        widget: object
+        required: false
+        fields:
+          - label: Image URL
+            name: image
+            widget: string
+            hint: 'YouTube thumbnail: https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg'
+          - label: Alt Text
+            name: alt
+            widget: string
+          - label: Caption
+            name: caption
+            widget: string
+            required: false
+
+      # Raw mode only: every talk body embeds a YouTube <iframe>, and the
+      # Lexical rich-text editor round-trips Markdown, not HTML. Rich-text mode
+      # risks rewriting those embeds on save.
+      - label: Body
+        name: body
+        widget: richtext
+        modes: [raw]
+
+  - name: the-unwind
+    label: The Unwind
+    label_singular: newsletter
+    folder: content/newsletter/the-unwind
+    sortable_fields:
+      fields: [publishDate, title, date]
+      default:
+        field: publishDate
+        direction: descending
+    summary: '{{title}}'
+    preview_path: 'newsletter/the-unwind/{{slug}}'
+    fields:
+      - label: Title
+        name: title
+        widget: string
+
+      - label: Description
+        name: description
+        widget: string
+
+      - label: Date
+        name: date
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm:ss[Z]'
+        picker_utc: true
+
+      - label: Publish Date
+        name: publishDate
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm:ss[Z]'
+        picker_utc: true
+        default: '{{now}}'
+
+      - label: Draft
+        name: draft
+        widget: boolean
+        default: false
+        required: false
+
+      - label: Body
+        name: body
+        widget: richtext
