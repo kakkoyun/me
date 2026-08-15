@@ -29,12 +29,13 @@ if [ ! -f "$CONFIG" ]; then
   exit 1
 fi
 
-# Extract every field name declared in the config. The config uses indented YAML
-# with `name:` keys; grab all values regardless of nesting depth.
-# Handles both `- name: value` (list-item style) and `  name: value` (block style).
+# Extract field names declared in the config. Field declarations appear at
+# six or more spaces of indentation (collections > fields > field-item).
+# Shallower `name:` values are backend or collection identifiers, not fields,
+# so restricting by depth avoids false negatives from those keys.
 declared() {
-  grep -oE '\bname:[[:space:]]+[^[:space:]#]+' "$CONFIG" \
-    | sed 's/name:[[:space:]]*//' \
+  grep -oE '^\s{4,}(-[[:space:]]+)?name:[[:space:]]+[^[:space:]#]+' "$CONFIG" \
+    | sed 's/.*name:[[:space:]]*//' \
     | sort -u
 }
 
