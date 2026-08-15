@@ -1,8 +1,9 @@
 ---
-title: "My Second Brain System: PARA, Readwise, and an LLM captures my thoughts"
-description: "What I built, what does most of the work, and why the LLM never edits a source note."
+title: 'My Second Brain System: PARA, Readwise, and an LLM captures my thoughts'
+description: What I built, what does most of the work, and why the LLM never edits a source note.
 date: 2026-05-22T00:00:00Z
 publishDate: 2026-08-21T00:00:00Z
+draft: false
 categories:
   - technical-findings
 tags:
@@ -14,12 +15,14 @@ tags:
   - claude-code
   - tooling
 showToc: true
+tocOpen: true
+showCanonicalLink: false
 promote: false
 ---
 
 At 9:14 a.m. on a Wednesday, I open the laptop. The daily briefing for today is already there.
 
-Above the fold: a Whoop recovery score of 62 (fine), a Wakatime row showing 4h 21m on the OpenTelemetry Go compile-time instrumentation repo yesterday, three GitHub PRs waiting on review, and a Things 3 task that has been sliding forward for nine days: *Review that thing from X*. Each previous day the task migrated, and the journal entry from that day is one click away. The reason it kept slipping is in those entries somewhere.
+Above the fold: a Whoop recovery score of 62 (fine), a Wakatime row showing 4h 21m on the OpenTelemetry Go compile-time instrumentation repo yesterday, three GitHub PRs waiting on review, and a Things 3 task that has been sliding forward for nine days: _Review that thing from X_. Each previous day the task migrated, and the journal entry from that day is one click away. The reason it kept slipping is in those entries somewhere.
 
 The system did not make the task less unpleasant. It made the unpleasantness traceable. That is the smaller of the two things this setup buys me. The larger one is the synthesis layer: an LLM reads what I capture and writes connections back into the vault without editing the original notes.
 
@@ -49,7 +52,7 @@ The part I care about most is the boundary between source material and synthesis
 
 Most AI-PKM tools work by chewing on your notes and offering to rewrite, tag, or restructure them. [Copilot for Obsidian](https://github.com/logancyang/obsidian-copilot) edits selected text in-editor. Notion AI is happy to rewrite a page. The implicit contract is: your notes are a substrate the AI improves.
 
-I do not want that. I want my raw captures to stay exactly as they were when they hit the disk. That includes Readwise highlights, meeting notes I scribbled in a hurry, and half-baked journal entries. Those are the historical record. If a synthesis is wrong, I want to look at the source and see *why* it went wrong, without finding that the LLM has already "improved" the source out from under me.
+I do not want that. I want my raw captures to stay exactly as they were when they hit the disk. That includes Readwise highlights, meeting notes I scribbled in a hurry, and half-baked journal entries. Those are the historical record. If a synthesis is wrong, I want to look at the source and see _why_ it went wrong, without finding that the LLM has already "improved" the source out from under me.
 
 The vault has two halves with a wall between them. On one side are raw sources such as `curation/`, `journal/`, `devlog/`, and `meetings/`. On the other are pages written and maintained by an LLM (Claude Code in my case): `zettelkasten/`, `resources/concepts/`, `decisions/`, and `reflections/`.
 
@@ -89,7 +92,7 @@ The capture layer still has failure modes. The live jobs run inside Obsidian thr
 
 ## What I cannot tell you yet
 
-When the LLM maintains the synthesis pages, and I read one of those pages six months from now, will it feel like *my* thinking or like a summary someone handed me?
+When the LLM maintains the synthesis pages, and I read one of those pages six months from now, will it feel like _my_ thinking or like a summary someone handed me?
 
 The Karpathy pattern makes that trade: citations point back to raw sources, and the synthesis can be regenerated as the wiki changes. [Tiago Forte describes progressive summarization](https://fortelabs.com/blog/progressive-summarization-a-practical-technique-for-designing-discoverable-notes/) as "opportunistic compression" that makes notes discoverable later. I am testing what changes when the summarizer is not me.
 
