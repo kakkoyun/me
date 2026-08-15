@@ -145,6 +145,9 @@ Of course, all except blog content is licensed with Apache 2 license.
 
 For detailed information about the PaperMod theme configuration and features, see the [documentation](documentation.md) file.
 
+- [Sveltia CMS](docs/sveltia-cms.md) -- the `/admin/` content editor: auth, the frontmatter-key guard, and rollback.
+- [Substack syndication](docs/substack-syndication.md) -- the `/substack.xml` mirror feed.
+
 ## License and Copyright
 
 This project is licensed under the [Apache License 2.0](LICENSE).
