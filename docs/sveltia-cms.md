@@ -57,6 +57,67 @@ No code change and no deploy. The client ID stays the same unless you replace
 the whole OAuth app. Existing editor sessions keep working until their token
 expires.
 
+## Review gate
+
+Saves do not go to master. The CMS commits to a long-lived `cms` branch, and CI
+opens one pull request from it:
+
+```
+save in /admin/  →  commit on `cms`  →  PR opens (or the existing one grows)
+                 →  build + prose + links + Netlify deploy preview
+                 →  review, merge  →  live  →  `cms` fast-forwards to master
+```
+
+Two workflows implement it:
+
+| File | Trigger | Does |
+| --- | --- | --- |
+| `.github/workflows/cms-pr.yml` | push to `cms` | opens the review PR if none is open |
+| `.github/workflows/cms-sync.yml` | push to `master` | fast-forwards `cms` to master |
+
+Sveltia has a `publish_mode: editorial_workflow` setting inherited from
+Netlify/Decap CMS, but its docs mark it **Unimplemented** — it is inert config
+today. The branch-plus-PR arrangement is the substitute.
+
+`netlify.toml` sets `[context.branch-deploy] ignore = "exit 0"`, so a push to
+`cms` never produces a branch deploy. It does produce a deploy preview once the
+PR is open, and `pull_request` is the trigger for `build.yml`, `prose.yml` and
+`links.yml` — all four run again on every later save, because each save pushes a
+commit that updates the PR head. Budget for one build per save, not one per
+review cycle; the branch-deploy setting only stops that from being two builds
+per save. `[context.deploy-preview]` passes `--buildFuture`, so future-dated
+posts render in the preview, which is the case you cannot check on production.
+
+### What this costs you
+
+- **All in-flight edits share one PR.** You cannot merge one post while holding
+  another back. Set `draft: true` on the one being held.
+- **Merge with a merge commit, never a squash.** `cms-sync.yml` fast-forwards
+  `cms` to master, which requires `cms` to be an ancestor of master. A squash
+  produces a commit that is not descended from the `cms` commits, so the
+  fast-forward check fails and the branch is left behind. The job refuses to
+  force rather than destroying work, so the failure is loud — but clearing it
+  needs a manual `git push --force origin master:cms`.
+- **It needs a PAT.** A PR opened with the default `GITHUB_TOKEN` does not
+  trigger `pull_request` workflows, so `build.yml`, `prose.yml` and `links.yml`
+  would stay silent on the run that matters. Store a fine-grained token
+  (Contents: read, Pull requests: write) as the `CMS_PR_TOKEN` repository
+  secret. Without it `cms-pr.yml` fails and no review PR appears at all.
+
+### Bringing the branch back by hand
+
+If `cms` drifts — a squash merge, or an aborted edit you do not want — reset it
+to master:
+
+```bash
+git fetch origin
+git push --force origin origin/master:refs/heads/cms
+```
+
+Nothing is lost that is not already on master; a CMS save that has not been
+merged is a commit on `cms` and would be discarded, so check the open review PR
+first.
+
 ## Risk 1: the CMS drops undeclared frontmatter keys
 
 **This is the one failure mode worth internalising.**
@@ -188,11 +249,12 @@ This is the right way to try config changes. Editing `config.yml` and reloading
 Nothing else in the site depends on the CMS, so removing it is four reverts:
 
 ```bash
-rm -rf static/admin/
+rm -rf static/admin/ .github/workflows/cms-pr.yml .github/workflows/cms-sync.yml
+git push origin --delete cms
 ```
 
-Then drop `Disallow: /admin/` from `layouts/robots.txt` and remove the Sveltia
-paragraph from `CLAUDE.md`.
+Then drop `Disallow: /admin/` from `layouts/robots.txt`, remove the Sveltia
+paragraph from `CLAUDE.md`, and delete the `CMS_PR_TOKEN` secret.
 
 `scripts/check-cms-fields.sh` and its test can stay or go. The guard is only
 meaningful while the CMS exists, but it is harmless without it — with no

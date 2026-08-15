@@ -6,7 +6,9 @@
 backend:
   name: github
   repo: kakkoyun/me
-  branch: master
+  # Saves land on the long-lived `cms` branch, never on master. CI opens one
+  # review PR for that branch; merging it publishes. See docs/sveltia-cms.md.
+  branch: cms
   # {{collection}} renders the collection's label_singular, which is why those
   # are lowercase below: it produces `post: update x`, `talk: update x`,
   # `newsletter: update x` — the repo's commit convention. A hard-coded `post:`
