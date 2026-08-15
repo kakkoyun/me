@@ -132,6 +132,10 @@ collections:
         widget: boolean
         required: false
 
+      - label: Body
+        name: body
+        widget: richtext
+
       # Structural fields: present in some posts but hidden from the editor UI.
       # Declaring them prevents Sveltia from dropping them on save (Risk 1).
       - name: slug
