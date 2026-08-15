@@ -1,12 +1,16 @@
 # yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
 
-# OAuth client is configured in PR2 (Netlify → Site settings → OAuth).
-# The github backend is used now so the "Work with Local Repository"
-# button appears on the sign-in screen for Gate A testing.
+# Auth goes through Netlify's OAuth provider (Site settings → Access control
+# → OAuth), which holds the GitHub OAuth app's client ID and secret. Netlify's
+# gateway is the default for sites hosted there, so no base_url is needed.
 backend:
   name: github
   repo: kakkoyun/me
   branch: master
+  commit_messages:
+    create: 'post: create {{slug}}'
+    update: 'post: update {{slug}}'
+    delete: 'post: delete {{slug}}'
 
 site_url: https://kakkoyun.me
 media_folder: static/uploads

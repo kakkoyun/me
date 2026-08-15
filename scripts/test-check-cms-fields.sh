@@ -44,6 +44,30 @@ make_config() {
   } > "$dir/config.yml"
 }
 
+make_config_nested() {
+  # make_config_nested <object-field> <nested-field> [<nested-field2> ...]
+  # Writes a collection whose only field is an object with nested fields,
+  # at the same indentation the real config.yml uses.
+  local dir="$TMP/static/admin" obj="$1"
+  shift
+  mkdir -p "$dir"
+  {
+    echo "collections:"
+    echo "  - name: posts"
+    echo "    folder: content/posts"
+    echo "    fields:"
+    echo "      - label: Object"
+    echo "        name: $obj"
+    echo "        widget: object"
+    echo "        fields:"
+    for f in "$@"; do
+      echo "          - label: Nested"
+      echo "            name: $f"
+      echo "            widget: string"
+    done
+  } > "$dir/config.yml"
+}
+
 make_post() {
   # make_post <filename> <key> [<key2> ...]
   local posts_dir="$TMP/content/posts"
@@ -113,6 +137,21 @@ make_config title date
 make_post p1.md title date
 make_post p2.md title date substack
 assert_exit "undeclared key in second post exits 1" 1 \
+  env CMS_CONFIG="$TMP/static/admin/config.yml" CMS_CONTENT_DIRS="$TMP/content/posts" bash "$SCRIPT"
+
+# A nested object field must not satisfy a top-level key of the same name.
+# `cover.alt` being declared says nothing about a top-level `alt`.
+cleanup
+make_config_nested cover image alt
+make_post p1.md cover alt
+assert_exit "nested field name does not satisfy top-level key exits 1" 1 \
+  env CMS_CONFIG="$TMP/static/admin/config.yml" CMS_CONTENT_DIRS="$TMP/content/posts" bash "$SCRIPT"
+
+# The object field itself is top-level and still counts.
+cleanup
+make_config_nested cover image alt
+make_post p1.md cover
+assert_exit "object field itself is declared exits 0" 0 \
   env CMS_CONFIG="$TMP/static/admin/config.yml" CMS_CONTENT_DIRS="$TMP/content/posts" bash "$SCRIPT"
 
 echo

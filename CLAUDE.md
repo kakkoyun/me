@@ -98,6 +98,7 @@ substack: false               # optional; exclude from the Substack syndication 
 - Use `draft: true` for WIP content; use a future `publishDate` (with `draft` omitted) for scheduled posts
 - Set `promote: false` to publish a post but opt it out of the social-media promotion pipeline (`scripts/find-promotable-posts.sh`)
 - Set `substack: false` to publish a post but exclude it from the Substack syndication feed (`/substack.xml`, see [docs/substack-syndication.md](docs/substack-syndication.md))
+- Any new frontmatter key must also be declared in `static/admin/config.yml` (as `widget: hidden` at minimum). Sveltia CMS only serializes fields it knows about, so an undeclared key is dropped the next time that post is saved through the editor. `scripts/check-cms-fields.sh` fails `make test` if you forget (see [docs/sveltia-cms.md](docs/sveltia-cms.md))
 
 ### Content Types
 
@@ -193,6 +194,7 @@ GitHub Actions workflows:
 - **Plausible + Hakanai:** Dual analytics. Extend via `params.analytics` in `config.yaml`.
 - **Renovate:** Auto-updates Hugo version (in `.hugo-version` + `netlify.toml`), GitHub Actions, and PaperMod submodule.
 - **Substack:** Blog posts are syndicated to Substack via a dedicated, Substack-tuned RSS feed at `/substack.xml` (output format `substack` in `config.yaml`, template `layouts/index.substack.xml`). Hugo stays canonical; Substack is a one-directional mirror you feed via `Settings → Import`. The feed emits full-text `<content:encoded>` with absolutised image/link URLs and a top "Originally published at" backlink (Substack supports no canonical tag). Opt a post out with `substack: false`. Setup and post-import steps are in [docs/substack-syndication.md](docs/substack-syndication.md).
+- **Sveltia CMS:** Git-based content editor served at `/admin/`. `static/admin/index.html` (pinned CDN bundle + matching SRI hash) and `static/admin/config.yml` are hand-maintained -- no Hugo module, no npm dependency, no build step. Auth is a GitHub OAuth app whose client ID and secret live in Netlify's OAuth provider (Site settings → Access control → OAuth), so `config.yml` needs no `base_url`. **A new frontmatter key must also be declared in `static/admin/config.yml` or the CMS silently drops it on save**; `scripts/check-cms-fields.sh` enforces this via `make test` in CI. See [docs/sveltia-cms.md](docs/sveltia-cms.md).
 
 ## Buffer CLI Integration
 

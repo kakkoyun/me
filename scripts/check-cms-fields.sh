@@ -29,12 +29,19 @@ if [ ! -f "$CONFIG" ]; then
   exit 1
 fi
 
-# Extract field names declared in the config. Field declarations appear at
-# six or more spaces of indentation (collections > fields > field-item).
-# Shallower `name:` values are backend or collection identifiers, not fields,
-# so restricting by depth avoids false negatives from those keys.
+# Extract top-level field names declared in the config. Only two indents are
+# top-level fields (collections > fields > field-item):
+#
+#       - name: promote          <- 6 spaces, list-dash form
+#         name: title            <- 8 spaces, when `- label:` opens the item
+#
+# Shallower `name:` values are backend or collection identifiers. Deeper ones
+# are nested object fields — `cover.alt` sits at 12 spaces. Matching those too
+# would let a future top-level `alt` key pass the guard on the strength of
+# `cover.alt` being declared, which is exactly the silent drop this exists to
+# prevent.
 declared() {
-  grep -oE '^\s{4,}(-[[:space:]]+)?name:[[:space:]]+[^[:space:]#]+' "$CONFIG" \
+  grep -oE '^( {6}- | {8})name:[[:space:]]+[^[:space:]#]+' "$CONFIG" \
     | sed 's/.*name:[[:space:]]*//' \
     | sort -u
 }
