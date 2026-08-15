@@ -7,10 +7,14 @@ backend:
   name: github
   repo: kakkoyun/me
   branch: master
+  # {{collection}} renders the collection's label_singular, which is why those
+  # are lowercase below: it produces `post: update x`, `talk: update x`,
+  # `newsletter: update x` — the repo's commit convention. A hard-coded `post:`
+  # prefix would mislabel every talk and newsletter save.
   commit_messages:
-    create: 'post: create {{slug}}'
-    update: 'post: update {{slug}}'
-    delete: 'post: delete {{slug}}'
+    create: '{{collection}}: create {{slug}}'
+    update: '{{collection}}: update {{slug}}'
+    delete: '{{collection}}: delete {{slug}}'
 
 site_url: https://kakkoyun.me
 media_folder: static/uploads
@@ -31,7 +35,7 @@ slug:
 collections:
   - name: posts
     label: Posts
-    label_singular: Post
+    label_singular: post
     folder: content/posts
     sortable_fields:
       fields: [publishDate, title, date]
@@ -160,7 +164,7 @@ collections:
   # index pages carry is never routed through the CMS and cannot be dropped.
   - name: talks
     label: Talks
-    label_singular: Talk
+    label_singular: talk
     folder: content/talks
     sortable_fields:
       fields: [publishDate, title, date]
@@ -244,7 +248,7 @@ collections:
 
   - name: the-unwind
     label: The Unwind
-    label_singular: Issue
+    label_singular: newsletter
     folder: content/newsletter/the-unwind
     sortable_fields:
       fields: [publishDate, title, date]
