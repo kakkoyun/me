@@ -3,7 +3,7 @@ title: "podcast: Cup o' Go — Instrumentation and Blast Radius"
 description: I joined Jonathan Hall and Shay Nehmad on Cup o' Go to talk about what APM actually measures, the three ways to instrument Go, and why blast radius is the trade-off that decides between them.
 date: 2026-08-11T00:00:00Z
 publishDate: 2026-08-17T00:00:00Z
-draft: true
+draft: false
 categories:
   - talks
 tags:
