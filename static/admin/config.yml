@@ -29,7 +29,6 @@ collections:
     label: Posts
     label_singular: Post
     folder: content/posts
-    slug: '{{fields._slug}}'
     sortable_fields:
       fields: [publishDate, title, date]
       default:
@@ -38,11 +37,6 @@ collections:
     summary: '{{title}}'
     preview_path: 'posts/{{slug}}'
     fields:
-      - label: Filename Slug
-        name: _slug
-        widget: string
-        hint: 'Short, hand-picked filename slug (e.g. ice-and-fire). No spaces; use hyphens.'
-
       - label: Title
         name: title
         widget: string
