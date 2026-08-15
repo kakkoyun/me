@@ -2,7 +2,7 @@
 title: "podcast: Cup o' Go — Instrumentation and Blast Radius"
 description: "I joined Jonathan Hall and Shay Nehmad on Cup o' Go to talk about what APM actually measures, the three ways to instrument Go, and why blast radius is the trade-off that decides between them."
 date: 2026-08-11T00:00:00Z
-publishDate: 2026-08-14T00:00:00Z
+publishDate: 2026-08-17T00:00:00Z
 categories:
   - talks
 tags:
@@ -48,7 +48,8 @@ We also got into why a trace and a pprof profile answer different questions, how
 
 **Related**
 
-* [talk: How to Instrument Go Without Changing a Single Line of Code](/talks/how-to-instrument-go-without-changing-code/) — the long version, with benchmarks
+* [talk: Instrument Go Without Changing a Single Line](/talks/instrument-go-without-changing-a-single-line/) — GopherCon UK 2026
+* [talk: How to Instrument Go Without Changing a Single Line of Code](/talks/how-to-instrument-go-without-changing-code/) — FOSDEM 2026
 * [talk: Unleashing the Go Toolchain](/talks/unleashing-the-go-toolchain/) — what `-toolexec` makes possible
 * [Auto-Instrumenting Go: From eBPF to USDT Probes](/posts/fosdem-2026-auto-instrumenting-go/)
 * [OpenTelemetry Go Compile-time Instrumentation v1](/posts/go-compile-time-instrumentation-v1/)
