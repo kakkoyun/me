@@ -15,7 +15,7 @@ tags:
   - claude-code
   - tooling
 showToc: true
-tocOpen: true
+tocOpen: false
 showCanonicalLink: false
 promote: false
 ---
