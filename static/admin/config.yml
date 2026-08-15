@@ -122,15 +122,14 @@ collections:
         widget: boolean
         required: false
 
-      - label: Promote to Social Media
-        name: promote
-        widget: boolean
-        required: false
-
-      - label: Include in Substack Feed
-        name: substack
-        widget: boolean
-        required: false
+      # promote and substack use hidden widgets: absence means "yes" and
+      # false means "opt-out". A boolean widget would write false to posts
+      # that never set the field, silently making them non-promotable.
+      # Edit these flags directly in the markdown frontmatter.
+      - name: promote
+        widget: hidden
+      - name: substack
+        widget: hidden
 
       - label: Body
         name: body
