@@ -7,10 +7,120 @@
     <title>Content Manager — kakkoyun.me</title>
   </head>
   <body>
+    <script>
+      window.CMS_MANUAL_INIT = true;
+    </script>
     <script
       src="https://unpkg.com/@sveltia/cms@0.191.0/dist/sveltia-cms.js"
       integrity="sha384-vqs7J70ghmeGaGfUXWfvUK3kj+ssanA2dTEA5Uvu977zhm9tZzRB45Bz7wXO0Oux"
       crossorigin="anonymous"
     ></script>
+    <script>
+      /* Editor components for this site's Hugo shortcodes, so they render as
+         inline chips in the richtext body instead of raw `{{< ... >}}` text.
+
+         Admonitions (`> [!NOTE]`) get no component: they are plain markdown
+         blockquotes, so the richtext editor round-trips them as-is. Verify
+         this in Gate C — if the serialiser escapes the bracket, add a component.
+
+         The newsletter shortcodes get no component either: they take no
+         params and appear only in section _index.md files, which no
+         collection exposes. */
+
+      /* Parse Hugo named params in any order from an attribute string. */
+      var shortcodeAttrs = function (str) {
+        var attrs = {};
+        var re = /(\w+)="([^"]*)"/g;
+        var m;
+        while ((m = re.exec(str || ''))) {
+          attrs[m[1]] = m[2];
+        }
+        return attrs;
+      };
+
+      CMS.registerEditorComponent({
+        id: 'sidenote',
+        label: 'Sidenote',
+        icon: 'sticky_note_2',
+        mode: 'dialog',
+        summary: '{{body}}',
+        fields: [
+          { name: 'body', label: 'Note', widget: 'text' },
+          {
+            name: 'side',
+            label: 'Side',
+            widget: 'select',
+            options: ['right', 'left', 'alternate'],
+            default: 'right',
+          },
+          { name: 'label', label: 'Label', widget: 'string', required: false },
+          { name: 'id', label: 'ID', widget: 'string', required: false },
+        ],
+        pattern:
+          /{{<\s*sidenote(?<attrs>(?:\s+\w+="[^"]*")*)\s*>}}(?<body>[\s\S]*?){{<\s*\/sidenote\s*>}}/,
+        fromBlock: function (match) {
+          var data = shortcodeAttrs(match.groups.attrs);
+          data.body = match.groups.body;
+          return data;
+        },
+        /* Omit defaulted and empty params so saving an untouched post is a
+           zero-line diff. */
+        toBlock: function (data) {
+          var attrs = '';
+          if (data.side && data.side !== 'right') attrs += ' side="' + data.side + '"';
+          if (data.label) attrs += ' label="' + data.label + '"';
+          if (data.id) attrs += ' id="' + data.id + '"';
+          return '{{< sidenote' + attrs + ' >}}' + (data.body || '') + '{{< /sidenote >}}';
+        },
+        toPreview: function (data) {
+          return '<sup>' + (data.label || '†') + '</sup> <em>' + (data.body || '') + '</em>';
+        },
+      });
+
+      CMS.registerEditorComponent({
+        id: 'tooltip',
+        label: 'Tooltip',
+        icon: 'help',
+        mode: 'dialog',
+        summary: '{{term}}',
+        fields: [
+          { name: 'term', label: 'Term', widget: 'string' },
+          { name: 'body', label: 'Definition', widget: 'text' },
+          {
+            name: 'placement',
+            label: 'Placement',
+            widget: 'select',
+            options: ['top', 'right', 'bottom', 'left'],
+            default: 'top',
+          },
+        ],
+        /* Matches both the positional (`"Term"`) and named (`term="Term"`)
+           forms; both appear in content. toBlock always writes named params
+           because Hugo rejects a mix of positional and named — the one
+           positional call in content will normalise to named on first save,
+           which renders identically. */
+        pattern:
+          /{{<\s*tooltip\s+(?:"(?<term>[^"]*)"|(?<attrs>\w+="[^"]*"(?:\s+\w+="[^"]*")*))\s*>}}(?<body>[\s\S]*?){{<\s*\/tooltip\s*>}}/,
+        fromBlock: function (match) {
+          var data = shortcodeAttrs(match.groups.attrs);
+          if (match.groups.term !== undefined) data.term = match.groups.term;
+          data.body = match.groups.body;
+          return data;
+        },
+        /* Always write named params so future placement additions are valid. */
+        toBlock: function (data) {
+          var attrs = ' term="' + (data.term || '') + '"';
+          if (data.placement && data.placement !== 'top') {
+            attrs += ' placement="' + data.placement + '"';
+          }
+          return '{{< tooltip' + attrs + ' >}}' + (data.body || '') + '{{< /tooltip >}}';
+        },
+        toPreview: function (data) {
+          return '<abbr title="' + (data.body || '') + '">' + (data.term || '') + '</abbr>';
+        },
+      });
+
+      CMS.init();
+    </script>
   </body>
 </html>
