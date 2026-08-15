@@ -27,6 +27,13 @@
          params and appear only in section _index.md files, which no
          collection exposes. */
 
+      /* Params are written into double-quoted Hugo attributes, and Hugo's lexer
+         cannot be escaped out of every case: `\"` works, but a value ending in
+         a backslash makes `\\"` read as an escaped quote and the build fails
+         with "unterminated quoted string in shortcode parameter-argument".
+         So both characters are rejected at the field instead. */
+      var noQuotes = [/^[^"\\]*$/, 'Double quotes and backslashes are not allowed here.'];
+
       /* Parse Hugo named params in any order from an attribute string. */
       var shortcodeAttrs = function (str) {
         var attrs = {};
@@ -53,11 +60,18 @@
             options: ['right', 'left', 'alternate'],
             default: 'right',
           },
-          { name: 'label', label: 'Label', widget: 'string', required: false },
-          { name: 'id', label: 'ID', widget: 'string', required: false },
+          { name: 'label', label: 'Label', widget: 'string', required: false, pattern: noQuotes },
+          { name: 'id', label: 'ID', widget: 'string', required: false, pattern: noQuotes },
         ],
+        /* The body group must stay single-line. Sveltia treats a pattern
+           containing [\s\S] (or the s/m flags) as a block component, which is
+           imported by a multiline-element transformer anchored to the start of
+           a line — every sidenote in content/ sits mid-paragraph, so all of
+           them would load as raw text. Without it the component registers as a
+           text-match transformer and is detected inline. No sidenote body in
+           content/ spans lines. */
         pattern:
-          /{{<\s*sidenote(?<attrs>(?:\s+\w+="[^"]*")*)\s*>}}(?<body>[\s\S]*?){{<\s*\/sidenote\s*>}}/,
+          /{{<\s*sidenote(?<attrs>(?:\s+\w+="[^"]*")*)\s*>}}(?<body>[^\n]*?){{<\s*\/sidenote\s*>}}/,
         fromBlock: function (match) {
           var data = shortcodeAttrs(match.groups.attrs);
           data.body = match.groups.body;
@@ -84,7 +98,7 @@
         mode: 'dialog',
         summary: '{{term}}',
         fields: [
-          { name: 'term', label: 'Term', widget: 'string' },
+          { name: 'term', label: 'Term', widget: 'string', pattern: noQuotes },
           { name: 'body', label: 'Definition', widget: 'text' },
           {
             name: 'placement',
@@ -98,9 +112,13 @@
            forms; both appear in content. toBlock always writes named params
            because Hugo rejects a mix of positional and named — the one
            positional call in content will normalise to named on first save,
-           which renders identically. */
+           which renders identically.
+
+           Single-line body group for the same reason as sidenote: [\s\S] would
+           register this as a block component and no inline occurrence would be
+           detected. */
         pattern:
-          /{{<\s*tooltip\s+(?:"(?<term>[^"]*)"|(?<attrs>\w+="[^"]*"(?:\s+\w+="[^"]*")*))\s*>}}(?<body>[\s\S]*?){{<\s*\/tooltip\s*>}}/,
+          /{{<\s*tooltip\s+(?:"(?<term>[^"]*)"|(?<attrs>\w+="[^"]*"(?:\s+\w+="[^"]*")*))\s*>}}(?<body>[^\n]*?){{<\s*\/tooltip\s*>}}/,
         fromBlock: function (match) {
           var data = shortcodeAttrs(match.groups.attrs);
           if (match.groups.term !== undefined) data.term = match.groups.term;
