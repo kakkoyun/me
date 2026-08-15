@@ -1,0 +1,53 @@
+name: CMS Review PR
+
+# The CMS at /admin/ commits to the long-lived `cms` branch instead of master.
+# This opens one review PR for that branch and leaves it open; every later save
+# appends a commit to the same PR.
+#
+# Needs CMS_PR_TOKEN (fine-grained PAT: Contents read, Pull requests write).
+# A PR opened with the default GITHUB_TOKEN does not trigger `pull_request`
+# workflows, so build/prose/links would stay silent on the run that matters.
+
+on:
+  push:
+    branches: [cms]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: cms-review-pr
+  cancel-in-progress: false
+
+jobs:
+  pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open the cms review PR if none is open
+        env:
+          GH_TOKEN: ${{ secrets.CMS_PR_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          # Block scalar, not a heredoc: an indented heredoc terminator inside a
+          # `run:` block never terminates, and quoted heredocs do not strip
+          # leading whitespace.
+          PR_BODY: |
+            Opened automatically when the CMS at /admin/ pushed to `cms`.
+            Each further save appends a commit here.
+
+            Merge with a **merge commit**. A squash leaves `cms` off master's
+            ancestry and the sync job will refuse to fast-forward it.
+        run: |
+          set -euo pipefail
+
+          # Match only OPEN PRs. `gh pr view cms` also resolves closed and
+          # merged PRs for that branch, which would skip creating a new one.
+          open=$(gh pr list --head cms --base master --state open --json number --jq 'length')
+          if [ "$open" -gt 0 ]; then
+            echo "Review PR already open; this push is attached to it."
+            exit 0
+          fi
+
+          gh pr create --base master --head cms \
+            --title "content: CMS edits awaiting review" \
+            --body "$PR_BODY"

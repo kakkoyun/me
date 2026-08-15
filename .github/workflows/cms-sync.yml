@@ -1,0 +1,50 @@
+name: CMS Branch Sync
+
+# Keeps the long-lived `cms` branch level with master after a merge, so the
+# next CMS save branches from current content instead of drifting.
+#
+# Only ever fast-forwards. If `cms` holds commits master does not have (a save
+# racing a master push, or a squash-merged review PR), the job warns and leaves
+# the branch alone rather than force-pushing over someone's edit.
+#
+# Pushing with GITHUB_TOKEN does not trigger cms-pr.yml — correct, a sync
+# should not open a review PR.
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cms-branch-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward cms to master
+        run: |
+          set -euo pipefail
+
+          if ! git ls-remote --exit-code --heads origin cms >/dev/null 2>&1; then
+            echo "cms does not exist yet; creating it at master."
+            git push origin "$GITHUB_SHA:refs/heads/cms"
+            exit 0
+          fi
+
+          git fetch origin cms
+          if git merge-base --is-ancestor FETCH_HEAD "$GITHUB_SHA"; then
+            git push origin "$GITHUB_SHA:refs/heads/cms"
+            echo "cms fast-forwarded to $GITHUB_SHA."
+          else
+            echo "::warning::cms has commits not on master; leaving it alone. \
+            If the review PR was squash-merged, reconcile by hand: \
+            git push --force origin master:cms"
+          fi
