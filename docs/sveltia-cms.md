@@ -79,11 +79,14 @@ Sveltia has a `publish_mode: editorial_workflow` setting inherited from
 Netlify/Decap CMS, but its docs mark it **Unimplemented** — it is inert config
 today. The branch-plus-PR arrangement is the substitute.
 
-`netlify.toml` sets `[context.branch-deploy] ignore = "exit 0"`, so a bare push
-to `cms` builds nothing. The preview only fires once the PR exists — one build
-per review cycle rather than one per save. `[context.deploy-preview]` passes
-`--buildFuture`, so future-dated posts render in the preview, which is the case
-you cannot check on production.
+`netlify.toml` sets `[context.branch-deploy] ignore = "exit 0"`, so a push to
+`cms` never produces a branch deploy. It does produce a deploy preview once the
+PR is open, and `pull_request` is the trigger for `build.yml`, `prose.yml` and
+`links.yml` — all four run again on every later save, because each save pushes a
+commit that updates the PR head. Budget for one build per save, not one per
+review cycle; the branch-deploy setting only stops that from being two builds
+per save. `[context.deploy-preview]` passes `--buildFuture`, so future-dated
+posts render in the preview, which is the case you cannot check on production.
 
 ### What this costs you
 
