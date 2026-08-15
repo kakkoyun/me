@@ -1,8 +1,9 @@
 ---
 title: "podcast: Cup o' Go — Instrumentation and Blast Radius"
-description: "I joined Jonathan Hall and Shay Nehmad on Cup o' Go to talk about what APM actually measures, the three ways to instrument Go, and why blast radius is the trade-off that decides between them."
+description: I joined Jonathan Hall and Shay Nehmad on Cup o' Go to talk about what APM actually measures, the three ways to instrument Go, and why blast radius is the trade-off that decides between them.
 date: 2026-08-11T00:00:00Z
 publishDate: 2026-08-17T00:00:00Z
+draft: true
 categories:
   - talks
 tags:
@@ -17,6 +18,9 @@ cover:
   image: https://img.youtube.com/vi/EVpax0L5GgQ/maxresdefault.jpg
   alt: Jonathan Hall, Kemal Akkoyun and Shay Nehmad recording an episode of Cup o' Go
   caption: Cup o' Go — Episode 167
+showToc: false
+tocOpen: false
+showCanonicalLink: false
 substack: false
 ---
 
@@ -33,8 +37,8 @@ We also got into why a trace and a pprof profile answer different questions, how
 **Episode**
 
 * [Cup o' Go E167 — Quick GopherCon recap, and interview with Kemal of Datadog](https://cupogo.dev/episodes/quick-gophercon-recap-and-interview-with-kemal-of-datadog)
-  * [Watch on YouTube](https://www.youtube.com/watch?v=EVpax0L5GgQ)
-  * [Transcript](https://cupogo.dev/episodes/quick-gophercon-recap-and-interview-with-kemal-of-datadog/transcript)
+    - [Watch on YouTube](https://www.youtube.com/watch?v=EVpax0L5GgQ)
+    - [Transcript](https://cupogo.dev/episodes/quick-gophercon-recap-and-interview-with-kemal-of-datadog/transcript)
 * [Apple Podcasts](https://podcasts.apple.com/us/podcast/cup-o-go/id1665967724)
 * [Spotify](https://open.spotify.com/show/1mVIbuzr22V6fgZwxPj3uv)
 
