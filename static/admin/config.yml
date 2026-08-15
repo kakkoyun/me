@@ -67,6 +67,9 @@ collections:
       - label: Category
         name: categories
         widget: select
+        multiple: true
+        min: 1
+        max: 1
         options:
           - journal
           - deep-dive
