@@ -11,7 +11,9 @@
 #
 # Tunables (env):
 #   CMS_CONFIG        path to config.yml (default: <repo>/static/admin/config.yml)
-#   CMS_CONTENT_DIRS  colon-separated list of dirs to scan (default: <repo>/content/posts)
+#   CMS_CONTENT_DIRS  colon-separated list of dirs to scan
+#                     (default: <repo>/content/posts, <repo>/content/talks,
+#                      <repo>/content/newsletter/the-unwind)
 #
 # Exits 0 when every key is declared; exits 1 and lists undeclared keys otherwise.
 set -euo pipefail
@@ -21,8 +23,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 CONFIG="${CMS_CONFIG:-${REPO_ROOT}/static/admin/config.yml}"
 
-# Default to posts only; PR4 will add content/talks and content/newsletter/the-unwind.
-IFS=':' read -ra CONTENT_DIRS <<< "${CMS_CONTENT_DIRS:-${REPO_ROOT}/content/posts}"
+# Every CMS-managed content directory: posts, talks and the-unwind newsletter.
+IFS=':' read -ra CONTENT_DIRS <<< "${CMS_CONTENT_DIRS:-${REPO_ROOT}/content/posts:${REPO_ROOT}/content/talks:${REPO_ROOT}/content/newsletter/the-unwind}"
 
 if [ ! -f "$CONFIG" ]; then
   echo "ERROR: CMS config not found: $CONFIG" >&2
