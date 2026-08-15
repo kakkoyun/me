@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+
+# PR2 replaces test-repo with:
+#   backend:
+#     name: github
+#     repo: kakkoyun/me
+#     branch: master
+backend:
+  name: test-repo
+
+site_url: https://kakkoyun.me
+media_folder: static/uploads
+public_folder: /uploads
+
+output:
+  omit_empty_optional_fields: true
+  yaml:
+    quote: none
+    indent_size: 2
+    indent_sequences: true
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  lowercase: true
+
+collections:
+  - name: posts
+    label: Posts
+    label_singular: Post
+    folder: content/posts
+    slug: '{{fields._slug}}'
+    sortable_fields:
+      fields: [publishDate, title, date]
+      default:
+        field: publishDate
+        direction: descending
+    summary: '{{title}}'
+    preview_path: 'posts/{{slug}}'
+    fields:
+      - label: Filename Slug
+        name: _slug
+        widget: string
+        hint: 'Short, hand-picked filename slug (e.g. ice-and-fire). No spaces; use hyphens.'
+
+      - label: Title
+        name: title
+        widget: string
+
+      - label: Description
+        name: description
+        widget: string
+
+      - label: Date
+        name: date
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm:ss[Z]'
+        picker_utc: true
+
+      - label: Publish Date
+        name: publishDate
+        widget: datetime
+        format: 'YYYY-MM-DDTHH:mm:ss[Z]'
+        picker_utc: true
+        default: '{{now}}'
+
+      - label: Draft
+        name: draft
+        widget: boolean
+        default: false
+        required: false
+
+      - label: Category
+        name: categories
+        widget: select
+        options:
+          - journal
+          - deep-dive
+          - reflection
+          - engineering
+          - technical-findings
+          - blogmentation
+
+      - label: Tags
+        name: tags
+        widget: list
+        default:
+          - blog
+
+      - label: Series
+        name: series
+        widget: string
+        required: false
+
+      - label: Cover Image
+        name: cover
+        widget: object
+        required: false
+        fields:
+          - label: Image URL
+            name: image
+            widget: string
+          - label: Alt Text
+            name: alt
+            widget: string
+          - label: Caption
+            name: caption
+            widget: string
+            required: false
+
+      - label: Show Table of Contents
+        name: showToc
+        widget: boolean
+        required: false
+
+      - label: TOC Open by Default
+        name: tocOpen
+        widget: boolean
+        required: false
+
+      - label: Canonical URL
+        name: canonicalUrl
+        widget: string
+        required: false
+
+      - label: Show Canonical Link
+        name: showCanonicalLink
+        widget: boolean
+        required: false
+
+      - label: Promote to Social Media
+        name: promote
+        widget: boolean
+        required: false
+
+      - label: Include in Substack Feed
+        name: substack
+        widget: boolean
+        required: false
+
+      # Structural fields: present in some posts but hidden from the editor UI.
+      # Declaring them prevents Sveltia from dropping them on save (Risk 1).
+      - name: slug
+        widget: hidden
+      - name: externalLink
+        widget: hidden
+      - name: author
+        widget: hidden
+      - name: comments
+        widget: hidden
+      - name: image
+        widget: hidden
