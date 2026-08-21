@@ -26,9 +26,10 @@ content="noindex">` and `layouts/robots.txt` adds `Disallow: /admin/`.
 
 Three pieces, each configured once:
 
-1. **GitHub OAuth app** (github.com → Settings → Developer settings → OAuth
-   Apps). Holds the client ID and secret. Its callback URL points at Netlify's
-   OAuth gateway, not at this site.
+1. **GitHub App** (github.com → Settings → Developer settings → GitHub Apps),
+   registered for this repo alone. Holds the client ID and secret. Its user
+   authorization callback URL points at Netlify's OAuth gateway, not at this
+   site.
 2. **Netlify OAuth provider** (Netlify → Site settings → Access control →
    OAuth). The GitHub client ID and secret are pasted here. Netlify runs the
    token exchange so the secret never reaches the browser.
@@ -36,8 +37,145 @@ Three pieces, each configured once:
    Netlify's gateway is the default for sites hosted on Netlify, so pointing at
    it explicitly would be redundant.
 
-Signing in requires push access to `kakkoyun/me`. There is no separate CMS user
-list; GitHub permissions are the permissions.
+A GitHub App rather than a classic OAuth App, deliberately. Both use the same
+`/login/oauth/authorize` endpoints, so Netlify's gateway does not know the
+difference — but the token each one mints is very different. An OAuth App issues
+a `repo`-scoped token covering *everything* the signer can reach, including
+their employer's private repositories. A GitHub App issues a user-to-server
+token carrying only:
+
+```
+app permissions  ∩  the signer's own permissions  ∩  where the app is installed
+```
+
+### Who can get in
+
+Anyone on the internet can load `/admin/` and start the sign-in flow. That is
+fine, and it is worth understanding exactly why.
+
+The app is installed on `kakkoyun/me` and nowhere else, and it asks for
+`Contents: read and write` plus `Metadata: read-only`. Intersect that with a
+stranger's permissions on this repo — none — and their token can read and write
+nothing. They land on an editor that cannot load a single file. There is no
+allowlist inside Sveltia doing this work; **the repo's push list is the
+allowlist**, which is why `scripts/check-repo-access.sh` asserts that list is
+exactly one account (see below).
+
+### GitHub App settings that carry weight
+
+Re-walk these roughly yearly. They are console state, not repository state, so
+nothing in CI can check them — adding the App's private key as a secret to
+automate it would trade a real credential for a small convenience.
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| Where can this app be installed? | **Only on this account** | Nobody else can install it anywhere |
+| Permissions | `Contents: RW` + `Metadata: R` | Sveltia commits files. `cms-pr.yml` opens the PR with `CMS_PR_TOKEN`, so `Pull requests` is not needed here |
+| User authorization callback URL | `https://api.netlify.com/auth/done`, and only that | A second callback URL is a token-redirect hole |
+| Expire user authorization tokens | **On** | Netlify's gateway hands back no refresh token, so this means re-signing-in each session. That is the price of an 8-hour blast radius instead of an indefinite one |
+| Enable Device Flow | Off | Nothing here uses it |
+| Webhook | Off | Nothing consumes it |
+| Installed on | `kakkoyun/me` only | Not "All repositories" |
+
+### What the CMS token can and cannot do
+
+`Contents: read and write` is not branch-scoped: a stolen token could push
+straight to `master` and publish to the live site, sailing past the `cms` → PR
+review gate below. A ruleset on `master` closes that, and the shape of it
+matters:
+
+- require a pull request, **0 required approvals** — you are the only
+  collaborator and cannot approve your own PR, so the gate is the PR plus its
+  checks, not a second human. This also keeps `merge-schedule.yml` able to merge.
+- required status checks: `build` and `links`.
+- bypass actors: **the `GitHub Actions` app only** — not "repository admin".
+
+That last line is the whole point. `.github/workflows/main.yml` pushes
+`content/notes/_index.md` to master on a daily cron using `GITHUB_TOKEN`, so it
+needs the bypass. A CMS session's token is a *user* token, so it does not get
+one. The cost: an emergency revert also goes through a PR — with 0 approvals
+that is just the check time, but it is not instant.
+
+### Security headers on `/admin/`
+
+After sign-in the token lives in the browser's **localStorage** on the
+`kakkoyun.me` origin. `netlify.toml` therefore serves a Content-Security-Policy
+on `/admin/*` (plus a site-wide baseline of `X-Content-Type-Options`,
+`Referrer-Policy`, `X-Frame-Options` and `Permissions-Policy` on `/*`).
+
+`connect-src` is the load-bearing directive: it names the handful of hosts the
+editor may talk to, so an injected script cannot POST the token anywhere else.
+`script-src` pins the two inline blocks in `static/admin/index.html` by sha256.
+
+Two things about that policy are easy to get wrong:
+
+- **Do not add `Cross-Origin-Opener-Policy`.** Sign-in is a popup that
+  `postMessage`s the token back to `window.opener`; `COOP: same-origin` severs
+  that reference and breaks login. Both check scripts assert its absence.
+- **Self-hosting the bundle would not drop the CDN.** The `sha384` integrity
+  attribute covers the top-level file, but the bundle lazily `import()`s
+  `@shikijs/*`, `@sveltia/ui`, `emojilib` and pdf.js from hardcoded
+  `https://unpkg.com` URLs at runtime, and pulls webfonts from
+  `cdn.jsdelivr.net`. Those chunks have no SRI, which is exactly why the
+  `connect-src` allowlist matters.
+
+**Honest residual:** localStorage is per-origin, not per-path. A CSP on
+`/admin/*` does not stop XSS on a *blog* page from reading the token, and the
+blog loads third-party JS (plausible.io, tracker.hakanai.io, giscus.app). The
+8-hour token expiry and the `master` ruleset are what bound that. The complete
+fix is moving `/admin` to its own origin; that is a deliberate non-goal for now.
+
+There is no site-wide CSP. PaperMod, the Giscus theme sync and the JSON-LD
+partial all emit inline `<script>` blocks, so one would need `'unsafe-inline'`
+and would be decorative. `check-live-headers.sh` fails if a CSP ever appears on
+`/` so that nobody adds a decorative one by accident.
+
+### What CI checks
+
+| Script | Runs | Asserts |
+| --- | --- | --- |
+| `scripts/check-admin-csp.sh` | `make test` → `lint.yml`, every PR | the CSP in `netlify.toml` still matches `static/admin/index.html` — inline-script hashes, bundle origin and pinning, a non-wildcard `connect-src`, no COOP |
+| `scripts/check-live-headers.sh` | `links.yml`, master pushes + weekly | the deployed site actually *serves* those headers. Nothing appears in the build output for a header rule, so this is the only place a silently-dropped header would surface |
+| `scripts/check-repo-access.sh` | `links.yml`, master pushes + weekly | push access to this repo is exactly `kakkoyun` |
+
+Run any of them by hand:
+
+```bash
+bash scripts/check-admin-csp.sh
+BASE_URL="$DEPLOY_PRIME_URL" bash scripts/check-live-headers.sh
+GITHUB_TOKEN=... bash scripts/check-repo-access.sh
+```
+
+`check-live-headers.sh` and `check-repo-access.sh` need the network, so they are
+not part of `make test`; only their offline unit tests are.
+
+Editing `static/admin/index.html` changes an inline script's hash, so
+`make test` will fail until the new hash is in `netlify.toml`. Recompute with:
+
+```bash
+perl -0777 -ne 'while (/<script>(.*?)<\/script>/gs) {
+  open(my $p, "|-", "openssl dgst -sha256 -binary | openssl base64 -A"); print $p $1; close $p; print "\n" }' \
+  static/admin/index.html
+```
+
+### Turning the CSP on
+
+It ships as `Content-Security-Policy-Report-Only` first. Report-Only never
+blocks anything, so landing it cannot break the editor — it only reports.
+
+Because `/admin/` has exactly one user, your own devtools console *is* the
+complete violation report; there is no population of other users whose breakage
+you would miss. Soak it over real editing sessions with the console open, and
+deliberately exercise the paths that pull the lazy chunks: the media library, a
+post with a fenced code block (Shiki), the emoji picker, a sidenote or tooltip
+component, and a save that lands a commit on `cms`. Fold any real violations
+into the policy.
+
+To flip it, change the header name in `netlify.toml` to
+`Content-Security-Policy` and set `EXPECT_CSP_ENFORCED: '1'` on the
+`security-headers` job in `links.yml`. Keep it a one-line-each diff, in its own
+PR: rollback is then a `git revert` plus a redeploy, roughly two minutes, with
+no archaeology under pressure.
 
 Commits made through the CMS use the `commit_messages` templates in
 `config.yml`, so they land as `post: create <slug>` and match the repo's commit
@@ -47,15 +185,32 @@ as `talk: update <slug>`, a newsletter issue as `newsletter: update <slug>`.
 
 ### Rotating credentials
 
-If the client secret leaks, or on a routine rotation:
+Two long-lived credentials back the CMS. Rotate both on a leak, and on a routine
+schedule.
 
-1. GitHub → the OAuth app → **Generate a new client secret**.
+**The GitHub App client secret** — used by Netlify to exchange auth codes:
+
+1. GitHub → the GitHub App → **Generate a new client secret**.
 2. Netlify → Site settings → Access control → OAuth → paste the new secret.
 3. Delete the old secret on GitHub.
 
 No code change and no deploy. The client ID stays the same unless you replace
-the whole OAuth app. Existing editor sessions keep working until their token
-expires.
+the whole app. Existing editor sessions keep working until their token expires.
+
+**`CMS_PR_TOKEN`** — the fine-grained PAT `cms-pr.yml` uses to open the review
+PR (Contents: read, Pull requests: write). Give it an expiry rather than "no
+expiration", and diary the rotation:
+
+1. GitHub → Settings → Developer settings → Fine-grained tokens → regenerate.
+2. Repo → Settings → Secrets and variables → Actions → update `CMS_PR_TOKEN`.
+3. Push a trivial commit to `cms` and confirm the review PR still opens.
+
+If it lapses, `cms-pr.yml` fails and no review PR appears — saves still land on
+`cms`, but nothing surfaces them.
+
+**Revoking a session.** github.com/settings/applications → the app → revoke.
+That kills the browser's token immediately; the next `/admin/` load asks for
+sign-in again. Do this if you sign in on a machine you do not control.
 
 ## Review gate
 
