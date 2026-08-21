@@ -56,7 +56,14 @@ TOML
 
 make_probe() {
   # $1 = probe path, $2 = extra lines for /admin/, $3 = lines to drop (grep -v pattern)
+  #
+  # The extra /admin/ lines go to a sidecar file that the probe cats, rather
+  # than being interpolated into the probe script. Header values contain single
+  # quotes (`default-src 'none'`), which would otherwise break out of the
+  # quoting and silently serve a mangled value — which looks like a bug in the
+  # checker rather than in the fixture.
   local path=$1 admin_extra=$2 drop=${3:-__nothing__}
+  printf '%s\n' "$admin_extra" >"${path}.admin"
   cat >"$path" <<PROBE
 #!/usr/bin/env bash
 common='HTTP/2 200
@@ -67,7 +74,7 @@ case "\$1" in
   */admin/*)
     printf '%s\n' "\$common"
     printf '%s\n' 'x-robots-tag: noindex, nofollow'
-    printf '%s\n' '${admin_extra}'
+    cat "${path}.admin"
     ;;
   *)
     printf '%s\n' "\$common"
@@ -164,6 +171,46 @@ PROBE
 chmod +x "$TMP/admin-bare.sh"
 out=$(run_check "$TMP/admin-bare.sh") && rc=0 || rc=$?
 assert_eq "site-wide headers missing from /admin/ fails" "1" "$rc"
+
+# A header present but WEAKENED must fail. Presence alone would wave through a
+# deployed SAMEORIGIN against a config that says DENY.
+cat >"$TMP/weakened.sh" <<'PROBE'
+#!/usr/bin/env bash
+printf '%s\n' 'HTTP/2 200'
+printf '%s\n' 'x-content-type-options: nosniff'
+printf '%s\n' 'referrer-policy: strict-origin-when-cross-origin'
+printf '%s\n' 'x-frame-options: SAMEORIGIN'
+case "$1" in
+  */admin/*)
+    printf '%s\n' 'x-robots-tag: noindex, nofollow'
+    printf '%s\n' "content-security-policy-report-only: default-src 'none'"
+    ;;
+esac
+PROBE
+chmod +x "$TMP/weakened.sh"
+out=$(run_check "$TMP/weakened.sh") && rc=0 || rc=$?
+assert_eq "a weakened header value fails" "1" "$rc"
+case "$out" in
+  *"not the configured value"*) pass "  ...and shows configured vs served" ;;
+  *) fail "  ...and shows configured vs served" "not the configured value" "$out" ;;
+esac
+
+# A weakened CSP is the same failure, and the one that matters most.
+make_probe "$TMP/weak-csp.sh" "content-security-policy-report-only: default-src *"
+out=$(run_check "$TMP/weak-csp.sh") && rc=0 || rc=$?
+assert_eq "a CSP that does not match netlify.toml fails" "1" "$rc"
+
+# Netlify adds its own X-Robots-Tag to deploy previews on top of ours, so an
+# EXTRA value for a header must not be mistaken for a weakened one.
+make_probe "$TMP/extra-value.sh" "content-security-policy-report-only: default-src 'none'
+x-robots-tag: noindex"
+out=$(run_check "$TMP/extra-value.sh") && rc=0 || rc=$?
+assert_eq "an extra value alongside the configured one passes" "0" "$rc"
+
+# Whitespace is the only normalisation a CDN is entitled to apply.
+make_probe "$TMP/respaced.sh" "content-security-policy-report-only:   default-src    'none'"
+out=$(run_check "$TMP/respaced.sh") && rc=0 || rc=$?
+assert_eq "re-spaced header values still match" "0" "$rc"
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""

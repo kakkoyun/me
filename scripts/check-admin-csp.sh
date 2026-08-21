@@ -147,11 +147,32 @@ fi
 if [ -z "$CONNECT_SRC" ]; then
   fail "CSP has no connect-src — that directive is what stops a stolen token being POSTed off-origin"
 else
-  case " $CONNECT_SRC " in
-    *" * "* | *" https: "*)
-      fail "connect-src is effectively a wildcard ($CONNECT_SRC); it must name hosts explicitly"
-      ;;
-  esac
+  # Every source has to name a host. A bare `*`, a scheme-only source (`https:`),
+  # and a wildcard host (`https://*`, `https://*.example.com`) all let the token
+  # be POSTed to somewhere we do not control, which is the whole thing this
+  # directive exists to prevent.
+  # `set -f` because the word-splitting below must not glob: an unquoted bare
+  # `*` source would otherwise expand to the working directory's filenames and
+  # slip straight past the check.
+  set -f
+  # shellcheck disable=SC2086
+  for src in $CONNECT_SRC; do
+    case "$src" in
+      \'*\') continue ;; # 'self', 'none' and friends are keywords, not hosts
+    esac
+    case "$src" in
+      '*')
+        fail "connect-src allows '*'; it must name hosts explicitly"
+        ;;
+      http: | https: | ws: | wss: | data: | blob: | filesystem: | mediastream:)
+        fail "connect-src allows the scheme-only source '$src'; it must name hosts explicitly"
+        ;;
+      *'*'*)
+        fail "connect-src allows the wildcard host source '$src'; it must name hosts explicitly"
+        ;;
+    esac
+  done
+  set +f
 fi
 
 # ── 5. COOP must stay off ────────────────────────────────────────────────────

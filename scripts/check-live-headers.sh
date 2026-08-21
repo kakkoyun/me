@@ -56,10 +56,11 @@ if [ ! -f "$NETLIFY_CONFIG" ]; then
 fi
 
 # ── Expected headers, read out of netlify.toml ───────────────────────────────
-# Emits "<name>" per line for the named `for = "..."` block. Values are not
-# compared verbatim: Netlify normalises whitespace, and the CSP's own contents
-# are already guarded by check-admin-csp.sh. Presence is what this script owns.
-header_names_for() {
+# Emits "<name>\t<value>" per line for the named `for = "..."` block, so the
+# live response is checked against the configured VALUE and not merely the
+# presence of the name. Presence alone would let a deployed
+# `X-Frame-Options: SAMEORIGIN` pass a config that says `DENY`.
+header_pairs_for() {
   awk -v want="$1" '
     /^\[\[headers\]\]/ { active = 0 }
     /^[[:space:]]*for[[:space:]]*=/ {
@@ -69,17 +70,27 @@ header_names_for() {
       active = (line == want)
       next
     }
-    active && /^[[:space:]]*[A-Za-z][A-Za-z0-9-]*[[:space:]]*=/ {
+    active && /^[[:space:]]*[A-Za-z][A-Za-z0-9-]*[[:space:]]*=[[:space:]]*"/ {
       name = $1
-      if (name != "for") print name
+      if (name == "for") next
+      value = $0
+      sub(/^[^=]*=[[:space:]]*"/, "", value)
+      sub(/"[[:space:]]*$/, "", value)
+      print name "\t" value
     }
   ' "$NETLIFY_CONFIG"
 }
 
-mapfile -t SITE_HEADERS < <(header_names_for "/*")
-mapfile -t ADMIN_HEADERS < <(header_names_for "/admin/*")
+mapfile -t SITE_PAIRS < <(header_pairs_for "/*")
+mapfile -t ADMIN_PAIRS < <(header_pairs_for "/admin/*")
 
-if [ "${#SITE_HEADERS[@]}" -eq 0 ] || [ "${#ADMIN_HEADERS[@]}" -eq 0 ]; then
+# Header values are compared after collapsing runs of whitespace and trimming,
+# because that is the only normalisation a CDN is entitled to apply.
+normalise() {
+  printf '%s' "$1" | tr -s '[:space:]' ' ' | sed 's/^ //; s/ $//'
+}
+
+if [ "${#SITE_PAIRS[@]}" -eq 0 ] || [ "${#ADMIN_PAIRS[@]}" -eq 0 ]; then
   echo "ERROR: could not read header names from $NETLIFY_CONFIG" >&2
   exit 1
 fi
@@ -119,8 +130,36 @@ has_header() {
   printf '%s\n' "$1" | grep -qi "^${2}:"
 }
 
+# All values for a header, one per line. A header can legitimately appear more
+# than once — Netlify adds its own X-Robots-Tag to deploy previews on top of
+# ours — so callers match against the set, not against the first occurrence.
+header_values() {
+  printf '%s\n' "$1" | grep -i "^${2}:" | sed 's/^[^:]*:[[:space:]]*//' | tr -d '\r'
+}
+
 header_value() {
-  printf '%s\n' "$1" | grep -i "^${2}:" | head -1 | sed 's/^[^:]*:[[:space:]]*//' | tr -d '\r'
+  header_values "$1" "$2" | head -1
+}
+
+# Assert the configured value is among the values actually served. Extra values
+# from the CDN are tolerated; a weakened or missing one is not.
+expect_header() {
+  local response="$1" name="$2" want="$3" label="$4" got line
+  if ! has_header "$response" "$name"; then
+    fail "$label is missing $name"
+    return
+  fi
+  want=$(normalise "$want")
+  while IFS= read -r line; do
+    got=$(normalise "$line")
+    if [ "$got" = "$want" ]; then
+      echo "  $name: $got"
+      return
+    fi
+  done < <(header_values "$response" "$name")
+  fail "$label serves $name but not the configured value.
+      configured: $want
+      served:     $(header_values "$response" "$name" | tr '\n' '|' | sed 's/|$//')"
 }
 
 # ── / — the site-wide baseline ───────────────────────────────────────────────
@@ -128,12 +167,8 @@ echo "Checking $BASE_URL/"
 ROOT=$(fetch_until_present "$BASE_URL/" "X-Content-Type-Options") \
   || fail "$BASE_URL/ never served X-Content-Type-Options within ${HEADERS_MAX_WAIT}s — headers not deployed?"
 
-for h in "${SITE_HEADERS[@]}"; do
-  if has_header "$ROOT" "$h"; then
-    echo "  $h: $(header_value "$ROOT" "$h")"
-  else
-    fail "$BASE_URL/ is missing $h"
-  fi
+for pair in "${SITE_PAIRS[@]}"; do
+  expect_header "$ROOT" "${pair%%$'\t'*}" "${pair#*$'\t'}" "$BASE_URL/"
 done
 
 # A CSP on the blog pages would be a mistake, not an upgrade: the theme's inline
@@ -148,27 +183,31 @@ echo "Checking $BASE_URL/admin/"
 ADMIN=$(fetch_until_present "$BASE_URL/admin/" "X-Robots-Tag") \
   || fail "$BASE_URL/admin/ never served X-Robots-Tag within ${HEADERS_MAX_WAIT}s"
 
-for h in "${SITE_HEADERS[@]}"; do
-  has_header "$ADMIN" "$h" || fail "$BASE_URL/admin/ is missing the site-wide header $h"
+for pair in "${SITE_PAIRS[@]}"; do
+  expect_header "$ADMIN" "${pair%%$'\t'*}" "${pair#*$'\t'}" "$BASE_URL/admin/"
 done
 
-for h in "${ADMIN_HEADERS[@]}"; do
-  # The two CSP header names are checked below instead: which of them is correct
-  # depends on EXPECT_CSP_ENFORCED, and netlify.toml only ever declares one.
-  case "$h" in
-    Content-Security-Policy | Content-Security-Policy-Report-Only) continue ;;
+CSP_WANT=""
+for pair in "${ADMIN_PAIRS[@]}"; do
+  name="${pair%%$'\t'*}"
+  value="${pair#*$'\t'}"
+  # The /admin/* block restates the site-wide headers (netlify.toml explains
+  # why), and the loop above already checked those against this response.
+  already=0
+  for site_pair in "${SITE_PAIRS[@]}"; do
+    [ "$site_pair" = "$pair" ] && already=1 && break
+  done
+  [ "$already" -eq 1 ] && continue
+  # The CSP is checked below instead: which header name is correct depends on
+  # EXPECT_CSP_ENFORCED, and netlify.toml only ever declares one of the two.
+  case "$name" in
+    Content-Security-Policy | Content-Security-Policy-Report-Only)
+      CSP_WANT="$value"
+      continue
+      ;;
   esac
-  if has_header "$ADMIN" "$h"; then
-    echo "  $h present"
-  else
-    fail "$BASE_URL/admin/ is missing $h"
-  fi
+  expect_header "$ADMIN" "$name" "$value" "$BASE_URL/admin/"
 done
-
-case "$(header_value "$ADMIN" "X-Robots-Tag")" in
-  *noindex*) ;;
-  *) fail "$BASE_URL/admin/ X-Robots-Tag does not say noindex" ;;
-esac
 
 # COOP breaks the sign-in popup (see check-admin-csp.sh). Catch it here too, in
 # case it arrives from Netlify UI config rather than from netlify.toml.
@@ -180,9 +219,13 @@ if [ "$EXPECT_CSP_ENFORCED" = "1" ]; then
   if has_header "$ADMIN" "Content-Security-Policy-Report-Only"; then
     fail "expected an enforcing CSP but $BASE_URL/admin/ still serves Content-Security-Policy-Report-Only"
   fi
-  has_header "$ADMIN" "Content-Security-Policy" \
-    || fail "expected $BASE_URL/admin/ to serve an enforcing Content-Security-Policy"
-elif ! has_header "$ADMIN" "Content-Security-Policy" && ! has_header "$ADMIN" "Content-Security-Policy-Report-Only"; then
+  expect_header "$ADMIN" "Content-Security-Policy" "$CSP_WANT" "$BASE_URL/admin/"
+elif has_header "$ADMIN" "Content-Security-Policy-Report-Only"; then
+  expect_header "$ADMIN" "Content-Security-Policy-Report-Only" "$CSP_WANT" "$BASE_URL/admin/"
+elif has_header "$ADMIN" "Content-Security-Policy"; then
+  # Already flipped in netlify.toml but the CI flag has not caught up yet.
+  expect_header "$ADMIN" "Content-Security-Policy" "$CSP_WANT" "$BASE_URL/admin/"
+else
   fail "$BASE_URL/admin/ serves no Content-Security-Policy at all"
 fi
 

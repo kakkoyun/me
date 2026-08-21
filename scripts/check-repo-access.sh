@@ -43,6 +43,21 @@ api() {
     "https://api.github.com/$1"
 }
 
+# Entry count of a JSON array, or a non-zero exit if it is not one.
+count_entries() {
+  python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(1) if not isinstance(d, list) else print(len(d))'
+}
+
+# Concatenate two JSON arrays.
+merge_arrays() {
+  python3 -c '
+import json, sys
+a = json.loads(sys.argv[1])
+b = json.loads(sys.argv[2])
+print(json.dumps(a + b))
+' "$1" "$2"
+}
+
 if [ -z "$TOKEN" ] && [ -z "${ACCESS_API_CMD:-}" ]; then
   if [ "$REQUIRE_TOKEN" = "1" ]; then
     echo "::error::REQUIRE_TOKEN=1 but no GITHUB_TOKEN/GH_TOKEN is set — the repo access check did not run" >&2
@@ -52,28 +67,60 @@ if [ -z "$TOKEN" ] && [ -z "${ACCESS_API_CMD:-}" ]; then
   exit 0
 fi
 
-RESPONSE=$(api "repos/${REPO_SLUG}/collaborators?affiliation=all&per_page=100")
+# Paginate. `per_page=100` is a page size, not "everything" — with more than one
+# page, an extra pusher on page 2 would be invisible and the exact-set invariant
+# would pass while being false. Keep asking until a page comes back short.
+PER_PAGE=100
+MAX_PAGES="${MAX_PAGES:-50}"
+PAGE=1
+RESPONSE="[]"
+while :; do
+  if [ "$PAGE" -gt "$MAX_PAGES" ]; then
+    echo "::error::still paginating collaborators for ${REPO_SLUG} after ${MAX_PAGES} pages — refusing to loop." >&2
+    echo "  Either the repo really has >$((MAX_PAGES * PER_PAGE)) collaborators (in which case this" >&2
+    echo "  check is the least of your problems) or the API is not advancing." >&2
+    exit 1
+  fi
 
-if [ -z "$RESPONSE" ]; then
-  echo "::error::empty response from the collaborators API for ${REPO_SLUG}" >&2
-  exit 1
-fi
+  chunk=$(api "repos/${REPO_SLUG}/collaborators?affiliation=all&per_page=${PER_PAGE}&page=${PAGE}")
 
-# jq is present on GitHub runners; fall back to a python3 parse so the script
-# also runs on a laptop that does not have it.
-if command -v jq >/dev/null 2>&1; then
-  ACTUAL=$(printf '%s' "$RESPONSE" | jq -r '.[] | select(.permissions.push == true) | .login' 2>/dev/null | sort)
-  PARSE_RC=$?
-else
-  ACTUAL=$(printf '%s' "$RESPONSE" | python3 -c '
+  if [ -z "$chunk" ]; then
+    echo "::error::empty response from the collaborators API for ${REPO_SLUG} (page ${PAGE})" >&2
+    exit 1
+  fi
+
+  case "$chunk" in
+    *'"message"'*)
+      echo "::error::the collaborators API rejected the request for ${REPO_SLUG}." >&2
+      printf '%s\n' "$chunk" | head -5 >&2
+      echo "" >&2
+      echo "  This endpoint needs Administration: read, which a workflow GITHUB_TOKEN" >&2
+      echo "  cannot be granted — 'administration' is not a settable permissions key." >&2
+      echo "  Run this with a token that has it (your own gh session does), or set" >&2
+      echo "  REPO_ADMIN_TOKEN in CI. See docs/sveltia-cms.md." >&2
+      exit 1
+      ;;
+  esac
+
+  count=$(printf '%s' "$chunk" | count_entries) || count=-1
+  if [ "$count" -lt 0 ]; then
+    echo "::error::could not parse the collaborators response for ${REPO_SLUG}" >&2
+    printf '%s\n' "$chunk" | head -20 >&2
+    exit 1
+  fi
+
+  RESPONSE=$(merge_arrays "$RESPONSE" "$chunk")
+  [ "$count" -lt "$PER_PAGE" ] && break
+  PAGE=$((PAGE + 1))
+done
+
+ACTUAL=$(printf '%s' "$RESPONSE" | python3 -c '
 import json, sys
-data = json.load(sys.stdin)
-for c in data:
+for c in json.load(sys.stdin):
     if c.get("permissions", {}).get("push"):
         print(c["login"])
-' 2>/dev/null | sort)
-  PARSE_RC=$?
-fi
+' 2>/dev/null | sort -u)
+PARSE_RC=$?
 
 if [ "$PARSE_RC" -ne 0 ] || [ -z "$ACTUAL" ]; then
   echo "::error::could not parse the collaborators response for ${REPO_SLUG}" >&2

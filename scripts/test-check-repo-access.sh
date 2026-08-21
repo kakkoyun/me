@@ -55,6 +55,7 @@ run_check() {
   ACCESS_API_CMD="$TMP/$1.sh" \
     REPO_SLUG="kakkoyun/me" \
     EXPECTED_PUSHERS="${2:-kakkoyun}" \
+    MAX_PAGES="${MAX_PAGES:-50}" \
     bash "$CHECK_SCRIPT" 2>&1
 }
 
@@ -80,6 +81,71 @@ assert_eq "an expanded EXPECTED_PUSHERS accepts the new collaborator" "0" "$rc"
 
 out=$(run_check garbage) && rc=0 || rc=$?
 assert_eq "an unparseable response fails rather than passing" "1" "$rc"
+
+# ── Pagination ───────────────────────────────────────────────────────────────
+# per_page=100 is a page size, not "everything". A stub that serves a full first
+# page and puts the extra pusher on page 2 is the case a single-request check
+# would wave through.
+cat >"$TMP/paged.sh" <<'PROBE'
+#!/usr/bin/env bash
+case "$1" in
+  *"&page=1"*)
+    python3 -c '
+import json
+print(json.dumps([{"login": f"filler{i}", "permissions": {"push": False}} for i in range(100)]))
+'
+    ;;
+  *"&page=2"*)
+    echo '[{"login":"kakkoyun","permissions":{"push":true}},{"login":"page-two-pusher","permissions":{"push":true}}]'
+    ;;
+  *) echo '[]' ;;
+esac
+PROBE
+chmod +x "$TMP/paged.sh"
+out=$(run_check paged) && rc=0 || rc=$?
+assert_eq "a pusher on page 2 is not missed" "1" "$rc"
+case "$out" in
+  *page-two-pusher*) pass "  ...and names them" ;;
+  *) fail "  ...and names them" "page-two-pusher" "$out" ;;
+esac
+
+# An API that never returns a short page must be given up on, not looped on.
+cat >"$TMP/endless.sh" <<'PROBE'
+#!/usr/bin/env bash
+python3 -c '
+import json
+print(json.dumps([{"login": f"filler{i}", "permissions": {"push": False}} for i in range(100)]))
+'
+PROBE
+chmod +x "$TMP/endless.sh"
+out=$(MAX_PAGES=3 run_check endless) && rc=0 || rc=$?
+assert_eq "an API that never ends is abandoned, not looped on" "1" "$rc"
+
+# A short first page must stop the loop rather than paging forever.
+cat >"$TMP/short.sh" <<'PROBE'
+#!/usr/bin/env bash
+case "$1" in
+  *"&page=1"*) echo '[{"login":"kakkoyun","permissions":{"push":true}}]' ;;
+  *) echo "PAGED PAST THE END" ;;
+esac
+PROBE
+chmod +x "$TMP/short.sh"
+out=$(run_check short) && rc=0 || rc=$?
+assert_eq "a short first page stops paging" "0" "$rc"
+
+# A 403 is the expected result with a workflow GITHUB_TOKEN, and must say so
+# rather than surfacing as an opaque parse error.
+cat >"$TMP/forbidden.sh" <<'PROBE'
+#!/usr/bin/env bash
+echo '{"message":"Must have push access to view repository collaborators.","status":"403"}'
+PROBE
+chmod +x "$TMP/forbidden.sh"
+out=$(run_check forbidden) && rc=0 || rc=$?
+assert_eq "a 403 fails" "1" "$rc"
+case "$out" in
+  *"Administration: read"*) pass "  ...and explains which permission is missing" ;;
+  *) fail "  ...and explains which permission is missing" "Administration: read" "$out" ;;
+esac
 
 # Without a token the check must skip, not silently claim success...
 out=$(env -u GITHUB_TOKEN -u GH_TOKEN -u ACCESS_API_CMD bash "$CHECK_SCRIPT" 2>&1) && rc=0 || rc=$?

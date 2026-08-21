@@ -298,6 +298,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      # Lifted to job level because `secrets` is not available in a step `if:`.
+      REPO_ADMIN_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -310,9 +313,24 @@ jobs:
           # Content-Security-Policy-Report-Only to Content-Security-Policy.
           EXPECT_CSP_ENFORCED: '0'
 
+      # Deliberately gated on an optional secret rather than GITHUB_TOKEN.
+      # The collaborators endpoint needs Administration: read, and
+      # `administration` is not a settable workflow permissions key — so a
+      # workflow token always 403s here. Rather than add a long-lived PAT to
+      # this repo just to run a tripwire (the same trade this PR declines for
+      # the GitHub App private key), the check runs only if REPO_ADMIN_TOKEN
+      # exists and is skipped, loudly, if it does not. Locally it works with
+      # your own gh session. See docs/sveltia-cms.md.
       - name: Check repo push access
+        if: env.REPO_ADMIN_TOKEN != ''
         run: bash scripts/check-repo-access.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ env.REPO_ADMIN_TOKEN }}
           REQUIRE_TOKEN: '1'
           EXPECTED_PUSHERS: kakkoyun
+
+      - name: Note when the repo access check is not wired up
+        if: env.REPO_ADMIN_TOKEN == ''
+        run: |
+          echo "::notice::Repo push-access check skipped — no REPO_ADMIN_TOKEN secret."
+          echo "::notice::Run it by hand: GITHUB_TOKEN=\$(gh auth token) bash scripts/check-repo-access.sh"

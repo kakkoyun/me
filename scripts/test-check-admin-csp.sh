@@ -122,9 +122,20 @@ write_toml "$TMP/noconnect.toml" "$(printf "default-src 'none'; script-src 'self
 out=$(run_check "$HTML" "$TMP/noconnect.toml") && rc=0 || rc=$?
 assert_eq "a missing connect-src fails" "1" "$rc"
 
-write_toml "$TMP/wildcard.toml" "$(printf "default-src 'none'; script-src 'self' https://unpkg.com 'sha256-%s' 'sha256-%s'; connect-src 'self' https:" "$H1" "$H2")"
-out=$(run_check "$HTML" "$TMP/wildcard.toml") && rc=0 || rc=$?
-assert_eq "a wildcard connect-src fails" "1" "$rc"
+# Every shape of "connect anywhere" has to be rejected, not just the bare star:
+# a scheme-only source and a wildcard host are equally unbounded.
+i=0
+for loose in "https:" "*" "https://*" "https://*.evil.example" "'self' https://*"; do
+  i=$((i + 1))
+  write_toml "$TMP/wildcard-$i.toml" "$(printf "default-src 'none'; script-src 'self' https://unpkg.com 'sha256-%s' 'sha256-%s'; connect-src 'self' https://unpkg.com %s" "$H1" "$H2" "$loose")"
+  out=$(run_check "$HTML" "$TMP/wildcard-$i.toml") && rc=0 || rc=$?
+  assert_eq "connect-src rejects '$loose'" "1" "$rc"
+done
+
+# ...while the keyword sources and real hosts the policy actually uses stay fine.
+write_toml "$TMP/keywords.toml" "$(printf "default-src 'none'; script-src 'self' https://unpkg.com 'sha256-%s' 'sha256-%s'; connect-src 'self' 'none' https://api.github.com https://unpkg.com" "$H1" "$H2")"
+out=$(run_check "$HTML" "$TMP/keywords.toml") && rc=0 || rc=$?
+assert_eq "connect-src accepts keywords and explicit hosts" "0" "$rc"
 
 # COOP breaks the sign-in popup. Adding it must never pass quietly.
 write_toml "$TMP/coop.toml" "$(good_csp)" 'Cross-Origin-Opener-Policy = "same-origin"'

@@ -136,7 +136,7 @@ and would be decorative. `check-live-headers.sh` fails if a CSP ever appears on
 | --- | --- | --- |
 | `scripts/check-admin-csp.sh` | `make test` → `lint.yml`, every PR | the CSP in `netlify.toml` still matches `static/admin/index.html` — inline-script hashes, bundle origin and pinning, a non-wildcard `connect-src`, no COOP |
 | `scripts/check-live-headers.sh` | `links.yml`, master pushes + weekly | the deployed site actually *serves* those headers. Nothing appears in the build output for a header rule, so this is the only place a silently-dropped header would surface |
-| `scripts/check-repo-access.sh` | `links.yml`, master pushes + weekly | push access to this repo is exactly `kakkoyun` |
+| `scripts/check-repo-access.sh` | `links.yml`, master pushes + weekly — **only if `REPO_ADMIN_TOKEN` is set** | push access to this repo is exactly `kakkoyun` |
 
 Run any of them by hand:
 
@@ -148,6 +148,25 @@ GITHUB_TOKEN=... bash scripts/check-repo-access.sh
 
 `check-live-headers.sh` and `check-repo-access.sh` need the network, so they are
 not part of `make test`; only their offline unit tests are.
+
+**`check-repo-access.sh` cannot run on a workflow `GITHUB_TOKEN`.** The
+collaborators endpoint needs `Administration: read`, and `administration` is not
+a settable key in a workflow `permissions:` block — so a workflow token always
+gets a 403 there. Rather than add a long-lived PAT to this repo purely to run a
+tripwire, the CI step is gated on an optional `REPO_ADMIN_TOKEN` secret and
+skips with a `::notice::` when it is absent. Two ways to get the check anyway:
+
+- **By hand**, whenever you touch collaborators, and during the yearly audit:
+  `GITHUB_TOKEN=$(gh auth token) bash scripts/check-repo-access.sh`
+- **Continuously**, if you decide it is worth a credential: create a
+  fine-grained PAT scoped to `kakkoyun/me` with `Administration: read` and
+  nothing else, give it an expiry, and store it as `REPO_ADMIN_TOKEN`. It is
+  read-only and single-repo, so a leak exposes repository settings and nothing
+  else — but it is still a credential to rotate, which is why it is opt-in.
+
+On a personal repo this is a tripwire for your own forgetfulness rather than a
+defence against someone else granting access, since only you can add a
+collaborator. That is what makes the manual option reasonable.
 
 Editing `static/admin/index.html` changes an inline script's hash, so
 `make test` will fail until the new hash is in `netlify.toml`. Recompute with:
