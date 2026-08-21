@@ -253,7 +253,7 @@ check-hugo:
 
 # Run shellcheck on all shell scripts
 shellcheck:
-	shellcheck scripts/*.sh
+	shellcheck scripts/*.sh scripts/lib/*.sh
 
 # Run actionlint on all GitHub Actions workflows
 actionlint:
@@ -268,7 +268,10 @@ test:
 	@bash scripts/test-check-post-live.sh
 	@bash scripts/test-posts-publishing-today.sh
 	@bash scripts/test-check-cms-fields.sh
+	@bash scripts/test-record-promotion.sh
+	@bash scripts/test-check-frontmatter.sh
 	@bash scripts/check-cms-fields.sh
+	@bash scripts/check-frontmatter.sh
 
 # Pre-commit gate: every static + dynamic check we run in CI.
 # Run this locally before pushing to catch issues before the PR opens.

@@ -23,20 +23,29 @@ jobs:
   # Promotion here instead guards on liveness (see "Verify posts are live"
   # below): it will not post a social link to a page that is not yet reachable.
   #
-  # Triggers: the daily cron promotes posts on their publish day; workflow_dispatch
-  # is the manual "promote now" button (one post via post_path, or everything due
-  # today when left blank). There is no push trigger — claude-code-action rejects
-  # the push event type ("Unsupported event type: push").
+  # Triggers: the daily cron promotes any live post published within the last
+  # PROMOTE_LOOKBACK_DAYS (30) that has not been promoted yet; workflow_dispatch
+  # is the manual "promote now / again" button (one post via post_path, which
+  # ignores both the window and the ledger, or everything due when left blank).
+  # There is no push trigger — claude-code-action rejects the push event type
+  # ("Unsupported event type: push"), which is exactly why the cron cannot rely
+  # on a single publish-day window: a post merged after the 06:00 cron, or after
+  # its publishDate had already passed, used to be missed permanently.
   promote:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: read
+      # write: the "Record promotion" step below commits the promotedAt stamp
+      # back to master. That stamp is what stops the next cron re-posting the
+      # same link, so it has to be persisted, not just logged.
+      contents: write
       id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: false
+          # Needed so the "Record promotion" step can push the stamp back.
+          persist-credentials: true
 
       - name: Find promotable posts
         id: find
@@ -149,3 +158,46 @@ jobs:
           claude_args: --allowedTools "Read,Bash(buffer-cli:*),Bash(echo:*)"
         env:
           BUFFER_AUTH_TOKEN: ${{ secrets.BUFFER_AUTH_TOKEN }}
+
+      # Stamp promotedAt and push. This is the ledger half of the mechanism in
+      # scripts/find-promotable-posts.sh: schedule mode looks back 30 days
+      # rather than at a single day, and promotedAt is what keeps it from
+      # re-posting the same link every morning for a month.
+      #
+      # Deterministic bash writes the stamp, not Claude — same split as the
+      # rest of this workflow, where Claude only writes the copy.
+      #
+      # Known limitation: success is only known at step granularity, so a run
+      # that posted to Twitter but failed on LinkedIn still stamps as promoted.
+      # Recovery is a workflow_dispatch with the post_path, which deliberately
+      # ignores the ledger.
+      - name: Record promotion
+        if: steps.live.outputs.should_run == 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          chmod +x scripts/record-promotion.sh
+          scripts/record-promotion.sh <<< "${{ steps.live.outputs.posts }}"
+
+          if git diff --quiet -- content/posts/; then
+            echo "No promotedAt changes to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/posts/
+          git commit -m "ci: record promotion timestamps"
+
+          # The cron and a human merge can race for master. Rebase and retry
+          # rather than failing the run — losing the stamp means the next cron
+          # promotes the same post again.
+          for attempt in 1 2 3; do
+            if git push origin HEAD:master; then
+              exit 0
+            fi
+            echo "push failed (attempt $attempt), rebasing onto origin/master"
+            git pull --rebase origin master || true
+            sleep $(( attempt * 5 ))
+          done
+
+          echo "::error::Could not push promotion stamps — the next run may re-promote these posts."
+          exit 1

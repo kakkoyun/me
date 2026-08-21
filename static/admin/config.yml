@@ -144,6 +144,14 @@ collections:
       - name: substack
         widget: hidden
 
+      # promotedAt is the promotion ledger: scripts/record-promotion.sh appends
+      # a timestamp after each successful run, and find-promotable-posts.sh
+      # skips any post that has one. Hidden rather than a list widget because
+      # nothing should edit it by hand — and because an undeclared key is
+      # dropped by the CMS on save, which would silently re-promote the post.
+      - name: promotedAt
+        widget: hidden
+
       - label: Body
         name: body
         widget: richtext

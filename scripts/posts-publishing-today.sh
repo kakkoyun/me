@@ -7,33 +7,34 @@
 # throughout, so probing the homepage proves reachability, not that the new build
 # is live. A today-dated post that becomes reachable does prove it.
 #
-# This is intentionally separate from find-promotable-posts.sh: that filters for
-# *promotion* (honours `promote: false`). For a *publish* check we want every
-# today-dated, non-draft post, including ones opted out of social promotion.
+# This is intentionally separate from find-promotable-posts.sh, and the split is
+# wider than it used to be. That script asks "should this be *promoted*?" — a
+# question with a lookback window and a promotedAt ledger behind it. This one
+# asks "did today's *build* have anything to publish?", which is only ever about
+# today and deliberately ignores `promote: false`: a post opted out of social
+# promotion still has to go live.
 #
 # Output: newline-separated content/posts/*.md paths (empty = nothing due today).
 #
 # Tunables (env):
 #   TODAY_OVERRIDE  pin "today" (YYYY-MM-DD) for tests; defaults to UTC today.
+#   POSTS_DIR       directory to scan (default: content/posts).
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/frontmatter.sh
+source "${SCRIPT_DIR}/lib/frontmatter.sh"
 
 TODAY="${TODAY_OVERRIDE:-$(date -u +%Y-%m-%d)}"
 POSTS_DIR="${POSTS_DIR:-content/posts}"
 
-frontmatter() {
-  # Emit only the YAML frontmatter block (lines between the first two `---`).
-  # Mirrors scripts/find-promotable-posts.sh so parsing stays consistent.
-  awk 'BEGIN{n=0} /^---[[:space:]]*$/{n++; if (n==2) exit; next} n==1' "$1"
-}
-
 for post in "$POSTS_DIR"/*.md; do
   [ -f "$post" ] || continue
-  fm=$(frontmatter "$post")
 
-  pub=$(printf '%s\n' "$fm" | grep -m1 '^publishDate:' | awk '{print $2}' | tr -d '"' | cut -dT -f1 || true)
+  pub=$(fm_get "$post" publishDate | cut -dT -f1)
   [ "$pub" = "$TODAY" ] || continue
 
-  if printf '%s\n' "$fm" | grep -q '^draft: true'; then
+  if fm_block "$post" | grep -q '^draft: true'; then
     continue
   fi
 

@@ -14,9 +14,13 @@ TODAY=$(date -u +%Y-%m-%d)
 if date -d "1 day ago" +%Y-%m-%d >/dev/null 2>&1; then
   YESTERDAY=$(date -u -d "1 day ago" +%Y-%m-%d)
   TOMORROW=$(date -u -d "1 day" +%Y-%m-%d)
+  RECENT=$(date -u -d "10 days ago" +%Y-%m-%d)
+  ANCIENT=$(date -u -d "90 days ago" +%Y-%m-%d)
 else
   YESTERDAY=$(date -u -v-1d +%Y-%m-%d)
   TOMORROW=$(date -u -v+1d +%Y-%m-%d)
+  RECENT=$(date -u -v-10d +%Y-%m-%d)
+  ANCIENT=$(date -u -v-90d +%Y-%m-%d)
 fi
 
 PASS=0
@@ -79,6 +83,13 @@ make_post() {
     echo ""
     echo "Post body content."
   } > "$file"
+}
+
+make_promoted_post() {
+  # make_promoted_post <file> <publishDate> — a post already stamped as promoted.
+  make_post "$1" "$2"
+  printf '%s\n' "$1" | bash "$(dirname "$FIND_SCRIPT")/record-promotion.sh" \
+    --at "${2}T06:00:00Z" >/dev/null 2>&1
 }
 
 commit_at() {
@@ -228,6 +239,73 @@ assert_empty "schedule: legacy post with missing publishDate does not crash the 
 result=$(with_repo _sched_no_pub_mixed)
 assert_eq    "schedule: today-dated post is promoted even when a no-pub legacy post coexists" "content/posts/today.md" "$result"
 
+# ── lookback window + promotedAt ledger ───────────────────────────────────────
+#
+# These cover the behaviour that replaced the old exact `publishDate == today`
+# match. The window and the ledger are one mechanism: widening the window is
+# only safe because promotedAt stops a post going out twice.
+
+echo ""
+echo "── lookback + ledger ───────────────────────────────────"
+
+_look_recent_past() {
+  # The case the old exact-day match dropped on the floor: a post whose publish
+  # day has already passed, merged late, never promoted.
+  make_post "content/posts/late.md" "$RECENT"
+  commit_at "content/posts/late.md" "$TODAY"
+  run_find schedule
+}
+_look_ancient() {
+  make_post "content/posts/old.md" "$ANCIENT"
+  commit_at "content/posts/old.md" "$TODAY"
+  run_find schedule
+}
+_look_already_promoted() {
+  make_promoted_post "content/posts/done.md" "$TODAY"
+  commit_at "content/posts/done.md" "$TODAY"
+  run_find schedule
+}
+_look_promoted_vs_fresh() {
+  # A stamped post must not mask an unstamped one in the same scan.
+  make_promoted_post "content/posts/done.md"  "$TODAY"
+  commit_at          "content/posts/done.md"  "$TODAY"
+  make_post          "content/posts/fresh.md" "$TODAY"
+  commit_at          "content/posts/fresh.md" "$TODAY"
+  run_find schedule
+}
+_look_custom_window() {
+  # PROMOTE_LOOKBACK_DAYS widens the window to reach a post the default drops.
+  make_post "content/posts/old.md" "$ANCIENT"
+  commit_at "content/posts/old.md" "$TODAY"
+  PROMOTE_LOOKBACK_DAYS=365 run_find schedule
+}
+_look_stamp_makes_idempotent() {
+  # The full production cycle: promote, stamp, re-scan. The second scan is what
+  # keeps the cron from re-posting the same link every morning for 30 days.
+  make_post "content/posts/cycle.md" "$RECENT"
+  commit_at "content/posts/cycle.md" "$TODAY"
+  run_find schedule | bash "$(dirname "$FIND_SCRIPT")/record-promotion.sh" >/dev/null 2>&1
+  run_find schedule
+}
+
+result=$(with_repo _look_recent_past)
+assert_eq    "lookback: promotes a post whose publishDate already passed (the old exact-day gap)" "content/posts/late.md" "$result"
+
+result=$(with_repo _look_ancient)
+assert_empty "lookback: skips a post older than the default 30-day window" "$result"
+
+result=$(with_repo _look_already_promoted)
+assert_empty "ledger: skips a post that already carries promotedAt" "$result"
+
+result=$(with_repo _look_promoted_vs_fresh)
+assert_eq    "ledger: a promoted post does not hide an unpromoted one in the same scan" "content/posts/fresh.md" "$result"
+
+result=$(with_repo _look_custom_window)
+assert_eq    "lookback: PROMOTE_LOOKBACK_DAYS widens the window" "content/posts/old.md" "$result"
+
+result=$(with_repo _look_stamp_makes_idempotent)
+assert_empty "ledger: promote → stamp → re-scan is idempotent" "$result"
+
 # ── manual mode ───────────────────────────────────────────────────────────────
 
 echo ""
@@ -249,6 +327,14 @@ assert_empty "manual: skips nonexistent file" "$result"
 
 result=$(with_repo _manual_no_promote)
 assert_empty "manual: skips post with promote: false" "$result"
+
+_manual_already_promoted() {
+  make_promoted_post "content/posts/done.md" "$TODAY"
+  commit_at          "content/posts/done.md" "$TODAY"
+  run_find manual "content/posts/done.md"
+}
+result=$(with_repo _manual_already_promoted)
+assert_eq   "manual: re-promotes a post that already has promotedAt (deliberate override)" "content/posts/done.md" "$result"
 
 # ── edge cases (date/path invariants) ─────────────────────────────────────────
 

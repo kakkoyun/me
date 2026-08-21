@@ -24,6 +24,7 @@ make buffer-update      # Pull latest buffer-cli submodule
 make humanizer-update   # Pull latest humanizer skill submodule
 make vale-sync          # Fetch third-party Vale style packages (proselint, write-good)
 make vale               # Run Vale prose linter on content/
+make test               # Script unit tests + CMS field and frontmatter checks
 make prose              # Alias for vale with a summary count
 ```
 
@@ -86,6 +87,8 @@ showToc: true                 # optional, for long technical posts
 tocOpen: false                # optional
 draft: true                   # for WIP content; use future publishDate for scheduled posts instead
 promote: false                # optional; skip social-media promotion (defaults to promotable when omitted)
+promotedAt:                   # written by automation, never by hand — the promotion ledger
+  - 2026-02-13T06:03:00Z
 substack: false               # optional; exclude from the Substack syndication feed (included when omitted)
 ---
 ```
@@ -97,6 +100,8 @@ substack: false               # optional; exclude from the Substack syndication 
 - Do not quote scalar YAML values (dates, booleans) — only quote strings that contain special characters
 - Use `draft: true` for WIP content; use a future `publishDate` (with `draft` omitted) for scheduled posts
 - Set `promote: false` to publish a post but opt it out of the social-media promotion pipeline (`scripts/find-promotable-posts.sh`)
+- `promotedAt` is the promotion ledger, appended by `scripts/record-promotion.sh` after each successful run and read back by `find-promotable-posts.sh` to avoid re-promoting. Do not edit it by hand; deleting an entry re-promotes the post on the next cron, which is occasionally what you want
+- `date` may be earlier than `publishDate` — writing over months and publishing later is the normal shape. Nothing in the publishing or promotion pipeline reads `date`, so there is no need to bump it before merging. It does still drive list/archive **ordering** and, on a post where the two differ, the single-post page shows both ("Written … · Published …", see `layouts/partials/post_meta_single.html`)
 - Set `substack: false` to publish a post but exclude it from the Substack syndication feed (`/substack.xml`, see [docs/substack-syndication.md](docs/substack-syndication.md))
 - Any new frontmatter key must also be declared in `static/admin/config.yml` (as `widget: hidden` at minimum). Sveltia CMS only serializes fields it knows about, so an undeclared key is dropped the next time that post is saved through the editor. `scripts/check-cms-fields.sh` fails `make test` if you forget (see [docs/sveltia-cms.md](docs/sveltia-cms.md))
 
@@ -212,15 +217,29 @@ The wrapper pattern means the upstream skill's `buffer get-account` / `buffer po
 
 Automated via `.github/workflows/promote-post.yml` with two triggers:
 
-- **Nightly cron (6 AM UTC)**: promotes posts on their publish day (`publishDate == today`)
-- **Manual dispatch**: the "promote now" button — give a `post_path` to promote one
-  specific post, or leave it blank to promote everything due today
+- **Nightly cron (6 AM UTC)**: promotes every live post published within the last
+  `PROMOTE_LOOKBACK_DAYS` (default 30) that has no `promotedAt` stamp yet
+- **Manual dispatch**: the "promote now / again" button — give a `post_path` to promote
+  one specific post, which ignores both the window and the ledger, or leave it blank to
+  promote everything due
 
 There is **no push trigger**: `claude-code-action` rejects the `push` event type
 ("Unsupported event type: push"), so promotion runs only on supported automation
-events (`schedule`, `workflow_dispatch`). A post merged on its publish day *after*
-the 6 AM cron has run won't be auto-promoted that day — use the manual dispatch to
-promote it immediately.
+events (`schedule`, `workflow_dispatch`).
+
+**The window and the `promotedAt` ledger are one mechanism.** The cron used to match
+`publishDate == today` exactly, which gave every post a single one-day window: a post
+merged after its publish day had passed — written in May, merged in July, published in
+September is the normal shape here — or merged after the 6 AM cron on its own publish
+day, was never promoted and was not even logged as skipped. The window is now 30 days,
+which is only safe because `scripts/record-promotion.sh` appends a timestamp to the
+post's `promotedAt` list after a successful run and `find-promotable-posts.sh` skips
+anything that has one. Widening the window without the ledger would re-post the same
+link every morning for a month; keeping the ledger without the window would still miss
+late merges. Both, or neither.
+
+A post merged after the 6 AM cron is now picked up the following morning. Use the manual
+dispatch when you want it out the same day.
 
 Promotion does **not** rebuild the site — publishing is owned by `deploy-scheduled.yml`
 (00:10 UTC). The 6 AM promotion cron is deliberately later so the post is already live.
@@ -228,8 +247,15 @@ Before posting, a **liveness guard** (`Verify posts are live`) maps each candida
 public URL (`content/posts/<slug>.md` → `/posts/<slug>/`) and polls it; a post that is not
 reachable is dropped with a warning, so promotion never posts a link to a 404.
 
-All date/draft validation is deterministic bash in `scripts/find-promotable-posts.sh`.
-Claude handles only the creative work: reading the post, crafting messages, posting to Buffer.
+All date/draft/ledger validation is deterministic bash in `scripts/find-promotable-posts.sh`,
+and the `promotedAt` stamp is written by `scripts/record-promotion.sh` — the workflow needs
+`contents: write` to push it back. Claude handles only the creative work: reading the post,
+crafting messages, posting to Buffer.
+
+Two known limits, both documented in the scripts: success is only known at step granularity,
+so a run that posted to Twitter but failed on LinkedIn still stamps as promoted (recover with
+a manual dispatch); and because `content/` is in `BUILD_PATHS` (`scripts/netlify-ignore.sh`),
+each stamp commit costs one Netlify rebuild.
 
 Posts go to Twitter + LinkedIn + Bluesky. Twitter/Bluesky use threads (message + link).
 LinkedIn includes the link in the main post body.
