@@ -41,7 +41,10 @@
     {{- end }}
     {{- if not (.Param "hideMeta") }}
     <div class="post-meta">
-      {{- partial "post_meta.html" . -}}
+      {{- /* post_meta_single.html, not PaperMod's post_meta.html: on posts this
+             site's `date` and `publishDate` are often months apart and upstream
+             shows only `date`. List entries still use post_meta.html. */ -}}
+      {{- partial "post_meta_single.html" . -}}
       {{- partial "translation_list.html" . -}}
       {{- partial "edit_post.html" . -}}
       {{- partial "post_canonical.html" . -}}
