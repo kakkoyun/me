@@ -11,7 +11,18 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# Two matchers, not one: SHELL_FILES in the Makefile discovers scripts by
+# shebang, and scripts/buffer is bash with no extension. A `*.{sh,bash}` glob
+# alone silently misses it, and shfmt then falls back to its own defaults —
+# tabs — for exactly the file this repo says is 2-space. Keep both in sync.
 [*.{sh,bash}]
+indent_style = space
+indent_size = 2
+switch_case_indent = true
+binary_next_line = true
+space_redirects = false
+
+[scripts/**]
 indent_style = space
 indent_size = 2
 

@@ -210,17 +210,31 @@ jobs:
           git add content/posts/
           git commit -m "ci: record promotion timestamps"
 
-          # The cron and a human merge can race for master. Rebase and retry
-          # rather than failing the run — losing the stamp means the next cron
-          # promotes the same post again.
+          # The cron and a human merge can race for master, so a rejected push
+          # is rebased and retried rather than failing the run outright: the
+          # posts are already on social by this point, and losing the stamp
+          # means tomorrow's cron promotes them a second time.
+          #
+          # A failed rebase is never swallowed. `|| true` here would leave the
+          # checkout mid-rebase, so every later push in this loop fails too and
+          # the run ends with the posts promoted but unstamped — the exact
+          # double-post this ledger exists to prevent, arrived at quietly.
+          # Abort and fail loudly instead, naming the recovery.
           for attempt in 1 2 3; do
             if git push origin HEAD:master; then
               exit 0
             fi
-            echo "push failed (attempt $attempt), rebasing onto origin/master"
-            git pull --rebase origin master || true
+            echo "push rejected (attempt $attempt), rebasing onto origin/master"
+            git fetch origin master
+            if ! git rebase origin/master; then
+              git rebase --abort || true
+              echo "::error::Rebase conflicted while recording promotion stamps. The posts below were POSTED but NOT stamped, so the next cron would promote them again. Add their promotedAt entries on master by hand (or run scripts/record-promotion.sh there) before 06:00 UTC:"
+              echo "${{ steps.live.outputs.posts }}"
+              exit 1
+            fi
             sleep $(( attempt * 5 ))
           done
 
-          echo "::error::Could not push promotion stamps — the next run may re-promote these posts."
+          echo "::error::Could not push promotion stamps after 3 attempts. The posts below were POSTED but NOT stamped and will be promoted again by the next cron unless you add their promotedAt entries on master:"
+          echo "${{ steps.live.outputs.posts }}"
           exit 1

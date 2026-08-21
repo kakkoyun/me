@@ -27,14 +27,19 @@ jobs:
           # scripts/buffer is a bash script with no .sh extension, so the
           # pattern above misses it. It was linted by nothing at all before.
           check_all_files_with_shebangs: "true"
-          # Pinned: the action wrapper is SHA-pinned but the tool inside it was
-          # not, so a new ShellCheck release could turn the build red with no
-          # change to this repo. Renovate has nothing to bump without this.
-          shellcheck_version: "v0.10.0"
-          # Match `make lint` exactly. shellcheck exits non-zero on any finding
-          # locally, so a warning that fails the documented pre-commit gate has
-          # to fail CI too — otherwise the two gates disagree about "green".
-          level: style
+          # Match `make lint`: shellcheck exits non-zero on any finding locally,
+          # so a warning that fails the documented pre-commit gate has to fail
+          # CI too, or the two disagree about what "green" means.
+          #
+          # `level:` is deliberately not set. It only accepts info/warning/error
+          # — there is no "style" level — and fail_level is what gates anyway.
+          #
+          # The ShellCheck version is not pinnable here: this action exposes no
+          # version input and hard-codes the binary it installs (0.11.0 as of
+          # the pinned SHA). Renovate bumping the action SHA is the only lever,
+          # so an upstream ShellCheck bump arrives with an action bump. `make
+          # lint` locally uses whatever the contributor installed, which can
+          # differ — the gate that counts is this one.
           fail_level: any
 
   actionlint:
@@ -51,8 +56,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          actionlint_version: "1.7.12"
-          level: style
+          # Same as above: no version input on this action, and `level:` takes
+          # only info/warning/error. fail_level is the gate.
           fail_level: any
 
   shfmt:
