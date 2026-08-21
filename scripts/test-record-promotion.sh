@@ -18,12 +18,15 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/frontmatter.sh"
 
 PASS=0
 FAIL=0
-pass() { printf "  \033[32mPASS\033[0m  %s\n" "$1"; (( PASS += 1 )); }
+pass() {
+  printf "  \033[32mPASS\033[0m  %s\n" "$1"
+  ((PASS += 1))
+}
 fail() {
   printf "  \033[31mFAIL\033[0m  %s\n" "$1"
   printf "         expected: %s\n" "${2:-<empty>}"
   printf "         actual:   %s\n" "${3:-<empty>}"
-  (( FAIL += 1 ))
+  ((FAIL += 1))
 }
 assert_eq() { if [ "$2" = "$3" ]; then pass "$1"; else fail "$1" "$2" "$3"; fi; }
 
@@ -45,7 +48,7 @@ make_post() {
     echo "---"
     echo ""
     echo "Body paragraph."
-  } > "$file"
+  } >"$file"
 }
 
 run() { printf '%s\n' "$1" | bash "$SCRIPT" --at "$STAMP" 2>/dev/null; }
@@ -90,7 +93,7 @@ assert_eq "appends correctly when promotedAt is the final key" "2" \
   echo "---"
   echo ""
   echo "After the rule."
-} > "$TMP/hr.md"
+} >"$TMP/hr.md"
 cp "$TMP/hr.md" "$TMP/hr.orig"
 run "$TMP/hr.md" >/dev/null
 assert_eq "preserves a body containing a --- horizontal rule" \
@@ -99,7 +102,7 @@ assert_eq "preserves a body containing a --- horizontal rule" \
 # A file with no trailing newline must come back with no trailing newline.
 # awk terminates every record, so this is a real regression risk: an earlier
 # version silently rewrote the last line of two published posts.
-printf -- '---\ntitle: "NoNewline"\npublishDate: 2026-08-21T00:00:00Z\n---\n\nEnds without a newline.' > "$TMP/nn.md"
+printf -- '---\ntitle: "NoNewline"\npublishDate: 2026-08-21T00:00:00Z\n---\n\nEnds without a newline.' >"$TMP/nn.md"
 run "$TMP/nn.md" >/dev/null
 # $( ) strips a trailing newline, so a non-empty result here means the last
 # byte is NOT a newline — which is what we want preserved.
@@ -110,7 +113,7 @@ assert_eq "still stamped the no-trailing-newline file" "$STAMP" \
 
 # ── failure paths: the file must be left exactly as it was ────────────────────
 
-echo "hello, no frontmatter" > "$TMP/bad.md"
+echo "hello, no frontmatter" >"$TMP/bad.md"
 cp "$TMP/bad.md" "$TMP/bad.orig"
 set +e
 printf '%s\n' "$TMP/bad.md" | bash "$SCRIPT" --at "$STAMP" >/dev/null 2>&1
@@ -147,6 +150,6 @@ make_post echoed.md
 assert_eq "echoes each stamped path on stdout" "$TMP/echoed.md" "$(run "$TMP/echoed.md")"
 
 echo ""
-TOTAL=$(( PASS + FAIL ))
+TOTAL=$((PASS + FAIL))
 printf "%d/%d tests passed\n" "$PASS" "$TOTAL"
 [ "$FAIL" -eq 0 ]

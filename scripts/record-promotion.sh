@@ -96,14 +96,14 @@ while IFS= read -r post; do
   before_count=$(fm_list "$post" promotedAt | wc -l | tr -d ' ')
 
   tmp=$(mktemp)
-  fm_append_list "$post" promotedAt "$STAMP" > "$tmp"
+  fm_append_list "$post" promotedAt "$STAMP" >"$tmp"
 
   # awk terminates every record with a newline, so a source file that did not
   # end with one comes back with an extra byte. Two posts in this repo are like
   # that. Match the original rather than "fixing" it — a promotion stamp has no
   # business reformatting the end of someone's post.
   if [ -n "$(tail -c1 "$post")" ] && [ -z "$(tail -c1 "$tmp")" ]; then
-    printf '%s' "$(cat "$tmp")" > "$tmp.trimmed" && mv "$tmp.trimmed" "$tmp"
+    printf '%s' "$(cat "$tmp")" >"$tmp.trimmed" && mv "$tmp.trimmed" "$tmp"
   fi
 
   # ── Validation. Any failure leaves the original untouched. ────────────────
@@ -124,7 +124,10 @@ while IFS= read -r post; do
     err="promotedAt declared more than once"
   else
     while IFS= read -r ts; do
-      [[ "$ts" =~ $ISO_RE ]] || { err="malformed promotedAt entry: $ts"; break; }
+      [[ "$ts" =~ $ISO_RE ]] || {
+        err="malformed promotedAt entry: $ts"
+        break
+      }
     done < <(fm_list "$tmp" promotedAt)
   fi
 

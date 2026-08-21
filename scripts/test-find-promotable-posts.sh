@@ -28,12 +28,15 @@ FAIL=0
 
 # ── Assertion helpers ─────────────────────────────────────────────────────────
 
-pass() { printf "  \033[32mPASS\033[0m  %s\n" "$1"; (( PASS += 1 )); }
+pass() {
+  printf "  \033[32mPASS\033[0m  %s\n" "$1"
+  ((PASS += 1))
+}
 fail() {
   printf "  \033[31mFAIL\033[0m  %s\n" "$1"
   printf "         expected: %s\n" "${2:-<empty>}"
   printf "         actual:   %s\n" "${3:-<empty>}"
-  (( FAIL += 1 ))
+  ((FAIL += 1))
 }
 
 assert_eq() {
@@ -82,7 +85,7 @@ make_post() {
     echo "---"
     echo ""
     echo "Post body content."
-  } > "$file"
+  } >"$file"
 }
 
 make_promoted_post() {
@@ -126,7 +129,7 @@ make_post_raw() {
     echo "---"
     echo ""
     echo "Post body content."
-  } > "$file"
+  } >"$file"
 }
 
 make_post_no_date() {
@@ -142,7 +145,7 @@ make_post_no_date() {
     echo "---"
     echo ""
     echo "Post body content."
-  } > "$file"
+  } >"$file"
 }
 
 make_post_with_body_line() {
@@ -166,7 +169,7 @@ make_post_with_body_line() {
     echo "$body_line"
     echo ""
     echo "Trailing body content."
-  } > "$file"
+  } >"$file"
 }
 
 # ── Test runner ───────────────────────────────────────────────────────────────
@@ -190,10 +193,26 @@ with_repo() {
 echo ""
 echo "── schedule mode ──────────────────────────────────────"
 
-_sched_yesterday() { make_post "content/posts/sched.md" "$TODAY";         commit_at "content/posts/sched.md" "$YESTERDAY"; run_find schedule; }
-_sched_today()     { make_post "content/posts/same.md"  "$TODAY";         commit_at "content/posts/same.md"  "$TODAY";     run_find schedule; }
-_sched_future()    { make_post "content/posts/fut.md"   "$TOMORROW";      commit_at "content/posts/fut.md"   "$YESTERDAY"; run_find schedule; }
-_sched_draft()     { make_post "content/posts/d.md"     "$TODAY" true;    commit_at "content/posts/d.md"     "$YESTERDAY"; run_find schedule; }
+_sched_yesterday() {
+  make_post "content/posts/sched.md" "$TODAY"
+  commit_at "content/posts/sched.md" "$YESTERDAY"
+  run_find schedule
+}
+_sched_today() {
+  make_post "content/posts/same.md" "$TODAY"
+  commit_at "content/posts/same.md" "$TODAY"
+  run_find schedule
+}
+_sched_future() {
+  make_post "content/posts/fut.md" "$TOMORROW"
+  commit_at "content/posts/fut.md" "$YESTERDAY"
+  run_find schedule
+}
+_sched_draft() {
+  make_post "content/posts/d.md" "$TODAY" true
+  commit_at "content/posts/d.md" "$YESTERDAY"
+  run_find schedule
+}
 _sched_no_promote() {
   make_post "content/posts/quiet.md" "$TODAY" false true
   commit_at "content/posts/quiet.md" "$YESTERDAY"
@@ -201,10 +220,10 @@ _sched_no_promote() {
 }
 
 result=$(with_repo _sched_yesterday)
-assert_eq   "schedule: promotes post committed yesterday with today's publishDate" "content/posts/sched.md" "$result"
+assert_eq "schedule: promotes post committed yesterday with today's publishDate" "content/posts/sched.md" "$result"
 
 result=$(with_repo _sched_today)
-assert_eq   "schedule: promotes post added today with today's publishDate (no push dedup)" "content/posts/same.md" "$result"
+assert_eq "schedule: promotes post added today with today's publishDate (no push dedup)" "content/posts/same.md" "$result"
 
 result=$(with_repo _sched_future)
 assert_empty "schedule: skips post with future publishDate" "$result"
@@ -227,9 +246,9 @@ _sched_no_pub_mixed() {
   # Same legacy file alongside a legitimate today-dated post — the today post
   # must still be promoted, proving the no-pub file is skipped, not blocking.
   make_post_no_date "content/posts/legacy.md"
-  commit_at         "content/posts/legacy.md" "$YESTERDAY"
-  make_post         "content/posts/today.md" "$TODAY"
-  commit_at         "content/posts/today.md" "$YESTERDAY"
+  commit_at "content/posts/legacy.md" "$YESTERDAY"
+  make_post "content/posts/today.md" "$TODAY"
+  commit_at "content/posts/today.md" "$YESTERDAY"
   run_find schedule
 }
 
@@ -237,7 +256,7 @@ result=$(with_repo _sched_no_pub_alone)
 assert_empty "schedule: legacy post with missing publishDate does not crash the scan" "$result"
 
 result=$(with_repo _sched_no_pub_mixed)
-assert_eq    "schedule: today-dated post is promoted even when a no-pub legacy post coexists" "content/posts/today.md" "$result"
+assert_eq "schedule: today-dated post is promoted even when a no-pub legacy post coexists" "content/posts/today.md" "$result"
 
 # ── lookback window + promotedAt ledger ───────────────────────────────────────
 #
@@ -267,10 +286,10 @@ _look_already_promoted() {
 }
 _look_promoted_vs_fresh() {
   # A stamped post must not mask an unstamped one in the same scan.
-  make_promoted_post "content/posts/done.md"  "$TODAY"
-  commit_at          "content/posts/done.md"  "$TODAY"
-  make_post          "content/posts/fresh.md" "$TODAY"
-  commit_at          "content/posts/fresh.md" "$TODAY"
+  make_promoted_post "content/posts/done.md" "$TODAY"
+  commit_at "content/posts/done.md" "$TODAY"
+  make_post "content/posts/fresh.md" "$TODAY"
+  commit_at "content/posts/fresh.md" "$TODAY"
   run_find schedule
 }
 _look_custom_window() {
@@ -289,7 +308,7 @@ _look_stamp_makes_idempotent() {
 }
 
 result=$(with_repo _look_recent_past)
-assert_eq    "lookback: promotes a post whose publishDate already passed (the old exact-day gap)" "content/posts/late.md" "$result"
+assert_eq "lookback: promotes a post whose publishDate already passed (the old exact-day gap)" "content/posts/late.md" "$result"
 
 result=$(with_repo _look_ancient)
 assert_empty "lookback: skips a post older than the default 30-day window" "$result"
@@ -298,10 +317,10 @@ result=$(with_repo _look_already_promoted)
 assert_empty "ledger: skips a post that already carries promotedAt" "$result"
 
 result=$(with_repo _look_promoted_vs_fresh)
-assert_eq    "ledger: a promoted post does not hide an unpromoted one in the same scan" "content/posts/fresh.md" "$result"
+assert_eq "ledger: a promoted post does not hide an unpromoted one in the same scan" "content/posts/fresh.md" "$result"
 
 result=$(with_repo _look_custom_window)
-assert_eq    "lookback: PROMOTE_LOOKBACK_DAYS widens the window" "content/posts/old.md" "$result"
+assert_eq "lookback: PROMOTE_LOOKBACK_DAYS widens the window" "content/posts/old.md" "$result"
 
 result=$(with_repo _look_stamp_makes_idempotent)
 assert_empty "ledger: promote → stamp → re-scan is idempotent" "$result"
@@ -311,13 +330,25 @@ assert_empty "ledger: promote → stamp → re-scan is idempotent" "$result"
 echo ""
 echo "── manual mode ─────────────────────────────────────────"
 
-_manual_old()         { make_post "content/posts/old.md"   "2020-01-01";      commit_at "content/posts/old.md"   "2020-01-01"; run_find manual "content/posts/old.md";   }
-_manual_draft()       { make_post "content/posts/d.md"     "$TODAY" true;     commit_at "content/posts/d.md"     "$TODAY";     run_find manual "content/posts/d.md";     }
-_manual_missing()     {                                                                                                          run_find manual "content/posts/gone.md"; }
-_manual_no_promote()  { make_post "content/posts/q.md"     "$TODAY" false true; commit_at "content/posts/q.md"   "$TODAY";     run_find manual "content/posts/q.md";     }
+_manual_old() {
+  make_post "content/posts/old.md" "2020-01-01"
+  commit_at "content/posts/old.md" "2020-01-01"
+  run_find manual "content/posts/old.md"
+}
+_manual_draft() {
+  make_post "content/posts/d.md" "$TODAY" true
+  commit_at "content/posts/d.md" "$TODAY"
+  run_find manual "content/posts/d.md"
+}
+_manual_missing() { run_find manual "content/posts/gone.md"; }
+_manual_no_promote() {
+  make_post "content/posts/q.md" "$TODAY" false true
+  commit_at "content/posts/q.md" "$TODAY"
+  run_find manual "content/posts/q.md"
+}
 
 result=$(with_repo _manual_old)
-assert_eq   "manual: returns path regardless of publishDate" "content/posts/old.md" "$result"
+assert_eq "manual: returns path regardless of publishDate" "content/posts/old.md" "$result"
 
 result=$(with_repo _manual_draft)
 assert_empty "manual: skips draft" "$result"
@@ -330,11 +361,11 @@ assert_empty "manual: skips post with promote: false" "$result"
 
 _manual_already_promoted() {
   make_promoted_post "content/posts/done.md" "$TODAY"
-  commit_at          "content/posts/done.md" "$TODAY"
+  commit_at "content/posts/done.md" "$TODAY"
   run_find manual "content/posts/done.md"
 }
 result=$(with_repo _manual_already_promoted)
-assert_eq   "manual: re-promotes a post that already has promotedAt (deliberate override)" "content/posts/done.md" "$result"
+assert_eq "manual: re-promotes a post that already has promotedAt (deliberate override)" "content/posts/done.md" "$result"
 
 # ── edge cases (date/path invariants) ─────────────────────────────────────────
 
@@ -392,32 +423,32 @@ _edge_body_publish_date() {
 }
 
 result=$(with_repo _edge_datetime_pub)
-assert_eq    "edge: schedule handles publishDate with time component (get_publish_date strips T...)" "content/posts/dt.md" "$result"
+assert_eq "edge: schedule handles publishDate with time component (get_publish_date strips T...)" "content/posts/dt.md" "$result"
 
 result=$(with_repo _edge_missing_pub_date)
 assert_empty "edge: schedule skips post with missing publishDate" "$result"
 
 result=$(with_repo _edge_quoted_date)
-assert_eq    "edge: schedule handles quoted publishDate (tr -d '\"' branch)" "content/posts/quoted.md" "$result"
+assert_eq "edge: schedule handles quoted publishDate (tr -d '\"' branch)" "content/posts/quoted.md" "$result"
 
 result=$(with_repo _edge_sched_empty_dir)
 assert_empty "edge: schedule is a no-op when content/posts has no .md files" "$result"
 
 result=$(with_repo _edge_manual_out_of_tree)
-assert_eq    "edge: manual accepts path outside content/posts (permissive, date check skipped)" "other/dir/external.md" "$result"
+assert_eq "edge: manual accepts path outside content/posts (permissive, date check skipped)" "other/dir/external.md" "$result"
 
 result=$(with_repo _edge_body_promote_false)
-assert_eq    "edge: 'promote: false' in body (not frontmatter) does not skip promotion" "content/posts/bodypromote.md" "$result"
+assert_eq "edge: 'promote: false' in body (not frontmatter) does not skip promotion" "content/posts/bodypromote.md" "$result"
 
 result=$(with_repo _edge_body_draft_true)
-assert_eq    "edge: 'draft: true' in body (not frontmatter) does not mark as draft" "content/posts/bodydraft.md" "$result"
+assert_eq "edge: 'draft: true' in body (not frontmatter) does not mark as draft" "content/posts/bodydraft.md" "$result"
 
 result=$(with_repo _edge_body_publish_date)
-assert_eq    "edge: 'publishDate: ...' in body (not frontmatter) is ignored, frontmatter date wins" "content/posts/bodypub.md" "$result"
+assert_eq "edge: 'publishDate: ...' in body (not frontmatter) is ignored, frontmatter date wins" "content/posts/bodypub.md" "$result"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 
 echo ""
-TOTAL=$(( PASS + FAIL ))
+TOTAL=$((PASS + FAIL))
 printf "%d/%d tests passed\n" "$PASS" "$TOTAL"
 [ "$FAIL" -eq 0 ]

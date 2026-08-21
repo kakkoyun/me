@@ -53,7 +53,7 @@ if [[ "${CONTEXT:-}" != "production" ]]; then
   head_author=$(git log -1 --format='%ae' HEAD 2>/dev/null || echo "")
   if [[ "${head_subject}" != *'[netlify]'* ]]; then
     case "${HEAD:-}" in
-      renovate/*|dependabot/*)
+      renovate/* | dependabot/*)
         echo "netlify-ignore: bot branch ${HEAD}, skipping preview (build.yml validates this). Override with [netlify] in commit subject."
         exit 0
         ;;
