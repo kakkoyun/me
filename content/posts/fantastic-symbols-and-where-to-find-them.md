@@ -19,6 +19,8 @@ tags:
   - blog
 showCanonicalLink: true
 canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them
+promotedAt:
+  - 2022-01-27T00:00:00Z
 ---
 
 Symbolization is a technique that allows you to translate machine memory addresses to human-readable symbol information (symbols).

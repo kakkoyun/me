@@ -18,6 +18,8 @@ tocOpen: false
 promote: true
 showCanonicalLink: true
 canonicalUrl: https://opentelemetry.io/blog/2026/go-compile-time-instrumentation-v1/
+promotedAt:
+  - 2026-07-22T00:00:00Z
 ---
 
 > [!NOTE]

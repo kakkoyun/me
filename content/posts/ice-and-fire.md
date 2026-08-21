@@ -29,6 +29,8 @@ tags:
   - blog
 showCanonicalLink: true
 canonicalUrl: https://www.polarsignals.com/blog/posts/2023/03/28/how-to-read-icicle-and-flame-graphs
+promotedAt:
+  - 2023-03-28T00:00:00Z
 ---
 
 I am too lazy now a days to re-post the blog post with all its assets and animations here. So until I get to it, I have put a link to it here. Enjoy :)

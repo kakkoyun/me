@@ -12,6 +12,8 @@ tags:
   - beginnings
   - reflection
   - blog
+promotedAt:
+  - 2024-03-18T00:00:00Z
 ---
 
 A new chapter in my professional journey

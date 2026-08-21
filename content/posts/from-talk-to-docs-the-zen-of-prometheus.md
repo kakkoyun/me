@@ -15,6 +15,8 @@ cover:
   image: /uploads/the-zen-now.png
   alt: The Zen of Prometheus, now part of the official Prometheus documentation
   caption: "*The Zen of Prometheus* on [prometheus.io/docs/practices/the_zen/](https://prometheus.io/docs/practices/the_zen/)"
+promotedAt:
+  - 2026-05-15T00:00:00Z
 ---
 
 Every now and then a project surprises you by remembering something you said years ago. This week was one of those weeks. A talk I gave at [PromCon Online 2020](https://kakkoyun.me/talks/the-zen-of-prometheus/) — *The Zen of Prometheus* — has quietly become part of the [official Prometheus documentation](https://prometheus.io/docs/practices/the_zen/).

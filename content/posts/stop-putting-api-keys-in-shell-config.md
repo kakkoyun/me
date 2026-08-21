@@ -18,6 +18,8 @@ tags:
   - blog
 showToc: true
 tocOpen: false
+promotedAt:
+  - 2026-02-12T00:00:00Z
 ---
 
 We all know better. Don't hardcode secrets. Use a vault. Rotate your keys. We've been saying this for years.

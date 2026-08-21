@@ -22,6 +22,8 @@ showToc: false
 tocOpen: false
 showCanonicalLink: false
 substack: false
+promotedAt:
+  - 2026-08-17T00:00:00Z
 ---
 
 Jonathan Hall and Shay Nehmad had me on Cup o' Go for episode 167, straight after their GopherCon US recap. We spent about forty minutes on instrumentation: what an APM tool is actually measuring, and the three ways you can get telemetry out of a Go program without asking every team to rewrite their handlers.

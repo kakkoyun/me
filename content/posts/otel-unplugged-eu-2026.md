@@ -19,6 +19,8 @@ cover:
   image: /uploads/otel_unplugged_2026_crowd.jpeg
   alt: OTel Unplugged EU 2026 — crowd voting on sessions
   caption: OTel Unplugged EU 2026 — session voting at Sparks Meeting, Brussels
+promotedAt:
+  - 2026-02-20T00:00:00Z
 ---
 
 ### Brussels Again, But Make It Unplugged

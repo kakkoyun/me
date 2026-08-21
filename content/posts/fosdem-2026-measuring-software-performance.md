@@ -15,6 +15,8 @@ cover:
   image: /uploads/fosdem26_perf_talk.jpeg
   alt: Measuring Software Performance
   caption: FOSDEM 2026 — Software Performance Devroom
+promotedAt:
+  - 2026-03-06T00:00:00Z
 ---
 
 ### A Loose Cable That Broke Physics

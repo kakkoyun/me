@@ -17,6 +17,8 @@ cover:
   image: /uploads/fosdem26_ebpf_devroom.jpeg
   alt: eBPF Devroom at FOSDEM 2026
   caption: eBPF Devroom at FOSDEM 2026
+promotedAt:
+  - 2026-02-13T00:00:00Z
 ---
 
 ### Another Year, Another FOSDEM

@@ -16,6 +16,8 @@ tags:
   - growth
   - reflection
   - blog
+promotedAt:
+  - 2024-10-16T00:00:00Z
 ---
 
 Startups can be exciting arenas of innovation, filled with ambitious goals, rapid development cycles, and the allure of shaping the future.
