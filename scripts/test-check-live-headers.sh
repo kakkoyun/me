@@ -91,7 +91,7 @@ PROBE
 
 run_check() {
   HEADERS_PROBE_CMD="$1" \
-    NETLIFY_CONFIG="$TMP/netlify.toml" \
+    NETLIFY_CONFIG="${NETLIFY_TOML:-$TMP/netlify.toml}" \
     BASE_URL="https://example.test" \
     HEADERS_MAX_WAIT=0 HEADERS_SLEEP=0 \
     EXPECT_CSP_ENFORCED="${2:-0}" \
@@ -114,8 +114,8 @@ make_probe "$TMP/no-csp.sh" "x-permitted-cross-domain-policies: none"
 out=$(run_check "$TMP/no-csp.sh") && rc=0 || rc=$?
 assert_eq "an /admin/ response with no CSP fails" "1" "$rc"
 case "$out" in
-  *"no Content-Security-Policy at all"*) pass "  ...and says so" ;;
-  *) fail "  ...and says so" "no Content-Security-Policy at all" "$out" ;;
+  *"missing Content-Security-Policy-Report-Only"*) pass "  ...and names the header" ;;
+  *) fail "  ...and names the header" "missing Content-Security-Policy-Report-Only" "$out" ;;
 esac
 
 # COOP is the one header whose *presence* is the bug.
@@ -124,13 +124,54 @@ cross-origin-opener-policy: same-origin"
 out=$(run_check "$TMP/coop.sh") && rc=0 || rc=$?
 assert_eq "Cross-Origin-Opener-Policy on /admin/ fails" "1" "$rc"
 
-# Report-Only is correct before the flip and wrong after it.
+# The flip changes netlify.toml AND the CI flag. Either one alone is a mistake,
+# and the check has to say which half is missing rather than quietly passing.
 out=$(run_check "$TMP/ok.sh" 1) && rc=0 || rc=$?
-assert_eq "Report-Only fails once EXPECT_CSP_ENFORCED=1" "1" "$rc"
+assert_eq "flag flipped but config not: fails" "1" "$rc"
+case "$out" in
+  *"still declares Content-Security-Policy-Report-Only"*) pass "  ...and names the missing half" ;;
+  *) fail "  ...and names the missing half" "still declares ...-Report-Only" "$out" ;;
+esac
+
+cp "$TMP/netlify.toml" "$TMP/netlify-enforced.toml"
+sed -i.bak 's/Content-Security-Policy-Report-Only/Content-Security-Policy/' "$TMP/netlify-enforced.toml"
 
 make_probe "$TMP/enforced.sh" "content-security-policy: default-src 'none'"
-out=$(run_check "$TMP/enforced.sh" 1) && rc=0 || rc=$?
-assert_eq "an enforcing CSP passes with EXPECT_CSP_ENFORCED=1" "0" "$rc"
+out=$(NETLIFY_TOML="$TMP/netlify-enforced.toml" run_check "$TMP/enforced.sh" 1) && rc=0 || rc=$?
+assert_eq "config and flag both flipped: passes" "0" "$rc"
+
+out=$(NETLIFY_TOML="$TMP/netlify-enforced.toml" run_check "$TMP/enforced.sh" 0) && rc=0 || rc=$?
+assert_eq "config flipped but flag not: fails" "1" "$rc"
+
+# An accidental early flip must not be waved through by the Report-Only run.
+make_probe "$TMP/early-flip.sh" "content-security-policy: default-src 'none'"
+out=$(run_check "$TMP/early-flip.sh") && rc=0 || rc=$?
+assert_eq "an enforcing CSP served while config says Report-Only fails" "1" "$rc"
+
+# A leftover rule serving BOTH names means something outside netlify.toml is
+# adding one — the Netlify UI, most likely.
+make_probe "$TMP/both.sh" "content-security-policy-report-only: default-src 'none'
+content-security-policy: default-src 'none'"
+out=$(run_check "$TMP/both.sh") && rc=0 || rc=$?
+assert_eq "serving both CSP header names fails" "1" "$rc"
+
+# Redirect hops must not satisfy a check the final page fails.
+cat >"$TMP/redirect.sh" <<'PROBE'
+#!/usr/bin/env bash
+# A hop that carries every header, followed by a final response that carries none.
+printf '%s\n' 'HTTP/1.1 301 Moved Permanently'
+printf '%s\n' 'x-content-type-options: nosniff'
+printf '%s\n' 'referrer-policy: strict-origin-when-cross-origin'
+printf '%s\n' 'x-frame-options: DENY'
+printf '%s\n' 'x-robots-tag: noindex, nofollow'
+printf '%s\n' "content-security-policy-report-only: default-src 'none'"
+printf '%s\n' ''
+printf '%s\n' 'HTTP/2 200'
+printf '%s\n' 'content-type: text/html'
+PROBE
+chmod +x "$TMP/redirect.sh"
+out=$(run_check "$TMP/redirect.sh") && rc=0 || rc=$?
+assert_eq "headers on a redirect hop do not count for the final page" "1" "$rc"
 
 # A CSP on the blog pages means someone added one without the theme refactor.
 cat >"$TMP/root-csp.sh" <<'PROBE'

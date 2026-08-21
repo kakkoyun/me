@@ -90,9 +90,17 @@ CONNECT_SRC=$(directive connect-src)
 # matched by check 3 instead.
 mapfile -t PAGE_HASHES < <(
   perl -0777 -ne '
-    while (/<script>(.*?)<\/script>/gs) {
+    # Match any <script ...> opener, not just the bare one, then skip the tags
+    # that load an external file. Matching only `<script>` would silently omit a
+    # block the moment someone adds an attribute such as type="module" — and an
+    # omitted block is one the enforcing CSP would refuse to run, with `make
+    # test` reporting all clear. The attribute alternation tolerates > inside
+    # quoted values and spans newlines (the bundle tag is multi-line).
+    while (/<script\b((?:[^>"\x27]|"[^"]*"|\x27[^\x27]*\x27)*)>(.*?)<\/script>/gis) {
+      my ($attrs, $body) = ($1, $2);
+      next if $attrs =~ /\bsrc\s*=/i;
       open(my $p, "|-", "openssl dgst -sha256 -binary | openssl base64 -A") or die;
-      print $p $1;
+      print $p $body;
       close $p;
       print "\n";
     }

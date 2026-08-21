@@ -95,6 +95,41 @@ if [ "${#SITE_PAIRS[@]}" -eq 0 ] || [ "${#ADMIN_PAIRS[@]}" -eq 0 ]; then
   exit 1
 fi
 
+# Which of the two CSP header names is expected comes from netlify.toml, not
+# from the flag. EXPECT_CSP_ENFORCED then only has to assert that the config and
+# the intent agree — which catches an accidental early flip, a stale Netlify UI
+# rule, and a flip that changed one of the two places but not the other.
+CSP_NAME=""
+CSP_WANT=""
+for pair in "${ADMIN_PAIRS[@]}"; do
+  case "${pair%%$'\t'*}" in
+    Content-Security-Policy | Content-Security-Policy-Report-Only)
+      CSP_NAME="${pair%%$'\t'*}"
+      CSP_WANT="${pair#*$'\t'}"
+      ;;
+  esac
+done
+
+if [ -z "$CSP_NAME" ]; then
+  echo "ERROR: the /admin/* block in $NETLIFY_CONFIG declares no Content-Security-Policy" >&2
+  exit 1
+fi
+
+if [ "$EXPECT_CSP_ENFORCED" = "1" ] && [ "$CSP_NAME" != "Content-Security-Policy" ]; then
+  fail "EXPECT_CSP_ENFORCED=1 but $NETLIFY_CONFIG still declares $CSP_NAME — the flip changes both, in one PR"
+fi
+if [ "$EXPECT_CSP_ENFORCED" != "1" ] && [ "$CSP_NAME" = "Content-Security-Policy" ]; then
+  fail "$NETLIFY_CONFIG declares an enforcing Content-Security-Policy but EXPECT_CSP_ENFORCED is not 1 — the flip changes both, in one PR"
+fi
+
+# The opposite name must be absent from the response, so a leftover rule serving
+# both cannot satisfy the check.
+if [ "$CSP_NAME" = "Content-Security-Policy" ]; then
+  CSP_UNWANTED="Content-Security-Policy-Report-Only"
+else
+  CSP_UNWANTED="Content-Security-Policy"
+fi
+
 # ── Fetching ─────────────────────────────────────────────────────────────────
 # Follows redirects (-L) so a trailing-slash bounce still lands on the real
 # response. No `curl -f`: a --fail would hide the status code we want to report.
@@ -107,13 +142,24 @@ fetch_headers() {
   curl -sSL -o /dev/null -D - --max-time 15 "$url"
 }
 
+# `curl -D - -L` dumps the headers of EVERY hop, so a redirect (or a proxy's
+# "HTTP/1.1 200 Connection Established") that happens to carry a header would
+# otherwise satisfy a check the final page fails. Keep only the last block.
+final_response() {
+  printf '%s\n' "$1" | awk '
+    /^HTTP\// { block = "" }
+    { block = block $0 "\n" }
+    END { printf "%s", block }
+  '
+}
+
 # Fetch until the response carries a marker header, or the shared deadline
 # passes. A deploy in flight serves the old build, which has no such header —
 # so "marker missing" and "not deployed yet" are the same wait.
 fetch_until_present() {
   local url="$1" marker="$2" out
   while true; do
-    out=$(fetch_headers "$url")
+    out=$(final_response "$(fetch_headers "$url")")
     if printf '%s\n' "$out" | grep -qi "^${marker}:"; then
       printf '%s\n' "$out"
       return 0
@@ -180,14 +226,17 @@ fi
 
 # ── /admin/ — the CMS ────────────────────────────────────────────────────────
 echo "Checking $BASE_URL/admin/"
-ADMIN=$(fetch_until_present "$BASE_URL/admin/" "X-Robots-Tag") \
-  || fail "$BASE_URL/admin/ never served X-Robots-Tag within ${HEADERS_MAX_WAIT}s"
+# Wait on the CSP header by name, not on X-Robots-Tag. At the flip, the PREVIOUS
+# deploy already serves X-Robots-Tag, so that marker is satisfied instantly and
+# the script would grade the old Report-Only response — a deterministic false
+# failure on the one run that matters. The CSP name is what actually changes.
+ADMIN=$(fetch_until_present "$BASE_URL/admin/" "$CSP_NAME") \
+  || fail "$BASE_URL/admin/ never served $CSP_NAME within ${HEADERS_MAX_WAIT}s — not deployed yet?"
 
 for pair in "${SITE_PAIRS[@]}"; do
   expect_header "$ADMIN" "${pair%%$'\t'*}" "${pair#*$'\t'}" "$BASE_URL/admin/"
 done
 
-CSP_WANT=""
 for pair in "${ADMIN_PAIRS[@]}"; do
   name="${pair%%$'\t'*}"
   value="${pair#*$'\t'}"
@@ -198,13 +247,9 @@ for pair in "${ADMIN_PAIRS[@]}"; do
     [ "$site_pair" = "$pair" ] && already=1 && break
   done
   [ "$already" -eq 1 ] && continue
-  # The CSP is checked below instead: which header name is correct depends on
-  # EXPECT_CSP_ENFORCED, and netlify.toml only ever declares one of the two.
+  # The CSP is checked separately, below.
   case "$name" in
-    Content-Security-Policy | Content-Security-Policy-Report-Only)
-      CSP_WANT="$value"
-      continue
-      ;;
+    Content-Security-Policy | Content-Security-Policy-Report-Only) continue ;;
   esac
   expect_header "$ADMIN" "$name" "$value" "$BASE_URL/admin/"
 done
@@ -215,18 +260,10 @@ if has_header "$ADMIN" "Cross-Origin-Opener-Policy"; then
   fail "$BASE_URL/admin/ serves Cross-Origin-Opener-Policy — it severs window.opener and breaks Sveltia sign-in"
 fi
 
-if [ "$EXPECT_CSP_ENFORCED" = "1" ]; then
-  if has_header "$ADMIN" "Content-Security-Policy-Report-Only"; then
-    fail "expected an enforcing CSP but $BASE_URL/admin/ still serves Content-Security-Policy-Report-Only"
-  fi
-  expect_header "$ADMIN" "Content-Security-Policy" "$CSP_WANT" "$BASE_URL/admin/"
-elif has_header "$ADMIN" "Content-Security-Policy-Report-Only"; then
-  expect_header "$ADMIN" "Content-Security-Policy-Report-Only" "$CSP_WANT" "$BASE_URL/admin/"
-elif has_header "$ADMIN" "Content-Security-Policy"; then
-  # Already flipped in netlify.toml but the CI flag has not caught up yet.
-  expect_header "$ADMIN" "Content-Security-Policy" "$CSP_WANT" "$BASE_URL/admin/"
-else
-  fail "$BASE_URL/admin/ serves no Content-Security-Policy at all"
+expect_header "$ADMIN" "$CSP_NAME" "$CSP_WANT" "$BASE_URL/admin/"
+
+if has_header "$ADMIN" "$CSP_UNWANTED"; then
+  fail "$BASE_URL/admin/ serves $CSP_UNWANTED as well as $CSP_NAME; netlify.toml declares only $CSP_NAME, so something else is adding one (a stale Netlify UI rule?)"
 fi
 
 if [ "$ERRORS" -gt 0 ]; then

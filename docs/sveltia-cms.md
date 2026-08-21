@@ -135,7 +135,7 @@ and would be decorative. `check-live-headers.sh` fails if a CSP ever appears on
 | Script | Runs | Asserts |
 | --- | --- | --- |
 | `scripts/check-admin-csp.sh` | `make test` → `lint.yml`, every PR | the CSP in `netlify.toml` still matches `static/admin/index.html` — inline-script hashes, bundle origin and pinning, a non-wildcard `connect-src`, no COOP |
-| `scripts/check-live-headers.sh` | `links.yml`, master pushes + weekly | the deployed site actually *serves* those headers. Nothing appears in the build output for a header rule, so this is the only place a silently-dropped header would surface |
+| `scripts/check-live-headers.sh` | `links.yml`, master pushes + weekly | the deployed site actually *serves* those headers, with the configured **values**. Nothing appears in the build output for a header rule, so this is the only place a silently-dropped or weakened header would surface |
 | `scripts/check-repo-access.sh` | `links.yml`, master pushes + weekly — **only if `REPO_ADMIN_TOKEN` is set** | push access to this repo is exactly `kakkoyun` |
 
 Run any of them by hand:
@@ -172,10 +172,12 @@ Editing `static/admin/index.html` changes an inline script's hash, so
 `make test` will fail until the new hash is in `netlify.toml`. Recompute with:
 
 ```bash
-perl -0777 -ne 'while (/<script>(.*?)<\/script>/gs) {
-  open(my $p, "|-", "openssl dgst -sha256 -binary | openssl base64 -A"); print $p $1; close $p; print "\n" }' \
-  static/admin/index.html
+bash scripts/check-admin-csp.sh   # prints the hash to add, if one is missing
 ```
+
+The guard matches any inline `<script>` — attributes and all — and excludes only
+tags with a `src=`, so adding `type="module"` to a block does not silently drop
+it from the policy.
 
 ### Turning the CSP on
 
@@ -195,6 +197,12 @@ To flip it, change the header name in `netlify.toml` to
 `security-headers` job in `links.yml`. Keep it a one-line-each diff, in its own
 PR: rollback is then a `git revert` plus a redeploy, roughly two minutes, with
 no archaeology under pressure.
+
+Both halves have to move together — `check-live-headers.sh` fails, naming the
+half you missed, if the config and the flag disagree in either direction. It
+also waits on the CSP header *by name* rather than on a header the previous
+deploy already serves, so the flip run grades the new deploy instead of racing
+it.
 
 Commits made through the CMS use the `commit_messages` templates in
 `config.yml`, so they land as `post: create <slug>` and match the repo's commit

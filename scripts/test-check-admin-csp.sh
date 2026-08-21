@@ -146,6 +146,46 @@ case "$out" in
   *) fail "  ...and explains why" "breaks login" "$out" ;;
 esac
 
+# An inline block carrying attributes must still be pinned. Matching only the
+# bare `<script>` opener would omit it — and an omitted block is one the
+# enforcing CSP refuses to run, with `make test` reporting all clear.
+cat >"$TMP/attributed.html" <<HTML
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <script>${INLINE_ONE}</script>
+    <script
+      src="https://unpkg.com/@sveltia/cms@0.191.0/dist/sveltia-cms.js"
+      integrity="sha384-vqs7J70ghmeGaGfUXWfvUK3kj+ssanA2dTEA5Uvu977zhm9tZzRB45Bz7wXO0Oux"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" data-note="a > inside a quoted value">${INLINE_TWO}
+      const extra = 1;
+    </script>
+  </body>
+</html>
+HTML
+out=$(run_check "$TMP/attributed.html" "$TMP/ok.toml") && rc=0 || rc=$?
+assert_eq "an attributed inline script is still pinned" "1" "$rc"
+
+# ...and the external bundle is still excluded by its src=, not by its shape.
+cat >"$TMP/attributed-ok.html" <<HTML
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <script type="text/javascript">${INLINE_ONE}</script>
+    <script
+      src="https://unpkg.com/@sveltia/cms@0.191.0/dist/sveltia-cms.js"
+      integrity="sha384-vqs7J70ghmeGaGfUXWfvUK3kj+ssanA2dTEA5Uvu977zhm9tZzRB45Bz7wXO0Oux"
+      crossorigin="anonymous"
+    ></script>
+    <script defer>${INLINE_TWO}</script>
+  </body>
+</html>
+HTML
+out=$(run_check "$TMP/attributed-ok.html" "$TMP/ok.toml") && rc=0 || rc=$?
+assert_eq "attributes do not change the hash, and src= tags stay excluded" "0" "$rc"
+
 # A missing block is a config error, not a policy failure.
 printf '[[headers]]\n  for = "/*"\n\n  [headers.values]\n    X-Frame-Options = "DENY"\n' >"$TMP/noadmin.toml"
 out=$(run_check "$HTML" "$TMP/noadmin.toml") && rc=0 || rc=$?
