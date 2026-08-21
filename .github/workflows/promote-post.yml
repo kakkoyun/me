@@ -2,12 +2,14 @@ name: Promote New Post
 
 on:
   schedule:
-    # Run every day at 6 AM UTC — catches scheduled posts on their publish day
+    # Every day at 6 AM UTC. Promotes any live post published within the last
+    # PROMOTE_LOOKBACK_DAYS (30) that has no promotedAt stamp yet — not just
+    # posts published today. See scripts/find-promotable-posts.sh.
     - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       post_path:
-        description: 'Path to a specific post (content/posts/my-post.md). Leave blank to promote everything due today.'
+        description: 'Path to a specific post (content/posts/my-post.md) — promotes it even if already promoted or outside the window. Leave blank to promote everything due and unpromoted.'
         required: false
         type: string
       dry_run:
@@ -15,6 +17,19 @@ on:
         required: false
         default: 'false'
         type: boolean
+
+# Serialize runs. The promotedAt ledger only dedupes across runs that can see
+# each other's commits: two overlapping runs — a manual dispatch firing while the
+# 06:00 cron is still going — would both read an empty promotedAt and both post.
+# Queueing means the second run checks out after the first has pushed its stamp.
+#
+# cancel-in-progress stays false: cancelling a *running* promotion could kill it
+# between posting to Buffer and writing the stamp, which is the one state the
+# ledger cannot recover from. GitHub may still drop a superseded *pending* run,
+# which is harmless — the lookback window picks that post up the next morning.
+concurrency:
+  group: promote-post
+  cancel-in-progress: false
 
 jobs:
   # Publishing the site is no longer this workflow's job — that moved to
@@ -44,6 +59,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: false
+          # Pinned to master, not the dispatch ref. workflow_dispatch can be run
+          # from any branch, and checkout would otherwise follow it — so
+          # "Record promotion" below, which does `git push origin HEAD:master`,
+          # would push that whole branch onto master. Promotion only ever acts
+          # on published content, which lives on master, so read it from there.
+          ref: master
           # Needed so the "Record promotion" step can push the stamp back.
           persist-credentials: true
 
