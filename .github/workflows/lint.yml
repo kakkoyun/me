@@ -24,7 +24,18 @@ jobs:
           path: scripts
           pattern: "*.sh"
           exclude: "./.git/*"
-          fail_level: error
+          # scripts/buffer is a bash script with no .sh extension, so the
+          # pattern above misses it. It was linted by nothing at all before.
+          check_all_files_with_shebangs: "true"
+          # Pinned: the action wrapper is SHA-pinned but the tool inside it was
+          # not, so a new ShellCheck release could turn the build red with no
+          # change to this repo. Renovate has nothing to bump without this.
+          shellcheck_version: "v0.10.0"
+          # Match `make lint` exactly. shellcheck exits non-zero on any finding
+          # locally, so a warning that fails the documented pre-commit gate has
+          # to fail CI too — otherwise the two gates disagree about "green".
+          level: style
+          fail_level: any
 
   actionlint:
     name: actionlint
@@ -40,7 +51,34 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          fail_level: error
+          actionlint_version: "1.7.12"
+          level: style
+          fail_level: any
+
+  shfmt:
+    name: shfmt
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # Installed from the release binary rather than an action wrapper so CI
+      # runs the identical `make fmt-check` a contributor runs locally, against
+      # a pinned version. Formatting rules come from .editorconfig, which shfmt
+      # reads itself — there are no flags here to drift out of sync.
+      - name: Install shfmt
+        env:
+          SHFMT_VERSION: v3.13.1
+        run: |
+          curl -fsSL -o /tmp/shfmt \
+            "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64"
+          chmod +x /tmp/shfmt
+          sudo mv /tmp/shfmt /usr/local/bin/shfmt
+          shfmt --version
+
+      - name: Check formatting
+        run: make fmt-check
 
   test:
     name: Script tests

@@ -13,6 +13,7 @@ ifeq ($(GO_INSTALL_BIN),)
 endif
 export PATH := $(PATH):$(GO_INSTALL_BIN)
 
+.PHONY: fmt fmt-check
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
 
 # Default target
@@ -251,16 +252,40 @@ check-hugo:
 	  echo "✅ Hugo OK: $$(hugo version | awk '{print $$1,$$2}')"; \
 	fi
 
-# Run shellcheck on all shell scripts
+# Every shell script we own. Discovered by shebang, not by extension, so
+# extensionless executables like scripts/buffer are covered — `*.sh` silently
+# skipped it before, in both the Makefile and CI.
+SHELL_FILES = $(shell grep -rl '^#!.*\(bash\|sh\)$$' scripts/ 2>/dev/null | sort)
+
+# Run shellcheck on all shell scripts.
+# Source-following comes from .shellcheckrc (external-sources=true), which is
+# what makes the `# shellcheck source=` directives in scripts/ do anything.
 shellcheck:
-	shellcheck scripts/*.sh scripts/lib/*.sh
+	@command -v shellcheck >/dev/null 2>&1 || { echo "❌ ShellCheck not found. Install with: brew install shellcheck"; exit 1; }
+	shellcheck $(SHELL_FILES)
 
 # Run actionlint on all GitHub Actions workflows
 actionlint:
+	@command -v actionlint >/dev/null 2>&1 || { echo "❌ actionlint not found. Install with: brew install actionlint"; exit 1; }
 	actionlint .github/workflows/*.yml
 
+# Format shell scripts in place. Style comes from .editorconfig, which shfmt
+# reads directly — there are deliberately no formatting flags here to drift.
+fmt:
+	@command -v shfmt >/dev/null 2>&1 || { echo "❌ shfmt not found. Install with: brew install shfmt"; exit 1; }
+	shfmt -w $(SHELL_FILES)
+
+# Fail if anything is unformatted. This is the gate; `make fmt` is the fix.
+fmt-check:
+	@command -v shfmt >/dev/null 2>&1 || { echo "❌ shfmt not found. Install with: brew install shfmt"; exit 1; }
+	@out=$$(shfmt -l $(SHELL_FILES)); \
+	if [ -n "$$out" ]; then \
+	  echo "❌ Not shfmt-formatted:"; echo "$$out" | sed 's/^/   /'; \
+	  echo "   Run: make fmt"; exit 1; \
+	else echo "✅ shfmt: all shell scripts formatted"; fi
+
 # Run all linters
-lint: shellcheck actionlint
+lint: fmt-check shellcheck actionlint
 
 # Run unit tests for scripts
 test:

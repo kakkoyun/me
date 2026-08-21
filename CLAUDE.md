@@ -25,6 +25,10 @@ make humanizer-update   # Pull latest humanizer skill submodule
 make vale-sync          # Fetch third-party Vale style packages (proselint, write-good)
 make vale               # Run Vale prose linter on content/
 make test               # Script unit tests + CMS field and frontmatter checks
+make fmt                # Format shell scripts with shfmt (style from .editorconfig)
+make fmt-check          # Fail if any shell script is unformatted
+make lint               # shfmt --check + ShellCheck + actionlint
+make check              # Pre-commit gate: lint + test (run before opening a PR)
 make prose              # Alias for vale with a summary count
 ```
 
@@ -185,7 +189,7 @@ GitHub Actions workflows:
 - **`links.yml`** -- Weekly + push/PR link checking via lychee. Excludes social platforms that block bots. Auto-creates issue on broken links.
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags.
 - **`deploy-scheduled.yml`** -- Daily cron at `00:10 UTC` (+ manual `workflow_dispatch`) that POSTs the Netlify build hook so **future-dated posts go live on their publish day**. The production build omits `--buildFuture` (see `netlify.toml`), so a post merged ahead of its `publishDate` stays hidden until a build runs at/after that date; a push to master only rebuilds when something is pushed, so this cron is what flips scheduled posts visible. A pre-flight `check` job runs `scripts/posts-publishing-today.sh` and skips the Netlify hook entirely when nothing is due, so the cron only consumes a build minute on a publishing day; `workflow_dispatch` bypasses the gate (the human pressing it has already decided). After triggering the build it verifies a *today-dated* post actually went live (same `scripts/posts-publishing-today.sh` + `scripts/check-post-live.sh`) rather than blindly sleeping — Netlify's atomic deploys keep the homepage at 200 off the old build, so reachability alone wouldn't prove freshness. Needs the `NETLIFY_BUILD_HOOK_URL` secret. Use the manual dispatch as a "publish now" button. **This is the publishing mechanism — promotion (below) no longer rebuilds.**
-- **`lint.yml`** -- ShellCheck on `scripts/` and actionlint on workflows. Reviewdog-based PR annotations.
+- **`lint.yml`** -- shfmt, ShellCheck, and actionlint, plus `make test`. Reviewdog-based PR annotations for the two linters. Gates are set to match `make lint` exactly (`level: style`, `fail_level: any`), so a finding that fails locally also fails CI; tool versions are pinned alongside the action SHAs, since the wrapper being pinned does not pin the tool inside it.
 - **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block). Auto-fires on content paths.
 - **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
 - **`claude-code-review.yml`** -- Generic code reviewer. Label-triggered only (apply `claude-review` to fire). Advisory.
@@ -266,6 +270,34 @@ Two skills shape the writing and are wired into both the local command and the C
 - **`humanizer`** (`.claude/skills/humanizer/SKILL.md`) — AI-pattern detector from [blader/humanizer](https://github.com/blader/humanizer), vendored as a git submodule at `tools/humanizer/` with `.claude/skills/humanizer` as a symlink. Applied as a revision pass after drafting. The CI workflow initialises just this submodule (`tools/humanizer`) before the action runs; sync locally with `make humanizer-update`.
 
 Local: `/project:promote-post content/posts/<slug>.md` in any Claude Code session.
+
+## Shell Script Conventions
+
+`scripts/` is now load-bearing — publishing, promotion, and the frontmatter
+ledger all run through it — so the scripts are linted and formatted as strictly
+as any other source.
+
+- **Formatting is enforced**, not advisory. `make fmt` formats, `make fmt-check`
+  gates, and CI runs the same target. Style lives in `.editorconfig` (2-space,
+  indented `case` branches, `||` at line start) which shfmt reads directly, so
+  there are no formatter flags anywhere to drift out of sync with your editor.
+- **`.shellcheckrc` sets `external-sources=true`.** Without it ShellCheck refuses
+  to follow `source` and the `# shellcheck source=scripts/lib/frontmatter.sh`
+  directives are inert — every caller just reports SC1091 and the shared helpers
+  are never checked against how callers actually use them.
+- **Scripts are discovered by shebang, not by extension** (`SHELL_FILES` in the
+  Makefile). `scripts/buffer` has no `.sh` suffix and was previously linted by
+  nothing at all.
+- Conventions the tooling assumes, all pre-existing: `#!/usr/bin/env bash`,
+  `set -euo pipefail`, quoted expansions, a header comment saying what the script
+  is for and listing its env tunables. Deviations from `set -e` are deliberate and
+  commented — `check-post-live.sh` and `netlify-ignore.sh` use exit codes as
+  signal, and `scripts/lib/frontmatter.sh` sets no flags because it is sourced.
+- Shared frontmatter parsing belongs in `scripts/lib/frontmatter.sh`. Do not add
+  a fourth copy of the awk block — that duplication is what the library replaced.
+- Every script gets a `scripts/test-<name>.sh` companion wired into `make test`.
+  The existing suites are self-contained: temp dirs, stubbed commands via env
+  seams (`LIVE_PROBE_CMD`), pinned clocks (`TODAY_OVERRIDE`), no network.
 
 ## Commit Style
 

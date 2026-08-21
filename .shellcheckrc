@@ -1,0 +1,8 @@
+# ShellCheck configuration.
+#
+# external-sources lets ShellCheck follow `source` into scripts/lib/. Without
+# it every caller emits SC1091 and the `# shellcheck source=` directives already
+# written at five call sites do nothing — meaning ShellCheck never actually
+# checks how fm_get/fm_list/fm_block are used, which is most of what the shared
+# library exists to make safe.
+external-sources=true
