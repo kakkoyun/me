@@ -79,10 +79,12 @@ jobs:
         run: |
           chmod +x scripts/find-promotable-posts.sh
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "$POST_PATH" ]; then
-            # Manual run targeting one specific post (skips the date check).
+            # Manual run targeting one specific post. Skips both the date window
+            # and the promotedAt ledger — this is the deliberate re-promote path.
             POSTS=$(scripts/find-promotable-posts.sh manual "$POST_PATH")
           else
-            # Daily cron, or a manual run with no post_path: promote everything due today.
+            # Daily cron, or a manual run with no post_path: every live post
+            # published inside the lookback window that has no promotedAt yet.
             POSTS=$(scripts/find-promotable-posts.sh schedule)
           fi
 
