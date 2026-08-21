@@ -13,7 +13,7 @@ ifeq ($(GO_INSTALL_BIN),)
 endif
 export PATH := $(PATH):$(GO_INSTALL_BIN)
 
-.PHONY: fmt fmt-check
+.PHONY: fmt fmt-check shfmt-version
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
 
 # Default target
@@ -252,10 +252,21 @@ check-hugo:
 	  echo "✅ Hugo OK: $$(hugo version | awk '{print $$1,$$2}')"; \
 	fi
 
-# Every shell script we own. Discovered by shebang, not by extension, so
-# extensionless executables like scripts/buffer are covered — `*.sh` silently
-# skipped it before, in both the Makefile and CI.
-SHELL_FILES = $(shell grep -rl '^#!.*\(bash\|sh\)$$' scripts/ 2>/dev/null | sort)
+# Every shell script we own. Discovered by shebang across the whole repo, not
+# by extension and not rooted at scripts/, so two things stay covered for free:
+# extensionless executables like scripts/buffer (which `*.sh` silently skipped
+# in both the Makefile and CI), and any script added outside scripts/ later.
+# Submodules and build output are excluded — we do not format vendored code.
+SHELL_FILES = $(shell grep -rIl --exclude-dir=.git --exclude-dir=themes \
+	--exclude-dir=tools --exclude-dir=public --exclude-dir=node_modules \
+	-E '^#!.*(bash|sh)$$' . 2>/dev/null | sed 's|^\./||' | sort)
+
+# The shfmt release CI pins (see .github/workflows/lint.yml). A formatter is
+# only reproducible if everyone runs the same build — a different version can
+# reformat files that are already conformant, producing churn nobody asked for.
+# Warned about rather than enforced, so a contributor on a near-enough version
+# is not blocked.
+SHFMT_VERSION = v3.13.1
 
 # Run shellcheck on all shell scripts.
 # Source-following comes from .shellcheckrc (external-sources=true), which is
@@ -271,13 +282,19 @@ actionlint:
 
 # Format shell scripts in place. Style comes from .editorconfig, which shfmt
 # reads directly — there are deliberately no formatting flags here to drift.
-fmt:
-	@command -v shfmt >/dev/null 2>&1 || { echo "❌ shfmt not found. Install with: brew install shfmt"; exit 1; }
+fmt: shfmt-version
 	shfmt -w $(SHELL_FILES)
 
-# Fail if anything is unformatted. This is the gate; `make fmt` is the fix.
-fmt-check:
+# Shared guard: shfmt present, and the same build CI uses.
+shfmt-version:
 	@command -v shfmt >/dev/null 2>&1 || { echo "❌ shfmt not found. Install with: brew install shfmt"; exit 1; }
+	@have=$$(shfmt --version); \
+	if [ "$$have" != "$(SHFMT_VERSION)" ]; then \
+	  echo "⚠️  shfmt $$have, but CI pins $(SHFMT_VERSION) — formatting may differ."; \
+	fi
+
+# Fail if anything is unformatted. This is the gate; `make fmt` is the fix.
+fmt-check: shfmt-version
 	@out=$$(shfmt -l $(SHELL_FILES)); \
 	if [ -n "$$out" ]; then \
 	  echo "❌ Not shfmt-formatted:"; echo "$$out" | sed 's/^/   /'; \
