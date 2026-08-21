@@ -14,6 +14,8 @@ tags:
   - blog
 showToc: true
 tocOpen: false
+promotedAt:
+  - 2026-02-12T00:00:00Z
 ---
 
 If you work at a company that runs its own Go module proxy and you connect through a VPN, you've probably seen this:

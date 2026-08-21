@@ -11,12 +11,15 @@ SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/check-cms-fields.sh"
 
 PASS=0
 FAIL=0
-pass() { printf "  \033[32mPASS\033[0m  %s\n" "$1"; (( PASS += 1 )); }
+pass() {
+  printf "  \033[32mPASS\033[0m  %s\n" "$1"
+  ((PASS += 1))
+}
 fail() {
   printf "  \033[31mFAIL\033[0m  %s\n" "$1"
   printf "         expected exit: %s\n" "${2:-<empty>}"
   printf "         actual exit:   %s\n" "${3:-<empty>}"
-  (( FAIL += 1 ))
+  ((FAIL += 1))
 }
 assert_exit() {
   local label="$1" want="$2" got=0
@@ -32,7 +35,7 @@ CONFIG="$TMP/static/admin/config.yml"
 
 begin_config() {
   mkdir -p "$(dirname "$CONFIG")"
-  echo "collections:" > "$CONFIG"
+  echo "collections:" >"$CONFIG"
 }
 
 add_collection() {
@@ -47,7 +50,7 @@ add_collection() {
       echo "      - name: $f"
       echo "        widget: string"
     done
-  } >> "$CONFIG"
+  } >>"$CONFIG"
 }
 
 make_config() {
@@ -76,7 +79,7 @@ make_config_nested() {
       echo "            name: $f"
       echo "            widget: string"
     done
-  } >> "$CONFIG"
+  } >>"$CONFIG"
 }
 
 make_entry() {
@@ -92,7 +95,7 @@ make_entry() {
     done
     echo "---"
     echo "body"
-  } > "$file"
+  } >"$file"
 }
 
 make_post() {

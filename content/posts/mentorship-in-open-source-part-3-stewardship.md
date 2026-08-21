@@ -24,6 +24,8 @@ cover:
   image: /uploads/bloomberg-engineering-logo.png
   alt: Bloomberg Engineering logo
   caption: Bloomberg Engineering — whose CNCF piece on sustaining OpenTelemetry frames this post.
+promotedAt:
+  - 2026-06-05T00:00:00Z
 ---
 
 [The first post in this thread](/posts/mentorship-in-open-source/) was about why I keep saying yes to mentorship. [The second](/posts/mentorship-in-open-source-part-2-mentee-playbook/) was the playbook for mentees. This one is for the people on the other side of the table: the maintainers, the SIG leads, the engineers in companies that *depend on* a project and are starting to wonder whether dependency is enough.

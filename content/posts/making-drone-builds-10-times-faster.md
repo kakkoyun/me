@@ -15,6 +15,8 @@ tags:
 date: 2019-04-10T00:00:00Z
 image: https://raw.githubusercontent.com/meltwater/drone-cache/master/images/drone_gopher.png
 publishDate: 2019-04-10T00:00:00Z
+promotedAt:
+  - 2019-04-10T00:00:00Z
 ---
 
 We open sourced [drone-cache][drone-cache], a plugin for the popular Continuous Delivery platform [Drone][drone]. It allows you to cache dependencies and interim files between builds to reduce your build times. This post explains why we are using Drone, why we needed a cache plugin, and what I learned while trying to release drone-cache as open source software.

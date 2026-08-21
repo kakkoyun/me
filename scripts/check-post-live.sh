@@ -30,7 +30,7 @@ BASE_URL="${BASE_URL:-https://kakkoyun.me}"
 LIVE_MAX_WAIT="${LIVE_MAX_WAIT:-300}"
 LIVE_SLEEP="${LIVE_SLEEP:-15}"
 
-deadline=$(( $(date +%s) + LIVE_MAX_WAIT ))
+deadline=$(($(date +%s) + LIVE_MAX_WAIT))
 
 # Map content/posts/<slug>.md -> BASE_URL/posts/<slug>/
 post_url() {

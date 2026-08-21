@@ -18,6 +18,8 @@ tags:
   - reflection
 series:
   - Mentorship in Open Source
+promotedAt:
+  - 2026-05-22T00:00:00Z
 ---
 
 There's a moment that keeps happening to me. Someone I mentored two or three years ago shows up in a SIG call, on a maintainers' list, on a stage at KubeCon. They've shipped something I couldn't have shipped alone. They're answering questions I once answered for them. And the part that gets me: they're already mentoring someone else.

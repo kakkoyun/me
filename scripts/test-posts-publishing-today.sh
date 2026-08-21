@@ -12,12 +12,15 @@ TODAY="2026-05-29"
 
 PASS=0
 FAIL=0
-pass() { printf "  \033[32mPASS\033[0m  %s\n" "$1"; (( PASS += 1 )); }
+pass() {
+  printf "  \033[32mPASS\033[0m  %s\n" "$1"
+  ((PASS += 1))
+}
 fail() {
   printf "  \033[31mFAIL\033[0m  %s\n" "$1"
   printf "         expected: %s\n" "${2:-<empty>}"
   printf "         actual:   %s\n" "${3:-<empty>}"
-  (( FAIL += 1 ))
+  ((FAIL += 1))
 }
 assert_eq() { if [ "$2" = "$3" ]; then pass "$1"; else fail "$1" "$2" "$3"; fi; }
 
@@ -34,7 +37,7 @@ make_post() {
     [ "$draft" = "true" ] && echo "draft: true"
     echo "---"
     echo "body"
-  } > "$file"
+  } >"$file"
 }
 
 run() { POSTS_DIR="$TMP" TODAY_OVERRIDE="$TODAY" bash "$SCRIPT"; }

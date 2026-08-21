@@ -18,6 +18,8 @@ cover:
   image: /uploads/cursor_400x400.jpg
   alt: Cursor
   caption: Cursor
+promotedAt:
+  - 2025-03-12T00:00:00Z
 ---
 
 > TL;DR: Spent a week building cool stuff with [Cursor](https://cursor.com), an AI-powered IDE. Found it surprisingly effective for both coding and managing my [second brain](https://www.buildingasecondbrain.com/). When your requirements are clear, it's almost magical! ✨ {{< sidenote side="alternate" >}}"Magic" here = fast iteration because the AI had unambiguous intent + cohesive context windows.{{< /sidenote >}}

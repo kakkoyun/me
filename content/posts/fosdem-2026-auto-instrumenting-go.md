@@ -18,6 +18,8 @@ cover:
   image: /uploads/fosdem26_go_talk.jpeg
   alt: Auto-Instrumenting Go
   caption: FOSDEM 2026 — Go Devroom
+promotedAt:
+  - 2026-02-27T00:00:00Z
 ---
 
 This post expands on the [FOSDEM 2026 Go Devroom talk](/talks/how-to-instrument-go-without-changing-code/) I co-presented with [Hannah S. Kim](https://hannahkm.github.io). The talk, demo code, and all benchmark scenarios are available in the [fosdem-2026 repository](https://github.com/kakkoyun/fosdem-2026).

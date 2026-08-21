@@ -14,6 +14,8 @@ tags:
   - Analysis
   - blog
 description: Discover how eBPF and Parca are transforming Python profiling, enabling continuous, efficient, and non-intrusive performance analysis directly in production.
+promotedAt:
+  - 2024-02-12T00:00:00Z
 ---
 
 # Profiling Python with eBPF: A New Frontier in Performance Analysis

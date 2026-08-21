@@ -28,6 +28,8 @@ tags:
   - blog
 showCanonicalLink: true
 canonicalUrl: https://www.polarsignals.com/blog/posts/2022/01/27/fantastic-symbols-and-where-to-find-them-part-2
+promotedAt:
+  - 2022-01-27T00:00:00Z
 ---
 
 > [!IMPORTANT]

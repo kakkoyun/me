@@ -1,0 +1,67 @@
+{{- /* Meta line for a single post. Replaces PaperMod's post_meta.html at the
+       one call site in layouts/_default/single.html.
+
+       Upstream renders a single date, `.Date`. On this site `date` is the day a
+       post was *started* and `publishDate` the day it went out, and those are
+       often months apart — so upstream showed a post published in August as
+       "May 22, 2026". Closing that gap by hand, by editing `date` up to the
+       publish day before merging, is what this replaces.
+
+       Here `publishDate` is the date shown, and when `date` is earlier the two
+       are rendered side by side and labelled. When they match — the normal case
+       — the output is byte-identical to upstream, down to the attribute quoting.
+
+       Scoped to the posts section, following extend_post_content.html: on a talk
+       `date` is the day it was given, so "Written" would be a lie. Talks, notes
+       and standalone pages keep upstream's single-date line.
+
+       This is a separate partial rather than an override of post_meta.html
+       because that partial also renders the footer of every list and taxonomy
+       entry, where a two-date line is noise. Only the single-post header
+       shows both.
+
+       Display only — list and archive ordering still sorts on `.Date`. See
+       config.yaml for the one-line change that would move ordering too.
+
+       The non-date blocks below are upstream's, kept in upstream's order so a
+       future PaperMod change stays easy to diff against. */ -}}
+
+{{- $scratch := newScratch }}
+{{- $dateFmt := default ":date_long" site.Params.DateFormat }}
+
+{{- $shown := .PublishDate }}
+{{- if $shown.IsZero }}{{ $shown = .Date }}{{ end }}
+{{- /* Compare by day: these differ by date, never by time of day. */ -}}
+{{- $split := and (eq .Section "posts")
+                  (not .Date.IsZero)
+                  (not $shown.IsZero)
+                  (lt (.Date.Format "2006-01-02") ($shown.Format "2006-01-02")) }}
+
+{{- if $split }}
+    {{- $scratch.Add "meta" (slice (printf "<span title='%s'>Written %s</span>" (.Date) (.Date | time.Format $dateFmt))) }}
+    {{- $scratch.Add "meta" (slice (printf "<span>Published %s</span>" ($shown | time.Format $dateFmt))) }}
+{{- else if not .Date.IsZero -}}
+    {{- /* Upstream's date block, unchanged: anything that is not a post with a
+           split date renders exactly what PaperMod would. */ -}}
+    {{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Date) (.Date | time.Format $dateFmt))) }}
+{{- end }}
+
+{{- if (.Param "ShowReadingTime") -}}
+    {{- $scratch.Add "meta" (slice (printf "<span>%s</span>" (i18n "read_time" .ReadingTime | default (printf "%d min" .ReadingTime)))) }}
+{{- end }}
+
+{{- if (.Param "ShowWordCount") -}}
+    {{- $scratch.Add "meta" (slice (printf "<span>%s</span>" (i18n "words" .WordCount | default (printf "%d words" .WordCount)))) }}
+{{- end }}
+
+{{- if not (.Param "hideAuthor") -}}
+    {{- with (partial "author.html" .) }}
+        {{- $scratch.Add "meta" (slice (printf "<span>%s</span>" .)) }}
+    {{- end }}
+{{- end }}
+
+{{/* Combine all meta information into a single string with separators and render it as HTML.*/}}
+
+{{- with ($scratch.Get "meta") }}
+    {{- delimit . "&nbsp;·&nbsp;" | safeHTML -}}
+{{- end -}}

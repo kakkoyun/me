@@ -13,6 +13,8 @@ cover:
   image: /uploads/fosdem25_train.jpeg
   alt: FOSDEM 2025
   caption: FOSDEM 2025
+promotedAt:
+  - 2025-02-04T00:00:00Z
 ---
 
 ### Another Year, Another FOSDEM

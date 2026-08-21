@@ -24,7 +24,23 @@ jobs:
           path: scripts
           pattern: "*.sh"
           exclude: "./.git/*"
-          fail_level: error
+          # scripts/buffer is a bash script with no .sh extension, so the
+          # pattern above misses it. It was linted by nothing at all before.
+          check_all_files_with_shebangs: "true"
+          # Match `make lint`: shellcheck exits non-zero on any finding locally,
+          # so a warning that fails the documented pre-commit gate has to fail
+          # CI too, or the two disagree about what "green" means.
+          #
+          # `level:` is deliberately not set. It only accepts info/warning/error
+          # — there is no "style" level — and fail_level is what gates anyway.
+          #
+          # The ShellCheck version is not pinnable here: this action exposes no
+          # version input and hard-codes the binary it installs (0.11.0 as of
+          # the pinned SHA). Renovate bumping the action SHA is the only lever,
+          # so an upstream ShellCheck bump arrives with an action bump. `make
+          # lint` locally uses whatever the contributor installed, which can
+          # differ — the gate that counts is this one.
+          fail_level: any
 
   actionlint:
     name: actionlint
@@ -40,7 +56,34 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          fail_level: error
+          # Same as above: no version input on this action, and `level:` takes
+          # only info/warning/error. fail_level is the gate.
+          fail_level: any
+
+  shfmt:
+    name: shfmt
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # Installed from the release binary rather than an action wrapper so CI
+      # runs the identical `make fmt-check` a contributor runs locally, against
+      # a pinned version. Formatting rules come from .editorconfig, which shfmt
+      # reads itself — there are no flags here to drift out of sync.
+      - name: Install shfmt
+        env:
+          SHFMT_VERSION: v3.13.1
+        run: |
+          curl -fsSL -o /tmp/shfmt \
+            "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64"
+          chmod +x /tmp/shfmt
+          sudo mv /tmp/shfmt /usr/local/bin/shfmt
+          shfmt --version
+
+      - name: Check formatting
+        run: make fmt-check
 
   test:
     name: Script tests

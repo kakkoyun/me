@@ -25,13 +25,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATES_DIR="$ROOT_DIR/templates/emails"
 
-if (( $# > 0 )); then
+if (($# > 0)); then
   targets=("$@")
 else
   mapfile -t targets < <(find "$TEMPLATES_DIR" -maxdepth 1 -type f -name '*.mjml' | sort)
 fi
 
-if (( ${#targets[@]} == 0 )); then
+if ((${#targets[@]} == 0)); then
   echo "validate-emails: no .mjml files found under $TEMPLATES_DIR" >&2
   exit 0
 fi
@@ -83,7 +83,7 @@ for tpl in "${targets[@]}"; do
   # any repo change. Bump the major manually when intentional.
   rc=0
   out=$(npx --yes mjml@4 --validate strict "$tpl" -o /dev/null 2>&1) || rc=$?
-  if (( rc != 0 )) || grep -qE 'Line [0-9]+|ValidationError|^Error' <<<"$out"; then
+  if ((rc != 0)) || grep -qE 'Line [0-9]+|ValidationError|^Error' <<<"$out"; then
     echo "  FAILED: $tpl"
     if [[ -n "$out" ]]; then
       # SC2001-friendly: prepend each line with four spaces using bash
@@ -96,7 +96,7 @@ for tpl in "${targets[@]}"; do
   fi
 done
 
-if (( failed )); then
+if ((failed)); then
   echo ""
   echo "validate-emails: one or more templates failed validation." >&2
   exit 1
