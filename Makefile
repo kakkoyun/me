@@ -312,8 +312,12 @@ test:
 	@bash scripts/test-check-cms-fields.sh
 	@bash scripts/test-record-promotion.sh
 	@bash scripts/test-check-frontmatter.sh
+	@bash scripts/test-check-admin-csp.sh
+	@bash scripts/test-check-live-headers.sh
+	@bash scripts/test-check-repo-access.sh
 	@bash scripts/check-cms-fields.sh
 	@bash scripts/check-frontmatter.sh
+	@bash scripts/check-admin-csp.sh
 
 # Pre-commit gate: every static + dynamic check we run in CI.
 # Run this locally before pushing to catch issues before the PR opens.

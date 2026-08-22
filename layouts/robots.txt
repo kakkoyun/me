@@ -3,7 +3,11 @@ Allow: /
 Disallow: /search/
 Disallow: /admin/
 
-# AI/LLM crawlers - explicitly welcomed
+# AI/LLM crawlers - explicitly welcomed.
+#
+# robots.txt matching picks the SINGLE most specific matching group, so these
+# agents do not inherit the Disallow lines above — they have to be repeated here
+# or /admin/ and /search/ would be open to this group alone.
 User-agent: GPTBot
 User-agent: ChatGPT-User
 User-agent: Google-Extended
@@ -11,5 +15,7 @@ User-agent: anthropic-ai
 User-agent: PerplexityBot
 User-agent: Claude-Web
 Allow: /
+Disallow: /search/
+Disallow: /admin/
 
 Sitemap: {{ "sitemap.xml" | absURL }}

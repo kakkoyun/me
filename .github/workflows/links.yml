@@ -281,3 +281,56 @@ jobs:
                 labels: ['broken-links', 'automated'],
               });
             }
+
+  # Live security-header + repo-access check.
+  #
+  # `make test` proves netlify.toml *declares* the right headers; nothing in the
+  # build output reflects whether Netlify is actually *serving* them, so this is
+  # the only place that failure mode surfaces. Runs on master pushes (waiting out
+  # the in-flight Netlify deploy via the script's retry budget) and on the weekly
+  # cron, which is what catches the headers silently disappearing months later.
+  #
+  # The repo-access check asserts the invariant the CMS sign-in model rests on:
+  # push access to this repo is exactly the expected set of people, because there
+  # is no separate allowlist inside Sveltia. See docs/sveltia-cms.md.
+  security-headers:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      # Lifted to job level because `secrets` is not available in a step `if:`.
+      REPO_ADMIN_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Check live security headers
+        run: bash scripts/check-live-headers.sh
+        env:
+          BASE_URL: https://kakkoyun.me
+          # Flip to 1 in the same PR that changes netlify.toml from
+          # Content-Security-Policy-Report-Only to Content-Security-Policy.
+          EXPECT_CSP_ENFORCED: '0'
+
+      # Deliberately gated on an optional secret rather than GITHUB_TOKEN.
+      # The collaborators endpoint needs Administration: read, and
+      # `administration` is not a settable workflow permissions key — so a
+      # workflow token always 403s here. Rather than add a long-lived PAT to
+      # this repo just to run a tripwire (the same trade this PR declines for
+      # the GitHub App private key), the check runs only if REPO_ADMIN_TOKEN
+      # exists and is skipped, loudly, if it does not. Locally it works with
+      # your own gh session. See docs/sveltia-cms.md.
+      - name: Check repo push access
+        if: env.REPO_ADMIN_TOKEN != ''
+        run: bash scripts/check-repo-access.sh
+        env:
+          GITHUB_TOKEN: ${{ env.REPO_ADMIN_TOKEN }}
+          REQUIRE_TOKEN: '1'
+          EXPECTED_PUSHERS: kakkoyun
+
+      - name: Note when the repo access check is not wired up
+        if: env.REPO_ADMIN_TOKEN == ''
+        run: |
+          echo "::notice::Repo push-access check skipped — no REPO_ADMIN_TOKEN secret."
+          echo "::notice::Run it by hand: GITHUB_TOKEN=\$(gh auth token) bash scripts/check-repo-access.sh"
