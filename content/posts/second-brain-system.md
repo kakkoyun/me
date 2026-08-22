@@ -17,6 +17,8 @@ tags:
 showToc: true
 tocOpen: false
 showCanonicalLink: false
+promotedAt:
+  - 2026-08-22T06:15:44Z
 ---
 
 At 9:14 a.m. on a Wednesday, I open the laptop. The daily briefing for today is already there.
