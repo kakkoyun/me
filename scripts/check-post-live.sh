@@ -32,11 +32,14 @@ LIVE_SLEEP="${LIVE_SLEEP:-15}"
 
 deadline=$(($(date +%s) + LIVE_MAX_WAIT))
 
-# Map content/posts/<slug>.md -> BASE_URL/posts/<slug>/
+# Map content/<section>/<slug>.md -> BASE_URL/<section>/<slug>/
+# The section is read from the path rather than assumed, so a talk maps to
+# /talks/<slug>/ and a post still maps to /posts/<slug>/.
 post_url() {
-  local slug
+  local slug section
   slug=$(basename "$1" .md)
-  printf '%s/posts/%s/' "$BASE_URL" "$slug"
+  section=$(basename "$(dirname "$1")")
+  printf '%s/%s/%s/' "$BASE_URL" "$section" "$slug"
 }
 
 # Probe a URL. HTTP 200 == live. Overridable via LIVE_PROBE_CMD for offline tests.
