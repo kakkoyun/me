@@ -65,6 +65,14 @@ package = "netlify-plugin-cache"
 # /admin/ holds a GitHub App user token in localStorage, so it gets a real CSP.
 #
 # Directive notes (scripts/check-admin-csp.sh enforces the ones that drift):
+#   script-src  KNOWN LIMITATION: allowing the unpkg.com origin trusts every
+#               script on a public CDN. SRI covers only the bundle element that
+#               carries integrity=, so HTML injection could add a different
+#               unpkg URL and run it under an enforcing policy. Narrowing this
+#               to 'strict-dynamic' + the bundle hash is a prerequisite for the
+#               flip, not a change to make blind — the bundle import()s more
+#               unpkg URLs at runtime. See "Turning the CSP on" in the docs.
+#
 #   script-src  the two sha256 hashes are the inline blocks in
 #               static/admin/index.html. Editing that file without recomputing
 #               them fails `make test`. unpkg.com is needed for the bundle AND
@@ -73,8 +81,12 @@ package = "netlify-plugin-cache"
 #               the bundle, so self-hosting it would not remove the origin.
 #   'wasm-unsafe-eval'  Shiki's oniguruma regex engine is WASM.
 #   style-src   'unsafe-inline' is unavoidable; Svelte injects styles at runtime.
-#   connect-src the load-bearing line — it is what stops an injected script from
-#               POSTing the GitHub token to an attacker-controlled host.
+#   connect-src reduces arbitrary network egress: it closes the easy path where
+#               injected code beacons the token straight to an attacker host. It
+#               does NOT prevent exfiltration — api.github.com must stay allowed,
+#               and a Contents:write token can commit its own value to the public
+#               `cms` branch through it. No CSP closes that while the credential
+#               lives in page JS. See docs/sveltia-cms.md.
 #
 # Deliberately absent: Cross-Origin-Opener-Policy. Sign-in is a popup that
 # postMessages the token back to window.opener; COOP: same-origin severs that

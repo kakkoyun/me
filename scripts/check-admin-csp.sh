@@ -98,7 +98,9 @@ mapfile -t PAGE_HASHES < <(
     # quoted values and spans newlines (the bundle tag is multi-line).
     while (/<script\b((?:[^>"\x27]|"[^"]*"|\x27[^\x27]*\x27)*)>(.*?)<\/script>/gis) {
       my ($attrs, $body) = ($1, $2);
-      next if $attrs =~ /\bsrc\s*=/i;
+      # (?:^|\s) not \b: `-` is a non-word character, so \bsrc would also match
+      # the tail of `data-src=` and skip a genuinely inline block.
+      next if $attrs =~ /(?:^|\s)src\s*=/i;
       open(my $p, "|-", "openssl dgst -sha256 -binary | openssl base64 -A") or die;
       print $p $body;
       close $p;

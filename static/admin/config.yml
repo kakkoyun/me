@@ -4,9 +4,11 @@
 # → OAuth), which holds the client ID and secret of a GitHub App registered for
 # this repo alone. Netlify's gateway is the default for sites hosted there, so
 # no base_url is needed. A GitHub App rather than a classic OAuth app on
-# purpose: its user token is bounded by where the app is installed, so signing
-# in without push access to this repo yields a token that can touch nothing.
-# See docs/sveltia-cms.md.
+# purpose: its user token is bounded by where the app is installed AND by the
+# signer's own permissions, so signing in without push access to this repo
+# yields a token that can commit nothing. It can still READ — this repo is
+# public, so that grants nothing github.com does not already serve anonymously.
+# The write denial is the guarantee. See docs/sveltia-cms.md.
 backend:
   name: github
   repo: kakkoyun/me

@@ -54,12 +54,24 @@ Anyone on the internet can load `/admin/` and start the sign-in flow. That is
 fine, and it is worth understanding exactly why.
 
 The app is installed on `kakkoyun/me` and nowhere else, and it asks for
-`Contents: read and write` plus `Metadata: read-only`. Intersect that with a
-stranger's permissions on this repo — none — and their token can read and write
-nothing. They land on an editor that cannot load a single file. There is no
-allowlist inside Sveltia doing this work; **the repo's push list is the
-allowlist**, which is why `scripts/check-repo-access.sh` asserts that list is
-exactly one account (see below).
+`Contents: read and write` plus `Metadata: read-only`. A stranger's token is the
+intersection of that with their own permissions on this repo.
+
+This repo is **public**, so a stranger does have read — everyone does. Their
+token therefore carries `Contents: read`, and the editor will load and show them
+the content. That grants them nothing: github.com already serves every one of
+those files anonymously, without any sign-in at all.
+
+What the intersection denies is **write**. A stranger has no push access, so
+their token cannot commit, and every save fails. That is the entire guarantee,
+and it is the only one that was ever load-bearing. There is no allowlist inside
+Sveltia doing this work; **the repo's push list is the allowlist**, which is why
+`scripts/check-repo-access.sh` asserts that list is exactly one account (see
+below).
+
+Note this reasoning depends on the repo being public. Were it ever made private,
+a stranger's intersection would drop to nothing and they would not get past the
+sign-in at all — a stronger position, but not the one relied on today.
 
 ### GitHub App settings that carry weight
 
@@ -103,8 +115,16 @@ After sign-in the token lives in the browser's **localStorage** on the
 on `/admin/*` (plus a site-wide baseline of `X-Content-Type-Options`,
 `Referrer-Policy`, `X-Frame-Options` and `Permissions-Policy` on `/*`).
 
-`connect-src` is the load-bearing directive: it names the handful of hosts the
-editor may talk to, so an injected script cannot POST the token anywhere else.
+`connect-src` names the handful of hosts the editor may talk to. Be precise
+about what that buys: it **reduces arbitrary network egress**, closing the easy
+path where injected code beacons the token straight to an attacker's host. It
+does **not** prevent exfiltration. `api.github.com` has to stay allowed for the
+CMS to work at all, and the token it carries has `Contents: write` — so injected
+code can use that one permitted host to commit the token's own value into a file
+on the public `cms` branch, which an attacker then reads anonymously. The
+consolation is that this route leaves a commit in the history; the point is that
+no CSP can close it while the credential lives in page JavaScript.
+
 `script-src` pins the two inline blocks in `static/admin/index.html` by sha256.
 
 Two things about that policy are easy to get wrong:
@@ -191,6 +211,19 @@ deliberately exercise the paths that pull the lazy chunks: the media library, a
 post with a fenced code block (Shiki), the emoji picker, a sidenote or tooltip
 component, and a save that lands a commit on `cms`. Fold any real violations
 into the policy.
+
+**Prerequisite: narrow `script-src` off the bare unpkg origin.** Allowing
+`https://unpkg.com` trusts every script on a public CDN — SRI protects only the
+bundle element that carries `integrity=`, so HTML injection into `/admin/` could
+add a *different* unpkg URL and run it under an enforcing policy. The fix is to
+authorize the bundle by hash and add `'strict-dynamic'`, dropping the origin.
+
+That is not a blind change: the bundle `import()`s `@shikijs/*`, `@sveltia/ui`,
+`emojilib` and pdf.js from hardcoded unpkg URLs at runtime, and whether
+`strict-dynamic` propagates trust to dynamic `import()` has to be tested rather
+than assumed. Test it against the same lazy-chunk paths the soak exercises. If it
+holds, the flip ships it; if it does not, record why the origin allowance stays
+and what it costs, so the next reader knows it was weighed rather than missed.
 
 To flip it, change the header name in `netlify.toml` to
 `Content-Security-Policy` and set `EXPECT_CSP_ENFORCED: '1'` on the

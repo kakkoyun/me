@@ -162,6 +162,9 @@ cat >"$TMP/attributed.html" <<HTML
     <script type="module" data-note="a > inside a quoted value">${INLINE_TWO}
       const extra = 1;
     </script>
+    <script data-src="not-an-external-script.js">${INLINE_ONE}
+      const alsoInline = 1;
+    </script>
   </body>
 </html>
 HTML
@@ -185,6 +188,32 @@ cat >"$TMP/attributed-ok.html" <<HTML
 HTML
 out=$(run_check "$TMP/attributed-ok.html" "$TMP/ok.toml") && rc=0 || rc=$?
 assert_eq "attributes do not change the hash, and src= tags stay excluded" "0" "$rc"
+
+# `-` is a non-word character, so a \b-anchored src pattern also matches the tail
+# of `data-src=` and skips a block that is genuinely inline. Same failure mode as
+# the bare-<script> bug: silent, and only visible once the CSP is enforcing.
+cat >"$TMP/data-src.html" <<HTML
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <script data-src="looks-external-but-is-not.js">${INLINE_ONE}</script>
+    <script data-source="also-not-src">${INLINE_TWO}</script>
+    <script
+      src="https://unpkg.com/@sveltia/cms@0.191.0/dist/sveltia-cms.js"
+      integrity="sha384-vqs7J70ghmeGaGfUXWfvUK3kj+ssanA2dTEA5Uvu977zhm9tZzRB45Bz7wXO0Oux"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
+HTML
+out=$(run_check "$TMP/data-src.html" "$TMP/ok.toml") && rc=0 || rc=$?
+assert_eq "data-src does not make an inline block look external" "0" "$rc"
+
+# And the same page with one hash withheld must fail, proving the block is
+# actually being hashed rather than skipped into a false pass.
+write_toml "$TMP/one-hash.toml" "$(printf "default-src 'none'; script-src 'self' https://unpkg.com 'sha256-%s'; connect-src 'self' https://unpkg.com" "$H2")"
+out=$(run_check "$TMP/data-src.html" "$TMP/one-hash.toml") && rc=0 || rc=$?
+assert_eq "a data-src block with no pinned hash fails" "1" "$rc"
 
 # A missing block is a config error, not a policy failure.
 printf '[[headers]]\n  for = "/*"\n\n  [headers.values]\n    X-Frame-Options = "DENY"\n' >"$TMP/noadmin.toml"
