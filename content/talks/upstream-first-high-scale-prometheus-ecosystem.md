@@ -32,8 +32,8 @@ This is from May 2021 and reflects the Red Hat setup of the time, so read the sp
 
 **Links**
 
-* [prometheus](https://github.com/prometheus/prometheus)
-* [thanos](https://github.com/thanos-io/thanos)
+* [Prometheus](https://github.com/prometheus/prometheus)
+* [Thanos](https://github.com/thanos-io/thanos)
 
 **Events**
 

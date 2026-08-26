@@ -18,11 +18,11 @@ cover:
   caption: FOSDEM 2024 — Python Devroom
 ---
 
-Most Python profilers ask you to decide in advance. You import something, or you wrap the process, or you restart it with a flag. That works on your laptop and helps very little at 3am, when the profile you want is of a process that has already been running for six hours.
+Most Python profilers ask you to decide in advance. You import something, or you wrap the process, or you restart it with a flag. That works on your laptop and helps little at 3 a.m., when the profile you want is of a process that has already been running for six hours.
 
 eBPF changes the bargain. An agent samples from the kernel on a timer, and the application never knows it is there. For compiled code that is close to free: read the registers, walk the frames, resolve the addresses against DWARF. Python is where it stops being easy.
 
-A CPython stack is not a machine stack. The interpreter keeps its own bookkeeping — interpreter state, a linked list of thread states, a chain of frame objects — and the function names you actually want live in there rather than in the native frames. So the agent has to reverse-engineer those structures, work out the field offsets for the exact CPython build in front of it, then follow the thread state to whichever thread holds the GIL and walk the frames by hand, all within the kernel verifier's limits.
+A CPython stack is not a machine stack. The interpreter keeps its own bookkeeping — interpreter state, a linked list of thread states, a chain of frame objects — and the function names you actually want live in there rather than in the native frames. Which leaves the agent to reverse-engineer those structures, work out the field offsets for the exact CPython build in front of it, then follow the thread state to whichever thread holds the GIL and walk the frames by hand, all within the kernel verifier's limits.
 
 This talk walks through that work as it landed in Parca: what the structures look like, how the offsets get found, which Python versions are supported and why the list has holes, and what Python 3.13 changes for anyone attempting this. Including the unglamorous part, which is that a good deal of it is version-specific glue that has to be re-derived every release.
 
@@ -37,8 +37,8 @@ This talk walks through that work as it landed in Parca: what the structures loo
 
 **Demo/Code**
 
-* [parca](https://github.com/parca-dev/parca) — the continuous profiler this work landed in
-* [parca-agent](https://github.com/parca-dev/parca-agent) — the eBPF agent that does the unwinding
+* [Parca](https://github.com/parca-dev/parca) — the continuous profiler this work landed in
+* [Parca Agent](https://github.com/parca-dev/parca-agent) — the eBPF agent that does the unwinding
 
 **Events**
 

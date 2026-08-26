@@ -34,7 +34,7 @@ One caveat worth stating plainly: this was recorded in April 2023. The architect
 
 **Links**
 
-* [prometheus](https://github.com/prometheus/prometheus)
+* [Prometheus](https://github.com/prometheus/prometheus)
 
 **Events**
 
