@@ -12,6 +12,10 @@ tags:
   - auto-instrumentation
   - ebpf
   - observability
+cover:
+  image: https://img.youtube.com/vi/tidmOddZOao/maxresdefault.jpg
+  alt: Instrument Go Without Changing a Single Line
+  caption: GopherCon UK 2026
 ---
 
 The debugging loop is slow. You cannot reproduce the bug locally, so you add a
@@ -46,6 +50,10 @@ The talk closes with a decision framework: start with the constraint you
 cannot change, then add the next layer only when its signal pays for its
 operational cost.
 
+#### Recording
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/tidmOddZOao" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 **Links**
 
 * [gopherconuk-26](https://github.com/kakkoyun/gopherconuk-26) — slides, speaker notes, and research
@@ -56,6 +64,7 @@ operational cost.
 **Events**
 
 * [GopherCon UK 2026](https://www.gophercon.co.uk/schedule) — Thursday 13 August 2026
+  * [Recording](https://www.youtube.com/watch?v=tidmOddZOao)
 
 **Related**
 
