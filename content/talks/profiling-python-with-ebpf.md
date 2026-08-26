@@ -33,6 +33,7 @@ This talk walks through that work as it landed in Parca: what the structures loo
 **Slides**
 
 * [Profiling Python with eBPF: A New Frontier in Performance Analysis](https://kakkoyun.me/notes/presentations/FOSDEM24+-+Profiling+Python+with+eBPF+-+A+New+Frontier+in+Performance+Analysis)
+  * [Slides - Markdown](https://github.com/kakkoyun/public-content/blob/main/presentations/2024/FOSDEM%202024%20-%20Profiling%20Python%20with%20eBPF%20-%20A%20New%20Frontier%20in%20Performance%20Analysis.md)
 
 **Demo/Code**
 

@@ -29,6 +29,7 @@ During this talk, we discuss valuable patterns and best practices for instrument
 **Slides**
 
 * [Are You Testing Your Observability?](https://github.com/kakkoyun/are-you-testing-your-observability)
+  * [Live slides](https://are-you-testing-your-observability.vercel.app/)
 
 **Events**
 
