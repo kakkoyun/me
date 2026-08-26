@@ -32,7 +32,7 @@ In this talk, we will bring these two concepts together, and explain how to writ
 
 **Slides**
 
-* [Building a Go Profiler Using Go](https://docs.google.com/presentation/d/1hKqxAC9aaWLPM4xwXyXuK5cp2LBAewOVqZ05qjLNnK8/edit?usp=sharing)
+* [Building a Go Profiler Using Go](https://docs.google.com/presentation/d/1VNx98laKlhRFfzY9o23N5OHpBBJnuYAmZf5l7Mr-CE0/edit?usp=sharing)
 
 **Events**
 

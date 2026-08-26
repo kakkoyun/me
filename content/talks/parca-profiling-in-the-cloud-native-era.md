@@ -28,5 +28,5 @@ For years Google has consistently been able to cut down multiple percentage poin
 
 **Events**
 
-* [KubeCon NA 2021](https://sched.co/zrPZ)
+* [KubeCon NA 2021](https://kccncna2021.sched.com/event/lV4W/conprof-profiling-in-the-cloud-native-era-matthias-loibl-polar-signals-kemal-akkoyun-red-hat)
   * [Recording](https://youtu.be/ficc6_6RYQk)
