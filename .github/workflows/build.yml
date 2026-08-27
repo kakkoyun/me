@@ -121,6 +121,18 @@ jobs:
           configPath: .lighthouserc.yml
           uploadArtifacts: true
 
+      # The Lighthouse step is continue-on-error, so a failed assertion leaves no
+      # mark on the job. That is how the assertions stayed red for seven weeks
+      # while every run reported green: the only alarm was an issue that, once
+      # open, made every later run log "skipping duplicate" and move on.
+      # Write the results into the run summary so a failure is visible on the
+      # run page itself, on pull requests as well as pushes.
+      - name: Summarise Lighthouse assertions
+        if: always()
+        env:
+          LHCI_OUTCOME: ${{ steps.lhci.outcome }}
+        run: bash scripts/lighthouse-summary.sh >> "$GITHUB_STEP_SUMMARY"
+
       - name: Open issue on score drop
         if: steps.lhci.outcome == 'failure' && github.event_name == 'push'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -133,8 +145,39 @@ jobs:
               state: 'open',
               labels: ['lighthouse'],
             });
-            if (issues.some(i => i.title === title)) {
-              console.log('Issue already open, skipping duplicate.');
+            let summary = 'Assertion details unavailable.';
+            try {
+              const results = JSON.parse(
+                require('fs').readFileSync('.lighthouseci/assertion-results.json', 'utf8'));
+              const failed = results.filter(r => !r.passed);
+              if (failed.length) {
+                summary = ['| Level | Audit | Expected | Actual |',
+                           '|---|---|---|---|']
+                  .concat(failed.map(r =>
+                    `| ${r.level} | \`${r.auditId}\` | ${r.operator} ${r.expected} | ${r.actual} |`))
+                  .join('\n');
+              }
+            } catch (e) {
+              console.log(`Could not read assertion results: ${e.message}`);
+            }
+
+            const existing = issues.find(i => i.title === title);
+            if (existing) {
+              // Do not skip. An open issue used to silence every later run, so a
+              // regression that persisted looked identical to one that was fixed.
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: [
+                  `Still failing on ${context.sha.substring(0, 7)}.`,
+                  '',
+                  summary,
+                  '',
+                  `**Run:** ${context.payload.repository.html_url}/actions/runs/${context.runId}`,
+                ].join('\n'),
+              });
+              console.log(`Commented on existing issue #${existing.number}.`);
               return;
             }
             await github.rest.issues.create({
@@ -147,15 +190,10 @@ jobs:
                 '',
                 `One or more scores dropped below thresholds on commit ${context.sha}.`,
                 '',
-                '| Category | Threshold |',
-                '|----------|-----------|',
-                '| Performance | ≥ 90 |',
-                '| Accessibility | ≥ 97 |',
-                '| Best Practices | ≥ 95 |',
-                '| SEO | ≥ 97 |',
+                summary,
                 '',
                 `**Workflow run:** ${context.payload.repository.html_url}/actions/runs/${context.runId}`,
                 '',
-                'Download the Lighthouse report from the workflow artifacts for details.',
+                'Thresholds live in `.lighthouserc.yml`. The full report is in the workflow artifacts.',
               ].join('\n'),
             });
