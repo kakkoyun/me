@@ -164,6 +164,67 @@ write_page b.html '<img src="/b.png" alt="b"
     width="2" height="2">'
 assert_rc "several files of split tags all pass" 0 "$(rc_of)"
 
+# --- dimensions that are present but useless ------------------------------
+#
+# An attribute name is not a dimension. Each of these carries both width= and
+# height= and still gives the browser no aspect ratio to reserve space with, so
+# accepting them would let exactly the regression this check exists for through.
+
+reset
+write_page index.html '<img src="/a.png" alt="a" width="" height="">'
+assert_rc "empty width and height fail" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" width="auto" height="auto">'
+assert_rc "width=auto fails" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" width="abc" height="xyz">'
+assert_rc "non-numeric dimensions fail" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" width="0" height="0">'
+assert_rc "zero dimensions fail" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" width="800" height="">'
+assert_rc "one good and one empty dimension fails" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" width="800.5" height="600.5">'
+assert_rc "fractional dimensions fail" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" width=" 800 " height=" 600 ">'
+assert_rc "dimensions with surrounding space still pass" 0 "$(rc_of)"
+
+# --- style declarations that are present but useless ----------------------
+#
+# `width:` is a substring of `max-width:`, so a naive match accepted a purely
+# relative style as though it were a concrete size.
+
+reset
+write_page index.html '<img src="/a.png" alt="a" style="max-width:100%;max-height:100%">'
+assert_rc "max-width/max-height alone fail" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" style="width:auto;height:auto">'
+assert_rc "style width:auto fails" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" style="min-width:10px;min-height:4px">'
+assert_rc "min-width/min-height alone fail" 1 "$(rc_of)"
+
+# The Buy Me A Coffee button in content/_index.md is the reason the CSS branch
+# exists at all. It must keep passing whatever else gets tightened.
+reset
+write_page index.html '<a href="https://buymeacoffee.com/kakkoyun"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 32px; width: 114px;"></a>'
+assert_rc "the real Buy Me A Coffee button still passes" 0 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" style="max-width:100%;width:10px;height:4px">'
+assert_rc "a concrete size alongside max-width passes" 0 "$(rc_of)"
+
 # --- the allowlist --------------------------------------------------------
 
 reset

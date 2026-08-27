@@ -60,9 +60,7 @@ jobs:
       - name: Cache Hugo resources
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
-          path: |
-            resources/_gen
-            .cache/hugo
+          path: resources/_gen
           key: hugo-resources-${{ runner.os }}-${{ hashFiles('assets/**', 'static/uploads/**', 'content/**/*.md', 'config.yaml') }}
           restore-keys: |
             hugo-resources-${{ runner.os }}-
@@ -105,9 +103,7 @@ jobs:
       - name: Cache Hugo resources
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
-          path: |
-            resources/_gen
-            .cache/hugo
+          path: resources/_gen
           key: hugo-resources-${{ runner.os }}-${{ hashFiles('assets/**', 'static/uploads/**', 'content/**/*.md', 'config.yaml') }}
           restore-keys: |
             hugo-resources-${{ runner.os }}-

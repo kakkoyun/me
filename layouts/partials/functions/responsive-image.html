@@ -111,6 +111,19 @@
   {{- $url := $src -}}
   {{- with $img -}}
     {{- $url = .RelPermalink -}}
+    {{- /* A raster Hugo resource knows its own size even when we refuse to
+           resize it. This is the GIF case: excluded from processing above so an
+           animated one is not flattened, but .Width/.Height are still there for
+           the asking, and without them a GIF would ship unsized and fail
+           scripts/check-image-sizes.sh. */ -}}
+    {{- if and (ne $subtype "svg") .MediaType -}}
+      {{- with (try .Width) -}}
+        {{- with .Value -}}{{- $w = . -}}{{- end -}}
+      {{- end -}}
+      {{- with (try .Height) -}}
+        {{- with .Value -}}{{- $h = . -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
     {{- if eq $subtype "svg" -}}
       {{- /* An <svg> root almost always carries width/height or a viewBox. */ -}}
       {{- $svg := .Content -}}

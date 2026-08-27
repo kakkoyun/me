@@ -63,3 +63,7 @@ content/newsletter/the-unwind/.brief-*.md
 
 # Claude Code agent worktrees (session-local checkouts)
 .claude/worktrees/
+
+# Build caches. Hugo's own caches live under resources/ (already ignored above);
+# this covers the paths netlify.toml's cache plugin restores into the tree.
+.cache/

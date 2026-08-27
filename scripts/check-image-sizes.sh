@@ -17,9 +17,11 @@
 # height). This script is what keeps them fixed.
 #
 # Passing means one of:
-#   - the tag has both width= and height= attributes, or
-#   - the tag has a style= attribute setting both width: and height:
-#     (Lighthouse accepts the CSS form, so this must too), or
+#   - the tag has width= and height= attributes that are both positive whole
+#     numbers, or
+#   - the tag has a style= attribute setting both width: and height: to a
+#     concrete length (Lighthouse accepts the CSS form, so this must too;
+#     "auto", max-width and min-width do not count), or
 #   - the tag's src matches a line in the allowlist.
 #
 # Usage: bash scripts/check-image-sizes.sh [public_dir]
@@ -76,9 +78,13 @@ REPORT=$(
         }
       }
 
-      function attr_present(tag, name,   re) {
-        re = "[ \t\n\r/]" name "[ \t\n\r]*="
-        return (tag ~ re)
+      # An attribute name is not a dimension: width="" and width="auto" both
+      # have the attribute and still leave the browser with no aspect ratio to
+      # reserve space with. Only a positive whole number counts.
+      function is_positive_int(v) {
+        gsub(/^[ \t\n\r]+|[ \t\n\r]+$/, "", v)
+        if (v !~ /^[0-9]+$/) return 0
+        return (v + 0) > 0
       }
 
       function attr_value(tag, name,   re, rest, v, q) {
@@ -108,12 +114,20 @@ REPORT=$(
           tag = chunk[i]
           p = index(tag, ">")
           if (p > 0) tag = substr(tag, 1, p - 1)
+          # XHTML-style self-closing: the trailing slash in <img ... 600/> is
+          # syntax, not part of the last unquoted attribute value.
+          sub(/[ \t\n\r]*\/[ \t\n\r]*$/, "", tag)
           total++
 
-          if (attr_present(tag, "width") && attr_present(tag, "height")) continue
+          if (is_positive_int(attr_value(tag, "width")) &&
+              is_positive_int(attr_value(tag, "height"))) continue
 
+          # The CSS form, which Lighthouse also accepts. Anchor each property to
+          # a declaration boundary so "width:" cannot match inside "max-width:",
+          # and require a value that starts with a digit so "auto" is rejected.
           style = attr_value(tag, "style")
-          if (style ~ /width[ \t]*:/ && style ~ /height[ \t]*:/) continue
+          if (style ~ /(^|;)[ \t]*width[ \t]*:[ \t]*[0-9]/ &&
+              style ~ /(^|;)[ \t]*height[ \t]*:[ \t]*[0-9]/) continue
 
           src = attr_value(tag, "src")
           if (src == "") src = "(no src)"

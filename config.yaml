@@ -4,6 +4,21 @@ theme: "PaperMod"
 
 enableRobotsTXT: true
 
+# Remote images fetched by partials/functions/responsive-image.html go through
+# Hugo's "getresource" cache, which defaults to $XDG_CACHE_HOME/hugo_cache —
+# a path no CI runner and no Netlify build persists. Every build therefore
+# re-fetched all ~30 of them, and the cache steps meant to survive a flaky
+# upstream host were protecting a directory that was never written to.
+#
+# Move just that cache under resources/_gen, which CI and netlify.toml already
+# persist for processed images. One cached path now covers both. cacheDir itself
+# is deliberately left alone: Hugo requires it to be absolute, which cannot be
+# expressed portably across a laptop, a runner and Netlify.
+caches:
+  getresource:
+    dir: :resourceDir/_gen/getresource
+    maxAge: -1
+
 # Cover images live in static/uploads/ and are referenced as /uploads/foo.jpeg —
 # by published posts, by already-syndicated Substack imports and by social cards
 # that are long since posted. Moving them into assets/ to make Hugo process them
