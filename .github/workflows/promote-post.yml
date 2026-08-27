@@ -1,11 +1,28 @@
 name: Promote New Post
 
+# ⚠️  THE NIGHTLY CRON IS DISABLED. Re-enable it by uncommenting the schedule
+# block below once the `master` ruleset has no required status checks.
+#
+# Why: this workflow lands its promotedAt stamp by opening a PR and merging it
+# (see "Record promotion"). A PR opened with GITHUB_TOKEN does not trigger
+# `pull_request` workflows, so required status checks on master never report and
+# the merge is refused — "4 of 4 required status checks are expected".
+#
+# That failure is not cosmetic here. The Buffer posts go out BEFORE the stamp is
+# written, so a blocked merge means posts promoted but not recorded, and the next
+# cron promotes them a second time. Disabling the schedule is strictly safer than
+# letting it run: nothing is lost, because the 30-day lookback window picks these
+# posts up on the first run after it is re-enabled.
+#
+# Confirmed by `Automation Smoke Test` run 1 on 2026-08-27, which reproduced the
+# exact refusal against master. Run it again after changing the ruleset; when it
+# reports "Landed on master", restore the schedule.
 on:
-  schedule:
-    # Every day at 6 AM UTC. Promotes any live post published within the last
-    # PROMOTE_LOOKBACK_DAYS (30) that has no promotedAt stamp yet — not just
-    # posts published today. See scripts/find-promotable-posts.sh.
-    - cron: '0 6 * * *'
+  # schedule:
+  #   # Every day at 6 AM UTC. Promotes any live post published within the last
+  #   # PROMOTE_LOOKBACK_DAYS (30) that has no promotedAt stamp yet — not just
+  #   # posts published today. See scripts/find-promotable-posts.sh.
+  #   - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       post_path:
