@@ -5,13 +5,35 @@
 
 {{/* Reading-first typography: Source Serif 4 for the long-form reading body.
      Headings and UI stay on the system sans stack (--sans in reading.css), so
-     only the serif is fetched. Can be self-hosted from static/ later to drop
-     the third-party request. */}}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link
-    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap"
-    rel="stylesheet">
+     only the serif is fetched.
+
+     Self-hosted rather than linked from Google Fonts. The hosted version cost a
+     three-deep critical request chain — document, then the googleapis
+     stylesheet, then the gstatic woff2 — and the LCP element on this site is a
+     paragraph of body text, so it waited on all three. Serving the font from
+     our own origin collapses that to one request that starts as soon as the
+     preload is parsed, and drops a third party from every page load.
+
+     The two files are Google's own latin and latin-ext subsets, with the wght
+     axis clamped to the 400-700 the site actually uses (opsz 8-60 is kept, so
+     optical sizing still works). That clamp takes the latin file from 122 KB to
+     83 KB. Only latin is preloaded; latin-ext follows via unicode-range on the
+     pages that need it (Turkish, mostly). Regenerate with:
+       fonttools varLib.instancer -o out.woff2 --flavor woff2 in.woff2 wght=400:700 */}}
+{{- $serifLatin := resources.Get "fonts/source-serif-4-latin.woff2" | fingerprint -}}
+{{- $serifLatinExt := resources.Get "fonts/source-serif-4-latin-ext.woff2" | fingerprint -}}
+<link rel="preload" as="font" type="font/woff2" href="{{ $serifLatin.RelPermalink }}" crossorigin>
+<style>
+@font-face{font-family:'Source Serif 4';font-style:normal;font-weight:400 700;font-display:swap;src:url({{ $serifLatin.RelPermalink }}) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Source Serif 4';font-style:normal;font-weight:400 700;font-display:swap;src:url({{ $serifLatinExt.RelPermalink }}) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+</style>
+
+{{/* Web app manifest. PaperMod already emits <meta name="theme-color"> from
+     params.assets.theme_color; this is what the themed-omnibox, splash-screen
+     and maskable-icon audits actually look for. installable-manifest and
+     service-worker stay failed on purpose — both need a service worker, and
+     this site deliberately keeps its JS footprint small. */}}
+<link rel="manifest" href="{{ "site.webmanifest" | absURL }}">
 
 <script async defer data-domain="{{ .Site.Params.analytics.plausible.domain }}"
     src="https://{{ .Site.Params.analytics.plausible.serverURL | default "plausible.io" }}/js/script{{if
