@@ -6,59 +6,98 @@ on:
   pull_request:
     branches: [master]
 
+# Every job below runs the same binary a contributor runs locally: versions are
+# pinned in tools.mk and installed by scripts/ensure-tool.sh, which the `make`
+# targets invoke on first use. Before this, each linter was whatever version its
+# action wrapper happened to bundle, so "green locally" and "green in CI" were
+# not the same claim.
 jobs:
   shellcheck:
     name: ShellCheck
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      checks: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - uses: reviewdog/action-shellcheck@0722bbdb0d47f04c1b53b8734d2422ac63a45ec6 # v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          path: scripts
-          pattern: "*.sh"
-          exclude: "./.git/*"
-          # scripts/buffer is a bash script with no .sh extension, so the
-          # pattern above misses it. It was linted by nothing at all before.
-          check_all_files_with_shebangs: "true"
-          # Match `make lint`: shellcheck exits non-zero on any finding locally,
-          # so a warning that fails the documented pre-commit gate has to fail
-          # CI too, or the two disagree about what "green" means.
-          #
-          # `level:` is deliberately not set. It only accepts info/warning/error
-          # — there is no "style" level — and fail_level is what gates anyway.
-          #
-          # The ShellCheck version is not pinnable here: this action exposes no
-          # version input and hard-codes the binary it installs (0.11.0 as of
-          # the pinned SHA). Renovate bumping the action SHA is the only lever,
-          # so an upstream ShellCheck bump arrives with an action bump. `make
-          # lint` locally uses whatever the contributor installed, which can
-          # differ — the gate that counts is this one.
-          fail_level: any
+      # Same binary and same file list as `make shellcheck`: the file list comes
+      # from the Makefile itself (SHELL_FILES, discovered by shebang across the
+      # whole repo) rather than a glob duplicated here. The previous
+      # reviewdog/action-shellcheck step globbed `scripts/*.sh`, so a shell
+      # script anywhere else was linted locally but not in CI, and its
+      # ShellCheck version was whatever the action SHA baked in.
+      #
+      # Findings are emitted as native GitHub annotations, so they still appear
+      # inline on the PR diff without a second tool choosing the binary.
+      # $GITHUB_PATH, not the Makefile's own PATH export: that one only reaches
+      # make's recipe shells, so the `run:` block below would fall through to
+      # the shellcheck preinstalled on ubuntu-latest. When it did, this job
+      # passed having linted nothing with the pinned binary.
+      - name: Install pinned ShellCheck
+        run: |
+          make -s tool-shellcheck
+          make -s print-tools-bin >> "$GITHUB_PATH"
+
+      - name: ShellCheck
+        run: |
+          set -uo pipefail
+          # Assert the pin actually won. A preinstalled tool shadowing it is a
+          # silent false pass, which is worse than a red job.
+          want="$(make -s print-tools-bin)/shellcheck"
+          got="$(command -v shellcheck || true)"
+          if [ "$got" != "$want" ]; then
+            echo "::error::expected the pinned shellcheck at $want, resolved $got"
+            exit 1
+          fi
+          shellcheck --version | sed -n 's/^version: /shellcheck /p'
+          mapfile -t files < <(make -s print-shell-files)
+          rc=0
+          out="$(mktemp)"
+          shellcheck --format=gcc "${files[@]}" >"$out" 2>&1 || rc=$?
+          if [ -s "$out" ]; then
+            cat "$out"
+            sed -E 's/^([^:]+):([0-9]+):([0-9]+): note: (.*)$/::notice file=\1,line=\2,col=\3::\4/;
+                    s/^([^:]+):([0-9]+):([0-9]+): (warning|error): (.*)$/::\4 file=\1,line=\2,col=\3::\5/' \
+              "$out"
+          fi
+          exit "$rc"
 
   actionlint:
     name: actionlint
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      checks: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - uses: reviewdog/action-actionlint@dbe5299849118fd6f099ba563d263d770955a64a # v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          # Same as above: no version input on this action, and `level:` takes
-          # only info/warning/error. fail_level is the gate.
-          fail_level: any
+      - name: Install pinned actionlint
+        run: |
+          make -s tool-actionlint
+          make -s print-tools-bin >> "$GITHUB_PATH"
+
+      - name: actionlint
+        run: |
+          set -uo pipefail
+          want="$(make -s print-tools-bin)/actionlint"
+          got="$(command -v actionlint || true)"
+          if [ "$got" != "$want" ]; then
+            echo "::error::expected the pinned actionlint at $want, resolved $got"
+            exit 1
+          fi
+          echo "actionlint $(actionlint --version | head -1)"
+          rc=0
+          # -oneline gives file:line:col: message, which maps to a GitHub
+          # annotation with the same sed shape the ShellCheck job uses. The
+          # documented -format Go template was the obvious route but its
+          # {{"\n"}} newline fails to parse ("unterminated quoted string").
+          out="$(mktemp)"
+          actionlint -oneline -no-color .github/workflows/*.yml >"$out" 2>&1 || rc=$?
+          if [ -s "$out" ]; then
+            cat "$out"
+            sed -E 's/^([^:]+):([0-9]+):([0-9]+): (.*)$/::error file=\1,line=\2,col=\3::\4/' \
+              "$out"
+          fi
+          exit "$rc"
 
   shfmt:
     name: shfmt
@@ -68,20 +107,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      # Installed from the release binary rather than an action wrapper so CI
-      # runs the identical `make fmt-check` a contributor runs locally, against
-      # a pinned version. Formatting rules come from .editorconfig, which shfmt
-      # reads itself — there are no flags here to drift out of sync.
-      - name: Install shfmt
-        env:
-          SHFMT_VERSION: v3.13.1
-        run: |
-          curl -fsSL -o /tmp/shfmt \
-            "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64"
-          chmod +x /tmp/shfmt
-          sudo mv /tmp/shfmt /usr/local/bin/shfmt
-          shfmt --version
-
+      # No install step: `make fmt-check` fetches the pinned shfmt itself. The
+      # version used to be written here AND in the Makefile, with nothing
+      # keeping the two in step; it now lives only in tools.mk, which Renovate
+      # updates. Formatting rules come from .editorconfig, which shfmt reads
+      # itself — there are no flags here to drift out of sync.
       - name: Check formatting
         run: make fmt-check
 

@@ -1,38 +1,90 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
   "pinDigests": true,
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [".hugo-version"],
-      "matchStrings": ["(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "managerFilePatterns": [
+        ".hugo-version"
+      ],
+      "matchStrings": [
+        "(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
       "depNameTemplate": "gohugoio/hugo",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$"
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["netlify.toml"],
-      "matchStrings": ["HUGO_VERSION\\s*=\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "managerFilePatterns": [
+        "netlify.toml"
+      ],
+      "matchStrings": [
+        "HUGO_VERSION\\s*=\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
       "depNameTemplate": "gohugoio/hugo",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "description": "Developer tool pins in tools.mk. The `# renovate:` comment above each pin carries its datasource and upstream repo, so adding a tool needs only that comment line.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "tools.mk"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+[A-Z_]+=(?<currentValue>\\S+)"
+      ]
     }
   ],
   "packageRules": [
     {
       "description": "Group all Hugo version updates into one PR",
-      "matchPackageNames": ["gohugoio/hugo"],
+      "matchPackageNames": [
+        "gohugoio/hugo"
+      ],
       "groupName": "Hugo",
       "groupSlug": "hugo"
     },
     {
       "description": "Group minor/patch GitHub Actions updates",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "GitHub Actions (minor/patch)",
       "groupSlug": "gha-minor"
+    },
+    {
+      "description": "Group the tools.mk developer tooling into one PR",
+      "matchPackageNames": [
+        "mvdan/sh",
+        "koalaman/shellcheck",
+        "rhysd/actionlint",
+        "errata-ai/vale",
+        "lycheeverse/lychee",
+        "@lhci/cli"
+      ],
+      "groupName": "Dev tooling",
+      "groupSlug": "dev-tooling"
+    },
+    {
+      "description": "MJML majors are breaking (v5 is a rewrite): keep them separate from the tooling group",
+      "matchPackageNames": [
+        "mjml"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "Dev tooling",
+      "groupSlug": "dev-tooling"
     }
   ],
   "git-submodules": {

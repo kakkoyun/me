@@ -1,0 +1,57 @@
+# Shared lychee settings for both the CI jobs in .github/workflows/links.yml
+# and the `make links` / `make links-external` targets.
+#
+# These lived only in the workflow YAML, duplicated across three jobs, which
+# meant a contributor could not reproduce a link failure locally and the three
+# copies could drift from each other. Everything both sides share lives here;
+# only path-dependent flags (--offline, --root-dir, --base, --cache) stay on the
+# command line, because they differ between checking built HTML and raw markdown.
+
+# lychee v2 (lychee >=0.15) treats `accept` as a whitelist that REPLACES the
+# default accepted codes, so 200..=299 must be listed explicitly or every
+# successful response is rejected. 403 and 429 are accepted because many valid
+# reference sites (sched.co, linux.die.net, npmjs.com, science.sciencemag.org,
+# platform.openai.com, patreon.com) reject automated crawlers with those codes
+# but are perfectly reachable for a human visitor.
+accept = ["200..=299", "403", "429"]
+
+max_concurrency = 8
+max_retries = 3
+retry_wait_time = 5
+timeout = 30
+
+# Some referenced sites still serve broken or expired certificate chains; a TLS
+# error is not the kind of link rot this check exists to catch.
+insecure = true
+
+no_progress = true
+verbose = "info"
+
+# Hosts that block bots reliably, plus a few that are simply gone. Excluding
+# them keeps the weekly cron signal meaningful instead of permanently red.
+exclude = [
+  # Social and content platforms that block automated crawlers.
+  "linkedin.com",
+  "twitter.com",
+  "x.com",
+  "youtube.com",
+  "hachyderm.io",
+  "medium.com",
+  "stackoverflow.com",
+  "news.ycombinator.com",
+  # Edit links require authentication.
+  "github.com/kakkoyun/me/edit",
+  # Local development URLs, not real links.
+  "localhost",
+  # Domain permanently gone.
+  "gophercon.ist",
+  # Persistent HTTP/2 protocol errors from their CDN.
+  "logitech.com",
+  # Personal sites that are frequently unreachable by automated crawlers.
+  "matryer.com",
+  "metalmatze.de",
+  # Defunct slide-hosting service; all links are dead.
+  "gitpitch.com",
+  # Event domain returns 404 (past year's content gone).
+  "gophercon.eu",
+]

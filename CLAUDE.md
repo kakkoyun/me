@@ -8,7 +8,12 @@ Hugo static site (personal blog) using PaperMod theme, deployed to Netlify. Publ
 
 ## Build Commands
 
+Every target below installs the tools it needs on first use — see Tool Versions.
+On a fresh checkout, `make bootstrap` gets you everything at once.
+
 ```bash
+make bootstrap          # Pinned tools + git submodules + Vale packages (start here)
+make tools              # Install the pinned tools only (see tools.mk)
 make serve              # Local dev server (fast render disabled)
 make serve-draft        # Dev server with drafts and future-dated posts
 make production         # Production build: hugo --gc --minify --enableGitInfo
@@ -30,7 +35,41 @@ make fmt-check          # Fail if any shell script is unformatted
 make lint               # shfmt --check + ShellCheck + actionlint
 make check              # Pre-commit gate: lint + test (run before opening a PR)
 make prose              # Alias for vale with a summary count
+make links              # Offline internal link check (mirrors the links-internal CI job)
+make links-external     # Full external link check (mirrors the weekly cron)
+make lighthouse         # Lighthouse CI against the local build (needs Chrome)
 ```
+
+### Tool Versions
+
+`tools.mk` pins every tool the checks run — shfmt, ShellCheck, actionlint, Vale,
+lychee, Lighthouse CI and the MJML compiler. Hugo is the one exception: it stays
+in `.hugo-version`, which `netlify.toml`, `make update-version` and two Renovate
+managers already read. **Do not add a second Hugo pin.**
+
+Three things read `tools.mk`, which is why it is plain `KEY=value` with `#`
+comments and no parser anywhere: the Makefile `include`s it, `scripts/ensure-tool.sh`
+`source`s it, and the workflows `grep` it into `$GITHUB_ENV`. So CI and a dev
+machine run the same build of the same tool, and "green locally" means the same
+thing as "green in CI".
+
+- `scripts/ensure-tool.sh <tool>` downloads the pinned release asset into
+  `.tools/bin` (gitignored) and stamps it under `.tools/stamps`. A warm run is a
+  stat, not a process spawn. Every check target depends on the tools it needs, so
+  there is nothing to install by hand.
+- `.tools/bin` goes **first** on `PATH`, so the pin wins over a brew- or
+  apt-installed copy. The shadowing is announced when it happens.
+- Hugo is installed as the **extended** build, matching CI and Netlify. The old
+  `go install` path built the standard binary, which has no WebP or libsass — so
+  covers were processed differently locally than in CI and
+  `scripts/check-image-sizes.sh` could pass on one and fail on the other.
+- Renovate keeps the pins current via the `tools.mk` custom manager. The
+  `# renovate:` comment above each pin carries its datasource and upstream repo,
+  so adding a tool means adding that comment line and nothing else. MJML majors
+  are deliberately excluded from the group — v5 is a breaking rewrite the
+  templates are not ported to.
+- `TOOLS_OFFLINE=1` makes every target fail with a manual-install hint instead of
+  downloading, for locked-down environments.
 
 ## Architecture
 
@@ -235,10 +274,15 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 GitHub Actions workflows:
 
 - **`build.yml`** -- Build & verify on push/PR to master. Runs production build + `verify-build.sh` (which includes `scripts/check-image-sizes.sh` — a build with any unsized `<img>` fails here), then Lighthouse CI (Performance >= 90, Accessibility >= 97, Best Practices >= 95, SEO >= 97 — `.lighthouserc.yml` is the source of truth). **The Lighthouse step is `continue-on-error`, so no Lighthouse assertion can fail the job** — `error` level in `.lighthouserc.yml` means "reported", not "blocking". `scripts/lighthouse-summary.sh` writes the assertion results into the run summary so a failure is visible on every run, and a score drop on `master` comments on the existing `lighthouse` issue rather than skipping once one is open. That combination is deliberate: the assertions previously ran red for seven weeks with the job green and the issue silent. Both jobs cache `resources/_gen`: covers are processed into WebP srcsets and remote covers are fetched at build time, so a cold cache is slow and a flaky upstream host would otherwise be a build failure. `config.yaml` points Hugo's `getresource` cache into that same directory — its default lives outside the working tree, where nothing persists it.
-- **`links.yml`** -- Weekly + push/PR link checking via lychee. Excludes social platforms that block bots. Auto-creates issue on broken links. Also carries the `security-headers` job (master pushes + weekly cron): `scripts/check-live-headers.sh` asserts the deployed site really serves the `netlify.toml` security headers (a header rule leaves no trace in the build output, so nothing else would notice one going missing), and `scripts/check-repo-access.sh` asserts push access is exactly `kakkoyun` — the invariant CMS sign-in rests on.
+- **`links.yml`** -- Weekly + push/PR link checking via lychee. Settings shared with
+  `make links` / `make links-external` live in `lychee.toml` (accept codes, retries,
+  timeout, concurrency, the exclude list and the reason for each exclusion); only
+  path-dependent flags stay in the YAML, so the two cannot drift and a link failure
+  is reproducible locally. Excludes social platforms that block bots. Auto-creates issue on broken links. Also carries the `security-headers` job (master pushes + weekly cron): `scripts/check-live-headers.sh` asserts the deployed site really serves the `netlify.toml` security headers (a header rule leaves no trace in the build output, so nothing else would notice one going missing), and `scripts/check-repo-access.sh` asserts push access is exactly `kakkoyun` — the invariant CMS sign-in rests on.
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags.
 - **`deploy-scheduled.yml`** -- Daily cron at `00:10 UTC` (+ manual `workflow_dispatch`) that POSTs the Netlify build hook so **future-dated posts go live on their publish day**. The production build omits `--buildFuture` (see `netlify.toml`), so a post merged ahead of its `publishDate` stays hidden until a build runs at/after that date; a push to master only rebuilds when something is pushed, so this cron is what flips scheduled posts visible. A pre-flight `check` job runs `scripts/posts-publishing-today.sh` and skips the Netlify hook entirely when nothing is due, so the cron only consumes a build minute on a publishing day; `workflow_dispatch` bypasses the gate (the human pressing it has already decided). After triggering the build it verifies a *today-dated* post actually went live (same `scripts/posts-publishing-today.sh` + `scripts/check-post-live.sh`) rather than blindly sleeping — Netlify's atomic deploys keep the homepage at 200 off the old build, so reachability alone wouldn't prove freshness. Needs the `NETLIFY_BUILD_HOOK_URL` secret. Use the manual dispatch as a "publish now" button. **This is the publishing mechanism — promotion (below) no longer rebuilds.**
-- **`lint.yml`** -- shfmt, ShellCheck, and actionlint, plus `make test` (which includes `scripts/test-check-image-sizes.sh`). Reviewdog-based PR annotations for the two linters. Gates are set to match `make lint` exactly (`level: style`, `fail_level: any`), so a finding that fails locally also fails CI; tool versions are pinned alongside the action SHAs, since the wrapper being pinned does not pin the tool inside it. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP.
+- **`lint.yml`** -- shfmt, ShellCheck, and actionlint, all at the versions pinned in
+  `tools.mk` and installed by `scripts/ensure-tool.sh`, plus `make test` (which includes `scripts/test-check-image-sizes.sh`). ShellCheck and actionlint emit native GitHub annotations, so findings still appear inline on the PR diff without an action wrapper choosing the binary. The ShellCheck job takes its file list from `make print-shell-files`, i.e. the Makefile's own `SHELL_FILES`; the previous reviewdog step globbed `scripts/*.sh`, so a shell script anywhere else was linted locally but not in CI. Any finding fails the job, matching `make lint`. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP.
 - **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block). Auto-fires on content paths.
 - **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
 - **`claude-code-review.yml`** -- Generic code reviewer. Label-triggered only (apply `claude-review` to fire). Advisory.
@@ -327,9 +371,10 @@ ledger all run through it — so the scripts are linted and formatted as strictl
 as any other source.
 
 - **Formatting is enforced**, not advisory. `make fmt` formats, `make fmt-check`
-  gates, and CI runs the same target. Style lives in `.editorconfig` (2-space,
-  indented `case` branches, `||` at line start) which shfmt reads directly, so
-  there are no formatter flags anywhere to drift out of sync with your editor.
+  gates, and CI runs the same target with the same pinned shfmt (`tools.mk`).
+  Style lives in `.editorconfig` (2-space, indented `case` branches, `||` at line
+  start) which shfmt reads directly, so there are no formatter flags anywhere to
+  drift out of sync with your editor.
 - **`.shellcheckrc` sets `external-sources=true`.** Without it ShellCheck refuses
   to follow `source` and the `# shellcheck source=scripts/lib/frontmatter.sh`
   directives are inert — every caller just reports SC1091 and the shared helpers
@@ -346,7 +391,12 @@ as any other source.
   a fourth copy of the awk block — that duplication is what the library replaced.
 - Every script gets a `scripts/test-<name>.sh` companion wired into `make test`.
   The existing suites are self-contained: temp dirs, stubbed commands via env
-  seams (`LIVE_PROBE_CMD`), pinned clocks (`TODAY_OVERRIDE`), no network.
+  seams (`LIVE_PROBE_CMD`, `TOOLS_FETCH_CMD`), pinned clocks (`TODAY_OVERRIDE`),
+  no network. `ensure-tool.sh` also takes `TOOLS_UNAME_S`/`TOOLS_UNAME_M`/
+  `TOOLS_PKGUTIL_CMD`, so a Linux runner covers the macOS asset names and the
+  Hugo `.pkg` path — branches that would otherwise only ever run on a laptop.
+- A comment whose first word is `shellcheck` is parsed as a directive and fails
+  the lint with SC1073. Reword it — this bites when writing about ShellCheck.
 
 ## Commit Style
 
