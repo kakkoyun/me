@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+# Assert that every <img> in the built site carries intrinsic dimensions.
+#
+# An <img> with no width and no height has no aspect ratio until its bytes
+# arrive, so the browser lays the page out twice and everything below the image
+# jumps. That is a cumulative-layout-shift regression, and Lighthouse reports it
+# as `unsized-images`.
+#
+# This check exists because that regression kept coming back. The rule lived in
+# a review comment and in a Lighthouse warning nobody read, while the layouts
+# could not actually satisfy it: PaperMod's cover partial emitted a bare <img>
+# for anything that was not a page-bundle resource, which was every cover on the
+# site. 309 of the 539 <img> tags in a full build had no dimensions.
+#
+# The layouts were fixed (layouts/partials/functions/responsive-image.html is
+# now the single place an <img> is produced, and it always emits width and
+# height). This script is what keeps them fixed.
+#
+# Passing means one of:
+#   - the tag has both width= and height= attributes, or
+#   - the tag has a style= attribute setting both width: and height:
+#     (Lighthouse accepts the CSS form, so this must too), or
+#   - the tag's src matches a line in the allowlist.
+#
+# Usage: bash scripts/check-image-sizes.sh [public_dir]
+#
+# Tunables (env):
+#   PUBLIC_DIR             directory to scan (default: public, or $1)
+#   IMAGE_SIZE_ALLOWLIST   file of extended regexes matched against the src
+#                          attribute; blank lines and #-comments are ignored
+#                          (default: <repo>/scripts/image-size-allowlist.txt)
+#   IMAGE_SIZE_MAX_REPORT  how many offenders to list before summarising
+#                          (default: 25)
+#
+# Exits 0 when every <img> is sized; exits 1 and lists the offenders otherwise.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+PUBLIC_DIR="${1:-${PUBLIC_DIR:-public}}"
+IMAGE_SIZE_ALLOWLIST="${IMAGE_SIZE_ALLOWLIST:-${REPO_ROOT}/scripts/image-size-allowlist.txt}"
+IMAGE_SIZE_MAX_REPORT="${IMAGE_SIZE_MAX_REPORT:-25}"
+
+if [ ! -d "$PUBLIC_DIR" ]; then
+  echo "ERROR: build directory not found: $PUBLIC_DIR" >&2
+  echo "       run 'make production' first" >&2
+  exit 1
+fi
+
+# The allowlist is optional; an absent file means "allow nothing".
+ALLOW_ARG=""
+if [ -f "$IMAGE_SIZE_ALLOWLIST" ]; then
+  ALLOW_ARG="$IMAGE_SIZE_ALLOWLIST"
+fi
+
+# Hugo minifies attributes, so values may be quoted, single-quoted or bare, and
+# a whole page is one very long line. Splitting the record on "<img" and taking
+# everything up to the first ">" is a safe parse here because Go's html/template
+# escapes ">" to "&gt;" inside attribute values.
+# The awk program is deliberately single-quoted: its $0/$2 are awk fields, not
+# shell variables, and the only value it needs from the shell arrives via -v.
+# shellcheck disable=SC2016
+REPORT=$(
+  find "$PUBLIC_DIR" -type f -name '*.html' -print0 \
+    | xargs -0 awk -v allowfile="$ALLOW_ARG" -v SQ="'" '
+      BEGIN {
+        nallow = 0
+        if (allowfile != "") {
+          while ((getline line < allowfile) > 0) {
+            sub(/#.*/, "", line)
+            gsub(/^[ \t]+|[ \t]+$/, "", line)
+            if (line != "") allow[nallow++] = line
+          }
+          close(allowfile)
+        }
+      }
+
+      function attr_present(tag, name,   re) {
+        re = "[ \t\n\r/]" name "[ \t\n\r]*="
+        return (tag ~ re)
+      }
+
+      function attr_value(tag, name,   re, rest, v, q) {
+        re = "[ \t\n\r/]" name "[ \t\n\r]*="
+        if (!match(tag, re)) return ""
+        rest = substr(tag, RSTART + RLENGTH)
+        q = substr(rest, 1, 1)
+        if (q == "\"" || q == SQ) {
+          rest = substr(rest, 2)
+          v = rest
+          if (match(v, q)) v = substr(v, 1, RSTART - 1)
+          return v
+        }
+        v = rest
+        if (match(v, /[ \t\n\r]/)) v = substr(v, 1, RSTART - 1)
+        return v
+      }
+
+      function is_allowed(src,   i) {
+        for (i = 0; i < nallow; i++) if (src ~ allow[i]) return 1
+        return 0
+      }
+
+      {
+        n = split($0, chunk, /<img/)
+        for (i = 2; i <= n; i++) {
+          tag = chunk[i]
+          p = index(tag, ">")
+          if (p > 0) tag = substr(tag, 1, p - 1)
+          total++
+
+          if (attr_present(tag, "width") && attr_present(tag, "height")) continue
+
+          style = attr_value(tag, "style")
+          if (style ~ /width[ \t]*:/ && style ~ /height[ \t]*:/) continue
+
+          src = attr_value(tag, "src")
+          if (src == "") src = "(no src)"
+          if (is_allowed(src)) { allowed++; continue }
+
+          bad++
+          print FILENAME "\t" src
+        }
+      }
+
+      END { print "__SUMMARY__\t" total "\t" bad "\t" allowed }
+    '
+)
+
+SUMMARY=$(printf '%s\n' "$REPORT" | grep '^__SUMMARY__' | awk -F'\t' '{t+=$2; b+=$3; a+=$4} END {print t"\t"b"\t"a}')
+TOTAL=$(printf '%s' "$SUMMARY" | cut -f1)
+BAD=$(printf '%s' "$SUMMARY" | cut -f2)
+ALLOWED=$(printf '%s' "$SUMMARY" | cut -f3)
+
+if [ "${BAD:-0}" -eq 0 ]; then
+  echo "OK: all ${TOTAL:-0} <img> tags in $PUBLIC_DIR carry width and height (${ALLOWED:-0} allowlisted)"
+  exit 0
+fi
+
+echo "FAIL: ${BAD} of ${TOTAL} <img> tags have no width/height" >&2
+echo "" >&2
+# Group by src so one bad cover on 15 paginated pages reads as one problem.
+printf '%s\n' "$REPORT" \
+  | grep -v '^__SUMMARY__' \
+  | awk -F'\t' '{count[$2]++; if (!($2 in where)) where[$2] = $1}
+                END {for (s in count) printf "%6d  %s  (e.g. %s)\n", count[s], s, where[s]}' \
+  | sort -rn \
+  | head -n "$IMAGE_SIZE_MAX_REPORT" >&2
+echo "" >&2
+echo "Every <img> should come from layouts/partials/functions/responsive-image.html," >&2
+echo "which always emits width and height. If one of these genuinely cannot be" >&2
+echo "measured, give it cover.width/cover.height in frontmatter, or add its src to" >&2
+echo "${IMAGE_SIZE_ALLOWLIST#"${REPO_ROOT}"/} with a comment saying why." >&2
+exit 1

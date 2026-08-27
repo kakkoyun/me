@@ -13,7 +13,7 @@ make serve              # Local dev server (fast render disabled)
 make serve-draft        # Dev server with drafts and future-dated posts
 make production         # Production build: hugo --gc --minify --enableGitInfo
 make clean              # Remove public/ and clean destination
-make verify             # Post-build SEO/analytics smoke tests (scripts/verify-build.sh)
+make verify             # Post-build SEO/analytics smoke tests + image-size check (scripts/verify-build.sh)
 make deploy-all         # Full pipeline: validate + clean + build + verify + deploy
 make netlify-preview    # Preview build with future posts included
 make local-setup        # First-time setup: install Hugo, init submodule, dry-run build
@@ -37,7 +37,7 @@ make prose              # Alias for vale with a summary count
 - **Theme:** PaperMod git submodule at `themes/PaperMod/`. Never edit theme files directly; override via `layouts/` or `assets/css/extended/`.
 - **Config:** Single `config.yaml` (not `hugo.toml`). All site params, menus, taxonomies, analytics, and comments config live here.
 - **Content:** Flat markdown files in `content/posts/`, `content/talks/`, `content/notes/`, plus standalone pages (`about.md`, `now.md`, etc.).
-- **Images:** Stored in `static/uploads/` and referenced as `/uploads/filename.jpeg`. No page bundles currently used.
+- **Images:** Stored in `static/uploads/` and referenced as `/uploads/filename.jpeg`. That directory is mounted into `assets/` as well (`module.mounts` in `config.yaml`) so Hugo can process the same files it serves verbatim. No page bundles currently used. See Cover and Inline Image Conventions.
 - **Output:** `public/` is the build output (gitignored, never commit edits there).
 
 ### Layout Overrides (over PaperMod)
@@ -50,7 +50,9 @@ make prose              # Alias for vale with a summary count
 - `layouts/_default/list.html` -- Custom homepage with "Recent Notes" section
 - `layouts/_default/list.md` -- Markdown alternate template for list/taxonomy pages (LLM-friendly output)
 - `layouts/_default/single.md` -- Markdown alternate template for single posts (LLM-friendly output)
-- `layouts/_default/_markup/render-image.html` -- Responsive images with WebP srcset generation
+- `layouts/_default/_markup/render-image.html` -- Markdown image render hook; decides loading priority and delegates to `functions/responsive-image.html`
+- `layouts/_partials/cover.html` -- Cover image override. Upstream emitted a bare, unsized `<img>` for anything that was not a page-bundle resource, which was every cover on the site; this keeps upstream's behaviour (hidden covers, full-image link, caption) and delegates the `<img>`
+- `layouts/partials/functions/responsive-image.html` -- **The single place an `<img>` is produced.** Resolves page-bundle, global-asset and remote sources; emits a `<picture>` with a WebP srcset and a `sizes` matching the 672px reading measure. **Contract: it always emits `width` and `height`, on every branch including each failure branch.** Both image callers above go through it — do not add a third path
 - `layouts/_default/_markup/render-blockquote.html` -- GitHub/Obsidian-style admonitions (see Admonitions under Content Conventions)
 - `layouts/_partials/templates/schema_json.html` -- Rich JSON-LD `@graph` (home: WebSite+Person with sameAs; posts/newsletter: BlogPosting+BreadcrumbList; talks: Article; lists: CollectionPage). Replaces PaperMod's stock schema partial; deliberately emits no `articleBody`
 - `layouts/partials/functions/link-index.html` -- Site-wide internal-link index built by scanning `.RawContent` (markdown links + reference definitions). **Contract: call only as `partialCached "functions/link-index.html" site`** — never with variant args, never as plain `partial`. Deliberately NOT a render hook, so rendered HTML/feeds stay byte-identical to stock output
@@ -87,6 +89,8 @@ cover:                        # optional
   image: /uploads/photo.jpeg
   alt: Descriptive alt text
   caption: Caption text
+  width: 1280                 # optional; only when the image can't be measured at build time
+  height: 720                 # optional; set with width, or not at all
 showToc: true                 # optional, for long technical posts
 tocOpen: false                # optional
 draft: true                   # for WIP content; use future publishDate for scheduled posts instead
@@ -135,11 +139,40 @@ Each category has a distinct purpose, tone, and structure:
 - Do not prefix with dates — the `2024-03-21-` prefix on one post is legacy, do not repeat it
 - Multi-part posts: append `-part-2`, `-part-3` to the base slug (e.g., `fantastic-symbols-and-where-to-find-them-part-2.md`)
 
-### Cover Image Conventions
+### Cover and Inline Image Conventions
 
 - Blog posts: local images stored in `static/uploads/`, referenced as `/uploads/filename.jpeg`
 - Talks: YouTube thumbnail URLs — `https://img.youtube.com/vi/{VIDEO_ID}/maxresdefault.jpg`
 - Always include `alt` text; `caption` is optional
+
+**Every `<img>` on the site must carry `width` and `height`.** This is enforced,
+not advisory — `scripts/check-image-sizes.sh` scans the built HTML and fails
+`make verify` (and the `build-verify` CI job) if any image ships without
+dimensions. `.lighthouserc.yml` asserts `unsized-images` as a hard error on top
+of that.
+
+You should never have to think about it, because you should never hand-write an
+`<img>`. Write a normal markdown image (`![alt](/uploads/foo.jpeg)`) or set
+`cover.image` in frontmatter, and the layouts do the rest:
+
+- `static/uploads/` is mounted into `assets/` as well (`module.mounts` in
+  `config.yaml`), so `/uploads/foo.jpeg` still serves the untouched original
+  while Hugo can also treat it as a processable resource. **Do not move these
+  files into `assets/`** — published posts, Substack imports and posted social
+  cards all reference the `/uploads/` URLs.
+- Remote images — YouTube thumbnails included — are fetched at build time by
+  `resources.GetRemote`, localised, and served from our own origin with a WebP
+  srcset. A fetch that fails degrades to the remote URL and is still sized from
+  a table of known URL shapes.
+- SVG and GIF are published as-is (Hugo's resize flattens an animated GIF).
+  SVG dimensions are recovered from the `<svg>` root's `width`/`height` or
+  `viewBox`.
+
+When the check does fire, in order of preference: add `cover.width` and
+`cover.height` to the post's frontmatter; teach
+`layouts/partials/functions/responsive-image.html` the URL shape if it is a
+family rather than a one-off; or, last resort, add the src to
+`scripts/image-size-allowlist.txt` with a comment saying why it is unknowable.
 
 ### Admonitions
 
@@ -185,11 +218,11 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 
 GitHub Actions workflows:
 
-- **`build.yml`** -- Build & verify on push/PR to master. Runs production build + `verify-build.sh`, then Lighthouse CI (Performance >= 85, Accessibility >= 90, Best Practices >= 90, SEO >= 90). Auto-creates GitHub issue if Lighthouse scores drop.
+- **`build.yml`** -- Build & verify on push/PR to master. Runs production build + `verify-build.sh` (which includes `scripts/check-image-sizes.sh` — a build with any unsized `<img>` fails here), then Lighthouse CI (Performance >= 85, Accessibility >= 90, Best Practices >= 90, SEO >= 90). Auto-creates GitHub issue if Lighthouse scores drop. Both jobs cache `resources/_gen` and `.cache/hugo`: covers are processed into WebP srcsets and remote covers are fetched at build time, so a cold cache is slow and a flaky upstream host would otherwise be a build failure.
 - **`links.yml`** -- Weekly + push/PR link checking via lychee. Excludes social platforms that block bots. Auto-creates issue on broken links. Also carries the `security-headers` job (master pushes + weekly cron): `scripts/check-live-headers.sh` asserts the deployed site really serves the `netlify.toml` security headers (a header rule leaves no trace in the build output, so nothing else would notice one going missing), and `scripts/check-repo-access.sh` asserts push access is exactly `kakkoyun` — the invariant CMS sign-in rests on.
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags.
 - **`deploy-scheduled.yml`** -- Daily cron at `00:10 UTC` (+ manual `workflow_dispatch`) that POSTs the Netlify build hook so **future-dated posts go live on their publish day**. The production build omits `--buildFuture` (see `netlify.toml`), so a post merged ahead of its `publishDate` stays hidden until a build runs at/after that date; a push to master only rebuilds when something is pushed, so this cron is what flips scheduled posts visible. A pre-flight `check` job runs `scripts/posts-publishing-today.sh` and skips the Netlify hook entirely when nothing is due, so the cron only consumes a build minute on a publishing day; `workflow_dispatch` bypasses the gate (the human pressing it has already decided). After triggering the build it verifies a *today-dated* post actually went live (same `scripts/posts-publishing-today.sh` + `scripts/check-post-live.sh`) rather than blindly sleeping — Netlify's atomic deploys keep the homepage at 200 off the old build, so reachability alone wouldn't prove freshness. Needs the `NETLIFY_BUILD_HOOK_URL` secret. Use the manual dispatch as a "publish now" button. **This is the publishing mechanism — promotion (below) no longer rebuilds.**
-- **`lint.yml`** -- shfmt, ShellCheck, and actionlint, plus `make test`. Reviewdog-based PR annotations for the two linters. Gates are set to match `make lint` exactly (`level: style`, `fail_level: any`), so a finding that fails locally also fails CI; tool versions are pinned alongside the action SHAs, since the wrapper being pinned does not pin the tool inside it. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP.
+- **`lint.yml`** -- shfmt, ShellCheck, and actionlint, plus `make test` (which includes `scripts/test-check-image-sizes.sh`). Reviewdog-based PR annotations for the two linters. Gates are set to match `make lint` exactly (`level: style`, `fail_level: any`), so a finding that fails locally also fails CI; tool versions are pinned alongside the action SHAs, since the wrapper being pinned does not pin the tool inside it. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP.
 - **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block). Auto-fires on content paths.
 - **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
 - **`claude-code-review.yml`** -- Generic code reviewer. Label-triggered only (apply `claude-review` to fire). Advisory.

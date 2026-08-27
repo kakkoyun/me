@@ -51,6 +51,22 @@ jobs:
           hugo-version: ${{ steps.hugo-version.outputs.version }}
           extended: true
 
+      # Covers are now Hugo resources: local ones get resized into a WebP
+      # srcset, remote ones are fetched at build time and localised. Both are
+      # expensive on a cold cache and the remote fetches also make the build
+      # depend on third-party hosts being up. Persisting Hugo's caches keeps
+      # repeat runs fast and lets a fetched image survive a flaky upstream.
+      # Netlify does the same via netlify-plugin-cache in netlify.toml.
+      - name: Cache Hugo resources
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            resources/_gen
+            .cache/hugo
+          key: hugo-resources-${{ runner.os }}-${{ hashFiles('assets/**', 'static/uploads/**', 'content/**/*.md', 'config.yaml') }}
+          restore-keys: |
+            hugo-resources-${{ runner.os }}-
+
       - name: Build (production)
         run: hugo --gc --minify --enableGitInfo
         env:
@@ -79,6 +95,22 @@ jobs:
         with:
           hugo-version: ${{ steps.hugo-version.outputs.version }}
           extended: true
+
+      # Covers are now Hugo resources: local ones get resized into a WebP
+      # srcset, remote ones are fetched at build time and localised. Both are
+      # expensive on a cold cache and the remote fetches also make the build
+      # depend on third-party hosts being up. Persisting Hugo's caches keeps
+      # repeat runs fast and lets a fetched image survive a flaky upstream.
+      # Netlify does the same via netlify-plugin-cache in netlify.toml.
+      - name: Cache Hugo resources
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            resources/_gen
+            .cache/hugo
+          key: hugo-resources-${{ runner.os }}-${{ hashFiles('assets/**', 'static/uploads/**', 'content/**/*.md', 'config.yaml') }}
+          restore-keys: |
+            hugo-resources-${{ runner.os }}-
 
       - name: Build (production)
         run: hugo --gc --minify --enableGitInfo
