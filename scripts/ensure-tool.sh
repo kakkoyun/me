@@ -29,6 +29,14 @@
 #   TOOLS_DIR        install root (default: <repo>/.tools)
 #   TOOLS_OFFLINE    1 = never download; fail with the manual install command
 #   TOOLS_FETCH_CMD  fetch shim for tests, called as: CMD <url> <dest-file>
+#   TOOLS_UNAME_S    override the detected OS   (test seam; e.g. Darwin)
+#   TOOLS_UNAME_M    override the detected arch (test seam; e.g. arm64)
+#   TOOLS_PKGUTIL_CMD  pkgutil shim for tests (default: pkgutil)
+#
+# The last three exist so a Linux runner can cover the macOS asset mapping and
+# the .pkg extraction path. Without them those branches only ever run on a
+# contributor's laptop, which is exactly where a wrong asset name would go
+# unnoticed until someone tried to bootstrap.
 #
 set -euo pipefail
 
@@ -39,6 +47,9 @@ STAMP_DIR="$TOOLS_DIR/stamps"
 
 : "${TOOLS_OFFLINE:=0}"
 : "${TOOLS_FETCH_CMD:=}"
+: "${TOOLS_UNAME_S:=$(uname -s)}"
+: "${TOOLS_UNAME_M:=$(uname -m)}"
+: "${TOOLS_PKGUTIL_CMD:=pkgutil}"
 
 SUPPORTED_TOOLS="hugo shfmt shellcheck actionlint vale lychee"
 
@@ -88,16 +99,16 @@ resolve_asset() {
   local tool="$1" v="$2"
   local os arch
 
-  case "$(uname -s)" in
+  case "$TOOLS_UNAME_S" in
     Linux) os=linux ;;
     Darwin) os=darwin ;;
-    *) die "unsupported OS: $(uname -s). Install $tool $v manually." ;;
+    *) die "unsupported OS: $TOOLS_UNAME_S. Install $tool $v manually." ;;
   esac
 
-  case "$(uname -m)" in
+  case "$TOOLS_UNAME_M" in
     x86_64 | amd64) arch=amd64 ;;
     arm64 | aarch64) arch=arm64 ;;
-    *) die "unsupported architecture: $(uname -m). Install $tool $v manually." ;;
+    *) die "unsupported architecture: $TOOLS_UNAME_M. Install $tool $v manually." ;;
   esac
 
   ASSET_URL=""
@@ -237,9 +248,9 @@ extract_binary() { # <archive> <kind> <tool> <workdir> -> prints path to binary
     tar.xz) tar -xJf "$archive" -C "$work" ;;
     pkg)
       # A macOS .pkg is an xar archive; pkgutil is a base-system tool.
-      command -v pkgutil >/dev/null 2>&1 \
-        || die "pkgutil not found — cannot unpack $tool's macOS .pkg"
-      pkgutil --expand-full "$archive" "$work/pkg" \
+      command -v "$TOOLS_PKGUTIL_CMD" >/dev/null 2>&1 \
+        || die "$TOOLS_PKGUTIL_CMD not found — cannot unpack $tool's macOS .pkg"
+      "$TOOLS_PKGUTIL_CMD" --expand-full "$archive" "$work/pkg" \
         || die "could not expand $tool's .pkg"
       ;;
     *) die "internal error: unknown archive kind '$kind'" ;;

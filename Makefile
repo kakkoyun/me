@@ -229,9 +229,14 @@ update-version:
 	@echo "🔄 Updating Hugo to the latest version..."
 	@$(MAKE) hugo-update
 	@echo "📖 Reading installed Hugo version..."
-	@INSTALLED_VERSION=$$(hugo version 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/v//' || echo "unknown"); \
+	@# Ask the binary hugo-update just wrote, by path. A bare `hugo` would
+	@# resolve .tools/bin/hugo — the CURRENT pin — because that directory is
+	@# first on PATH, so this target would dutifully write the old version back
+	@# over itself and report success.
+	@INSTALLED_VERSION=$$($(GO_INSTALL_BIN)/hugo version 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/v//' || echo "unknown"); \
 	if [ "$$INSTALLED_VERSION" = "unknown" ]; then \
-		echo "❌ Could not detect Hugo version. Please ensure Hugo is installed and in PATH."; \
+		echo "❌ Could not detect Hugo version at $(GO_INSTALL_BIN)/hugo."; \
+		echo "   Run 'make hugo-update' first, or check that Go's bin directory is where you expect."; \
 		exit 1; \
 	fi; \
 	echo "✅ Detected Hugo version: $$INSTALLED_VERSION"; \
@@ -279,8 +284,13 @@ tools: $(addprefix tool-,$(TOOLS))
 
 # The theme is a submodule: a fresh clone has an empty themes/PaperMod and every
 # hugo target dies with a bare "found no layout file".
+#
+# Checks every gitlink, not just the theme. `git submodule status` prefixes an
+# uninitialized entry with '-', so this also catches tools/buffer-cli and
+# tools/humanizer — which a themes/PaperMod-only test would leave empty while
+# reporting the checkout ready.
 submodules:
-	@if [ ! -f themes/PaperMod/theme.toml ]; then \
+	@if git submodule status --recursive 2>/dev/null | grep -q '^-'; then \
 	  echo "➡️  Initializing git submodules..."; \
 	  git submodule update --init --recursive; \
 	fi

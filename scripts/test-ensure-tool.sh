@@ -239,6 +239,86 @@ check_url lychee "lychee-v${LYCHEE_VERSION}/"
 # Hugo must be the EXTENDED build, at the .hugo-version pin.
 check_url hugo "hugo_extended_${hugo_version}_"
 
+# ── Cross-platform asset mapping ───────────────────────────────────────────────
+# The host here is always Linux, so without the TOOLS_UNAME_* seams the macOS
+# branches would only ever run on a contributor's laptop — the one place a wrong
+# asset name goes unnoticed until someone tries to bootstrap. Each expectation
+# below is a real published asset name.
+
+url_on() { # <os> <arch> <tool> -> prints the URL that would be fetched
+  local os="$1"
+  local arch="$2"
+  local tool="$3"
+  local dir="$TMP/x-$os-$arch-$tool"
+  TOOLS_UNAME_S="$os" TOOLS_UNAME_M="$arch" TOOLS_DIR="$dir" TOOLS_OFFLINE=1 \
+    bash "$ENSURE_SCRIPT" "$tool" 2>&1 | sed -n 's/.*Fetch it by hand from: //p' | head -1
+}
+
+check_url_on() { # <os> <arch> <tool> <expected-substring>
+  local os="$1"
+  local arch="$2"
+  local tool="$3"
+  local want="$4"
+  assert_contains "$tool on $os/$arch" "$want" "$(url_on "$os" "$arch" "$tool")"
+}
+
+# macOS arm64 — the maintainer's own machine.
+check_url_on Darwin arm64 shfmt "shfmt_v${SHFMT_VERSION}_darwin_arm64"
+check_url_on Darwin arm64 shellcheck "shellcheck-v${SHELLCHECK_VERSION}.darwin.aarch64.tar.xz"
+check_url_on Darwin arm64 actionlint "actionlint_${ACTIONLINT_VERSION}_darwin_arm64.tar.gz"
+check_url_on Darwin arm64 vale "vale_${VALE_VERSION}_macOS_arm64.tar.gz"
+check_url_on Darwin arm64 lychee "lychee-arm64-macos.tar.gz"
+# Hugo publishes no darwin tarball at all — only a universal .pkg.
+check_url_on Darwin arm64 hugo "hugo_extended_${hugo_version}_darwin-universal.pkg"
+
+# macOS x86_64 — Vale spells it differently again.
+check_url_on Darwin x86_64 vale "vale_${VALE_VERSION}_macOS_64-bit.tar.gz"
+check_url_on Darwin x86_64 shellcheck "shellcheck-v${SHELLCHECK_VERSION}.darwin.x86_64.tar.xz"
+
+# Linux arm64, for anyone on an arm runner or a Raspberry Pi.
+check_url_on Linux aarch64 vale "vale_${VALE_VERSION}_Linux_arm64.tar.gz"
+check_url_on Linux aarch64 hugo "hugo_extended_${hugo_version}_linux-arm64.tar.gz"
+check_url_on Linux aarch64 lychee "lychee-aarch64-unknown-linux-gnu.tar.gz"
+
+# lychee ships no x86_64 macOS build. Say so plainly rather than 404ing.
+out=$(TOOLS_UNAME_S=Darwin TOOLS_UNAME_M=x86_64 TOOLS_DIR="$TMP/no-lychee" \
+  bash "$ENSURE_SCRIPT" lychee 2>&1 || true)
+assert_contains "lychee on Darwin/x86_64 explains itself" "no x86_64 macOS build" "$out"
+
+# An unknown platform must not silently build a nonsense URL.
+out=$(TOOLS_UNAME_S=Plan9 TOOLS_DIR="$TMP/plan9" bash "$ENSURE_SCRIPT" shfmt 2>&1 || true)
+assert_contains "an unsupported OS is rejected" "unsupported OS: Plan9" "$out"
+out=$(TOOLS_UNAME_M=s390x TOOLS_DIR="$TMP/s390x" bash "$ENSURE_SCRIPT" shfmt 2>&1 || true)
+assert_contains "an unsupported architecture is rejected" "unsupported architecture: s390x" "$out"
+
+# ── macOS .pkg extraction ─────────────────────────────────────────────────────
+# Hugo on macOS arrives as a .pkg, which is unpacked with pkgutil and buries the
+# binary under a Payload tree. Stub pkgutil so the branch runs on Linux.
+cat >"$TMP/pkgutil-stub.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+# Usage mirrors: pkgutil --expand-full <archive> <dest>
+dest="$3"
+mkdir -p "$dest/hugo.pkg/Payload/usr/local/bin"
+printf '#!/bin/sh\necho stub-hugo\n' >"$dest/hugo.pkg/Payload/usr/local/bin/hugo"
+chmod +x "$dest/hugo.pkg/Payload/usr/local/bin/hugo"
+EOF
+chmod +x "$TMP/pkgutil-stub.sh"
+
+d="$TMP/darwin-pkg"
+TOOLS_UNAME_S=Darwin TOOLS_UNAME_M=arm64 TOOLS_DIR="$d" \
+  TOOLS_FETCH_CMD="$TMP/fetch-tar.sh" STUB_STATE="$TMP/stub-state" \
+  TOOLS_PKGUTIL_CMD="$TMP/pkgutil-stub.sh" \
+  bash "$ENSURE_SCRIPT" hugo >/dev/null 2>&1 || true
+assert_executable "hugo is extracted from a macOS .pkg" "$d/bin/hugo"
+
+# Without pkgutil the failure has to be legible, not a confusing 'not found'.
+out=$(TOOLS_UNAME_S=Darwin TOOLS_UNAME_M=arm64 TOOLS_DIR="$TMP/nopkgutil" \
+  TOOLS_FETCH_CMD="$TMP/fetch-tar.sh" STUB_STATE="$TMP/stub-state" \
+  TOOLS_PKGUTIL_CMD=definitely-not-pkgutil \
+  bash "$ENSURE_SCRIPT" hugo 2>&1 || true)
+assert_contains "a missing pkgutil is reported clearly" "cannot unpack" "$out"
+
 # ── Checksum verification ─────────────────────────────────────────────────────
 # vale, actionlint and hugo publish a checksums file, and the installer must
 # refuse an asset whose digest does not match it.

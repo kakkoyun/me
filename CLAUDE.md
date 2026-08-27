@@ -392,7 +392,9 @@ as any other source.
 - Every script gets a `scripts/test-<name>.sh` companion wired into `make test`.
   The existing suites are self-contained: temp dirs, stubbed commands via env
   seams (`LIVE_PROBE_CMD`, `TOOLS_FETCH_CMD`), pinned clocks (`TODAY_OVERRIDE`),
-  no network.
+  no network. `ensure-tool.sh` also takes `TOOLS_UNAME_S`/`TOOLS_UNAME_M`/
+  `TOOLS_PKGUTIL_CMD`, so a Linux runner covers the macOS asset names and the
+  Hugo `.pkg` path — branches that would otherwise only ever run on a laptop.
 - A comment whose first word is `shellcheck` is parsed as a directive and fails
   the lint with SC1073. Reword it — this bites when writing about ShellCheck.
 
