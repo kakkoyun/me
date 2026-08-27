@@ -70,9 +70,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Install pinned actionlint
+      # Both tools, not just actionlint. actionlint shells out to whatever
+      # `shellcheck` is on PATH to lint `run:` blocks, and ubuntu-latest ships
+      # its own — 0.10.0 at time of writing, against the 0.11.0 pinned in
+      # tools.mk. So this job silently linted with a different ShellCheck than
+      # the ShellCheck job beside it and than `make lint` locally, and findings
+      # that no dev machine could reproduce failed CI (SC2015, dropped in
+      # 0.11.0, did exactly that). Installing the pin puts .tools/bin ahead of
+      # /usr/bin and closes the hole.
+      - name: Install pinned actionlint and ShellCheck
         run: |
-          make -s tool-actionlint
+          make -s tool-actionlint tool-shellcheck
           make -s print-tools-bin >> "$GITHUB_PATH"
 
       - name: actionlint
@@ -84,7 +92,14 @@ jobs:
             echo "::error::expected the pinned actionlint at $want, resolved $got"
             exit 1
           fi
+          want_sc="$(make -s print-tools-bin)/shellcheck"
+          got_sc="$(command -v shellcheck || true)"
+          if [ "$got_sc" != "$want_sc" ]; then
+            echo "::error::expected the pinned shellcheck at $want_sc, resolved $got_sc — actionlint would lint run: blocks with a different version than make lint does"
+            exit 1
+          fi
           echo "actionlint $(actionlint --version | head -1)"
+          echo "shellcheck $(shellcheck --version | awk '/^version:/ {print $2}')"
           rc=0
           # -oneline gives file:line:col: message, which maps to a GitHub
           # annotation with the same sed shape the ShellCheck job uses. The

@@ -1,28 +1,31 @@
 name: Promote New Post
 
-# ⚠️  THE NIGHTLY CRON IS DISABLED. Re-enable it by uncommenting the schedule
-# block below once the `master` ruleset has no required status checks.
+# The nightly cron here is fragile in one specific, non-obvious way, and the
+# failure is expensive: it double-posts to social media rather than going red.
 #
-# Why: this workflow lands its promotedAt stamp by opening a PR and merging it
-# (see "Record promotion"). A PR opened with GITHUB_TOKEN does not trigger
-# `pull_request` workflows, so required status checks on master never report and
-# the merge is refused — "4 of 4 required status checks are expected".
+# This workflow lands its promotedAt stamp by opening a PR and merging it (see
+# "Record promotion"). A PR opened with GITHUB_TOKEN triggers no `pull_request`
+# workflows, so any *required status check* on the `master` ruleset never
+# reports and the merge is refused — "4 of 4 required status checks are
+# expected". The Buffer posts go out BEFORE the stamp is written, so a refused
+# merge means posts promoted but not recorded, and the next cron promotes them a
+# second time. That is why the master ruleset requires a PR but requires no
+# checks.
 #
-# That failure is not cosmetic here. The Buffer posts go out BEFORE the stamp is
-# written, so a blocked merge means posts promoted but not recorded, and the next
-# cron promotes them a second time. Disabling the schedule is strictly safer than
-# letting it run: nothing is lost, because the 30-day lookback window picks these
-# posts up on the first run after it is re-enabled.
+# So if you ever add a required status check to master, disable the schedule
+# below at the same time. Nothing is lost by disabling it — the 30-day lookback
+# window picks the missed posts up on the first run after it comes back.
 #
-# Confirmed by `Automation Smoke Test` run 1 on 2026-08-27, which reproduced the
-# exact refusal against master. Run it again after changing the ruleset; when it
-# reports "Landed on master", restore the schedule.
+# `Automation Smoke Test` is the way to check without risking a real post: it
+# runs this exact branch → PR → squash-merge sequence against a throwaway file.
+# It reproduced the refusal above on 2026-08-27, and passed on run 33103680988
+# once the required checks were removed, which is why this schedule is live.
 on:
-  # schedule:
-  #   # Every day at 6 AM UTC. Promotes any live post published within the last
-  #   # PROMOTE_LOOKBACK_DAYS (30) that has no promotedAt stamp yet — not just
-  #   # posts published today. See scripts/find-promotable-posts.sh.
-  #   - cron: '0 6 * * *'
+  schedule:
+    # Every day at 6 AM UTC. Promotes any live post published within the last
+    # PROMOTE_LOOKBACK_DAYS (30) that has no promotedAt stamp yet — not just
+    # posts published today. See scripts/find-promotable-posts.sh.
+    - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       post_path:
@@ -266,15 +269,26 @@ jobs:
           # laundering path straight through the ruleset this PR exists to
           # enforce. The check is server-side and atomic, so it cannot be raced.
           # The SHA is re-captured after each rebase below, since that rewrites it.
+          drop_branch() {
+            # GitHub's "automatically delete head branches" setting usually removes the
+            # branch as part of the merge, so this delete finds nothing and git prints a
+            # red "remote rejected ... cannot lock ref" line on an otherwise clean run.
+            # The outcome was already ignored (|| true) — the guard only stops a success
+            # from reading like a failure in the log.
+            if git ls-remote --exit-code --heads origin "$1" >/dev/null 2>&1; then
+              git push origin --delete "$1" || true
+            fi
+          }
+
           for attempt in 1 2 3; do
             if gh pr merge "$branch" --squash --match-head-commit "$head_sha"; then
-              git push origin --delete "$branch" || true
+              drop_branch "$branch"
               exit 0
             fi
             # A merge that landed but reported failure must not be retried: the
             # stamp is already on master and rebasing would only confuse things.
             if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo UNKNOWN)" = "MERGED" ]; then
-              git push origin --delete "$branch" || true
+              drop_branch "$branch"
               exit 0
             fi
             remote_head=$(gh pr view "$branch" --json headRefOid --jq .headRefOid 2>/dev/null || echo "")

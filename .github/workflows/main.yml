@@ -95,15 +95,26 @@ jobs:
           # privileged workflow would merge it into master unreviewed. That is a
           # laundering path straight through the ruleset this PR exists to
           # enforce. The check is server-side and atomic, so it cannot be raced.
+          drop_branch() {
+            # GitHub's "automatically delete head branches" setting usually removes the
+            # branch as part of the merge, so this delete finds nothing and git prints a
+            # red "remote rejected ... cannot lock ref" line on an otherwise clean run.
+            # The outcome was already ignored (|| true) — the guard only stops a success
+            # from reading like a failure in the log.
+            if git ls-remote --exit-code --heads origin "$1" >/dev/null 2>&1; then
+              git push origin --delete "$1" || true
+            fi
+          }
+
           for attempt in 1 2 3; do
             if gh pr merge "$branch" --squash --match-head-commit "$head_sha"; then
-              git push origin --delete "$branch" || true
+              drop_branch "$branch"
               exit 0
             fi
             # A merge that landed but reported failure must not look like a
             # merge that never happened.
             if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo UNKNOWN)" = "MERGED" ]; then
-              git push origin --delete "$branch" || true
+              drop_branch "$branch"
               exit 0
             fi
             remote_head=$(gh pr view "$branch" --json headRefOid --jq .headRefOid 2>/dev/null || echo "")
