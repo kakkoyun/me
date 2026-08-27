@@ -52,4 +52,4 @@ LHCI_VERSION=0.15.1
 # will offer the major separately — take it in its own PR, with a full
 # `make email-validate` pass and a paste-test in the Hakanai dashboard.
 # renovate: datasource=npm depName=mjml
-MJML_VERSION=4.18.0
+MJML_VERSION=5.4.0
