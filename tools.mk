@@ -40,7 +40,7 @@ VALE_VERSION=3.19.0
 
 # lychee tags its releases `lychee-vX.Y.Z`, not `vX.Y.Z`.
 # renovate: datasource=github-releases depName=lycheeverse/lychee extractVersion=^lychee-v(?<version>.*)$
-LYCHEE_VERSION=0.23.0
+LYCHEE_VERSION=0.24.2
 
 # Lighthouse CI, run via npx for `make lighthouse`. CI uses the
 # treosh/lighthouse-ci-action, which bundles its own copy.
