@@ -102,8 +102,8 @@ REPORT=$(
         return 0
       }
 
-      {
-        n = split($0, chunk, /<img/)
+      function scan(file, doc,   n, chunk, i, tag, p, style, src) {
+        n = split(doc, chunk, /<img/)
         for (i = 2; i <= n; i++) {
           tag = chunk[i]
           p = index(tag, ">")
@@ -120,11 +120,26 @@ REPORT=$(
           if (is_allowed(src)) { allowed++; continue }
 
           bad++
-          print FILENAME "\t" src
+          print file "\t" src
         }
       }
 
-      END { print "__SUMMARY__\t" total "\t" bad "\t" allowed }
+      # A tag is only guaranteed to fit on one line in minified output, which is
+      # what ships — but `hugo` without --minify pretty-prints, splitting a
+      # single <img> across several lines. Buffer each file and scan it whole,
+      # so the check means the same thing against either build.
+      FNR == 1 {
+        if (curfile != "") scan(curfile, buf)
+        buf = ""
+        curfile = FILENAME
+      }
+
+      { buf = buf " " $0 }
+
+      END {
+        if (curfile != "") scan(curfile, buf)
+        print "__SUMMARY__\t" total "\t" bad "\t" allowed
+      }
     '
 )
 

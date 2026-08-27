@@ -124,6 +124,46 @@ reset
 write_page nested/deep/index.html '<img src="/a.png" alt="a">'
 assert_rc "unsized image in a nested directory fails" 1 "$(rc_of)"
 
+# --- pretty-printed output ------------------------------------------------
+#
+# `hugo` without --minify splits a single tag across several lines. The checker
+# buffers each file and scans it whole for exactly this reason; scanning line by
+# line reported 531 of 540 images unsized against a dev build.
+
+reset
+write_page index.html '<img src="/a.png" alt="a"
+    width="800" height="600">'
+assert_rc "a tag split across lines is read whole" 0 "$(rc_of)"
+
+reset
+write_page index.html '<img
+      src="/a.png"
+      alt="a"
+      loading="lazy"
+      width="800"
+      height="600">'
+assert_rc "one attribute per line passes" 0 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png"
+    alt="a"
+    loading="lazy">'
+assert_rc "a tag split across lines with no dimensions still fails" 1 "$(rc_of)"
+
+reset
+write_page a.html '<img src="/a.png" alt="a"
+    width="8" height="6">'
+write_page b.html '<img src="/b.png"
+    alt="b">'
+assert_rc "buffering does not leak between files" 1 "$(rc_of)"
+
+reset
+write_page a.html '<img src="/a.png" alt="a"
+    width="8" height="6">'
+write_page b.html '<img src="/b.png" alt="b"
+    width="2" height="2">'
+assert_rc "several files of split tags all pass" 0 "$(rc_of)"
+
 # --- the allowlist --------------------------------------------------------
 
 reset
