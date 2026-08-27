@@ -4,6 +4,26 @@ theme: "PaperMod"
 
 enableRobotsTXT: true
 
+# Cover images live in static/uploads/ and are referenced as /uploads/foo.jpeg —
+# by published posts, by already-syndicated Substack imports and by social cards
+# that are long since posted. Moving them into assets/ to make Hugo process them
+# would break every one of those URLs.
+#
+# So mount the directory a second time, into assets/. static/uploads keeps its
+# default mount and /uploads/foo.jpeg still serves the untouched original, while
+# `resources.Get "uploads/foo.jpeg"` now returns a processable resource — which
+# is what lets partials/functions/responsive-image.html emit a real width and
+# height for a cover instead of falling back to an unsized <img>.
+#
+# The `assets -> assets` line is not redundant: declaring any mount whose target
+# is a component drops that component's default mount, so it has to be restated.
+module:
+  mounts:
+    - source: assets
+      target: assets
+    - source: static/uploads
+      target: assets/uploads
+
 defaultContentLanguage: "en"
 buildDrafts: false
 

@@ -1,0 +1,161 @@
+{{- /*
+  responsive-image.html — the single place this site turns an image reference
+  into markup. Every <img> that ships in a page should come from here.
+
+  Why one partial: there used to be two independent image paths that disagreed
+  about what a finished <img> looks like — the render-image render hook and
+  PaperMod's cover.html — and covers routinely came out with no width or height.
+  An <img> with no intrinsic size is a layout shift, and it is the failure that
+  kept coming back, because the rule ("always size your images") lived in a
+  review comment rather than in code. Now it lives here, and
+  scripts/check-image-sizes.sh fails the build if any <img> escapes it.
+
+  Contract: always emits width and height. Every branch below, including each
+  failure branch, is responsible for producing a pair — see $w/$h at the bottom.
+
+  Call with a dict:
+    src            (string, required) "/uploads/x.jpeg", "x.jpeg" (page bundle),
+                   or an absolute http(s) URL
+    page           (page, optional)   context for resolving page-bundle resources
+    alt            (string)           passed through verbatim
+    title          (string, optional) becomes title=
+    class          (string, optional) class on the <img>
+    loading        (string)           "lazy" (default) or "eager"
+    fetchpriority  (string, optional) e.g. "high" for an LCP image
+    sizes          (string, optional) defaults to the reading measure, see below
+    width/height   (int, optional)    last-resort dimensions when the image
+                                      cannot be measured (e.g. a remote fetch
+                                      failed and the URL is not a known shape)
+
+  assets/css/extended/reading.css sets --main-width to 42rem (672px), so that is
+  the widest an image is ever laid out. Without a sizes attribute the browser
+  assumes 100vw and over-fetches.
+*/ -}}
+
+{{- $src := .src -}}
+{{- $alt := .alt | default "" -}}
+{{- $title := .title | default "" -}}
+{{- $class := .class | default "" -}}
+{{- $loading := .loading | default "lazy" -}}
+{{- $fetchpriority := .fetchpriority | default "" -}}
+{{- $sizes := .sizes | default "(min-width: 720px) 672px, 100vw" -}}
+{{- $page := .page -}}
+{{- $w := .width | default 0 | int -}}
+{{- $h := .height | default 0 | int -}}
+
+{{- $isRemote := or (hasPrefix $src "http://") (or (hasPrefix $src "https://") (hasPrefix $src "//")) -}}
+{{- $img := false -}}
+
+{{- if $isRemote -}}
+  {{- /* Localising a remote image is what removes the third-party origin, the
+         short cache TTL and the unknown dimensions all at once. A fetch that
+         fails must not break the build, so fall through to the sized-fallback
+         path below. */ -}}
+  {{- $url := cond (hasPrefix $src "//") (printf "https:%s" $src) $src -}}
+  {{- $res := try (resources.GetRemote $url) -}}
+  {{- with $res.Err -}}
+    {{- warnf "responsive-image: remote fetch failed, falling back to the remote URL: %s (%s)" $url . -}}
+  {{- else -}}
+    {{- with $res.Value -}}
+      {{- $img = . -}}
+    {{- else -}}
+      {{- warnf "responsive-image: remote image not found, falling back to the remote URL: %s" $url -}}
+    {{- end -}}
+  {{- end -}}
+{{- else -}}
+  {{- with $page -}}
+    {{- $img = .Resources.GetMatch $src -}}
+  {{- end -}}
+  {{- if not $img -}}
+    {{- $img = resources.Get (strings.TrimPrefix "/" $src) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* GIF is deliberately absent: Hugo's Resize flattens an animated GIF to a
+       single frame, so processing one would silently break it. */ -}}
+{{- $processable := slice "jpg" "jpeg" "png" "bmp" "tiff" "webp" -}}
+{{- $subtype := "" -}}
+{{- with $img -}}{{- with .MediaType -}}{{- $subtype = .SubType -}}{{- end -}}{{- end -}}
+
+{{- if and $img (in $processable $subtype) -}}
+  {{- $w = $img.Width -}}
+  {{- $h = $img.Height -}}
+  {{- $candidates := slice 480 768 1024 1366 1920 -}}
+  {{- $srcset := slice -}}
+  {{- $srcsetWebP := slice -}}
+  {{- range $candidates -}}
+    {{- if lt . $w -}}
+      {{- $srcset = $srcset | append (printf "%s %dw" ($img.Resize (printf "%dx" .)).RelPermalink .) -}}
+      {{- $srcsetWebP = $srcsetWebP | append (printf "%s %dw" ($img.Resize (printf "%dx webp" .)).RelPermalink .) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* Always offer the original as the largest candidate. */ -}}
+  {{- $srcset = $srcset | append (printf "%s %dw" $img.RelPermalink $w) -}}
+  {{- if ne $subtype "webp" -}}
+    {{- $srcsetWebP = $srcsetWebP | append (printf "%s %dw" ($img.Resize (printf "%dx webp" $w)).RelPermalink $w) -}}
+  {{- end -}}
+  <picture>
+    {{- if and (ne $subtype "webp") $srcsetWebP }}<source type="image/webp" srcset="{{ delimit $srcsetWebP ", " }}" sizes="{{ $sizes }}">{{ end }}
+    {{- with $srcset }}<source srcset="{{ delimit . ", " }}" sizes="{{ $sizes }}">{{ end }}
+    <img src="{{ $img.RelPermalink }}" alt="{{ $alt }}"
+      {{- with $title }} title="{{ . }}"{{ end }}
+      {{- with $class }} class="{{ . }}"{{ end }}
+      loading="{{ $loading }}" decoding="async"
+      {{- with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}
+      sizes="{{ $sizes }}" width="{{ $w }}" height="{{ $h }}">
+  </picture>
+{{- else -}}
+  {{- /* Not processable: SVG, GIF, or a remote fetch that did not land. Publish
+         it if we have the bytes, and recover dimensions any way we can — the
+         contract is that this branch still emits width and height. */ -}}
+  {{- $url := $src -}}
+  {{- with $img -}}
+    {{- $url = .RelPermalink -}}
+    {{- if eq $subtype "svg" -}}
+      {{- /* An <svg> root almost always carries width/height or a viewBox. */ -}}
+      {{- $svg := .Content -}}
+      {{- with (findRE `\swidth="([0-9.]+)"` $svg 1) -}}
+        {{- $w = index (findRE `[0-9.]+` (index . 0) 1) 0 | float | int -}}
+      {{- end -}}
+      {{- with (findRE `\sheight="([0-9.]+)"` $svg 1) -}}
+        {{- $h = index (findRE `[0-9.]+` (index . 0) 1) 0 | float | int -}}
+      {{- end -}}
+      {{- if or (eq $w 0) (eq $h 0) -}}
+        {{- with (findRE `viewBox="[0-9.\-]+ +[0-9.\-]+ +([0-9.]+) +([0-9.]+)"` $svg 1) -}}
+          {{- $nums := findRE `[0-9.]+` (index . 0) -}}
+          {{- if ge (len $nums) 4 -}}
+            {{- $w = index $nums 2 | float | int -}}
+            {{- $h = index $nums 3 | float | int -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* Known remote shapes. YouTube publishes a fixed set of thumbnail names at
+         fixed sizes, and every talk on this site uses one of them, so a failed
+         fetch still yields correct dimensions rather than a layout shift. */ -}}
+  {{- if or (eq $w 0) (eq $h 0) -}}
+    {{- $known := dict
+          "maxresdefault" (slice 1280 720)
+          "hq720"         (slice 1280 720)
+          "sddefault"     (slice 640 480)
+          "hqdefault"     (slice 480 360)
+          "mqdefault"     (slice 320 180)
+          "default"       (slice 120 90) -}}
+    {{- range $name, $dim := $known -}}
+      {{- if and (eq $w 0) (in $src (printf "/%s.jpg" $name)) -}}
+        {{- $w = index $dim 0 -}}
+        {{- $h = index $dim 1 -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if or (eq $w 0) (eq $h 0) -}}
+    {{- warnf "responsive-image: no dimensions for %s — add cover.width/cover.height (or width/height) so the <img> can be sized" $src -}}
+  {{- end -}}
+  <img src="{{ $url | safeURL }}" alt="{{ $alt }}"
+    {{- with $title }} title="{{ . }}"{{ end }}
+    {{- with $class }} class="{{ . }}"{{ end }}
+    loading="{{ $loading }}" decoding="async"
+    {{- with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}
+    {{- if and (gt $w 0) (gt $h 0) }} width="{{ $w }}" height="{{ $h }}"{{ end }}>
+{{- end -}}
