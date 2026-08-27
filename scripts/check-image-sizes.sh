@@ -67,6 +67,10 @@ REPORT=$(
   find "$PUBLIC_DIR" -type f -name '*.html' -print0 \
     | xargs -0 awk -v allowfile="$ALLOW_ARG" -v SQ="'" '
       BEGIN {
+        UNIT = "(px|em|rem|%|vw|vh|vmin|vmax|ch|ex|cm|mm|in|pt|pc)"
+        LEN  = "[0-9]+(\\.[0-9]+)?" UNIT
+        LEN_W = "(^|;)[ \t]*width[ \t]*:[ \t]*" LEN "[ \t]*(;|$)"
+        LEN_H = "(^|;)[ \t]*height[ \t]*:[ \t]*" LEN "[ \t]*(;|$)"
         nallow = 0
         if (allowfile != "") {
           while ((getline line < allowfile) > 0) {
@@ -76,6 +80,19 @@ REPORT=$(
           }
           close(allowfile)
         }
+      }
+
+      # HTML element and attribute names are case-insensitive, and portable awk
+      # has no IGNORECASE, so build a bracketed pattern per name: width ->
+      # [wW][iI][dD][tT][hH]. Matters because config.yaml enables raw HTML in
+      # content, so an <IMG> written by hand reaches the output verbatim.
+      function ci(name,   i, c, out) {
+        out = ""
+        for (i = 1; i <= length(name); i++) {
+          c = substr(name, i, 1)
+          out = out "[" tolower(c) toupper(c) "]"
+        }
+        return out
       }
 
       # An attribute name is not a dimension: width="" and width="auto" both
@@ -88,7 +105,7 @@ REPORT=$(
       }
 
       function attr_value(tag, name,   re, rest, v, q) {
-        re = "[ \t\n\r/]" name "[ \t\n\r]*="
+        re = "[ \t\n\r/]" ci(name) "[ \t\n\r]*="
         if (!match(tag, re)) return ""
         rest = substr(tag, RSTART + RLENGTH)
         q = substr(rest, 1, 1)
@@ -109,9 +126,15 @@ REPORT=$(
       }
 
       function scan(file, doc,   n, chunk, i, tag, p, style, src) {
-        n = split(doc, chunk, /<img/)
+        n = split(doc, chunk, /<[iI][mM][gG]/)
         for (i = 2; i <= n; i++) {
           tag = chunk[i]
+          # The split deliberately does not consume the character after "img",
+          # because attr_value() keys off the whitespace preceding an attribute
+          # and would otherwise miss whichever attribute came first. That
+          # character does have to be a delimiter though, so <image> (a real SVG
+          # element) is not mistaken for an <img>.
+          if (tag !~ /^[ \t\n\r\/>]/) continue
           p = index(tag, ">")
           if (p > 0) tag = substr(tag, 1, p - 1)
           # XHTML-style self-closing: the trailing slash in <img ... 600/> is
@@ -122,12 +145,14 @@ REPORT=$(
           if (is_positive_int(attr_value(tag, "width")) &&
               is_positive_int(attr_value(tag, "height"))) continue
 
-          # The CSS form, which Lighthouse also accepts. Anchor each property to
-          # a declaration boundary so "width:" cannot match inside "max-width:",
-          # and require a value that starts with a digit so "auto" is rejected.
-          style = attr_value(tag, "style")
-          if (style ~ /(^|;)[ \t]*width[ \t]*:[ \t]*[0-9]/ &&
-              style ~ /(^|;)[ \t]*height[ \t]*:[ \t]*[0-9]/) continue
+          # The CSS form, which Lighthouse also accepts. Anchored to a
+          # declaration boundary so "width:" cannot match inside "max-width:",
+          # and the value must be a complete length with a unit — a value that
+          # merely starts with a digit ("1bogus", "10") is dropped by the
+          # browser and leaves the image unsized. Lowercased because CSS
+          # property names and units are case-insensitive too.
+          style = tolower(attr_value(tag, "style"))
+          if (style ~ LEN_W && style ~ LEN_H) continue
 
           src = attr_value(tag, "src")
           if (src == "") src = "(no src)"

@@ -19,6 +19,34 @@ caches:
     dir: :resourceDir/_gen/getresource
     maxAge: -1
 
+# partials/functions/responsive-image.html fetches cover and inline images at
+# build time, and Hugo's default policy for that is `urls: ['.*']` — any URL any
+# markdown file names, requested by the build. CI builds pull request branches,
+# so that reaches as far as whatever the runner or the Netlify builder can see.
+#
+# Restrict it to the hosts the content actually uses. Adding a remote image from
+# a new host is then a deliberate one-line change here rather than a silent new
+# egress from every build.
+#
+# What a blocked URL looks like, verified: GetRemote returns `access denied:
+# "<url>" is not whitelisted in policy "security.http.urls"`, responsive-image
+# logs that as a WARN naming the host and falls back to the bare remote URL, and
+# scripts/check-image-sizes.sh then fails the build because that fallback has no
+# dimensions. Noisy, but it fails closed and the log says exactly why.
+#
+# https://gohugo.io/configuration/security/
+security:
+  http:
+    methods:
+      - (?i)GET
+    urls:
+      - ^https://img\.youtube\.com/
+      - ^https://i\.ytimg\.com/
+      - ^https://raw\.githubusercontent\.com/
+      - ^https://www\.polarsignals\.com/
+      - ^https://wakatime\.com/
+      - ^https://imgs\.xkcd\.com/
+
 # Cover images live in static/uploads/ and are referenced as /uploads/foo.jpeg —
 # by published posts, by already-syndicated Substack imports and by social cards
 # that are long since posted. Moving them into assets/ to make Hugo process them

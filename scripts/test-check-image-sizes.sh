@@ -225,6 +225,72 @@ reset
 write_page index.html '<img src="/a.png" alt="a" style="max-width:100%;width:10px;height:4px">'
 assert_rc "a concrete size alongside max-width passes" 0 "$(rc_of)"
 
+# --- case ------------------------------------------------------------------
+#
+# HTML element and attribute names are case-insensitive, and config.yaml sets
+# goldmark unsafe: true, so raw HTML in content reaches the output verbatim.
+# A case-sensitive scan was invisible to <IMG> entirely and, worse, rejected a
+# perfectly well-formed tag that happened to use WIDTH/HEIGHT.
+
+reset
+write_page index.html '<IMG SRC="/a.png" ALT="a">'
+assert_rc "uppercase IMG with no dimensions is still caught" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a" WIDTH="800" HEIGHT="600">'
+assert_rc "uppercase WIDTH/HEIGHT attributes pass" 0 "$(rc_of)"
+
+reset
+write_page index.html '<Img Src="/a.png" Alt="a" Width="800" Height="600">'
+assert_rc "mixed-case tag and attributes pass" 0 "$(rc_of)"
+
+reset
+write_page index.html '<IMG SRC="/a.png" STYLE="WIDTH: 10px; HEIGHT: 4px">'
+assert_rc "uppercase style declarations pass" 0 "$(rc_of)"
+
+reset
+write_page index.html '<IMG SRC="/a.png" ALT="a" WIDTH="auto" HEIGHT="auto">'
+assert_rc "uppercase attributes are still value-checked" 1 "$(rc_of)"
+
+# --- CSS values that are not lengths ---------------------------------------
+#
+# A value merely starting with a digit is not a length: the browser drops the
+# whole declaration and the image is unsized again.
+
+reset
+write_page index.html '<img src="/a.png" style="width:1bogus;height:2bogus">'
+assert_rc "invalid CSS units fail" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" style="width:10;height:4">'
+assert_rc "unitless non-zero CSS lengths fail" 1 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" style="width:10.5rem;height:4.25em">'
+assert_rc "fractional CSS lengths with units pass" 0 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" style="width:50%;height:25%">'
+assert_rc "percentage CSS lengths pass" 0 "$(rc_of)"
+
+# --- tag boundaries --------------------------------------------------------
+
+# Regressed once already: a split that consumes the character after "img"
+# leaves the first attribute with no preceding whitespace, and the parser keys
+# off exactly that.
+reset
+write_page index.html '<img width=800 height=600 src="/a.png" alt="a">'
+assert_rc "dimensions as the first attribute are seen" 0 "$(rc_of)"
+
+reset
+write_page index.html '<img src="/a.png" alt="a">'
+assert_rc "src as the first attribute is seen (allowlist depends on it)" 1 "$(rc_of)"
+
+# <image> is a real SVG element and is not an <img>.
+reset
+write_page index.html '<svg><image href="/a.svg" x="0" y="0"/></svg>'
+assert_rc "an SVG <image> element is not mistaken for an <img>" 0 "$(rc_of)"
+
 # --- the allowlist --------------------------------------------------------
 
 reset
