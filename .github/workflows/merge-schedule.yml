@@ -22,6 +22,25 @@ name: Merge Schedule
 # branch protection rules. If required reviews ever block auto-merge,
 # create a GitHub App per the action's README and inject its token instead.
 
+# A `pull_request` run that fails with a bare `##[error]HttpError` is cosmetic.
+# Worth knowing, because the message carries no detail at all and the job goes
+# red on a PR that is otherwise fine.
+#
+# On `pull_request` the action only maintains its informational "Merge Schedule"
+# comment: it lists the PR's comments to find its own previous one, and posts,
+# updates or deletes it. Merging happens on the `schedule` event instead, in a
+# separate path that lists open PRs itself and re-reads each body — it never
+# reads the comment this path writes. So a failure here cannot delay, block or
+# corrupt a scheduled merge; the next PR event or 6-hourly cron just redoes it.
+#
+# The empty message is the diagnosis. The action does `core.setFailed(error)`
+# with the Error object, and `Error.prototype.toString()` degrades to the bare
+# name when the message is empty — so "HttpError" alone means a transport-level
+# failure, not an API refusal. A 403 or 404 would carry text and fail in well
+# under a second; the run this note comes from took 4.2s, which is Octokit's
+# retry plugin backing off, and it did not reproduce on the identical event and
+# head SHA. Permissions are not the cause: this same call succeeds on every
+# other run with exactly the permissions below.
 on:
   pull_request:
     types:
