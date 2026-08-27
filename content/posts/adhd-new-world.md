@@ -47,7 +47,7 @@ This is not how most software development tools work. Most tools assume you've a
 
 But here's the part I didn't see coming.
 
-ADHD brains are famously bad at dopamine regulation. The reason tasks are hard to start is the same reason they're hard to stop: we don't have a reliable internal signal that says *enough*. The dopamine hit from making progress is chemically addictive for a brain that doesn't produce it reliably otherwise. Normally, the friction of the work itself acts as a natural brake: it gets hard, you pause, time passes, you come up for air.{{< sidenote side="alternate" >}}"air" here is also a wink at certain habits — smoking, sweets — that a lot of ADHD brains, mine included, get hooked into. Not the chemistry so much as the loop.{{< /sidenote >}}
+ADHD brains are famously bad at dopamine regulation. The reason tasks are hard to start is the same reason they're hard to stop: we don't have a reliable internal signal that says *enough*. The dopamine hit from making progress is chemically addictive for a brain that doesn't produce it reliably otherwise. Normally, the friction of the work itself acts as a natural brake: it gets hard, you pause, time passes, you come up for air.{{< sidenote side="alternate" >}}"air" here is also a wink at certain habits (smoking, sweets) that a lot of ADHD brains, mine included, get hooked into. Not the chemistry so much as the loop.{{< /sidenote >}}
 
 When the friction is gone, the brake is gone too.
 
