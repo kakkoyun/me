@@ -89,16 +89,35 @@ jobs:
           # --delete-branch to `gh pr merge`: the runner is standing on $branch,
           # so gh would switch away and delete it locally, and a hiccup in that
           # cleanup exits non-zero *after the merge already succeeded*.
+          drop_branch() {
+            # GitHub's "automatically delete head branches" setting usually removes the
+            # branch as part of the merge, so this delete finds nothing and git prints a
+            # red "remote rejected ... cannot lock ref" line on an otherwise clean run.
+            # The outcome was already ignored (|| true) — the guard only stops a success
+            # from reading like a failure in the log.
+            git ls-remote --exit-code --heads origin "$1" >/dev/null 2>&1 \
+              && git push origin --delete "$1" || true
+          }
+
           for attempt in 1 2 3; do
             if gh pr merge "$branch" --squash --match-head-commit "$head_sha"; then
-              git push origin --delete "$branch" || true
+              drop_branch "$branch"
               echo "Landed on master. The ruleset permits a workflow-opened PR to merge."
               exit 0
             fi
             if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo UNKNOWN)" = "MERGED" ]; then
-              git push origin --delete "$branch" || true
+              drop_branch "$branch"
               echo "Landed on master (the merge reported failure but the PR is MERGED)."
               exit 0
+            fi
+            # The other half of the --match-head-commit pin: say *why* the merge
+            # was refused when something else wrote to the branch, instead of
+            # blaming the ruleset below. This is the one failure the pin exists
+            # to catch, and it is the one a smoke test must not misreport.
+            remote_head=$(gh pr view "$branch" --json headRefOid --jq .headRefOid 2>/dev/null || echo "")
+            if [ -n "$remote_head" ] && [ "$remote_head" != "$head_sha" ]; then
+              echo "::error::$branch is at $remote_head, not the $head_sha this job pushed. Refusing to merge: something else wrote to the branch."
+              exit 1
             fi
             echo "merge attempt $attempt failed, retrying"
             sleep $(( attempt * 5 ))
