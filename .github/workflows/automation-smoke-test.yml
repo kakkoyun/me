@@ -1,0 +1,100 @@
+name: Automation Smoke Test
+
+# Proves one thing, on demand: that a workflow can still land a commit on the
+# protected `master` branch by opening a pull request and merging it.
+#
+# Why this exists as its own workflow rather than a comment in the runbook.
+# The `master` ruleset requires every change to arrive through a PR and carries
+# no bypass actor, so `main.yml` and `promote-post.yml` were rewritten to open
+# and merge their own PRs instead of pushing. Neither can be used to test that
+# rewrite on demand:
+#
+#   - main.yml exits early unless the Obsidian RSS feed happens to have changed,
+#     so a dispatch usually proves nothing.
+#   - promote-post.yml's dry_run skips the landing step entirely, and a real run
+#     posts to social media.
+#
+# So this workflow does the same branch → PR → squash-merge sequence those two
+# use, against a file that exists only to be changed. Run it after any change to
+# the ruleset, to those workflows, or to the token permissions they rely on.
+#
+# It is dispatch-only. It never runs on a schedule and never runs on a push.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit the marker onto a branch
+  pull-requests: write # open and merge the PR that lands it
+
+concurrency:
+  group: automation-smoke-test
+  cancel-in-progress: false
+
+jobs:
+  smoke-test:
+    name: Land a commit on master through a PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: false
+          # Pinned, not the dispatch ref. Otherwise the branch below would be
+          # cut from whatever ref you dispatched from, and its PR would carry
+          # every unrelated commit on that ref onto master.
+          ref: master
+
+      - name: Land a marker commit through a PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          # .github/ is deliberately outside BUILD_PATHS in
+          # scripts/netlify-ignore.sh, so landing this costs no Netlify build.
+          marker=".github/automation-smoke-test.txt"
+          {
+            echo "Last successful automation smoke test."
+            echo "run: ${GITHUB_RUN_ID}"
+            echo "sha: ${GITHUB_SHA}"
+          } > "$marker"
+
+          if git diff --quiet -- "$marker"; then
+            echo "::error::The marker did not change, so this run would prove nothing. Two runs cannot share a run id, so this means the write failed."
+            exit 1
+          fi
+
+          branch="automation/smoke-test-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add "$marker"
+          git commit -m "ci: automation smoke test"
+          git push origin "$branch"
+
+          gh pr create \
+            --base master --head "$branch" \
+            --title "ci: automation smoke test" \
+            --body "Automated: proves a workflow can still land a commit on \`master\` through a PR under the current ruleset. Opened and merged by \`automation-smoke-test.yml\`."
+
+          # Mirrors main.yml and promote-post.yml exactly, including not passing
+          # --delete-branch to `gh pr merge`: the runner is standing on $branch,
+          # so gh would switch away and delete it locally, and a hiccup in that
+          # cleanup exits non-zero *after the merge already succeeded*.
+          for attempt in 1 2 3; do
+            if gh pr merge "$branch" --squash; then
+              git push origin --delete "$branch" || true
+              echo "Landed on master. The ruleset permits a workflow-opened PR to merge."
+              exit 0
+            fi
+            if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo UNKNOWN)" = "MERGED" ]; then
+              git push origin --delete "$branch" || true
+              echo "Landed on master (the merge reported failure but the PR is MERGED)."
+              exit 0
+            fi
+            echo "merge attempt $attempt failed, retrying"
+            sleep $(( attempt * 5 ))
+          done
+
+          echo "::error::Could not merge $branch into master. This is the failure main.yml and promote-post.yml would hit on their next cron — check the master ruleset for required status checks (they never report on a GITHUB_TOKEN-opened PR) or required approvals."
+          exit 1
