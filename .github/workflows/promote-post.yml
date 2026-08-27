@@ -51,9 +51,11 @@ jobs:
     timeout-minutes: 15
     permissions:
       # write: the "Record promotion" step below commits the promotedAt stamp
-      # back to master. That stamp is what stops the next cron re-posting the
-      # same link, so it has to be persisted, not just logged.
+      # and lands it on master through a PR. That stamp is what stops the next
+      # cron re-posting the same link, so it has to be persisted, not just
+      # logged.
       contents: write
+      pull-requests: write # open and merge the PR that lands the stamp
       id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -61,9 +63,10 @@ jobs:
           submodules: false
           # Pinned to master, not the dispatch ref. workflow_dispatch can be run
           # from any branch, and checkout would otherwise follow it — so
-          # "Record promotion" below, which does `git push origin HEAD:master`,
-          # would push that whole branch onto master. Promotion only ever acts
-          # on published content, which lives on master, so read it from there.
+          # "Record promotion" below would branch from that ref and its PR would
+          # carry every unrelated commit on it onto master. Promotion only ever
+          # acts on published content, which lives on master, so read it from
+          # there.
           ref: master
           # Needed so the "Record promotion" step can push the stamp back.
           persist-credentials: true
@@ -196,6 +199,8 @@ jobs:
       # ignores the ledger.
       - name: Record promotion
         if: steps.live.outputs.should_run == 'true' && github.event.inputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           chmod +x scripts/record-promotion.sh
           scripts/record-promotion.sh <<< "${{ steps.live.outputs.posts }}"
@@ -205,36 +210,48 @@ jobs:
             exit 0
           fi
 
+          # The stamp lands through a PR, not a push to master: the `master`
+          # ruleset requires every change to arrive that way, and routing this
+          # cron through a PR is what lets that ruleset carry no bypass actor —
+          # which is the point, since a stolen CMS token is a *user* token and
+          # would otherwise inherit any bypass granted here.
+          branch="automation/promotion-stamp-${GITHUB_RUN_ID}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
           git add content/posts/
           git commit -m "ci: record promotion timestamps"
+          git push origin "$branch"
 
-          # The cron and a human merge can race for master, so a rejected push
-          # is rebased and retried rather than failing the run outright: the
-          # posts are already on social by this point, and losing the stamp
-          # means tomorrow's cron promotes them a second time.
-          #
-          # A failed rebase is never swallowed. `|| true` here would leave the
-          # checkout mid-rebase, so every later push in this loop fails too and
-          # the run ends with the posts promoted but unstamped — the exact
-          # double-post this ledger exists to prevent, arrived at quietly.
-          # Abort and fail loudly instead, naming the recovery.
+          gh pr create \
+            --base master --head "$branch" \
+            --title "ci: record promotion timestamps" \
+            --body "Automated: promotedAt stamps for the posts promoted by this run. Opened and merged by \`promote-post.yml\`."
+
+          # The cron and a human merge can race for master. A PR that is briefly
+          # unmergeable — GitHub still computing, or master moving underneath —
+          # is retried rather than failing the run outright: the posts are
+          # already on social by this point, and losing the stamp means
+          # tomorrow's cron promotes them a second time.
           for attempt in 1 2 3; do
-            if git push origin HEAD:master; then
+            if gh pr merge "$branch" --squash --delete-branch; then
               exit 0
             fi
-            echo "push rejected (attempt $attempt), rebasing onto origin/master"
+            echo "merge attempt $attempt failed, updating the branch and retrying"
             git fetch origin master
+            # A conflict here is never swallowed. Continuing past one would end
+            # the run with the posts promoted but unstamped — the exact
+            # double-post this ledger exists to prevent, arrived at quietly.
             if ! git rebase origin/master; then
               git rebase --abort || true
               echo "::error::Rebase conflicted while recording promotion stamps. The posts below were POSTED but NOT stamped, so the next cron would promote them again. Add their promotedAt entries on master by hand (or run scripts/record-promotion.sh there) before 06:00 UTC:"
               echo "${{ steps.live.outputs.posts }}"
               exit 1
             fi
+            git push --force-with-lease origin "$branch"
             sleep $(( attempt * 5 ))
           done
 
-          echo "::error::Could not push promotion stamps after 3 attempts. The posts below were POSTED but NOT stamped and will be promoted again by the next cron unless you add their promotedAt entries on master:"
+          echo "::error::Could not merge the promotion-stamp PR after 3 attempts. The posts below were POSTED but NOT stamped and will be promoted again by the next cron unless you add their promotedAt entries on master (branch $branch is pushed and its PR is open):"
           echo "${{ steps.live.outputs.posts }}"
           exit 1

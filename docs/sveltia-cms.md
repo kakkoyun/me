@@ -97,16 +97,46 @@ review gate below. A ruleset on `master` closes that, and the shape of it
 matters:
 
 - require a pull request, **0 required approvals** — you are the only
-  collaborator and cannot approve your own PR, so the gate is the PR plus its
-  checks, not a second human. This also keeps `merge-schedule.yml` able to merge.
-- required status checks: `build` and `links`.
-- bypass actors: **the `GitHub Actions` app only** — not "repository admin".
+  collaborator and cannot approve your own PR, so the gate is that changes
+  arrive as a PR at all, not a second human. This also keeps
+  `merge-schedule.yml` able to merge.
+- **no required status checks**, and **an empty bypass list**.
 
-That last line is the whole point. `.github/workflows/main.yml` pushes
-`content/notes/_index.md` to master on a daily cron using `GITHUB_TOKEN`, so it
-needs the bypass. A CMS session's token is a *user* token, so it does not get
-one. The cost: an emergency revert also goes through a PR — with 0 approvals
-that is just the check time, but it is not instant.
+### Why no bypass actor, and why no required checks
+
+The obvious shape — bypass the `GitHub Actions` app so the crons keep pushing —
+is not available: the bypass modal does not offer it. That turns out to be a
+better outcome than the workaround would have been. The alternative on offer was
+"Repository admin", and a CMS session's token acts as **you**, so granting that
+would have handed the bypass to the very token this ruleset exists to contain.
+An empty bypass list is the only shape where the control actually holds.
+
+So the automations were changed instead of the rule. Two crons used to commit
+straight to master; both now open a PR and merge it in the same step:
+
+| Workflow | Was | Now |
+| --- | --- | --- |
+| `main.yml` | `blog-post-workflow` committed the notes list | `skip_commit: true`, then branch → PR → squash-merge |
+| `main.yml` | `enable_keepalive` (defaults **on**) made a dummy commit to master every ~50 days | `enable_keepalive: false` |
+| `promote-post.yml` | `git push origin HEAD:master` for the `promotedAt` stamp | branch → PR → squash-merge, same retry and loud-failure behaviour |
+
+That keepalive one is worth dwelling on: it is on by default, it appears nowhere
+in the workflow file, and it exists to stop GitHub disabling scheduled workflows
+on dormant repos. This repo is not dormant, so it was pure invisible risk — a
+push to master that nothing in the repo mentioned.
+
+Required status checks are off because a PR opened with `GITHUB_TOKEN` does not
+trigger `pull_request` workflows. Requiring checks would leave every cron PR
+waiting forever on a check that never runs. Checks still run on human PRs and on
+every push to master; you simply are not blocked from merging a red one. Making
+them enforceable would mean a second long-lived PAT purely so cron PRs trigger
+workflows, which is the same trade this repo declines elsewhere.
+
+`cms-sync.yml` needs nothing: it pushes to `cms`, never to master.
+
+The cost of all this: an emergency revert also goes through a PR. With 0
+approvals and no required checks that is a few seconds, but it is not a
+`git push`.
 
 ### Security headers on `/admin/`
 

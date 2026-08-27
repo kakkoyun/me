@@ -6,7 +6,8 @@ on:
     # Runs at 12am UTC
     - cron: '0 0 * * *'
 permissions:
-  contents: write # To write the generated contents to the readme
+  contents: write # commit the notes list onto a branch
+  pull-requests: write # open and merge the PR that lands it
 
 jobs:
   update-readme-with-notes:
@@ -25,3 +26,61 @@ jobs:
           sort_order: 'desc'
           reverse_order: true
           template: "$newline - [$title]($url) $newline"
+          # The action must not write to master itself: a ruleset requires every
+          # change to arrive through a pull request. It still writes the file to
+          # disk (the marker-splicing logic stays its job); the step below is
+          # what lands it.
+          skip_commit: true
+          # Off, and worth knowing why it existed. Defaulting to true, this makes
+          # a dummy commit straight to the default branch every ~50 days to stop
+          # GitHub disabling scheduled workflows on dormant repos. That is a push
+          # to master that appears nowhere in this file — invisible until it
+          # fails. This repo is not dormant (posts, Renovate, CI all commit
+          # regularly), so nothing here needs it.
+          enable_keepalive: false
+
+      # Land the change through a PR rather than pushing to master, so the
+      # `master` ruleset needs no bypass actor for this cron. The PR is opened
+      # and merged in the same step: there is nothing for a human to review in a
+      # generated list, and leaving it open would just accumulate.
+      #
+      # Note a GITHUB_TOKEN-opened PR does not trigger `pull_request` workflows,
+      # so no checks run on this PR. That is why the ruleset requires a PR but no
+      # status checks — see docs/sveltia-cms.md. The push to master that follows
+      # the merge does trigger build.yml as normal.
+      - name: Land the notes update through a PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- content/notes/_index.md; then
+            echo "No notes changes to land."
+            exit 0
+          fi
+
+          branch="automation/notes-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add content/notes/_index.md
+          git commit -m "ci: update recent notes"
+          git push origin "$branch"
+
+          gh pr create \
+            --base master --head "$branch" \
+            --title "ci: update recent notes" \
+            --body "Automated: the notes list regenerated from the Obsidian Publish RSS feed. Opened and merged by \`main.yml\`."
+
+          # GitHub can briefly report mergeability as unknown right after the PR
+          # is created; retry rather than failing on that race.
+          for attempt in 1 2 3; do
+            if gh pr merge "$branch" --squash --delete-branch; then
+              exit 0
+            fi
+            echo "merge attempt $attempt failed, retrying"
+            sleep $(( attempt * 5 ))
+          done
+
+          echo "::error::Could not merge the notes update PR for branch $branch. The branch is pushed and the PR is open — merge it by hand."
+          exit 1
