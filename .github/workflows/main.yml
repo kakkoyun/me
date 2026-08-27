@@ -101,8 +101,9 @@ jobs:
             # red "remote rejected ... cannot lock ref" line on an otherwise clean run.
             # The outcome was already ignored (|| true) — the guard only stops a success
             # from reading like a failure in the log.
-            git ls-remote --exit-code --heads origin "$1" >/dev/null 2>&1 \
-              && git push origin --delete "$1" || true
+            if git ls-remote --exit-code --heads origin "$1" >/dev/null 2>&1; then
+              git push origin --delete "$1" || true
+            fi
           }
 
           for attempt in 1 2 3; do
