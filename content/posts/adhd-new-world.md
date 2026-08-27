@@ -1,8 +1,8 @@
 ---
 title: "New world as an ADHD person"
 description: "On being a late-diagnosed ADHD engineer in the age of AI agents: the unexpected fit, the familiar traps, and the question nobody tells you to ask yourself."
-date: 2026-08-27T00:00:00Z
-publishDate: 2026-08-27T00:00:00Z
+date: 2026-08-28T00:00:00Z
+publishDate: 2026-08-28T00:00:00Z
 categories:
   - reflection
 tags:
@@ -17,7 +17,7 @@ tags:
 
 Six hours. I had planned to spend thirty minutes on a proof-of-concept.
 
-Engineers overrun estimates __all__ the time. But this wasn't a planning failure — it was something I'd spent my whole adult life recognizing too late: hyperfocus. The kind where time doesn't slow down, it simply stops existing. My coffee went cold. I missed lunch and dinner. I surfaced at 7pm with more working code than I'd shipped in the previous three days combined.
+Engineers overrun estimates __all__ the time. But this wasn't a planning failure — it was something I'd spent my whole adult life recognizing too late: hyperfocus. The kind where time doesn't slow down, it simply stops existing. My coffee went cold. I missed lunch. I blew past my 6pm hard stop with more working code than I'd shipped in the previous three days combined.
 
 The twist: I was working with Claude Code. And I hadn't been writing much code at all.
 
@@ -47,20 +47,21 @@ This is not how most software development tools work. Most tools assume you've a
 
 But here's the part I didn't see coming.
 
-ADHD brains are famously bad at dopamine regulation. The reason tasks are hard to start is the same reason they're hard to stop: we don't have a reliable internal signal that says *enough*. The dopamine hit from making progress is chemically addictive for a brain that doesn't produce it reliably otherwise. Normally, the friction of the work itself acts as a natural brake: it gets hard, you pause, time passes, you come up for air.{{< sidenote side="alternate" >}}"air" here used to be an innuendo for certain bad habits like smoking which is also very familiar to ADHD brains{{< /sidenote >}}
-
+ADHD brains are famously bad at dopamine regulation. The reason tasks are hard to start is the same reason they're hard to stop: we don't have a reliable internal signal that says *enough*. The dopamine hit from making progress is chemically addictive for a brain that doesn't produce it reliably otherwise. Normally, the friction of the work itself acts as a natural brake: it gets hard, you pause, time passes, you come up for air.{{< sidenote side="alternate" >}}"air" here is also a wink at certain habits — smoking, sweets — that a lot of ADHD brains, mine included, get hooked into. Not the chemistry so much as the loop.{{< /sidenote >}}
 
 When the friction is gone, the brake is gone too.
 
-Steve Yegge wrote about this [in February](https://steve-yegge.medium.com/the-ai-vampire-eda6e4f07163) as a vampire dynamic: AI makes you 10x more productive (delusionally), companies capture all of that 10x, and the worker burns out at 10x speed. That's a real structural problem. But for ADHD people, the vampire was already inside the house. I don't need anyone to extract my productivity at scale. I'll do it to myself. I already do it to myself. The exhaustion isn't new — the acceleration is.
+Steve Yegge wrote about this [in February](https://steve-yegge.medium.com/the-ai-vampire-eda6e4f07163) as a vampire dynamic: AI makes you 10x more productive (his number, not mine), companies capture all of that 10x, and the worker burns out at 10x speed. That's a real structural problem. But for ADHD people, the vampire was already inside the house. I don't need anyone to extract my productivity at scale. I'll do it to myself. I already do it to myself. The exhaustion isn't new — the acceleration is.
 
 What I need is a new way to answer a question my brain has always been bad at: *when is enough?*
 
 ---
 
-Here's what I've learned, imperfectly, in the past fews years (feels like a decade).
+Here's what I've learned, imperfectly, in the past few years (feels like a decade).
 
 Hyperfocus is a superpower with an invoice attached. AI amplifies it in both directions. A task that would have taken hours of overhead to warm up now lets me get to the interesting part immediately, and the interesting part is exactly where my brain thrives. I have lost more evenings, more "just thirty minutes" that became five hours. The superpower doesn't come with a volume knob. You have to install one yourself.
+
+The invoice used to be paid differently. In my twenties I worked without a stop signal — long hours, contract gigs stacked onto the weekends, no life outside the work. Every two or three weeks the bill would arrive all at once: a Sunday I couldn't get out of bed. That doesn't work anymore. There's a kid now, and a 6pm hard cutoff, and the invoice can't be settled in one Sunday-shaped lump. Which means I have to see it building, sooner.
 
 Time blindness hasn't gone anywhere (my wife has a thing or two to say about this). Timers help. What actually works for me is externalizing time the same way I externalize memory: make it visible, make it loud, make it impossible to ignore. The agent tools won't do this for you. They have no concept of your dinner getting cold.
 
