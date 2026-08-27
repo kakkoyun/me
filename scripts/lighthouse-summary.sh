@@ -47,12 +47,50 @@ if [ ! -f "$LHCI_RESULTS" ]; then
 fi
 
 # jq is present on GitHub-hosted runners; python3 is the fallback so the script
-# is runnable (and testable) anywhere.
-if command -v jq >/dev/null 2>&1; then
-  FAILED=$(jq '[.[] | select(.passed == false)] | length' "$LHCI_RESULTS")
-else
-  FAILED=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(sum(1 for r in d if not r.get('passed')))" "$LHCI_RESULTS")
+# is runnable (and testable) anywhere. Parse once, into tab-separated rows.
+extract_rows() {
+  if command -v jq >/dev/null 2>&1; then
+    jq -r '.[] | select(.passed == false)
+           | [.level, .auditId, .operator, (.expected|tostring),
+              (.actual|tostring), ((.values // []) | map(tostring) | join(", "))]
+           | @tsv' "$LHCI_RESULTS"
+  else
+    python3 -c "
+import json, sys
+for r in json.load(open(sys.argv[1])):
+    if r.get('passed'): continue
+    vals = ', '.join(str(v) for v in r.get('values', []))
+    print('\t'.join([str(r.get('level','')), str(r.get('auditId','')),
+                     str(r.get('operator','')), str(r.get('expected','')),
+                     str(r.get('actual','')), vals]))
+" "$LHCI_RESULTS"
+  fi
+}
+
+# A truncated or malformed file makes the parser exit nonzero, and under set -e
+# that would abort this script — failing the job from a step whose whole purpose
+# is to report without gating, with a parse error and nothing about Lighthouse.
+# A confusing red is no better than the silent green this replaced.
+# A zero-byte file is not an all-pass run — that writes `[]`, two bytes. It
+# means the write was interrupted. jq reads empty input as no input and exits 0,
+# so without this the summary would read "No assertion failures" and be wrong in
+# exactly the way this script exists to prevent. (The python3 fallback raises,
+# so the two backends disagreed here too.)
+if [ ! -s "$LHCI_RESULTS" ]; then
+  echo "Could not read \`${LHCI_RESULTS}\` — it is present but empty."
+  echo ""
+  echo "_An all-pass run writes \`[]\`, so this is a truncated write, not a clean run._"
+  exit 0
 fi
+
+if ! ROWS=$(extract_rows 2>/dev/null); then
+  echo "Could not read \`${LHCI_RESULTS}\` — it is present but not valid JSON."
+  echo ""
+  echo "_Lighthouse may have been interrupted while writing it. Check the step log._"
+  exit 0
+fi
+
+FAILED=$(printf '%s' "$ROWS" | grep -c . || true)
 
 if [ "$FAILED" -eq 0 ]; then
   # No recorded failures. Only call that a pass if Lighthouse agrees — an empty
@@ -75,31 +113,16 @@ echo ""
 echo "| Level | Audit | Expected | Actual | Runs |"
 echo "|---|---|---|---|---|"
 
-# Emit one row per failing assertion. Levels are error/warn as set in
-# .lighthouserc.yml; both are shown, because a warn that has been firing for
-# weeks is exactly the thing this script exists to surface.
+# Levels are error/warn as set in .lighthouserc.yml; both are shown, because a
+# warn that has been firing for weeks is exactly what this script exists to
+# surface.
 while IFS=$'\t' read -r level audit operator expected actual values; do
   [ -z "$level" ] && continue
   [ "$level" = "error" ] && ERRORS=$((ERRORS + 1))
   echo "| ${level} | \`${audit}\` | ${operator} ${expected} | ${actual} | ${values} |"
-done < <(
-  if command -v jq >/dev/null 2>&1; then
-    jq -r '.[] | select(.passed == false)
-           | [.level, .auditId, .operator, (.expected|tostring),
-              (.actual|tostring), ((.values // []) | map(tostring) | join(", "))]
-           | @tsv' "$LHCI_RESULTS"
-  else
-    python3 -c "
-import json, sys
-for r in json.load(open(sys.argv[1])):
-    if r.get('passed'): continue
-    vals = ', '.join(str(v) for v in r.get('values', []))
-    print('\t'.join([str(r.get('level','')), str(r.get('auditId','')),
-                     str(r.get('operator','')), str(r.get('expected','')),
-                     str(r.get('actual','')), vals]))
-" "$LHCI_RESULTS"
-  fi
-)
+done <<EOF
+$ROWS
+EOF
 
 echo ""
 if [ "$ERRORS" -gt 0 ]; then

@@ -124,7 +124,62 @@ assert_not_contains "a crash never claims success" "passed" "$OUT"
 OUT=$(run "")
 assert_contains "a missing file with no outcome is reported" "No assertion results" "$OUT"
 
+# --- malformed input -------------------------------------------------------
+#
+# A truncated or corrupt file makes the parser exit nonzero. Under set -e that
+# aborted the script, failing the job from a step that exists only to report —
+# with a jq parse error and nothing about Lighthouse. A confusing red is no
+# better than the silent green this replaced.
+
+printf '[{"auditId":"x","level":"error","passed":fal' >"$TMP/results.json"
+OUT=$(run failure)
+assert_contains "truncated JSON is reported" "not valid JSON" "$OUT"
+assert_not_contains "truncated JSON does not claim a pass" "No assertion failures" "$OUT"
+
+printf 'not json at all\n' >"$TMP/results.json"
+OUT=$(run success)
+assert_contains "garbage input is reported" "not valid JSON" "$OUT"
+assert_not_contains "garbage input does not claim a pass" "No assertion failures" "$OUT"
+
+# A zero-byte file is a truncated write, not an all-pass run — that writes `[]`.
+# jq reads empty input as no input and exits 0, so this needs its own guard.
+printf '' >"$TMP/results.json"
+OUT=$(run success)
+assert_contains "a zero-byte file is reported" "present but empty" "$OUT"
+assert_not_contains "a zero-byte file does not claim a pass" "No assertion failures" "$OUT"
+
+printf '{"not":"an array"}\n' >"$TMP/results.json"
+OUT=$(run success)
+assert_contains "a JSON object instead of an array is reported" "not valid JSON" "$OUT"
+
 # --- operational -----------------------------------------------------------
+
+# The script must never gate, whatever it is fed. This is the property the
+# header promises, so check it against every shape above rather than one.
+for fixture in '[]' '[{"auditId":"a","level":"error","passed":false,"operator":">=","expected":1,"actual":0,"values":[0]}]' '[{"bad' 'not json' '' '{"o":1}'; do
+  printf '%s' "$fixture" >"$TMP/results.json"
+  for outcome in success failure ''; do
+    set +e
+    LHCI_RESULTS="$TMP/results.json" LHCI_OUTCOME="$outcome" bash "$SCRIPT" >/dev/null 2>&1
+    rc=$?
+    set -e
+    if [ "$rc" != "0" ]; then
+      fail "never gates (fixture '${fixture:0:12}', outcome '${outcome}')" "0" "$rc"
+      continue 2
+    fi
+  done
+done
+pass "never exits nonzero, for any input shape or outcome"
+
+rm -f "$TMP/results.json"
+for outcome in success failure ''; do
+  set +e
+  LHCI_RESULTS="$TMP/results.json" LHCI_OUTCOME="$outcome" bash "$SCRIPT" >/dev/null 2>&1
+  rc=$?
+  set -e
+  if [ "$rc" != "0" ]; then fail "never gates on a missing file (outcome '$outcome')" "0" "$rc"; fi
+done
+pass "never exits nonzero when the file is absent"
 
 cat >"$TMP/results.json" <<'JSON'
 [{"auditId":"categories:performance","level":"error","passed":false,
