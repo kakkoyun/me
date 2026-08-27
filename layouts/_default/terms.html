@@ -17,9 +17,13 @@
     {{- range $key, $value := .Data.Terms.Alphabetical }}
     {{- $name := .Name }}
     {{- $count := .Count }}
+    {{- /* Label: the raw term name, so lowercase tags stay lowercase and
+         grandfathered casing (eBPF, JVM, nodeJS) survives. A term page may
+         override it with `linkTitle` in front matter — content/tags/dotnet/
+         uses that to display `.Net` for a slug that cannot contain a dot. */}}
     {{- with site.GetPage (printf "/%s/%s" $type $name) }}
     <li>
-        <a href="{{ .Permalink }}">{{ .Name }} <sup><strong><sup>{{ $count }}</sup></strong></sup> </a>
+        <a href="{{ .Permalink }}">{{ default .Name .Params.linkTitle }} <sup><strong><sup>{{ $count }}</sup></strong></sup> </a>
     </li>
     {{- end }}
     {{- end }}

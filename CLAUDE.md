@@ -49,6 +49,9 @@ make prose              # Alias for vale with a summary count
 - `layouts/partials/author.html` -- Custom author bio partial
 - `layouts/_default/list.html` -- Custom homepage with "Recent Notes" section
 - `layouts/_default/list.md` -- Markdown alternate template for list/taxonomy pages (LLM-friendly output)
+- `layouts/_default/terms.html` -- Taxonomy list page (`/tags/`, `/categories/`). Labels terms with
+  the raw term name so lowercase tags stay lowercase, with a `linkTitle` front-matter escape hatch
+  for terms whose slug cannot carry the display form (see `content/tags/dotnet/`)
 - `layouts/_default/single.md` -- Markdown alternate template for single posts (LLM-friendly output)
 - `layouts/_default/_markup/render-image.html` -- Responsive images with WebP srcset generation
 - `layouts/_default/_markup/render-blockquote.html` -- GitHub/Obsidian-style admonitions (see Admonitions under Content Conventions)
@@ -126,7 +129,15 @@ Each category has a distinct purpose, tone, and structure:
 
 - Always include `blog` as a tag on posts (every post in `content/posts/`)
 - Use lowercase for new tags (`observability`, not `Observability`)
-- Existing mixed-case tags (`eBPF`, `.Net`, `JVM`, `nodeJS`) are grandfathered — do not normalize them
+- Existing mixed-case tags (`eBPF`, `JVM`, `nodeJS`) are grandfathered — do not normalize them
+- **A tag must never start with `.`.** Hugo urlizes `.Net` to `/tags/.net/`, and Netlify
+  drops every dot-prefixed directory from the publish directory (only `.well-known` is
+  exempt) — so the page 404s in production while `sitemap.xml` still advertises it and the
+  post still links to it. That is exactly what Search Console reported. The tag is now
+  stored as `dotnet`, with `content/tags/dotnet/_index.md` carrying `linkTitle: ".Net"` so
+  the displayed label is unchanged, and `static/_redirects` 301s the old path. Check #5 in
+  `scripts/verify-build.sh` fails the build if a dot-prefixed directory reappears under
+  `public/`
 - Talks always use `talks` as their first tag
 
 ### Filename Conventions
@@ -198,7 +209,7 @@ GitHub Actions workflows:
 
 ## Key Integrations
 
-- **Netlify:** Deployment platform. `/notes/*` is proxied (200 rewrite) to Obsidian Publish -- do not remove this redirect from `netlify.toml`. `static/_redirects` also exists for additional Netlify redirect rules; keep both files consistent.
+- **Netlify:** Deployment platform. `/notes/*` is proxied (200 rewrite) to Obsidian Publish -- do not remove this redirect from `netlify.toml`. `static/_redirects` also exists for additional Netlify redirect rules; keep both files consistent. It carries the legacy-URL 301s too — the pre-Hugo `/blog/posts/YYYY/MM/DD/<slug>` permalinks and `/tags/.net` — which is what keeps Search Console's "Not found (404)" list from refilling.
 - **Giscus:** Comments via GitHub Discussions on `kakkoyun/me`. Config in `config.yaml` under `params.giscus`.
 - **Plausible + Hakanai:** Dual analytics. Extend via `params.analytics` in `config.yaml`.
 - **Renovate:** Auto-updates Hugo version (in `.hugo-version` + `netlify.toml`), GitHub Actions, and PaperMod submodule.
