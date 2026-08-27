@@ -221,6 +221,7 @@ jobs:
           git switch -c "$branch"
           git add content/posts/
           git commit -m "ci: record promotion timestamps"
+          head_sha=$(git rev-parse HEAD)
           git push origin "$branch"
 
           gh pr create \
@@ -240,8 +241,16 @@ jobs:
           # *after the merge already succeeded* — which here would send us into
           # the rebase path against an already-merged PR. Delete the remote
           # branch separately, where failing is harmless.
+          # --match-head-commit pins the merge to the commit THIS job pushed.
+          # Without it there is a window between the push above and the merge
+          # below in which anything holding Contents:write — a stolen CMS token,
+          # say — could append a commit to this unprotected branch, and this
+          # privileged workflow would merge it into master unreviewed. That is a
+          # laundering path straight through the ruleset this PR exists to
+          # enforce. The check is server-side and atomic, so it cannot be raced.
+          # The SHA is re-captured after each rebase below, since that rewrites it.
           for attempt in 1 2 3; do
-            if gh pr merge "$branch" --squash; then
+            if gh pr merge "$branch" --squash --match-head-commit "$head_sha"; then
               git push origin --delete "$branch" || true
               exit 0
             fi
@@ -250,6 +259,12 @@ jobs:
             if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo UNKNOWN)" = "MERGED" ]; then
               git push origin --delete "$branch" || true
               exit 0
+            fi
+            remote_head=$(gh pr view "$branch" --json headRefOid --jq .headRefOid 2>/dev/null || echo "")
+            if [ -n "$remote_head" ] && [ "$remote_head" != "$head_sha" ]; then
+              echo "::error::$branch is at $remote_head, not the $head_sha this job pushed. Refusing to merge: something else wrote to the branch. The posts below were POSTED but NOT stamped:"
+              echo "${{ steps.live.outputs.posts }}"
+              exit 1
             fi
             echo "merge attempt $attempt failed, updating the branch and retrying"
             git fetch origin master
@@ -262,7 +277,11 @@ jobs:
               echo "${{ steps.live.outputs.posts }}"
               exit 1
             fi
+            # force-with-lease is a second guard on the same window: if anything
+            # else wrote to the branch, the lease is broken and this fails rather
+            # than overwriting it.
             git push --force-with-lease origin "$branch"
+            head_sha=$(git rev-parse HEAD)
             sleep $(( attempt * 5 ))
           done
 

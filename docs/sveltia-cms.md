@@ -127,10 +127,28 @@ push to master that nothing in the repo mentioned.
 
 Required status checks are off because a PR opened with `GITHUB_TOKEN` does not
 trigger `pull_request` workflows. Requiring checks would leave every cron PR
-waiting forever on a check that never runs. Checks still run on human PRs and on
-every push to master; you simply are not blocked from merging a red one. Making
-them enforceable would mean a second long-lived PAT purely so cron PRs trigger
-workflows, which is the same trade this repo declines elsewhere.
+waiting forever on a check that never runs. Making them enforceable would mean a
+second long-lived PAT purely so cron PRs trigger workflows, which is the same
+trade this repo declines elsewhere.
+
+**These automated updates get no GitHub Actions run at all — not before the
+merge and not after it.** GitHub suppresses workflow events produced with the
+repository's `GITHUB_TOKEN`, and that covers the resulting push to master as
+much as the pull request, so `build.yml`, `links.yml`, `lint.yml` and
+`cms-sync.yml` all stay silent. `cms-sync.yml` already notes this about its own
+pushes.
+
+This is not something the PR-based landing introduced: the direct pushes it
+replaced used the same token and had the same property. The promotion-stamp
+commit `4e05506` on master has zero `build.yml` runs against it. So nothing was
+lost here — but the situation is worth stating plainly rather than assuming
+"it runs on master" as this document previously did.
+
+Two consequences to hold in mind. Netlify still deploys, because that runs off
+its own webhook rather than Actions, so publishing is unaffected. And `cms` does
+not fast-forward after an automated update, so it can sit behind master until
+the next human merge triggers `cms-sync.yml` — worth a look if a CMS save ever
+seems to branch from stale content.
 
 `cms-sync.yml` needs nothing: it pushes to `cms`, never to master.
 

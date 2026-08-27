@@ -70,6 +70,7 @@ jobs:
           git switch -c "$branch"
           git add "$marker"
           git commit -m "ci: automation smoke test"
+          head_sha=$(git rev-parse HEAD)
           git push origin "$branch"
 
           gh pr create \
@@ -77,12 +78,14 @@ jobs:
             --title "ci: automation smoke test" \
             --body "Automated: proves a workflow can still land a commit on \`master\` through a PR under the current ruleset. Opened and merged by \`automation-smoke-test.yml\`."
 
-          # Mirrors main.yml and promote-post.yml exactly, including not passing
+          # Mirrors main.yml and promote-post.yml exactly, including the
+          # --match-head-commit pin that stops anything appending to this branch
+          # between the push and the merge, and including not passing
           # --delete-branch to `gh pr merge`: the runner is standing on $branch,
           # so gh would switch away and delete it locally, and a hiccup in that
           # cleanup exits non-zero *after the merge already succeeded*.
           for attempt in 1 2 3; do
-            if gh pr merge "$branch" --squash; then
+            if gh pr merge "$branch" --squash --match-head-commit "$head_sha"; then
               git push origin --delete "$branch" || true
               echo "Landed on master. The ruleset permits a workflow-opened PR to merge."
               exit 0
