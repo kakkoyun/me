@@ -270,14 +270,21 @@ jobs:
           # enforce. The check is server-side and atomic, so it cannot be raced.
           # The SHA is re-captured after each rebase below, since that rewrites it.
           drop_branch() {
-            # GitHub's "automatically delete head branches" setting usually removes the
-            # branch as part of the merge, so this delete finds nothing and git prints a
-            # red "remote rejected ... cannot lock ref" line on an otherwise clean run.
-            # The outcome was already ignored (|| true) — the guard only stops a success
-            # from reading like a failure in the log.
-            if git ls-remote --exit-code --heads origin "$1" >/dev/null 2>&1; then
-              git push origin --delete "$1" || true
-            fi
+            # GitHub's "automatically delete head branches" removes the branch as part of
+            # the merge, so this delete usually finds nothing and git prints a red
+            # "remote rejected ... cannot lock ref" on an otherwise clean run — in jobs
+            # whose whole product is a legible pass/fail signal.
+            #
+            # Checking with `git ls-remote` first does NOT fix that, which is how this
+            # ended up here twice: the auto-delete is asynchronous, so the ref can still
+            # be listed and then be gone by the time the push runs. Verified on smoke
+            # test run 33104904419, where the guarded version printed the error anyway.
+            # There is no check to win that race with.
+            #
+            # So swallow it. Whether the branch is deleted is cosmetic, and the outcome
+            # was already discarded by `|| true` — this only stops a success from
+            # reading like a failure.
+            git push origin --delete "$1" >/dev/null 2>&1 || true
           }
 
           for attempt in 1 2 3; do
