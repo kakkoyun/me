@@ -17,7 +17,7 @@ tags:
 
 Six hours. I had planned to spend thirty minutes on a proof-of-concept.
 
-Engineers overrun estimates __all__ the time. But this wasn't a planning failure — it was something I'd spent my whole adult life recognizing too late: hyperfocus. The kind where time doesn't slow down, it simply stops existing. My coffee went cold. I missed lunch. I blew past my 6pm hard stop with more working code than I'd shipped in the previous three days combined.
+Engineers overrun estimates __all__ the time. But this wasn't a planning failure, it was something I'd spent my whole adult life recognizing too late: hyperfocus. The kind where time doesn't slow down, it simply stops existing. My coffee went cold. I missed lunch. I blew past my 6pm hard stop with more working code than I'd shipped in the previous three days combined.
 
 The twist: I was working with Claude Code. And I hadn't been writing much code at all.
 
@@ -47,11 +47,11 @@ This is not how most software development tools work. Most tools assume you've a
 
 But here's the part I didn't see coming.
 
-ADHD brains are famously bad at dopamine regulation. The reason tasks are hard to start is the same reason they're hard to stop: we don't have a reliable internal signal that says *enough*. The dopamine hit from making progress is chemically addictive for a brain that doesn't produce it reliably otherwise. Normally, the friction of the work itself acts as a natural brake: it gets hard, you pause, time passes, you come up for air.{{< sidenote side="alternate" >}}"air" here is also a wink at certain habits (smoking, sweets) that a lot of ADHD brains, mine included, get hooked into. Not the chemistry so much as the loop.{{< /sidenote >}}
+ADHD brains are famously bad at dopamine regulation. The reason tasks are hard to start is the same reason they're hard to stop: we don't have a reliable internal signal that says *enough*. The dopamine hit from making progress is chemically addictive for a brain that doesn't produce it reliably otherwise. Normally, the friction of the work itself acts as a natural brake: it gets hard, you pause, time passes, you come up for air.{{< sidenote side="alternate" >}}"air" here is also a wink at certain habits (smoking, vaping, etc.) that a lot of ADHD brains, mine included, get hooked into. Not the chemistry so much as the loop.{{< /sidenote >}}
 
 When the friction is gone, the brake is gone too.
 
-Steve Yegge wrote about this [in February](https://steve-yegge.medium.com/the-ai-vampire-eda6e4f07163) as a vampire dynamic: AI makes you 10x more productive (his number, not mine), companies capture all of that 10x, and the worker burns out at 10x speed. That's a real structural problem. But for ADHD people, the vampire was already inside the house. I don't need anyone to extract my productivity at scale. I'll do it to myself. I already do it to myself. The exhaustion isn't new — the acceleration is.
+Steve Yegge wrote about this [in February](https://steve-yegge.medium.com/the-ai-vampire-eda6e4f07163) as a vampire dynamic: AI makes you 10x more productive (his number, not mine), companies capture all of that 10x, and the worker burns out at 10x speed. That's a real structural problem. But for ADHD people, the vampire was already inside the house. I don't need anyone to extract my productivity at scale. I'll do it to myself. I already do it to myself. The exhaustion isn't new, the acceleration is.
 
 What I need is a new way to answer a question my brain has always been bad at: *when is enough?*
 
