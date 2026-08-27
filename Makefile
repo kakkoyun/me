@@ -25,7 +25,7 @@ export PATH := $(TOOLS_BIN):$(PATH):$(GO_INSTALL_BIN)
 .PHONY: fmt fmt-check
 .PHONY: tools bootstrap submodules vale-packages require-runtime require-netlify
 .PHONY: links links-external lighthouse
-.PHONY: print-shell-files print-tool-version
+.PHONY: print-shell-files print-tool-version print-tools-bin
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
 
 # Default target
@@ -319,6 +319,15 @@ require-netlify:
 	  exit 1; }
 
 # Consumed by CI so the workflows never re-implement Makefile logic.
+#
+# print-tools-bin exists because the PATH export above only reaches make's own
+# recipe shells. A workflow `run:` block is a different shell, so it needs the
+# directory appended to $GITHUB_PATH — otherwise a tool that happens to be
+# preinstalled on the runner silently wins over the pin, which is the exact
+# drift this file is here to prevent.
+print-tools-bin:
+	@echo "$(TOOLS_BIN)"
+
 print-shell-files:
 	@printf '%s\n' $(SHELL_FILES)
 

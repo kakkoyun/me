@@ -29,18 +29,36 @@ jobs:
       #
       # Findings are emitted as native GitHub annotations, so they still appear
       # inline on the PR diff without a second tool choosing the binary.
+      # $GITHUB_PATH, not the Makefile's own PATH export: that one only reaches
+      # make's recipe shells, so the `run:` block below would fall through to
+      # the shellcheck preinstalled on ubuntu-latest. When it did, this job
+      # passed having linted nothing with the pinned binary.
+      - name: Install pinned ShellCheck
+        run: |
+          make -s tool-shellcheck
+          make -s print-tools-bin >> "$GITHUB_PATH"
+
       - name: ShellCheck
         run: |
           set -uo pipefail
-          make -s tool-shellcheck
+          # Assert the pin actually won. A preinstalled tool shadowing it is a
+          # silent false pass, which is worse than a red job.
+          want="$(make -s print-tools-bin)/shellcheck"
+          got="$(command -v shellcheck || true)"
+          if [ "$got" != "$want" ]; then
+            echo "::error::expected the pinned shellcheck at $want, resolved $got"
+            exit 1
+          fi
+          shellcheck --version | sed -n 's/^version: /shellcheck /p'
           mapfile -t files < <(make -s print-shell-files)
           rc=0
-          shellcheck --format=gcc "${files[@]}" >shellcheck.out 2>&1 || rc=$?
-          if [ -s shellcheck.out ]; then
-            cat shellcheck.out
+          out="$(mktemp)"
+          shellcheck --format=gcc "${files[@]}" >"$out" 2>&1 || rc=$?
+          if [ -s "$out" ]; then
+            cat "$out"
             sed -E 's/^([^:]+):([0-9]+):([0-9]+): note: (.*)$/::notice file=\1,line=\2,col=\3::\4/;
                     s/^([^:]+):([0-9]+):([0-9]+): (warning|error): (.*)$/::\4 file=\1,line=\2,col=\3::\5/' \
-              shellcheck.out
+              "$out"
           fi
           exit "$rc"
 
@@ -52,16 +70,33 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      # actionlint's own -format template emits GitHub annotations directly.
+      - name: Install pinned actionlint
+        run: |
+          make -s tool-actionlint
+          make -s print-tools-bin >> "$GITHUB_PATH"
+
       - name: actionlint
         run: |
           set -uo pipefail
-          make -s tool-actionlint
+          want="$(make -s print-tools-bin)/actionlint"
+          got="$(command -v actionlint || true)"
+          if [ "$got" != "$want" ]; then
+            echo "::error::expected the pinned actionlint at $want, resolved $got"
+            exit 1
+          fi
+          echo "actionlint $(actionlint --version | head -1)"
           rc=0
-          # shellcheck disable=SC2016  # a Go template for actionlint, not shell
-          actionlint -format \
-            '{{range $err := .}}::error file={{$err.Filepath}},line={{$err.Line}},col={{$err.Column}}::{{$err.Message}}{{"\n"}}{{end}}' \
-            .github/workflows/*.yml || rc=$?
+          # -oneline gives file:line:col: message, which maps to a GitHub
+          # annotation with the same sed shape the ShellCheck job uses. The
+          # documented -format Go template was the obvious route but its
+          # {{"\n"}} newline fails to parse ("unterminated quoted string").
+          out="$(mktemp)"
+          actionlint -oneline -no-color .github/workflows/*.yml >"$out" 2>&1 || rc=$?
+          if [ -s "$out" ]; then
+            cat "$out"
+            sed -E 's/^([^:]+):([0-9]+):([0-9]+): (.*)$/::error file=\1,line=\2,col=\3::\4/' \
+              "$out"
+          fi
           exit "$rc"
 
   shfmt:
