@@ -59,7 +59,12 @@ jobs:
             echo "sha: ${GITHUB_SHA}"
           } > "$marker"
 
-          if git diff --quiet -- "$marker"; then
+          # `git status --porcelain`, not `git diff`: on the very first dispatch
+          # the marker does not exist in the repo yet, so it is untracked — and
+          # `git diff` ignores untracked files. This guard would then report "no
+          # change" and abort the run it exists to protect, blaming a failed
+          # write. porcelain covers untracked, modified and deleted alike.
+          if [ -z "$(git status --porcelain -- "$marker")" ]; then
             echo "::error::The marker did not change, so this run would prove nothing. Two runs cannot share a run id, so this means the write failed."
             exit 1
           fi
