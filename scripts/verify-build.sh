@@ -34,21 +34,32 @@ if grep -q '/search/' "$PUBLIC_DIR/sitemap.xml"; then
   fail "sitemap.xml contains /search/ (should be excluded)"
 fi
 
+# 5. No dot-prefixed directories in the publish dir.
+# Netlify drops every file and directory whose name starts with a dot (only
+# `.well-known` is exempt), so a page Hugo generated there is a 404 in
+# production while sitemap.xml still advertises it. This is how /tags/.net/
+# (the urlized form of the `.Net` tag) went missing. Give the term a URL-safe
+# slug and a term page carrying the display title instead.
+while IFS= read -r dir; do
+  [ -z "$dir" ] && continue
+  fail "$dir is dot-prefixed — Netlify drops it from the deploy, so that page 404s in production"
+done < <(find "$PUBLIC_DIR" -mindepth 1 -type d -name '.*' ! -name '.well-known')
+
 # Find a sample post page for HTML checks
 SAMPLE_PAGE=$(find "$PUBLIC_DIR" -name 'index.html' -path '*/posts/*' | head -1)
 
 if [ -n "$SAMPLE_PAGE" ]; then
-  # 5. Production pages must not have noindex
+  # 6. Production pages must not have noindex
   if grep -q 'content="noindex' "$SAMPLE_PAGE"; then
     fail "Production pages have noindex meta tag ($SAMPLE_PAGE)"
   fi
 
-  # 6. Plausible script URL must not contain a space after https://
+  # 7. Plausible script URL must not contain a space after https://
   if grep -q 'https:// ' "$SAMPLE_PAGE"; then
     fail "Broken URL detected (space after 'https://') in $SAMPLE_PAGE"
   fi
 
-  # 7. No empty href in alternate link tags
+  # 8. No empty href in alternate link tags
   if grep -qE 'href=""[^>]*rel="alternate"' "$SAMPLE_PAGE" || grep -qE 'rel="alternate"[^>]*href=""' "$SAMPLE_PAGE"; then
     fail "Empty href in alternate link tag in $SAMPLE_PAGE"
   fi
@@ -56,7 +67,7 @@ else
   echo "WARN: No post index.html found under $PUBLIC_DIR/posts/ — skipping HTML checks"
 fi
 
-# 8. Every <img> must carry intrinsic dimensions. Delegated to a dedicated
+# 9. Every <img> must carry intrinsic dimensions. Delegated to a dedicated
 # script because it has its own unit tests and its own allowlist; see the header
 # of scripts/check-image-sizes.sh for why this is a hard failure.
 if ! bash "$(dirname "${BASH_SOURCE[0]}")/check-image-sizes.sh" "$PUBLIC_DIR"; then

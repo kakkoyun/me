@@ -23,7 +23,7 @@ tags:
   - JavaScript
   - JVM
   - java
-  - .Net
+  - dotnet
   - erlang
   - blog
 showCanonicalLink: true

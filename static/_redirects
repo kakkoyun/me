@@ -1,2 +1,20 @@
+# Analytics proxy — Plausible served first-party so ad blockers don't eat it.
 /js/script.js https://plausible.io/js/script.js 200
 /api/event https://plausible.io/api/event 200
+
+# ---------------------------------------------------------------------------
+# Legacy URLs. Search Console reports these as "Not found (404)"; Google keeps
+# re-crawling them because they still have inbound links.
+# ---------------------------------------------------------------------------
+
+# The pre-Hugo blog used date-stamped permalinks under /blog/, e.g.
+# /blog/posts/2022/01/13/fantastic-symbols-and-where-to-find-them. Slugs
+# survived the migration unchanged, so the date segments can just be dropped.
+/blog/posts/:year/:month/:day/:slug  /posts/:slug/  301
+/blog/posts                          /posts/        301
+/blog                                /posts/        301
+
+# The `.Net` tag now lives at /tags/dotnet/. Hugo urlized `.Net` to
+# `/tags/.net/` and Netlify drops dot-prefixed directories from the publish
+# directory, so the old path 404'd while sitemap.xml still advertised it.
+/tags/.net  /tags/dotnet/  301
