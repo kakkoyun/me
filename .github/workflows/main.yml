@@ -44,10 +44,17 @@ jobs:
       # and merged in the same step: there is nothing for a human to review in a
       # generated list, and leaving it open would just accumulate.
       #
-      # Note a GITHUB_TOKEN-opened PR does not trigger `pull_request` workflows,
-      # so no checks run on this PR. That is why the ruleset requires a PR but no
-      # status checks — see docs/sveltia-cms.md. The push to master that follows
-      # the merge does trigger build.yml as normal.
+      # This update gets NO GitHub Actions run — not on the PR, and not on the
+      # push that follows the merge. GitHub suppresses workflow events produced
+      # with GITHUB_TOKEN, which covers both. So build.yml, links.yml, lint.yml
+      # and cms-sync.yml all stay silent here; do not rely on them to catch a
+      # bad notes update. cms-sync.yml notes the same thing about its own pushes.
+      #
+      # That is pre-existing rather than a cost of routing through a PR: the
+      # direct push this replaced used the same token and was equally silent.
+      # It is also why the ruleset requires a PR but no status checks — a check
+      # that never reports would hang this merge forever. Netlify still deploys,
+      # since that runs off its own webhook. See docs/sveltia-cms.md.
       - name: Land the notes update through a PR
         env:
           GH_TOKEN: ${{ github.token }}
