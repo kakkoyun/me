@@ -316,6 +316,7 @@ test:
 	@bash scripts/test-check-live-headers.sh
 	@bash scripts/test-check-repo-access.sh
 	@bash scripts/test-check-image-sizes.sh
+	@bash scripts/test-lighthouse-summary.sh
 	@bash scripts/check-cms-fields.sh
 	@bash scripts/check-frontmatter.sh
 	@bash scripts/check-admin-csp.sh

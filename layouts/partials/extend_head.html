@@ -32,8 +32,15 @@
      params.assets.theme_color; this is what the themed-omnibox, splash-screen
      and maskable-icon audits actually look for. installable-manifest and
      service-worker stay failed on purpose — both need a service worker, and
-     this site deliberately keeps its JS footprint small. */}}
-<link rel="manifest" href="{{ "site.webmanifest" | absURL }}">
+     this site deliberately keeps its JS footprint small.
+
+     The href must stay relative. A manifest is fetched under CORS rules, so an
+     absolute URL built from baseURL is cross-origin — and therefore blocked —
+     on every origin except the production domain: Netlify deploy permalinks,
+     deploy previews, and the localhost server Lighthouse CI runs against. That
+     is not hypothetical; absURL here cost a "No manifest was fetched" on all
+     four PWA audits plus a console error that took Best Practices to 0.92. */}}
+<link rel="manifest" href="{{ "site.webmanifest" | relURL }}">
 
 <script async defer data-domain="{{ .Site.Params.analytics.plausible.domain }}"
     src="https://{{ .Site.Params.analytics.plausible.serverURL | default "plausible.io" }}/js/script{{if

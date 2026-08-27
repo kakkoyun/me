@@ -15,6 +15,30 @@
   font-size: 0.95em;
 }
 
+/* The intro line above each list is --secondary (#6c6c6c) while its links are
+   --accent (#b45309). Those two sit at 1.04:1 against each other, so a reader
+   who does not perceive the hue difference sees no link at all. axe flags it as
+   link-in-text-block, and it is the reason Accessibility sits at 0.96.
+
+   Underlining is what fixes it — the rule passes on a non-colour distinction
+   regardless of contrast — and it is the same treatment the list-item links
+   below already use, for the same reason. */
+.recent-issues-container > p:first-child a,
+.recent-notes-container > p:first-child a {
+  text-decoration: underline;
+  text-decoration-color: var(--tertiary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.recent-issues-container > p:first-child a:hover,
+.recent-issues-container > p:first-child a:focus-visible,
+.recent-notes-container > p:first-child a:hover,
+.recent-notes-container > p:first-child a:focus-visible {
+  text-decoration-color: var(--primary);
+}
+
 .recent-issues-container ul,
 .recent-notes-container ul {
   list-style-type: none;
