@@ -10,6 +10,11 @@
 # This turns the results into something visible on the run page itself, for
 # pull requests as well as pushes, whether or not the job is allowed to fail.
 #
+# What the results file contains: Lighthouse CI records only assertions that
+# FAILED. An all-pass run writes `[]`. So the file gives no denominator — the
+# number of assertions actually checked is not knowable from it, and any "N of M"
+# phrasing built on it is fiction. Report the failures and nothing more.
+#
 # Usage: bash scripts/lighthouse-summary.sh >> "$GITHUB_STEP_SUMMARY"
 #
 # Tunables (env):
@@ -45,19 +50,27 @@ fi
 # is runnable (and testable) anywhere.
 if command -v jq >/dev/null 2>&1; then
   FAILED=$(jq '[.[] | select(.passed == false)] | length' "$LHCI_RESULTS")
-  TOTAL=$(jq 'length' "$LHCI_RESULTS")
 else
   FAILED=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(sum(1 for r in d if not r.get('passed')))" "$LHCI_RESULTS")
-  TOTAL=$(python3 -c "import json,sys; print(len(json.load(open(sys.argv[1]))))" "$LHCI_RESULTS")
 fi
 
 if [ "$FAILED" -eq 0 ]; then
-  echo "All ${TOTAL} assertion(s) passed."
+  # No recorded failures. Only call that a pass if Lighthouse agrees — an empty
+  # file alongside a failed step means it fell over somewhere other than the
+  # assertions, and reporting "all passed" there is the false-success signal
+  # this script exists to prevent.
+  if [ "$LHCI_OUTCOME" = "failure" ]; then
+    echo "Lighthouse reported a failure but recorded no failing assertions."
+    echo ""
+    echo "_Something failed outside the assertions — check the step log._"
+  else
+    echo "No assertion failures."
+  fi
   exit 0
 fi
 
 ERRORS=0
-echo "**${FAILED} of ${TOTAL} assertion(s) failed.**"
+echo "**${FAILED} assertion(s) failed.**"
 echo ""
 echo "| Level | Audit | Expected | Actual | Runs |"
 echo "|---|---|---|---|---|"

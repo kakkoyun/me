@@ -4,9 +4,15 @@
 # Self-contained and offline: each case writes an assertion-results fixture and
 # points the script at it via LHCI_RESULTS. No Lighthouse, no network.
 #
-# The cases that matter are the ones where the old setup went quiet: a failure
-# that produces no results file, and a warn-level assertion that has been firing
-# for weeks. Both must still say something.
+# Fixtures here mirror what Lighthouse CI actually writes: FAILURES ONLY. An
+# all-pass run writes `[]`. The first version of these tests used `passed: true`
+# fixtures, a shape lhci never produces, and so happily passed while the script
+# reported "All 0 assertion(s) passed" on a clean run — the exact false-success
+# signal it exists to prevent.
+#
+# The cases that matter are the ones where the old setup went quiet: an empty
+# file, a missing file, and a warn-level assertion that has been firing for
+# weeks. All three must say something true.
 #
 # Usage: bash scripts/test-lighthouse-summary.sh
 set -euo pipefail
@@ -46,17 +52,42 @@ run() { LHCI_RESULTS="$TMP/results.json" LHCI_OUTCOME="${1:-}" bash "$SCRIPT" 2>
 echo "lighthouse-summary.sh"
 
 # --- everything passed -----------------------------------------------------
+#
+# This is literally what lhci writes when nothing fails.
 
-cat >"$TMP/results.json" <<'JSON'
-[{"auditId":"categories:performance","level":"error","passed":true,
-  "operator":">=","expected":0.9,"actual":0.99,"values":[0.99,0.99,0.99]}]
-JSON
+echo '[]' >"$TMP/results.json"
 OUT=$(run success)
-assert_contains "a clean run says so" "All 1 assertion(s) passed" "$OUT"
+assert_contains "an empty results file is a clean run" "No assertion failures" "$OUT"
 assert_not_contains "a clean run emits no table" "|---|" "$OUT"
+assert_not_contains "a clean run invents no denominator" "of 0" "$OUT"
+assert_not_contains "a clean run does not say 0 passed" "All 0" "$OUT"
+
+# An empty file while Lighthouse itself failed means it fell over somewhere
+# other than the assertions. Calling that a pass is the bug this script exists
+# to prevent, so it must not.
+echo '[]' >"$TMP/results.json"
+OUT=$(run failure)
+assert_contains "empty results plus a failed step is flagged" "recorded no failing assertions" "$OUT"
+assert_not_contains "empty results plus a failed step is not a pass" "No assertion failures" "$OUT"
 
 # --- an error-level failure ------------------------------------------------
 
+cat >"$TMP/results.json" <<'JSON'
+[{"auditId":"link-in-text-block","level":"error","passed":false,
+  "operator":">=","expected":0.9,"actual":0,"values":[0,0,0]},
+ {"auditId":"categories:accessibility","level":"error","passed":false,
+  "operator":">=","expected":0.97,"actual":0.96,"values":[0.96,0.96,0.96]}]
+JSON
+OUT=$(run failure)
+assert_contains "failures are counted" "2 assertion(s) failed" "$OUT"
+assert_contains "the failing audit is named" "link-in-text-block" "$OUT"
+assert_contains "the expected value is shown" ">= 0.9" "$OUT"
+assert_contains "per-run values are shown" "0.96, 0.96, 0.96" "$OUT"
+assert_contains "error level is called out" "2 of these are" "$OUT"
+assert_not_contains "no denominator is invented" "of 2 assertion(s) failed" "$OUT"
+
+# Defensive: if a future lhci ever does record passing entries, they must not be
+# reported as failures.
 cat >"$TMP/results.json" <<'JSON'
 [{"auditId":"link-in-text-block","level":"error","passed":false,
   "operator":">=","expected":0.9,"actual":0,"values":[0,0,0]},
@@ -64,12 +95,8 @@ cat >"$TMP/results.json" <<'JSON'
   "operator":">=","expected":0.97,"actual":1,"values":[1,1,1]}]
 JSON
 OUT=$(run failure)
-assert_contains "a failure is counted" "1 of 2 assertion(s) failed" "$OUT"
-assert_contains "the failing audit is named" "link-in-text-block" "$OUT"
-assert_contains "the expected value is shown" ">= 0.9" "$OUT"
-assert_contains "per-run values are shown" "0, 0, 0" "$OUT"
-assert_contains "error level is called out" "1 of these are" "$OUT"
-assert_not_contains "passing audits are not listed" "categories:seo" "$OUT"
+assert_contains "only the failing audit is counted" "1 assertion(s) failed" "$OUT"
+assert_not_contains "a passing entry is not listed" "categories:seo" "$OUT"
 
 # --- a warn-level failure --------------------------------------------------
 #
