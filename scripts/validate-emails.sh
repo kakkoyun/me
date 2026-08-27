@@ -20,6 +20,10 @@
 #   scripts/validate-emails.sh                   # all templates
 #   scripts/validate-emails.sh path/to/foo.mjml  # one template
 #
+# Tunables (env):
+#   MJML_VERSION  exact mjml version to compile with (default: 4).
+#                 `make email-validate` passes the pin from tools.mk.
+#
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -78,11 +82,12 @@ for tpl in "${targets[@]}"; do
     continue
   fi
 
-  # Pin to MJML v4 (current stable line). `@latest` would make CI
-  # non-deterministic: a new release could break validation without
-  # any repo change. Bump the major manually when intentional.
+  # Pinned exactly, via MJML_VERSION from tools.mk. `@latest` would make CI
+  # non-deterministic: a new release could break validation without any repo
+  # change. `@4` was better but still floated within the major, so CI and a dev
+  # machine could compile with different builds. Renovate bumps the pin.
   rc=0
-  out=$(npx --yes mjml@4 --validate strict "$tpl" -o /dev/null 2>&1) || rc=$?
+  out=$(npx --yes "mjml@${MJML_VERSION:-4}" --validate strict "$tpl" -o /dev/null 2>&1) || rc=$?
   if ((rc != 0)) || grep -qE 'Line [0-9]+|ValidationError|^Error' <<<"$out"; then
     echo "  FAILED: $tpl"
     if [[ -n "$out" ]]; then

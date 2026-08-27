@@ -67,3 +67,10 @@ content/newsletter/the-unwind/.brief-*.md
 # Build caches. Hugo's own caches live under resources/ (already ignored above);
 # this covers the paths netlify.toml's cache plugin restores into the tree.
 .cache/
+
+# Pinned developer tools, installed on demand by scripts/ensure-tool.sh.
+# Binaries, not sources — see tools.mk for the versions.
+.tools/
+
+# lychee link-check result cache (`make links-external`).
+.lycheecache
