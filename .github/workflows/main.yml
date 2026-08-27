@@ -74,8 +74,21 @@ jobs:
 
           # GitHub can briefly report mergeability as unknown right after the PR
           # is created; retry rather than failing on that race.
+          #
+          # --delete-branch is deliberately NOT passed to `gh pr merge`: the
+          # runner is standing on $branch, so gh would try to switch away and
+          # delete it locally, and a hiccup in that cleanup exits non-zero
+          # *after the merge already succeeded*. Delete the remote branch
+          # separately, where failing is harmless.
           for attempt in 1 2 3; do
-            if gh pr merge "$branch" --squash --delete-branch; then
+            if gh pr merge "$branch" --squash; then
+              git push origin --delete "$branch" || true
+              exit 0
+            fi
+            # A merge that landed but reported failure must not look like a
+            # merge that never happened.
+            if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo UNKNOWN)" = "MERGED" ]; then
+              git push origin --delete "$branch" || true
               exit 0
             fi
             echo "merge attempt $attempt failed, retrying"

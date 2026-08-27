@@ -233,8 +233,22 @@ jobs:
           # is retried rather than failing the run outright: the posts are
           # already on social by this point, and losing the stamp means
           # tomorrow's cron promotes them a second time.
+          #
+          # --delete-branch is deliberately NOT passed to `gh pr merge`: the
+          # runner is standing on $branch, so gh would try to switch away and
+          # delete it locally, and a hiccup in that cleanup exits non-zero
+          # *after the merge already succeeded* — which here would send us into
+          # the rebase path against an already-merged PR. Delete the remote
+          # branch separately, where failing is harmless.
           for attempt in 1 2 3; do
-            if gh pr merge "$branch" --squash --delete-branch; then
+            if gh pr merge "$branch" --squash; then
+              git push origin --delete "$branch" || true
+              exit 0
+            fi
+            # A merge that landed but reported failure must not be retried: the
+            # stamp is already on master and rebasing would only confuse things.
+            if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null || echo UNKNOWN)" = "MERGED" ]; then
+              git push origin --delete "$branch" || true
               exit 0
             fi
             echo "merge attempt $attempt failed, updating the branch and retrying"
