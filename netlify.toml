@@ -62,6 +62,24 @@ package = "netlify-plugin-cache"
     X-Frame-Options = "DENY"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
+# Fingerprinted assets. Hugo content-hashes the self-hosted font files and the
+# generated stylesheet, so the filename changes whenever the bytes do and the
+# response can safely be cached forever. Netlify's default for static files is
+# `max-age=0, must-revalidate`, which would put a revalidation round-trip in
+# front of the font on every visit — exactly the latency that self-hosting it
+# was meant to remove.
+[[headers]]
+  for = "/fonts/*"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # /admin/ holds a GitHub App user token in localStorage, so it gets a real CSP.
 #
 # Directive notes (scripts/check-admin-csp.sh enforces the ones that drift):

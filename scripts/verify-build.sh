@@ -67,6 +67,13 @@ else
   echo "WARN: No post index.html found under $PUBLIC_DIR/posts/ — skipping HTML checks"
 fi
 
+# 9. Every <img> must carry intrinsic dimensions. Delegated to a dedicated
+# script because it has its own unit tests and its own allowlist; see the header
+# of scripts/check-image-sizes.sh for why this is a hard failure.
+if ! bash "$(dirname "${BASH_SOURCE[0]}")/check-image-sizes.sh" "$PUBLIC_DIR"; then
+  fail "unsized images in $PUBLIC_DIR (see above)"
+fi
+
 if [ "$ERRORS" -gt 0 ]; then
   echo ""
   echo "FAILED: $ERRORS check(s) failed"

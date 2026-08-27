@@ -1,0 +1,44 @@
+{{- /*
+  Override of PaperMod's _partials/cover.html.
+
+  Upstream sizes an image only when it resolves to a page-bundle or global
+  resource, and its glob cannot match a global resource in the first place:
+  it builds the pattern star + "/uploads/x.jpeg" + star, and a star does not
+  match a slash, so the leading slash needs a path segment in front of it that
+  a mounted asset named "uploads/x.jpeg" does not have. In practice every
+  cover on this site fell through to a bare, unsized <img> — 297 of them.
+
+  This override keeps upstream's behaviour — isHidden, the full-image link on
+  singles, eager loading on singles, the caption — and hands the <img> itself to
+  partials/functions/responsive-image.html, which resolves local and remote
+  images alike and always emits a width and a height.
+*/ -}}
+{{- with .cxt }}
+{{- if (and .Params.cover.image (not $.isHidden)) }}
+<figure class="entry-cover">
+    {{- $loading := cond $.IsSingle "eager" "lazy" }}
+    {{- $addLink := (and site.Params.cover.linkFullImages $.IsSingle) }}
+    {{- $alt := (.Params.cover.alt | default .Params.cover.caption | plainify) }}
+
+    {{- if $addLink }}
+        <a href="{{ .Params.cover.image | absURL }}" target="_blank" rel="noopener noreferrer">
+    {{- end }}
+    {{- partial "functions/responsive-image.html" (dict
+          "src" .Params.cover.image
+          "alt" $alt
+          "page" .
+          "loading" $loading
+          "width" (.Params.cover.width | default 0)
+          "height" (.Params.cover.height | default 0)) }}
+    {{- if $addLink }}
+        </a>
+    {{- end -}}
+
+    {{- if $.IsSingle }}
+        {{ with .Params.cover.caption -}}
+            <figcaption>{{ . | markdownify }}</figcaption>
+        {{- end }}
+    {{- end }}
+</figure>
+{{- end }}
+{{- end -}}

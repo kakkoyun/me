@@ -1,53 +1,18 @@
-{{- $dest := .Destination -}}
-{{- $alt := .Text -}}
-{{- $title := .Title -}}
+{{- /*
+  Markdown image render hook. All the actual work — resolution, WebP srcset,
+  and the guarantee of a width and height — lives in the shared partial; this
+  hook only decides the loading priority.
+*/ -}}
 {{- $loading := "lazy" -}}
 {{- $fetchpriority := "" -}}
 {{- if .Page.IsHome -}}
   {{- $loading = "eager" -}}
   {{- $fetchpriority = "high" -}}
 {{- end -}}
-{{- $img := .Page.Resources.GetMatch $dest -}}
-
-{{/* Fall back to a global asset for absolute paths (e.g. /img/banner.jpeg). */}}
-{{- if not $img -}}
-  {{- $assetPath := strings.TrimPrefix "/" $dest -}}
-  {{- if and (hasPrefix $dest "/") (not (or (hasPrefix $dest "//") (hasPrefix $dest "http"))) -}}
-    {{- $img = resources.Get $assetPath -}}
-  {{- end -}}
-{{- end -}}
-
-{{- if and $img $img.MediaType (in (slice "image/jpeg" "image/png" "image/gif" "image/bmp" "image/tiff" "image/webp") $img.MediaType.Type) -}}
-  {{- $sizes := slice 480 768 1024 1366 1920 -}}
-
-  {{- $srcset := slice -}}
-  {{- $srcsetWebP := slice -}}
-  {{- range $sizes -}}
-    {{- if le . $img.Width -}}
-      {{- $resized := $img.Resize (printf "%dx" .) -}}
-      {{- $srcset = $srcset | append (printf "%s %dw" $resized.RelPermalink .) -}}
-      {{- $resizedW := $img.Resize (printf "%dx webp" .) -}}
-      {{- $srcsetWebP = $srcsetWebP | append (printf "%s %dw" $resizedW.RelPermalink .) -}}
-    {{- end -}}
-  {{- end -}}
-
-  <picture>
-    {{- with $srcsetWebP }}<source type="image/webp" srcset="{{ delimit . ", " }}">{{ end }}
-    {{- with $srcset }}<source srcset="{{ delimit . ", " }}">{{ end }}
-    <img src="{{ $img.RelPermalink }}"
-      alt="{{ $alt }}"
-      {{- with $title }} title="{{ . }}"{{ end }}
-      loading="{{ $loading }}"
-      decoding="async"
-      {{- with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}
-      width="{{ $img.Width }}"
-      height="{{ $img.Height }}">
-  </picture>
-{{- else -}}
-  <img src="{{ $dest | safeURL }}"
-    alt="{{ $alt }}"
-    {{- with $title }} title="{{ . }}"{{ end }}
-    loading="{{ $loading }}"
-    decoding="async"
-    {{- with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}>
-{{- end -}}
+{{- partial "functions/responsive-image.html" (dict
+      "src" .Destination
+      "alt" .Text
+      "title" .Title
+      "page" .Page
+      "loading" $loading
+      "fetchpriority" $fetchpriority) -}}

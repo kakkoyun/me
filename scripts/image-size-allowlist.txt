@@ -1,0 +1,18 @@
+# Images allowed to ship without width and height.
+#
+# One extended regex per line, matched against the src attribute as it appears
+# in the built HTML. Blank lines and #-comments are ignored.
+#
+# This file should stay empty. Every <img> on the site comes from
+# layouts/partials/functions/responsive-image.html, which resolves local and
+# remote images alike and always emits dimensions — including for a remote fetch
+# that fails, as long as the URL is a shape it recognises.
+#
+# Before adding an entry, try the two real fixes first:
+#   1. cover.width / cover.height in the post's frontmatter, for an image whose
+#      size is known but not measurable at build time.
+#   2. teach responsive-image.html the URL shape, if it is a family of images
+#      rather than a one-off.
+#
+# An entry here is for the genuinely unknowable: a third-party badge rendered on
+# demand at a size the server picks. Say which case it is in a comment.

@@ -54,11 +54,27 @@ ci:
       "image-aspect-ratio": error
       "image-size-responsive": error
 
-      # Cover thumbnails in static/uploads/ legitimately can't be sized
-      # without moving them into assets/, so keep this informational
-      # rather than blocking. Surfacing it as a warning means it shows
-      # up in the report without failing CI.
-      "unsized-images": warn
+      # Was a warning, on the premise that covers in static/uploads/
+      # "legitimately can't be sized without moving them into assets/".
+      # That premise no longer holds: static/uploads is mounted into
+      # assets/ as well (see module.mounts in config.yaml), so covers are
+      # real Hugo resources, and remote covers are fetched at build time.
+      # Every <img> now comes from partials/functions/responsive-image.html,
+      # which always emits width and height — so an unsized image is a
+      # regression, not a known limitation.
+      #
+      # scripts/check-image-sizes.sh is the primary guard, because it scans
+      # the whole built site where this only ever sees the home page. Keep
+      # both: this one catches images resolved at runtime that a static scan
+      # of the HTML would miss.
+      "unsized-images": error
+
+      # Byte-level image opportunities, kept advisory. Both are weight-0 in
+      # the performance score and their numbers move with third-party
+      # sources, so they are here to stay visible in the report rather than
+      # to block a merge.
+      "uses-responsive-images": warn
+      "modern-image-formats": warn
 
       # Console errors — sandbox MITM-style failures aren't real, so we
       # stay informational rather than blocking on this in CI.

@@ -120,6 +120,18 @@ collections:
             name: caption
             widget: string
             required: false
+          - label: Width
+            name: width
+            widget: number
+            required: false
+            value_type: int
+            hint: 'Only needed when the image cannot be measured at build time; see Cover and Inline Image Conventions in CLAUDE.md'
+          - label: Height
+            name: height
+            widget: number
+            required: false
+            value_type: int
+            hint: 'Set together with Width, or not at all'
 
       - label: Show Table of Contents
         name: showToc
@@ -253,6 +265,18 @@ collections:
             name: caption
             widget: string
             required: false
+          - label: Width
+            name: width
+            widget: number
+            required: false
+            value_type: int
+            hint: 'Only needed when the image cannot be measured at build time; see Cover and Inline Image Conventions in CLAUDE.md'
+          - label: Height
+            name: height
+            widget: number
+            required: false
+            value_type: int
+            hint: 'Set together with Width, or not at all'
 
       # Raw mode only: every talk body embeds a YouTube <iframe>, and the
       # Lexical rich-text editor round-trips Markdown, not HTML. Rich-text mode
