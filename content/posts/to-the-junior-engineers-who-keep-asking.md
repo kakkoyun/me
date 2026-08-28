@@ -1,9 +1,8 @@
 ---
 title: "To the Junior Engineers Who Keep Asking"
 description: "Notes for the people on my team who are worried about their careers. The data is scarier than most posts admit. The answer is simpler."
-publishDate: 2026-08-25T00:00:00Z
-date: 2026-08-25T00:00:00Z
-draft: true
+publishDate: 2026-08-28T00:00:00Z
+date: 2026-08-28T00:00:00Z
 categories:
   - "reflection"
 tags:
@@ -16,7 +15,6 @@ tags:
   - "agentic-coding"
 showToc: true
 tocOpen: false
-promote: false
 ---
 
 The junior engineers around me have started asking the same question, in slightly different wrappings.
