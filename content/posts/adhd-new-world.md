@@ -13,6 +13,8 @@ tags:
   - mental-health
   - personal
   - career
+promotedAt:
+  - 2026-08-28T09:19:33Z
 ---
 
 Six hours. I had planned to spend thirty minutes on a proof-of-concept.
