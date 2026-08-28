@@ -13,6 +13,10 @@ tags:
   - mental-health
   - personal
   - career
+cover:
+  image: /uploads/adhd-hyperfocus-receipt.png
+  alt: A paper receipt headed HYPERFOCUS, itemised for one session. Under DELIVERED, working code worth three days, the interesting part reached, proof of concept shipped. Under CHARGED, lunch skipped, coffee cold, 6pm hard stop blown. Total due, one evening. The footer reads "payable on receipt, no longer accepting Sundays". Beside it, the line "Hyperfocus is a superpower with an invoice attached."
+  caption: Hyperfocus is a superpower with an invoice attached.
 promotedAt:
   - 2026-08-28T09:19:33Z
 ---
