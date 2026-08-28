@@ -1,5 +1,5 @@
 ---
-title: 'My Second Brain System: PARA, Readwise, and an LLM captures my thoughts'
+title: 'My Second Brain System: PARA, Readwise, and an LLM that captures my thoughts'
 description: What I built, what does most of the work, and why the LLM never edits a source note.
 date: 2026-08-21T00:00:00Z
 publishDate: 2026-08-21T00:00:00Z
