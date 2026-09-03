@@ -27,7 +27,7 @@
 # Do not add a second Hugo pin — the two would drift and Netlify would win.
 
 # renovate: datasource=github-releases depName=mvdan/sh extractVersion=^v(?<version>.*)$
-SHFMT_VERSION=3.13.1
+SHFMT_VERSION=3.14.0
 
 # renovate: datasource=github-releases depName=koalaman/shellcheck extractVersion=^v(?<version>.*)$
 SHELLCHECK_VERSION=0.11.0
@@ -36,7 +36,7 @@ SHELLCHECK_VERSION=0.11.0
 ACTIONLINT_VERSION=1.7.12
 
 # renovate: datasource=github-releases depName=errata-ai/vale extractVersion=^v(?<version>.*)$
-VALE_VERSION=3.19.0
+VALE_VERSION=3.20.0
 
 # lychee tags its releases `lychee-vX.Y.Z`, not `vX.Y.Z`.
 # renovate: datasource=github-releases depName=lycheeverse/lychee extractVersion=^lychee-v(?<version>.*)$
