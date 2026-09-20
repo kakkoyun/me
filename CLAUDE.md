@@ -29,6 +29,7 @@ make buffer-update      # Pull latest buffer-cli submodule
 make humanizer-update   # Pull latest humanizer skill submodule
 make vale-sync          # Fetch third-party Vale style packages (proselint, write-good)
 make vale               # Run Vale prose linter on content/
+make provenance         # AI-provenance gate: C2PA markers on images (+ text watermarks, if enabled)
 make test               # Script unit tests + CMS field and frontmatter checks
 make fmt                # Format shell scripts with shfmt (style from .editorconfig)
 make fmt-check          # Fail if any shell script is unformatted
@@ -140,6 +141,8 @@ promote: false                # optional; skip social-media promotion (defaults 
 promotedAt:                   # written by automation, never by hand — the promotion ledger
   - 2026-02-13T06:03:00Z
 substack: false               # optional; exclude from the Substack syndication feed (included when omitted)
+aiAssisted:                   # optional; disclose AI involvement (free-form: draft, research, images…)
+  - draft
 ---
 ```
 
@@ -152,6 +155,7 @@ substack: false               # optional; exclude from the Substack syndication 
 - Set `promote: false` to publish a post but opt it out of the social-media promotion pipeline (`scripts/find-promotable-posts.sh`)
 - `promotedAt` is the promotion ledger, appended by `scripts/record-promotion.sh` after each successful run and read back by `find-promotable-posts.sh` to avoid re-promoting. Do not edit it by hand; deleting an entry re-promotes the post on the next cron, which is occasionally what you want
 - `date` may be earlier than `publishDate` — writing over months and publishing later is the normal shape. Nothing in the publishing or promotion pipeline reads `date`, so there is no need to bump it before merging. It does still drive list/archive **ordering** and, on a post where the two differ, the single-post page shows both ("Written … · Published …", see `layouts/partials/post_meta_single.html`)
+- `aiAssisted` is the AI-disclosure field `scripts/check-ai-provenance.sh` reads. When the text-watermark half of that check is enabled, a post with a watermark hit passes if it declares this key and fails if it does not. Free-form list; absence means "nothing to disclose". See [docs/ai-provenance.md](docs/ai-provenance.md)
 - Set `substack: false` to publish a post but exclude it from the Substack syndication feed (`/substack.xml`, see [docs/substack-syndication.md](docs/substack-syndication.md))
 - Any new frontmatter key must also be declared in `static/admin/config.yml` (as `widget: hidden` at minimum). Sveltia CMS only serializes fields it knows about, so an undeclared key is dropped the next time that post is saved through the editor. `scripts/check-cms-fields.sh` fails `make test` if you forget (see [docs/sveltia-cms.md](docs/sveltia-cms.md))
 
@@ -269,6 +273,42 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 
 **Before opening a PR with a new post:** run `make prose`. First-time setup: `brew install vale && make vale-sync`.
 
+## AI Provenance
+
+`scripts/check-ai-provenance.sh` blocks undisclosed AI-generated content. Unlike
+the prose defenses above, this one **is** blocking: it runs in `make test` (so in
+`lint.yml`) and on its own via `make provenance`. Full reasoning in
+[docs/ai-provenance.md](docs/ai-provenance.md).
+
+- **Images are enforced.** Generative tools sign their output with a C2PA
+  manifest carrying an IPTC `digitalSourceType` of `trainedAlgorithmicMedia`.
+  That is cryptographic, offline and key-free, so the check byte-scans image
+  sources for it (CBOR stores text verbatim inside JUMBF, so no parser is
+  needed; `c2patool` is preferred when on `PATH` but deliberately not pinned in
+  `tools.mk`). `algorithmicallyEnhanced` does **not** count — that is denoise on
+  a real capture. The escape hatch is
+  `scripts/ai-provenance-allowlist.txt`, for a generated image that is the
+  *subject* of a post rather than decoration.
+- **It scans sources, not `public/`.** Hugo's image processing strips metadata,
+  so a manifest in `static/uploads/` leaves no trace in the build. A check
+  pointed at the build output would pass everything.
+- **Text watermarks are a dormant seam, not a detector.** Claude watermarks its
+  text, but detection is key-gated: Anthropic's API is private-preview and
+  scoped to EU-mandated regulators and compliance-obligated enterprises, and
+  SynthID only reads Google's own output. Nothing at any price reads Claude's
+  text watermark from CI. So the check delegates to `WATERMARK_DETECT_CMD`
+  (called as `CMD <file>`; exit 0 clean, 10 watermarked, anything else a failure)
+  and skips cleanly when unset. **Do not hardcode a guessed endpoint** — no
+  vendor has published a shape to code against.
+- **Disclosure, not abstinence.** A watermark hit on a post declaring
+  `aiAssisted` passes. Claude legitimately drafts here (`blogmentation`,
+  `the-unwind`, `/capture`), so a gate that fired on the intended workflow would
+  just get switched off.
+- **Heuristic classifiers are deliberately not wired in.** Their false-positive
+  rates are fine now, but ~13% of AI text evades them once it imitates a
+  specific author's voice — which is what `kemal-voice` is for. The blind spot
+  is this repo's actual risk case.
+
 ## CI/CD
 
 GitHub Actions workflows:
@@ -282,7 +322,7 @@ GitHub Actions workflows:
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags. It does **not** push to master: `skip_commit: true` plus a branch → PR → squash-merge step, so the `master` ruleset needs no bypass actor. `enable_keepalive: false` is also deliberate — it defaults to **on** and makes a dummy commit straight to the default branch every ~50 days, a push that appears nowhere in the workflow file.
 - **`deploy-scheduled.yml`** -- Daily cron at `00:10 UTC` (+ manual `workflow_dispatch`) that POSTs the Netlify build hook so **future-dated posts go live on their publish day**. The production build omits `--buildFuture` (see `netlify.toml`), so a post merged ahead of its `publishDate` stays hidden until a build runs at/after that date; a push to master only rebuilds when something is pushed, so this cron is what flips scheduled posts visible. A pre-flight `check` job runs `scripts/posts-publishing-today.sh` and skips the Netlify hook entirely when nothing is due, so the cron only consumes a build minute on a publishing day; `workflow_dispatch` bypasses the gate (the human pressing it has already decided). After triggering the build it verifies a *today-dated* post actually went live (same `scripts/posts-publishing-today.sh` + `scripts/check-post-live.sh`) rather than blindly sleeping — Netlify's atomic deploys keep the homepage at 200 off the old build, so reachability alone wouldn't prove freshness. Needs the `NETLIFY_BUILD_HOOK_URL` secret. Use the manual dispatch as a "publish now" button. **This is the publishing mechanism — promotion (below) no longer rebuilds.**
 - **`lint.yml`** -- shfmt, ShellCheck, and actionlint, all at the versions pinned in
-  `tools.mk` and installed by `scripts/ensure-tool.sh`, plus `make test` (which includes `scripts/test-check-image-sizes.sh`). ShellCheck and actionlint emit native GitHub annotations, so findings still appear inline on the PR diff without an action wrapper choosing the binary. The ShellCheck job takes its file list from `make print-shell-files`, i.e. the Makefile's own `SHELL_FILES`; the previous reviewdog step globbed `scripts/*.sh`, so a shell script anywhere else was linted locally but not in CI. Any finding fails the job, matching `make lint`. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP.
+  `tools.mk` and installed by `scripts/ensure-tool.sh`, plus `make test` (which includes `scripts/test-check-image-sizes.sh`). ShellCheck and actionlint emit native GitHub annotations, so findings still appear inline on the PR diff without an action wrapper choosing the binary. The ShellCheck job takes its file list from `make print-shell-files`, i.e. the Makefile's own `SHELL_FILES`; the previous reviewdog step globbed `scripts/*.sh`, so a shell script anywhere else was linted locally but not in CI. Any finding fails the job, matching `make lint`. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP, and `scripts/check-ai-provenance.sh`, which fails on any image whose C2PA Content Credentials say it was AI-generated (see AI Provenance above). **This is the job that makes the provenance gate blocking** — it only prevents a merge while `lint` is a required status check in the `master` ruleset.
 - **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block). Auto-fires on content paths.
 - **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
 - **`claude-code-review.yml`** -- Generic code reviewer. Label-triggered only (apply `claude-review` to fire). Advisory.
