@@ -1,11 +1,17 @@
 ---
 name: kemal-voice
-description: Author voice and prose-quality guide for Kemal Akkoyun's blog. Triggers when editing or creating files under content/posts/, content/talks/, or content/notes/, and on any task involving writing, drafting, editing, reviewing, or rewriting blog posts on this repo. Encodes the target tone (clear, explanatory, fun, whimsical, honest, open) plus banned AI-slop vocabulary, formulaic openers, and patterns to scrutinize (em-dash density, negative parallelism, triadic rhythm).
+description: Author voice and prose-quality guide for Kemal Akkoyun's blog. Triggers when editing or creating files under content/posts/, content/talks/, or content/notes/, and on any task involving writing, drafting, editing, reviewing, or rewriting blog posts on this repo. Encodes the target tone (clear, explanatory, fun, whimsical, honest, open), the story structure posts follow (references/story-playbook.md), signature moves from earlier posts, banned AI-slop vocabulary, formulaic openers, and patterns to scrutinize (em-dash density, negative parallelism, triadic rhythm).
 ---
 
 # Kemal voice guide
 
 Loaded when working on prose in `content/posts/`, `content/talks/`, or `content/notes/`. Use alongside [REVIEW.md](../../../REVIEW.md) and the Vale rules in `styles/Slop/`.
+
+This file is about words and tone. **Before drafting or restructuring a post, read [references/story-playbook.md](references/story-playbook.md)**: it covers how a post is built (opening, running thread, foreshadowing, introducing and explaining code blocks, sources, what to cut, signature moves, whimsy budget, tooling gotchas).
+
+## Story and flow in one paragraph
+
+Tell it as something we do together, not as a list of facts. Open with prose and a concrete experiment, promise the journey, then climb one step per section, ending each with a connection sentence that leads into the next. Carry one running thread through the post, plant things early and pay them off out loud. Introduce every code block before it and explain it after. Link sources inline. Cut whatever is true but doesn't move the story, and keep it in a backup document instead. End with something to try and a crescendo, never a summary.
 
 ## Tone target
 
@@ -88,9 +94,9 @@ Flagged at `warning` in Vale. Start with a concrete observation, an anecdote, a 
 | Category | Tone | Structure |
 |---|---|---|
 | `journal` | Informal narrative, first-person, conference-recap | Intro → days/topics → reflections |
-| `deep-dive` | Technical, explanatory, problem-first | Problem → walkthrough → conclusion |
+| `deep-dive` | Technical, explanatory, conversational ("we") | Prose hook + experiment → why it matters → journey promise → one step per section → real tool → callback to the running thread → try it + crescendo |
 | `reflection` | Introspective, self-aware, short paragraphs fine | Context → lessons → takeaways |
-| `engineering` | Technical with storytelling hook | Story → technical sections → benchmarks → conclusion |
+| `engineering` | Technical with storytelling hook | Story → technical sections → benchmarks → callback → crescendo |
 | `technical-findings` | Evaluative, opinionated, practical | Setup → eval → pros/cons → recommendation |
 | `blogmentation` | Tutorial, code-heavy, imperative steps | Problem → solution → result |
 
@@ -104,14 +110,18 @@ When asked to edit or review a draft, do these in order:
 4. **Scan for em-dash density.** 3+ em-dashes in one paragraph? Suggest a rewrite using commas, parens, or shorter sentences. A single em-dash on its own is fine.
 5. **Scan for "it's not X, it's Y" parallelism.** Is the contrast actually load-bearing, or is it just rhetorical scaffolding? If the latter, rewrite as a direct statement.
 6. **Check tone match against category.** Does a `deep-dive` start with a problem? Does a `reflection` admit uncertainty? Does the post sound like the author or like a marketing one-pager?
-7. **Cap inline suggestions at 5.** Add one summary verdict (`ship` / `minor edits` / `revise`) with the top reason.
+7. **Check the story.** Does it read as something we do together, or as a schematic list of facts? Is every code block introduced and explained? Is there a running thread, and is it paid off? Are there captions, reference lists or asides that distract from the story? (See [references/story-playbook.md](references/story-playbook.md).)
+8. **Cap inline suggestions at 5.** Add one summary verdict (`ship` / `minor edits` / `revise`) with the top reason.
 
 ## Authoring checklist (when drafting, not just editing)
 
-1. Open with a concrete hook: a number, an anecdote, a code snippet, a contradiction. Not a template phrase.
-2. Use plain words. Define jargon on first use.
-3. Be honest about what you tried and what you don't know. The reader can tell.
-4. Permit humor. A pun, a wry aside, a self-deprecating one-liner — all welcome.
-5. End on a trade-off, an open question, or a "what I'd try next". Not on a summary paragraph.
-6. Always include a `blog` tag. Categories is a single-value list.
-7. Run `make prose` before opening a PR.
+1. Read [references/story-playbook.md](references/story-playbook.md) and pick the running thread before writing a word.
+2. Open with prose, not a heading: say what we'll do together, then a concrete hook (a number, an anecdote, a command and its real output, a contradiction). Not a template phrase.
+3. Use plain words. Define jargon on first use. Say "we" for the journey and "I" for opinions and jokes.
+4. Introduce every code block before it and explain it after it.
+5. Be honest about what you tried and what you don't know. The reader can tell.
+6. Permit humor. A pun, a wry aside, a self-deprecating one-liner, all welcome; use the signature moves and the whimsy budget in the playbook.
+7. Link sources inline on the words they support. Every quote verbatim, every number from a real run.
+8. End on something to try and a short crescendo, a trade-off, or an open question. Not on a summary paragraph.
+9. Always include a `blog` tag. Categories is a single-value list.
+10. Run `vale <file>` (or `make prose`) before opening a PR.

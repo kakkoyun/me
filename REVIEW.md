@@ -33,6 +33,18 @@ These read as AI-flavored when overused. A single instance is fine; a paragraph 
 - **Triadic rhythm**. Three parallel clauses in a row ("Static compilation. No LD_PRELOAD. Unique calling convention.") can be effective once. Twice in the same post feels like a tic. Not Vale-detected; review by eye.
 - **Bolded-bullet structure**. Long stretches of `**Term**: explanation` bullets are an AI tell. Prose paragraphs with one or two bolded callouts read more naturally. Not Vale-detected.
 
+## Story and flow
+
+A post can pass every vocabulary rule and still read as a schematic list of facts. Check the story too. The full guidance is in [.agents/skills/kemal-voice/references/story-playbook.md](.agents/skills/kemal-voice/references/story-playbook.md).
+
+- **Opening.** Prose first, not a heading. Does it say what we'll do together and show a concrete experiment early?
+- **Togetherness.** "We" for the journey, "I" for opinions and jokes. Flag imperative, instruction-manual stretches ("Ask the `go` command to...").
+- **Code blocks.** Each one is introduced before it and explained after it. Flag any block the reader meets cold or is left to decode alone.
+- **Connection sentences.** Does every section end with a sentence that leads into the next heading? Flag sections that just stop.
+- **Running thread and callbacks.** Is there one thread through the post, and is every planted idea paid off explicitly?
+- **Distractions.** Flag capture captions, "see the full output" links, reference lists at the end, and asides that are true but don't move the story.
+- **Ending.** Something to try and a crescendo, not a summary.
+
 ## Hard-banned vocabulary (Vale: error)
 
 Surface any occurrence as a high-priority finding. Mirrored in `styles/Slop/Vocabulary.yml`.
@@ -61,7 +73,7 @@ Mirrors the table in `CLAUDE.md`. Use to calibrate review notes.
 | Category | Expected tone |
 |---|---|
 | `journal` | Informal narrative, first-person, conference-recap energy, comfortable with "I felt", "I noticed" |
-| `deep-dive` | Technical, explanatory, problem statement up front, code blocks and benchmarks welcome |
+| `deep-dive` | Technical, explanatory and conversational; a concrete experiment up front, one step per section, a running thread, code blocks introduced and explained, a crescendo at the end |
 | `reflection` | Introspective, lessons-learned framing, self-aware ("Too cheesy? I know"), short paragraphs fine |
 | `engineering` | Technical with a storytelling hook, benchmarks/experiments, conclusion grounded in trade-offs |
 | `technical-findings` | Evaluative, setup → eval → pros/cons → recommendation, opinionated |
@@ -70,5 +82,5 @@ Mirrors the table in `CLAUDE.md`. Use to calibrate review notes.
 ## Review output format
 
 - Inline review comments: up to 5, prose-only, one sentence each.
-- One summary comment with: category-fit assessment, list of any unflagged patterns worth a second look, and a verdict (`ship` / `minor edits` / `revise`).
+- One summary comment with: category-fit assessment, a one-line story-and-flow assessment, list of any unflagged patterns worth a second look, and a verdict (`ship` / `minor edits` / `revise`).
 - Advisory only. Never block.

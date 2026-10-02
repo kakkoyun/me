@@ -72,6 +72,36 @@
   text-decoration-color: var(--primary);
 }
 
+/* Compaction pass: the Recent Issues / Recent Notes columns recede
+   behind the Start Here cards (start-here.css), so smaller type and a
+   tighter rhythm than the post list below. Previously these used the
+   theme's unstyled h2/ul defaults, which made the two columns as loud
+   as the content they point at. */
+.home-column .page-header {
+  margin: 0 0 0.25rem;
+}
+
+.home-column .page-header h2 {
+  font-size: 1.1rem;
+}
+
+.recent-issues-container,
+.recent-notes-container {
+  font-size: 0.9em;
+}
+
+.recent-issues-container ul,
+.recent-notes-container ul {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.recent-issues-container ul li,
+.recent-notes-container ul li {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
 /* Two-column homepage grid for Most Recent Issues + Recent Notes.
    A separator runs between the columns (vertical on desktop, horizontal
    on mobile once they stack). All dividers in this area --- the .home-divider

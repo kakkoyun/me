@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Hugo static site (personal blog) using PaperMod theme, deployed to Netlify. Published at https://kakkoyun.me. Hugo version is pinned in `.hugo-version` and mirrored in `netlify.toml`.
+Hugo static site (personal blog) using PaperMod theme, deployed to Netlify. Published at <https://kakkoyun.me>. Hugo version is pinned in `.hugo-version` and mirrored in `netlify.toml`.
 
 ## Build Commands
 
@@ -102,6 +102,29 @@ thing as "green in CI".
 - `layouts/partials/page-links.html` -- "Links to / Linked from" nav on posts/talks/newsletter singles, fed by the link index
 - `layouts/_default/graph.html` + `layouts/_default/graph.json.json` -- `/graph/` content-graph page and its JSON endpoint (`/graph/index.json`); rendering via dependency-free canvas force sim in `assets/js/graph.js` (~5.5 KB minified, loads only on that page; wheel/pinch zoom, background-drag pan, keyboard-accessible view controls)
 - `layouts/robots.txt` -- Explicitly welcomes AI crawlers, references llms.txt
+- `layouts/partials/start-here.html` -- Homepage "Start Here" cards (Go, eBPF, open source) as a self-advancing scroll-snap carousel (inline JS ~30 lines: auto-advance pauses on hover/focus/interaction, honors `prefers-reduced-motion`; controls are buttons, never anchors, so the page never scrolls; without JS the first card renders static), driven by `params.startHere` in `config.yaml`; see Homepage Curation below
+
+### Homepage Curation
+
+The homepage's three reading-path cards are driven by `params.startHere` in
+`config.yaml` and rendered by `layouts/partials/start-here.html`. Internal
+post paths resolve via `site.GetPage` and fail the build when stale; a
+`{title, url}` map entry links externally (guest posts on other blogs).
+Three rules:
+
+- `content/start-here.md` is **additive-only**: keep its existing sections, append
+  new ones. Every card's `pathUrl` anchor must match a heading on that page
+  (Hugo's auto-generated heading ids, lowercased and hyphenated).
+- Order a card's `posts` by 12-month Plausible visitors, descending. Refresh
+  when re-curating: query the Plausible Stats API for site `kakkoyun.me`
+  (12mo, breakdown `event:page` filtered to `/posts/*`, ordered by visitors) —
+  or the Plausible MCP tools in an agent session — and reorder. Traffic is
+  advisory, not absolute: a new post with no traffic yet still belongs if it
+  is the strongest on-topic piece.
+- The third card promotes whichever theme has the strongest current content
+  (open source today). Agentic engineering takes the slot back once it has
+  enough posts. The sections on `content/start-here.md` stay separate either
+  way; swapping a card is a config-only change.
 
 ### Custom Shortcodes
 
@@ -164,7 +187,7 @@ aiAssisted:                   # optional; disclose AI involvement (free-form: dr
 Each category has a distinct purpose, tone, and structure:
 
 | Category | Purpose | Tone | Structure |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `journal` | Conference recaps, event field notes, personal updates | Informal narrative | Intro → sections by day/topic → reflections |
 | `deep-dive` | Long-form technical analysis (often cross-posted) | Technical, explanatory | Problem statement → technical walkthrough → conclusion |
 | `reflection` | Career/personal essays, lessons learned | Introspective, narrative | Context/motivation → numbered lessons or reflections → takeaways |
@@ -261,6 +284,8 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 
 - **[REVIEW.md](REVIEW.md)** -- voice and prose-quality criteria. Companion to the Vale rules and the `prose-review.yml` workflow.
 - **[.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md)** -- Anthropic-format skill. Auto-loads when editing files under `content/posts/`, `content/talks/`, `content/notes/`. Encodes tone, banned vocabulary, formulaic openers, patterns to scrutinize, and tone-by-category notes.
+- **[.agents/skills/kemal-voice/references/story-playbook.md](.agents/skills/kemal-voice/references/story-playbook.md)** -- how a post is built: the deep-dive arc, a running thread, foreshadowing and callbacks, introducing and explaining every code block, inline sources, what to cut, signature moves from earlier posts, a whimsy budget, and the tooling gotchas below. Read it before drafting or restructuring a post.
+- **[.claude/commands/write-blog.md](.claude/commands/write-blog.md)** -- `/write-blog <idea> [--guest <host>]`, the end-to-end pipeline from an idea to a draft PR: worktree, story shaping, evidence and real captures, drafting, independent reviews, the quality chain and mechanical gates, Hugo and difit previews, and the approval-gated draft PR. Each revision round is its own commit.
 - **Vale** (`.vale.ini` + `styles/Slop/`) -- runs automatically on every content PR via `prose.yml` (reviewdog inline annotations). Run locally with `make vale`.
 - **[.claude/commands/prose-review.md](.claude/commands/prose-review.md)** -- `/prose-review` slash command. Wraps the upstream `code-review` plugin with prose-specific priorities (banned vocab, formulaic openers, em-dash density, do-not-flag list, output format). Single source of truth for the procedure; `prose-review.yml` references it. Invoke locally as `/prose-review owner/repo/pull/N` to review a PR before merging.
 - **[.claude/commands/capture.md](.claude/commands/capture.md)** -- `/capture blogmentation [topic]` to draft a short-form solution post (300-800 words, `categories: [blogmentation]`). Use `--weekly` to scan recent Claude Code sessions and surface candidates. Skill at `.agents/skills/blogmentation/SKILL.md`.
@@ -272,6 +297,17 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 **Patterns to scrutinize, not preserve:** em-dash parenthetical asides (`— X —`), negative parallelism ("it's not X, it's Y" / "not just X, but Y"), and triadic rhythm all read as AI-flavored when overused. Vale flags the first two at `suggestion` (via `Slop.Density` and `Slop.Parallelism`). Triadic rhythm is review-by-eye. A single instance is fine; clusters are not.
 
 **Before opening a PR with a new post:** run `make prose`. First-time setup: `brew install vale && make vale-sync`.
+
+**Story over completeness.** A post that passes every vocabulary rule can still read as a schematic list of facts. Tell it as something we do together, introduce and explain every code block, link sources inline, and move true-but-distracting detail to a backup document. The story playbook above has the details.
+
+**Drafting gotchas** (all hit while writing a long post):
+
+- A markdownlint auto-fix (MD010) can turn tabs in code blocks into spaces after an edit. Restore tabs as the last step and check the staged blob: `git show :<path> | grep -c $'\t'`.
+- A footnote definition that starts with a link (`[^x]: [text](url)`) makes `layouts/partials/functions/link-index.html` fail the build. Start footnotes with a plain word.
+- The site has no Mermaid support; ship diagrams as images in `static/uploads/`.
+- `lychee` needs `--root-dir "$PWD/static"` for `/uploads/` links, and GitHub blob pages sometimes answer 503; confirm those with `gh api`.
+- macOS ships GNU Make 3.81, which can't parse this Makefile; use `gmake`.
+- `hugo server -D -F` previews drafts and future-dated posts.
 
 ## AI Provenance
 

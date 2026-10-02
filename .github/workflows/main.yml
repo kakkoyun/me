@@ -20,7 +20,8 @@ jobs:
           readme_path: 'content/notes/_index.md'
           comment_tag_name: "NOTE-LIST"
           feed_list: "https://kakkoyun.me/notes/rss.xml"
-          max_post_count: 5
+          # 3, not 5: matches the compact Recent Notes column on the homepage.
+          max_post_count: 3
           remove_duplicates: true
           disable_sort: true
           sort_order: 'desc'
