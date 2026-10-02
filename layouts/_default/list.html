@@ -105,9 +105,7 @@
 <hr class="home-divider"/>
 
 {{- if and .IsHome (eq $paginator.PageNumber 1) }}
-{{- /* Curated reading paths; content and toggle live in site.Params.startHere.
-      The partial emits its own trailing divider so that disabling the section
-      (startHere.enabled: false) leaves exactly one rule, not two. */ -}}
+{{- /* Curated reading paths; content and toggle live in site.Params.startHere. */ -}}
 {{- partial "start-here.html" . }}
 
 <header class="page-header">
