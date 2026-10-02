@@ -140,12 +140,9 @@
     height: 2rem;
   }
 
-  .start-here-prev {
-    transform: translate(0, -50%);
-  }
-
+  .start-here-prev,
   .start-here-next {
-    transform: translate(0, -50%);
+    transform: translateY(-50%);
   }
 
   .start-here-card {

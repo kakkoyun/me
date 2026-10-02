@@ -80,12 +80,12 @@
       </svg>
     </button>
   </div>
-  <div class="start-here-dots" hidden>
+  <div class="start-here-dots">
     {{- range $i, $group := $sh.groups }}
     {{- if eq $i 0 }}
-    <button class="start-here-dot" type="button" aria-label="Show the {{ $group.title }} path" aria-current="true"></button>
+    <button class="start-here-dot" type="button" aria-label="Show the {{ $group.title }} path" aria-current="true" hidden></button>
     {{- else }}
-    <button class="start-here-dot" type="button" aria-label="Show the {{ $group.title }} path"></button>
+    <button class="start-here-dot" type="button" aria-label="Show the {{ $group.title }} path" hidden></button>
     {{- end }}
     {{- end }}
   </div>
@@ -98,13 +98,10 @@
 <hr class="home-divider"/>
 <script>
 (() => {
-  const sec = document.querySelector('.start-here');
   const c = document.querySelector('.start-here-carousel');
-  if (!sec || !c) return;
   const dots = Array.from(document.querySelectorAll('.start-here-dot'));
-  const arrows = { prev: document.querySelector('.start-here-prev'), next: document.querySelector('.start-here-next') };
   const n = dots.length;
-  if (!n) return;
+  if (!c || !n) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   let auto = false, hovering = false, focused = false, paused = false, idleTimer;
   const index = () => Math.round(c.scrollLeft / c.clientWidth);
@@ -124,22 +121,17 @@
     paused = true;
   };
   const show = (i) => { go(i); pause(); };
-  dots.forEach((d) => { d.hidden = false; });
-  if (arrows.prev && arrows.next) {
-    arrows.prev.hidden = false;
-    arrows.next.hidden = false;
-    arrows.prev.addEventListener('click', () => show((index() + n - 1) % n));
-    arrows.next.addEventListener('click', () => show((index() + 1) % n));
-  }
-  const dotRow = document.querySelector('.start-here-dots');
-  if (dotRow) dotRow.hidden = false;
+  /* Reveal every control at once; they all hide until the script boots. */
+  document.querySelectorAll('.start-here-arrow, .start-here-dot').forEach((el) => { el.hidden = false; });
+  document.querySelector('.start-here-prev').addEventListener('click', () => show((index() + n - 1) % n));
+  document.querySelector('.start-here-next').addEventListener('click', () => show((index() + 1) % n));
   c.addEventListener('scroll', () => { sync(); if (!auto) pause(); }, { passive: true });
   c.addEventListener('pointerenter', () => { hovering = true; });
   c.addEventListener('pointerleave', () => { hovering = false; });
   c.addEventListener('focusin', () => { focused = true; });
   c.addEventListener('focusout', () => { focused = false; });
   dots.forEach((d, k) => d.addEventListener('click', () => show(k)));
-  sec.addEventListener('keydown', (e) => {
+  document.querySelector('.start-here').addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
     show((index() + (e.key === 'ArrowRight' ? 1 : n - 1)) % n);
