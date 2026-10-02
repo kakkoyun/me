@@ -75,6 +75,9 @@ I work at Datadog and help maintain otelc, so keep that in mind for the last
 part, and feel free to roll your eyes at the appropriate moment. All the code we'll write lives in a
 [companion repository](https://github.com/kakkoyun/hooking-into-the-go-toolchain).
 
+_For the sake of simplicity, everything below was run on macOS with Go 1.27.1. Your
+numbers will differ, and that's half the fun :)_
+
 ## What `go build` actually runs
 
 We can get in front of every step of the build. Great! But what are those
@@ -416,8 +419,9 @@ next two experiments run into.
 
 Our app already imported `fmt`, `os` and `time`, so the code we inserted only
 used packages the compiler knew about. Let's get more ambitious and log with
-`log/slog`, which our app never imports. With `TOYHOOK_MODE=slog`, `toyhook`
-adds the import and the call, and the compiler says:
+`log/slog`, which our app never imports. Adding one import sounds simple
+enough, right? Well, with `TOYHOOK_MODE=slog`, `toyhook` adds the import and the
+call, and the compiler says:
 
 ```text
 $WORK/b001/main.go:3:8: could not import log/slog (open : no such file or directory)
@@ -483,7 +487,7 @@ Here's the problem: package `os` can't import `hooks`. `hooks` imports `fmt`,
 `fmt` imports `os`, and Go doesn't allow import cycles. No amount of
 `importcfg` patching gets us around that.
 
-The way out is `//go:linkname`. It's a
+The way out is a bit of sorcery called `//go:linkname`. It's a
 [compiler directive](https://github.com/golang/go/blob/go1.27.1/src/cmd/compile/doc.go#L268-L300)
 that tells the compiler "this name refers to a symbol defined somewhere else",
 and leaves it to the linker to connect the two. That's our way in. With
