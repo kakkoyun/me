@@ -265,7 +265,25 @@ Now that we're sitting between the `go` command and the compiler, we can do
 more than watch. The compiler gets its source files as arguments, and we see
 those arguments first. What if we handed it different files?
 
-That's what our second toy wrapper, `toyhook`, does. It looks for functions
+Changing Go source from a program sounds scary, but Go makes it surprisingly
+friendly. The compiler has its own parser, the one Jesús takes apart in his
+[parser post](https://internals-for-interns.com/posts/the-go-parser/), but the
+standard library ships a second set of packages just for tools:
+[`go/token`](https://pkg.go.dev/go/token) keeps track of positions,
+[`go/parser`](https://pkg.go.dev/go/parser) turns source into a syntax tree,
+[`go/ast`](https://pkg.go.dev/go/ast) describes every node in that tree, and
+[`go/printer`](https://pkg.go.dev/go/printer) and
+[`go/format`](https://pkg.go.dev/go/format) turn a tree back into code. These are
+the packages
+[`gofmt` is built on](https://github.com/golang/go/blob/go1.27.1/src/cmd/gofmt/gofmt.go#L12-L16),
+and `go vet`'s checks run on them through the
+[analysis framework](https://pkg.go.dev/golang.org/x/tools/go/analysis) that
+most Go linters use. If you've ever written a linter, you've already done the
+first half of what we need: find the code you care about. As Jesús puts it at
+the end of his post, many Go developers use `go/ast`
+["to parse Go code programmatically and build powerful tools"](https://internals-for-interns.com/posts/the-go-parser/#using-the-ast-in-your-own-code).
+
+That's exactly what our second toy wrapper, `toyhook`, does. It looks for functions
 marked with a `//demo:log` comment, like this one in our app:
 
 ```go
@@ -275,9 +293,66 @@ func countLines(path string) int {
 	...
 ```
 
-When the compile for our package comes through, `toyhook` parses each `.go`
-file with `go/parser`, finds the marked functions, and inserts a log statement
-right after each opening brace. It writes the result into the action's own
+Finding them takes the same three steps every linter starts with: parse the
+file, walk the tree, and check each node. Trimmed down a little, the heart of
+`toyhook` looks like this:
+
+```go
+fset := token.NewFileSet()
+file, err := parser.ParseFile(fset, abs, src, parser.ParseComments)
+if err != nil {
+	return nil, 0, err
+}
+
+for _, decl := range file.Decls {
+	fn, ok := decl.(*ast.FuncDecl)
+	if !ok || fn.Body == nil || !hasDirective(fn) {
+		continue
+	}
+	lbrace := fset.Position(fn.Body.Lbrace)
+	// ... insert our statement right after lbrace.Offset ...
+}
+```
+
+`parser.ParseFile` reads the file into an `*ast.File`, and `ParseComments`
+asks it to keep the comments, which we need because our marker is one. Then we
+loop over the file's top-level declarations, keep the functions, and
+`hasDirective` checks each function's doc comment for `//demo:log`. The
+`token.FileSet` is what turns a node back into a file, line and byte offset, so
+`lbrace` tells us exactly where the function's opening brace is.
+
+Now we need to add our log statement. The textbook way is to build it as more
+tree: every call, identifier and literal becomes a struct, and we splice them
+into the function body. It works, but it's wordy. Here's just `start :=
+time.Now()` as AST nodes, from the
+[injector I wrote for a talk](https://github.com/kakkoyun/otel-night-berlin-2026/blob/65fc5bb0559331235704dc5707e165175f8c28a2/demo/toolchain/cmd/loginjector/main.go#L113-L124):
+
+```go
+startDecl := &ast.AssignStmt{
+	Lhs: []ast.Expr{ast.NewIdent("start")},
+	Tok: token.DEFINE,
+	Rhs: []ast.Expr{
+		&ast.CallExpr{
+			Fun: &ast.SelectorExpr{
+				X:   ast.NewIdent("time"),
+				Sel: ast.NewIdent("Now"),
+			},
+		},
+	},
+}
+```
+
+That injector ended up at 306 lines for two log statements. Printing the tree
+back out has a catch too: as the [dst README](https://github.com/dave/dst#readme)
+explains, `go/ast` comments "are stored by their byte offset instead of attached
+to nodes, so re-arranging nodes breaks the output". That's why serious tools
+like otelc rewrite with dst, which keeps comments attached to the nodes they
+belong to.
+
+Our toy takes a shortcut. It uses the tree only to find where each marked
+function's body starts, and inserts the new statement as plain text right after
+that brace, so every byte we didn't touch stays where it was. When the compile
+for our package comes through, `toyhook` writes the result into the action's own
 `$WORK` directory, which it finds from the compiler's `-o` flag, swaps the new
 file into the argument list, and runs the real compiler. Let's build it and use
 it the same way as the stopwatch:
@@ -321,12 +396,6 @@ stack traces after our insertion still point at `app/main.go:24`, and not at a
 temporary file that's long gone by the time anyone reads the error. Without it,
 every line below our insertion would be off by one, which is a great way to
 make people distrust instrumentation.
-
-Notice also that `toyhook` edits bytes at the offsets `go/parser` reports
-instead of printing a new syntax tree, so nothing we didn't touch moves. (If
-you're wondering what that parser does, Jesús's
-[parser post](https://internals-for-interns.com/posts/the-go-parser/) has you
-covered.)
 
 The wrapper is called for every package in the build, but it only rewrites
 one; for the other 58 compiles it gets out of the way and runs the compiler
@@ -707,7 +776,7 @@ make step7         # otelc on the HTTP server
 
 Each target uses its own build cache and output path, so your real build cache
 stays clean (otelc's modules still land in your module cache). You'll need Go
-1.25 or newer, and `jq`, `curl` and `python3` for the otelc step.
+1.25 or newer.
 
 The quickest experiment, though, is still the one we started with. Point a stopwatch
 at a project you work on, sort the log by milliseconds, and see which package
