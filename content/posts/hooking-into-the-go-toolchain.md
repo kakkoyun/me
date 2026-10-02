@@ -23,7 +23,8 @@ substack: false
 Today we're going to take a look at the Go toolchain, and more specifically at
 how we can take part in the compilation process with our own code. We won't
 patch the compiler. We'll stand right next to it while it works, watch what it
-does, and every now and then hand it something it didn't ask for.
+does, and every now and then hand it something it didn't ask for. Think of it
+as photobombing the compiler, politely. 📸
 
 The way in is a single flag, and the cheapest experiment I know looks like this:
 
@@ -42,7 +43,8 @@ Each of those little `real user sys` receipts is one program the `go` command
 ran on our behalf. For this small program there are 108 of them: 59 compiler
 runs, 48 assembler runs and one linker run. `-toolexec` tells `go build` to run
 each of those programs through a program we pick, and here we picked
-`/usr/bin/time`, which makes it a stopwatch.
+`/usr/bin/time`, which makes it a stopwatch. A chatty stopwatch, but a
+stopwatch. ⏱️
 
 Timing wasn't the plan, though. Russ Cox
 [added the flag in January 2015](https://github.com/golang/go/commit/83c10b204d619d18100716c9588404200acdf6e0)
@@ -70,7 +72,7 @@ Thanks to Jesús for inviting me. His
 explains what the compiler does with our code; today is about how we get
 between the `go` command and the compiler in the first place. Full disclosure:
 I work at Datadog and help maintain otelc, so keep that in mind for the last
-part. All the code we'll write lives in a
+part, and feel free to roll your eyes at the appropriate moment. All the code we'll write lives in a
 [companion repository](https://github.com/kakkoyun/hooking-into-the-go-toolchain).
 
 ## What `go build` actually runs
@@ -92,6 +94,7 @@ $GOROOT/pkg/tool/darwin_arm64/link -o $WORK/b001/exe/a.out \
 ```
 
 That's almost 800 lines for our little program, so I've kept just two of them.
+You're welcome.
 The first compiles our `main` package. The compiler gets the package path
 (`-p main`), the list of `.go` files at the end, and a file passed with
 `-importcfg`. The second line, the last step of the build, links everything
@@ -123,7 +126,8 @@ in this file, it doesn't exist. (If you're curious what's inside those
 archives, Jesús's post on the
 [unified IR format](https://internals-for-interns.com/posts/go-compiler-unified-ir/)
 opens one up.) The linker gets a similar file listing every package in the
-program. Keep the `importcfg` in mind, because it's going to bite us later.
+program. Keep the `importcfg` in mind, because it's going to bite us later. (Yes, that's
+foreshadowing. 👀)
 
 Most of the other lines in that log are the `go` command doing things itself,
 like writing those files, creating directories or copying archives around. The
@@ -200,7 +204,8 @@ link              1          1
    195  math
 ```
 
-No surprise that `runtime` is the slowest package to compile. (Don't add the
+No surprise that `runtime` is the slowest package to compile; it has the
+hardest job in the building. (Don't add the
 milliseconds up and call it the build time, though: the tools ran in parallel,
 so their sum is larger than the time we actually waited.)
 
@@ -212,7 +217,8 @@ anything, the `go` command ran each tool once with a single argument,
 compile | - | 8 | -V=full
 ```
 
-That's the `go` command asking each tool "who are you?". The compiler answers
+That's the `go` command asking each tool "who are you?". A tiny identity
+crisis, once per tool, every single build. The compiler answers
 `compile version go1.27.1`, and that answer becomes the tool's ID. The ID ends
 up in the cache key of every package the tool compiles. That key, the action
 ID, is a hash of the package's source files, its flags, the tool ID and what
@@ -233,7 +239,7 @@ ours anymore. During that `-V=full` question, stdout *is* the answer. Since Go
 [ignores whatever a tool prints to stderr](https://github.com/golang/go/issues/22588)
 while answering, as long as stdout has the right line, but stdout gets no such
 pass. If our stopwatch says hello on stdout before running the tool, the build
-stops right there:
+stops right there. Rude, but fair:
 
 ```text
 go: parsing buildID from go tool compile -V=full: unexpected output:
@@ -256,7 +262,8 @@ link | - | 5 | -V=full
 ```
 
 Three questions and nothing else. Every package came straight from the cache,
-so no tool ran and our stopwatch had nothing to time. A `-toolexec` wrapper only
+so no tool ran and our stopwatch had nothing to time. Best build ever,
+terrible demo. 🤷 A `-toolexec` wrapper only
 sees what the cache lets through. Hold on to that thought; it'll come back.
 
 ## Rewriting code before the compiler sees it
@@ -265,8 +272,8 @@ Now that we're sitting between the `go` command and the compiler, we can do
 more than watch. The compiler gets its source files as arguments, and we see
 those arguments first. What if we handed it different files?
 
-Changing Go source from a program sounds scary, but Go makes it surprisingly
-friendly. The compiler has its own parser, the one Jesús takes apart in his
+Changing Go source from a program sounds like something you'd only do on a
+dare, but Go makes it surprisingly friendly. The compiler has its own parser, the one Jesús takes apart in his
 [parser post](https://internals-for-interns.com/posts/the-go-parser/), but the
 standard library ships a second set of packages just for tools:
 [`go/token`](https://pkg.go.dev/go/token) keeps track of positions,
@@ -323,7 +330,8 @@ loop over the file's top-level declarations, keep the functions, and
 
 Now we need to add our log statement. The textbook way is to build it as more
 tree: every call, identifier and literal becomes a struct, and we splice them
-into the function body. It works, but it's wordy. Here's just `start :=
+into the function body. It works, but it's wordy, in the way tax forms are
+wordy. Here's just `start :=
 time.Now()` as AST nodes, from the
 [injector I wrote for a talk](https://github.com/kakkoyun/otel-night-berlin-2026/blob/65fc5bb0559331235704dc5707e165175f8c28a2/demo/toolchain/cmd/loginjector/main.go#L113-L124):
 
@@ -342,7 +350,8 @@ startDecl := &ast.AssignStmt{
 }
 ```
 
-That injector ended up at 306 lines for two log statements. Printing the tree
+That injector ended up at 306 lines for two log statements. Two. Log.
+Statements. 😩 Printing the tree
 back out has a catch too: as the [dst README](https://github.com/dave/dst#readme)
 explains, `go/ast` comments "are stored by their byte offset instead of attached
 to nodes, so re-arranging nodes breaks the output". That's why serious tools
@@ -416,7 +425,8 @@ $WORK/b001/main.go:3:8: could not import log/slog (open : no such file or direct
 
 Remember the `importcfg`? The `go` command wrote it from the imports in the
 *original* file, before it ever called us. The compiler looks up `log/slog` in
-that file, finds nothing, and tries to open an empty path.
+that file, finds nothing, and tries to open an empty path. Told you it would
+bite.
 
 Every tool that adds imports hits this wall. Julio Guerra
 [asked about it in 2019](https://github.com/golang/go/issues/35204), and Ian
@@ -453,7 +463,7 @@ done in 2ms
 One thing to be careful about: that `go list` call runs in the middle of our
 build. If it inherits our `-toolexec`, through `GOFLAGS` for example, it goes
 through our wrapper too, and a wrapper that runs `go list` again from there
-calls itself forever. `toyhook` clears `GOFLAGS` before calling it.
+calls itself forever, which is a fun way to heat up your laptop. 🔥 `toyhook` clears `GOFLAGS` before calling it.
 
 ## Calling code you are not allowed to import
 
@@ -509,7 +519,8 @@ go.mod has 3 lines
 done in 0s
 ```
 
-The standard library just called into our module without importing it. A
+The standard library just called into our module without importing it. Don't
+tell anyone. 🤫 A
 couple of things had to go right for that. First, `os` had to be compiled again,
 since standard library packages come from the cache like everything else, so
 we build with `-a`. Second, `hooks` had to end up in the binary at all.
@@ -572,7 +583,8 @@ $ go build -o /tmp/other ./other && /tmp/other
 hello, other
 ```
 
-`other` was never built with `-toolexec`, and it's instrumented anyway. Both
+`other` was never built with `-toolexec`, and it's instrumented anyway.
+Spooky action at a distance, build cache edition. 👻 Both
 builds computed the same cache key for `greet`, from the same sources, the same
 flags and the same tool ID, so the plain build happily reused our rewritten
 version. Build them in the opposite order and it's just as wrong, the other way
@@ -642,7 +654,8 @@ GET /world   server  trace f6411a6c…  span edab8b01…  parent 6db51783…
 ```
 
 The incoming `/hello` request, the outgoing call to `/world`, and `/world`
-itself, each pointing at its parent. Nobody wrote a line of tracing code. otelc
+itself, each pointing at its parent. Nobody wrote a line of tracing code, and
+nobody had to sit through a meeting about it either. otelc
 keeps its `$WORK` directory around, so we can open it and see what it did to
 `net/http`:
 
@@ -725,7 +738,8 @@ My favourite rules reach into the runtime itself. One adds two fields to the
 runtime's goroutine struct, and another copies them every time a new goroutine
 starts. That way the trace context follows `go` statements even when nobody
 passes a `context.Context` along. Two small fields in a struct we were never
-meant to touch, all from a wrapper sitting in front of the compiler.
+meant to touch, all from a wrapper sitting in front of the compiler. Purists,
+look away. 🙈
 
 ## Back to the stopwatch
 
@@ -739,7 +753,8 @@ otelc --stats:        real 18.16 s
 ```
 
 It's one run on one machine, so take the exact numbers with a pinch of salt;
-the stopwatch run even came out faster than the plain one. Starting an extra
+the stopwatch run even came out faster than the plain one. Instrumentation
+that speeds up your build: I'll take it, but I won't put it on a slide. Starting an extra
 process for every tool call is cheap next to running a compiler, so a wrapper
 costs us almost nothing.
 
@@ -778,7 +793,15 @@ Each target uses its own build cache and output path, so your real build cache
 stays clean (otelc's modules still land in your module cache). You'll need Go
 1.25 or newer.
 
-The quickest experiment, though, is still the one we started with. Point a stopwatch
-at a project you work on, sort the log by milliseconds, and see which package
-you've been waiting for all along. Then ask yourself what else you'd do, now
-that you know you can stand right there, next to the compiler.
+The quickest experiment, though, is still the one we started with. Point a
+stopwatch at a project you work on, sort the log by milliseconds, and see which
+package you've been waiting for all along.
+
+And then go further. You now know where the compiler gets its files and how to
+hand it different ones. You know how to sneak packages into the `importcfg`,
+how to make the standard library call your code, and how to keep the build
+cache honest. That's the whole toolkit behind garble, Orchestrion and otelc.
+Rewriting source like this isn't something the Go team signed up to support,
+but nobody took the flag away either. Go hack your toolchain. 🛠️ Build
+something awesome, something weird, something that makes your colleagues ask
+"wait, how?". Just remember to change your `-V=full` answer. 🚀
