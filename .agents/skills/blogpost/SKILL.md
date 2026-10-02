@@ -21,7 +21,12 @@ Captures a topic or idea and scaffolds a complete Hugo blog post draft with fron
    Parse `$ARGUMENTS` for the blog post topic. If not provided, ask the user:
    > What topic or idea would you like to turn into a blog post?
 
-   Clarify the angle, audience, and scope if the topic is broad.
+   Clarify the angle, audience, and scope if the topic is broad. Then read
+   `.agents/skills/kemal-voice/references/story-playbook.md` and agree on two
+   things with the user before outlining: the **running thread** (one object,
+   character or question carried through the whole post) and the **opening
+   experiment** (the cheapest concrete thing a reader could run or see).
+   For a guest post, ask for the host's conventions too.
 
 2. **Search for related Obsidian notes** (optional)
    Check if the `obsidian-cli` skill is available. If so, use it to search the notes vault for content related to the topic:
@@ -66,31 +71,44 @@ Captures a topic or idea and scaffolds a complete Hugo blog post draft with fron
 
    Present a summary of the file to be created (path, title, tags, categories) and ask the user to confirm before writing the file.
 
-5. **Generate an outline**
-   Based on the topic and any gathered Obsidian context, generate a structured outline:
+5. **Generate a story outline**
+   Based on the topic, the running thread and any gathered Obsidian context,
+   outline the post as a story, not as a list of topics. For `deep-dive` and
+   `engineering` posts use this arc (other categories use the subset in the
+   playbook's "Shape by category" table):
 
    ```markdown
-   ## Introduction
-   <!-- Hook and context -->
+   <!-- No heading: open with prose. What we'll do together, then the opening experiment and its real output. -->
+   <!-- Why it matters / short history, with inline links and named credits. -->
+   <!-- Journey promise in 3-4 sentences, naming the running thread. -->
+   <!-- Thanks / disclosure / one pointer to the code. -->
 
-   ## Section 1
-   <!-- Key point -->
+   ## <Step 1: the first thing we look at>
+   <!-- Opens from the previous section. Plant something for later. -->
 
-   ## Section 2
-   <!-- Key point -->
+   ## <Step 2: one step harder>
+   <!-- Each section is one rung up the ladder. -->
 
-   ## Conclusion
-   <!-- Summary and call to action -->
+   ## <The real tool / the real-world version>
+   <!-- "Everything our toy does, badly, X does for real." -->
+
+   ## <Back to the running thread>
+   <!-- Pay off what was planted. -->
+
+   ## Try it yourself
+   <!-- What to run, then a short crescendo. No summary. -->
    ```
 
-   Ask the user if they want to adjust the outline before proceeding.
+   Section titles describe what happens in the story ("The cache will lie to
+   you"), not the topic ("Caching"). Ask the user if they want to adjust the
+   outline before proceeding.
 
 6. **Flesh out sections** (optional)
    Ask the user if they want to flesh out sections now. If yes:
    - Use web search to gather current information if the topic requires it
    - Draft each section based on the outline and any Obsidian notes
    - Include code snippets where relevant
-   - Keep the tone consistent with existing posts (direct, technical, opinionated)
+   - Follow `.agents/skills/kemal-voice/SKILL.md` and the story playbook: "we" for the journey, every code block introduced and explained, sources linked inline, a few whimsical asides
 
    If no, leave the outline with placeholder comments for each section.
 
@@ -117,5 +135,7 @@ Captures a topic or idea and scaffolds a complete Hugo blog post draft with fron
 - Starting to write without a clear thesis or angle — always nail down the angle in step 1
 - Including too many topics in a single post — if the outline has more than 4-5 sections, suggest splitting into a series
 - Skipping the outline step and jumping straight to prose — the outline is the skeleton that prevents rambling
+- Outlining topics instead of a story — "Introduction / Section 1 / Conclusion" produces a schematic post; outline the steps of the journey and the running thread instead
+- Starting the post with a heading — open with prose
 - Using generic tags that do not aid discoverability — tags should be specific technologies or concepts
 - Forgetting to set `draft: true` — never publish directly from this workflow
