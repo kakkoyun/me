@@ -233,20 +233,17 @@ params:
     - talks
   tocOpen: false
   showToc: false
-  # Homepage "Most Recent Issues" / "Recent Notes" blocks. Both are
-  # optional: set either to false and list.html drops the whole column.
+  # The "Most Recent Issues" / "Recent Notes" columns; either set to
+  # false drops that whole column from the homepage.
   showRecentNotes: true
   showRecentNewsletters: true
   recentNewslettersCount: 3
 
-  # Homepage "Start Here" section, rendered by partials/start-here.html from
-  # this block. Set enabled: false to remove the section entirely. Each group
-  # is a card: `posts` lists permalinks (a full https:// URL also works, for
-  # guest posts on other blogs), `moreUrl` should point at an existing topic
-  # page (tag or category), and `pathUrl` at the matching /start-here/ anchor.
-  # Keep the groups in sync with the sections on content/start-here.md, and
-  # order each card's posts by 12-month Plausible visitors (refresh procedure:
-  # CLAUDE.md, "Homepage Curation").
+  # Homepage "Start Here" cards, rendered by partials/start-here.html.
+  # enabled: false removes the section. Each group is a card: `posts` lists
+  # permalinks (a {title, url} map entry links out, e.g. a guest post),
+  # `moreUrl` points at an existing topic page, `pathUrl` at the matching
+  # /start-here/ anchor. Curation rules: CLAUDE.md, "Homepage Curation".
   startHere:
     enabled: true
     intro: "New here? Three paths through the archive. Pick the one that

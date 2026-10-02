@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Hugo static site (personal blog) using PaperMod theme, deployed to Netlify. Published at https://kakkoyun.me. Hugo version is pinned in `.hugo-version` and mirrored in `netlify.toml`.
+Hugo static site (personal blog) using PaperMod theme, deployed to Netlify. Published at <https://kakkoyun.me>. Hugo version is pinned in `.hugo-version` and mirrored in `netlify.toml`.
 
 ## Build Commands
 
@@ -101,12 +101,15 @@ thing as "green in CI".
 - `layouts/partials/page-links.html` -- "Links to / Linked from" nav on posts/talks/newsletter singles, fed by the link index
 - `layouts/_default/graph.html` + `layouts/_default/graph.json.json` -- `/graph/` content-graph page and its JSON endpoint (`/graph/index.json`); rendering via dependency-free canvas force sim in `assets/js/graph.js` (~5.5 KB minified, loads only on that page; wheel/pinch zoom, background-drag pan, keyboard-accessible view controls)
 - `layouts/robots.txt` -- Explicitly welcomes AI crawlers, references llms.txt
-- `layouts/partials/start-here.html` -- Homepage "Start Here" cards (Go, eBPF, agentic engineering), rendered from `params.startHere` in `config.yaml`. Internal post paths resolve via `site.GetPage` and fail the build when stale; a `{title, url}` map entry is the escape hatch for external links (guest posts on other blogs). See Homepage Curation below
+- `layouts/partials/start-here.html` -- Homepage "Start Here" cards (Go, eBPF, agentic engineering), driven by `params.startHere` in `config.yaml`; see Homepage Curation below
 
 ### Homepage Curation
 
 The homepage's three reading-path cards are driven by `params.startHere` in
-`config.yaml` and rendered by `layouts/partials/start-here.html`. Two rules:
+`config.yaml` and rendered by `layouts/partials/start-here.html`. Internal
+post paths resolve via `site.GetPage` and fail the build when stale; a
+`{title, url}` map entry links externally (guest posts on other blogs).
+Two rules:
 
 - `content/start-here.md` is **additive-only**: keep its existing sections, append
   new ones. Every card's `pathUrl` anchor must match a heading on that page
@@ -176,7 +179,7 @@ substack: false               # optional; exclude from the Substack syndication 
 Each category has a distinct purpose, tone, and structure:
 
 | Category | Purpose | Tone | Structure |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `journal` | Conference recaps, event field notes, personal updates | Informal narrative | Intro → sections by day/topic → reflections |
 | `deep-dive` | Long-form technical analysis (often cross-posted) | Technical, explanatory | Problem statement → technical walkthrough → conclusion |
 | `reflection` | Career/personal essays, lessons learned | Introspective, narrative | Context/motivation → numbered lessons or reflections → takeaways |
