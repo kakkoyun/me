@@ -3,7 +3,6 @@ title: "The Unwind #2: Twenty weeks"
 description: "The first issue promised roughly once a week. It has been twenty. Here's where the time went."
 date: 2026-10-02T00:00:00Z
 publishDate: 2026-10-02T00:00:00Z
-draft: true
 ---
 
 Issue #1 promised "roughly once a week." It has been twenty weeks
