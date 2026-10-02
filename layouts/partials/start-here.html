@@ -1,0 +1,62 @@
+{{- /*
+  "Start Here" homepage cards: three curated reading paths, driven by
+  site.Params.startHere (config.yaml documents the config shape).
+
+  `posts` entries are permalinks resolved via site.GetPage, so card titles
+  never drift from the pages themselves; a {title, url} map entry is the
+  escape hatch for external links (guest posts on other blogs). A path that
+  does not resolve fails the build rather than silently dropping an item.
+  Self-guards when startHere.enabled is false.
+*/ -}}
+{{- $sh := site.Params.startHere -}}
+{{- if $sh.enabled -}}
+<section class="start-here">
+  <header class="page-header">
+    <h2>Start Here</h2>
+  </header>
+  {{- with $sh.intro }}
+  <p class="start-here-intro">{{ . }}</p>
+  {{- end }}
+  <div class="start-here-grid">
+    {{- range $sh.groups }}
+    {{- $group := . -}}
+    <section class="start-here-card">
+      <h3 class="start-here-card-title">{{ .title }}</h3>
+      {{- with .tagline }}
+      <p class="start-here-card-tagline">{{ . }}</p>
+      {{- end }}
+      <ul class="start-here-card-posts">
+        {{- range .posts }}
+        {{- if reflect.IsMap . -}}
+        {{- if strings.HasPrefix .url "http" }}
+        <li><a href="{{ .url }}" rel="noopener">{{ .title }}</a></li>
+        {{- else }}
+        <li><a href="{{ .url }}">{{ .title }}</a></li>
+        {{- end -}}
+        {{- else -}}
+        {{- with site.GetPage . }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{- else -}}
+        {{- errorf "startHere: no page found for %q in the %q card (check config.yaml)" . $group.title -}}
+        {{- end -}}
+        {{- end -}}
+        {{- end }}
+      </ul>
+      <footer class="start-here-card-links">
+        {{- with $group.pathUrl }}
+        <a href="{{ . }}">Reading path</a>
+        {{- end -}}
+        {{- if and $group.pathUrl $group.moreUrl }} · {{ end -}}
+        {{- with $group.moreUrl }}
+        <a href="{{ . }}">{{ $group.moreLabel | default "All posts" }}</a>
+        {{- end }}
+      </footer>
+    </section>
+    {{- end }}
+  </div>
+  <p class="start-here-cta">
+    If any of these land, the <a href="/newsletter/">newsletter</a> brings the
+    next ones to your inbox.
+  </p>
+</section>
+{{- end -}}

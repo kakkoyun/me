@@ -233,9 +233,52 @@ params:
     - talks
   tocOpen: false
   showToc: false
+  # Homepage "Most Recent Issues" / "Recent Notes" blocks. Both are
+  # optional: set either to false and list.html drops the whole column.
   showRecentNotes: true
   showRecentNewsletters: true
-  recentNewslettersCount: 5
+  recentNewslettersCount: 3
+
+  # Homepage "Start Here" section, rendered by partials/start-here.html from
+  # this block. Set enabled: false to remove the section entirely. Each group
+  # is a card: `posts` lists permalinks (a full https:// URL also works, for
+  # guest posts on other blogs), `moreUrl` should point at an existing topic
+  # page (tag or category), and `pathUrl` at the matching /start-here/ anchor.
+  # Keep the three groups in sync with the sections on content/start-here.md.
+  startHere:
+    enabled: true
+    intro: "New here? Three paths through the archive. Pick the one that
+      matches whatever dragged you in."
+    groups:
+      - title: Go
+        tagline: Making Go fast, and proving it with numbers.
+        posts:
+          - /posts/fosdem-2026-measuring-software-performance/
+          - /posts/fosdem-2026-auto-instrumenting-go/
+          - /posts/goproxy-fallback-behind-vpn/
+          - /posts/making-drone-builds-10-times-faster/
+        moreUrl: /tags/go/
+        moreLabel: All Go posts
+        pathUrl: /start-here/#go-and-performance
+      - title: eBPF
+        tagline: Telemetry out of programs that were never asked politely.
+        posts:
+          - /posts/profiling-python-with-ebpf/
+          - /posts/profiling-python-and-ruby-using-ebpf/
+          - /posts/ice-and-fire/
+          - /posts/fantastic-symbols-and-where-to-find-them/
+        moreUrl: /tags/ebpf/
+        moreLabel: All eBPF posts
+        pathUrl: /start-here/#ebpf-profiling-and-symbolization
+      - title: Agentic Engineering
+        tagline: AI-assisted tooling and the engineering craft around it.
+        posts:
+          - /posts/2024-03-21-vibe-coding-with-cursor/
+          - /posts/stop-putting-api-keys-in-shell-config/
+          - /posts/hustle-culture-startup-lessons/
+        moreUrl: /tags/ai/
+        moreLabel: All AI posts
+        pathUrl: /start-here/#agentic-and-software-engineering
   showShareButtons: true
   shareButtons:
     - bluesky
@@ -276,7 +319,10 @@ params:
     - name: "Mastodon"
       url: "https://hachyderm.io/@kakkoyun"
     - name: "YouTube"
-      url: "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
+      # Backslash at end of line = zero-space YAML line continuation;
+      # the URL parses back to a single unbroken 71-char string.
+      url: "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDA\
+        EgTo5r9OnB"
     - name: "Medium"
       url: "https://medium.com/@kakkoyun/"
     - name: "stackoverflow"
@@ -300,7 +346,10 @@ params:
     publications:
       - slug: the-unwind
         name: "The Unwind"
-        description: "A roughly-weekly dispatch of links and notes from what I've read and built lately. Hand-curated, mixed signal."
+        # Multi-line double-quoted scalar folds to a single space at each
+        # break, so the parsed value is unchanged from the old one-liner.
+        description: "A roughly-weekly dispatch of links and notes from
+          what I've read and built lately. Hand-curated, mixed signal."
         campaignId: "b350b0eb-605b-469c-8c49-8f0f33b1e78c"
   assets:
     favicon: "img/favicon.ico"

@@ -1,0 +1,110 @@
+/* "Start Here" homepage cards.
+   Three curated reading-path cards (Go, eBPF, agentic engineering),
+   rendered by layouts/partials/start-here.html from site.Params.startHere
+   (config.yaml). Placed between the compacted Recent Issues / Recent Notes
+   columns and the Recent Posts list.
+
+   Design notes:
+   - Cards borrow PaperMod's post-entry vocabulary (var(--entry) bg,
+     var(--border), var(--radius), hover lift) so they read as "entries"
+     while the de-boxed post list below (see reading.css) stays a clean
+     divided list. Prominence comes from being the only bordered things
+     in the reading flow.
+   - Every link is underlined with a non-colour distinction, matching
+     .recent-issues-container in newsletter.css — Lighthouse's
+     link-in-text-block audit fails on colour-only links.
+   - No JS, no images. The site keeps a minimal JS footprint.
+*/
+
+.start-here .page-header {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.start-here-intro {
+  margin: 0 0 1rem;
+  font-style: italic;
+  color: var(--secondary);
+}
+
+.start-here-grid {
+  display: grid;
+  /* Fluid columns, no breakpoints: 3 across at the 672px measure,
+     2 on small tablets, 1 on phones. */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.start-here-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1rem 0.75rem;
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.start-here-card:hover,
+.start-here-card:focus-within {
+  transform: translateY(-2px);
+  border-color: var(--tertiary);
+}
+
+.start-here-card-title {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 1.2rem;
+}
+
+.start-here-card-tagline {
+  margin: 0.25rem 0 0.5rem;
+  font-style: italic;
+  font-size: 0.85em;
+  color: var(--secondary);
+}
+
+.start-here-card-posts {
+  flex: 1;
+  list-style-type: none;
+  margin: 0;
+  padding: 0.25rem 0 0;
+}
+
+.start-here-card-posts li {
+  padding: 0.3rem 0;
+}
+
+/* Underlined so the links never rely on colour alone (accessibility;
+   same treatment + reason as the recent-issues/recent-notes links). */
+.start-here-card-posts li a,
+.start-here-card-links a,
+.start-here-cta a {
+  text-decoration: underline;
+  text-decoration-color: var(--tertiary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.start-here-card-posts li a:hover,
+.start-here-card-posts li a:focus-visible,
+.start-here-card-links a:hover,
+.start-here-card-links a:focus-visible,
+.start-here-cta a:hover,
+.start-here-cta a:focus-visible {
+  text-decoration-color: var(--primary);
+}
+
+.start-here-card-links {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85em;
+}
+
+.start-here-cta {
+  margin: 1rem 0 0;
+  font-size: 0.9em;
+  color: var(--secondary);
+}
