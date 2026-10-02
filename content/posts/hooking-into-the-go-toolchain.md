@@ -78,6 +78,9 @@ part, and feel free to roll your eyes at the appropriate moment. All the code we
 _For the sake of simplicity, everything below was run on macOS with Go 1.27.1. Your
 numbers will differ, and that's half the fun :)_
 
+Before we can hook into anything, though, we need to know what we're hooking
+into. Let's see what `go build` actually does when nobody's watching.
+
 ## What `go build` actually runs
 
 We can get in front of every step of the build. Great! But what are those
@@ -153,6 +156,10 @@ likes before, after or instead of running the tool. The `TOOLEXEC_IMPORTPATH`
 variable tells it which package is being built. That one is
 [Daniel's work too](https://github.com/golang/go/commit/de74ea5d740ccc69dbb146578dc8a965351a3d6b),
 added in Go 1.16; before that, wrappers had to guess the package from the flags.
+
+Now that we know exactly where `-toolexec` steps in, let's put something of
+our own there, starting with a better stopwatch, one that can at least tell
+packages apart.
 
 ## Building our own stopwatch
 
@@ -268,6 +275,9 @@ Three questions and nothing else. Every package came straight from the cache,
 so no tool ran and our stopwatch had nothing to time. Best build ever,
 terrible demo. 🤷 A `-toolexec` wrapper only
 sees what the cache lets through. Hold on to that thought; it'll come back.
+
+Watching is fun, but our wrapper is sitting in a much more interesting spot
+than that. Let's see what happens when it stops being a polite spectator.
 
 ## Rewriting code before the compiler sees it
 
@@ -469,6 +479,10 @@ build. If it inherits our `-toolexec`, through `GOFLAGS` for example, it goes
 through our wrapper too, and a wrapper that runs `go list` again from there
 calls itself forever, which is a fun way to heat up your laptop. 🔥 `toyhook` clears `GOFLAGS` before calling it.
 
+Now that we can bring in any package we like, there's one kind of code we still
+can't reach: the code we didn't write. Let's go after it (politely, of
+course).
+
 ## Calling code you are not allowed to import
 
 Until now we've only touched our own package. Real instrumentation has to reach
@@ -545,6 +559,10 @@ that rule stops code from reaching *into* standard-library internals that
 aren't marked for it.
 We're going the other way, from the standard library out to a package we own,
 and the linker leaves that alone.
+
+Up to now, every trick has worked the first time we tried it. That's about to
+change, because there's one part of the build we've been ignoring all along:
+the cache. It has been quietly judging us the whole time.
 
 ## The cache will lie to you
 
@@ -623,6 +641,10 @@ different, and `other` stays clean whichever order we build in. Every tool built
 this way depends on that one line. Daniel later said that what garble does
 there "is in
 [undocumented territory](https://github.com/golang/go/issues/41145#issuecomment-2405558244)".
+
+Everything we've built so far is a toy, held together with environment
+variables and good intentions. Now that we know every trick, let's see what
+it looks like when someone builds the real thing.
 
 ## From toy to tool: otelc
 
@@ -745,6 +767,9 @@ passes a `context.Context` along. Two small fields in a struct we were never
 meant to touch, all from a wrapper sitting in front of the compiler. Purists,
 look away. 🙈
 
+That's a lot of machinery for a few free spans. All that sorcery must cost
+something, right? Luckily, we built just the tool to find out.
+
 ## Back to the stopwatch
 
 We started with a stopwatch, so let's use it one last time. Here's a full
@@ -775,6 +800,8 @@ in 2024, and the answer so far is that dedicated support for source rewriting
 would add a lot of complexity to the `go` command. For
 now, `-toolexec` is the interface, and everything in this post is how we live
 with it.
+
+Enough watching me do it. Your turn.
 
 ## Try it yourself
 
