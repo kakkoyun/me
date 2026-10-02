@@ -1,12 +1,19 @@
 {{- /*
-  "Start Here" homepage cards: three curated reading paths, driven by
-  site.Params.startHere (config.yaml documents the config shape).
+  "Start Here" homepage cards: curated reading paths in a self-advancing
+  carousel, driven by site.Params.startHere (config.yaml documents the
+  config shape).
 
   `posts` entries are permalinks resolved via site.GetPage, so card titles
   never drift from the pages themselves; a {title, url} map entry is the
   escape hatch for external links (guest posts on other blogs). A path that
   does not resolve fails the build rather than silently dropping an item.
   Self-guards when startHere.enabled is false.
+
+  The carousel is CSS scroll-snap plus a small inline script (~30 lines,
+  below the markup): without JS the cards remain swipeable and the dots
+  still work as anchor links; with JS it also auto-advances every 7s,
+  pausing on hover, keyboard focus, tab-hidden and any user interaction,
+  and never auto-advances under prefers-reduced-motion.
 */ -}}
 {{- $sh := site.Params.startHere -}}
 {{- if $sh.enabled -}}
@@ -17,16 +24,16 @@
   {{- with $sh.intro }}
   <p class="start-here-intro">{{ . }}</p>
   {{- end }}
-  <div class="start-here-grid">
-    {{- range $sh.groups }}
-    {{- $group := . -}}
-    <section class="start-here-card">
-      <h3 class="start-here-card-title">{{ .title }}</h3>
-      {{- with .tagline }}
+  <div class="start-here-carousel" role="region" aria-roledescription="carousel" aria-label="Start Here reading paths">
+    {{- range $i, $group := $sh.groups }}
+    <section class="start-here-card start-here-slide" id="start-here-slide-{{ $group.title | urlize }}"
+      aria-roledescription="slide" aria-label="{{ add $i 1 }} of {{ len $sh.groups }}: {{ $group.title }}">
+      <h3 class="start-here-card-title">{{ $group.title }}</h3>
+      {{- with $group.tagline }}
       <p class="start-here-card-tagline">{{ . }}</p>
       {{- end }}
       <ul class="start-here-card-posts">
-        {{- range .posts }}
+        {{- range $group.posts }}
         {{- if reflect.IsMap . -}}
         {{- if strings.HasPrefix .url "http" }}
         <li><a href="{{ .url }}" rel="noopener">{{ .title }}</a></li>
@@ -54,6 +61,17 @@
     </section>
     {{- end }}
   </div>
+  <div class="start-here-dots">
+    {{- range $i, $group := $sh.groups }}
+    {{- if eq $i 0 }}
+    <a class="start-here-dot" href="#start-here-slide-{{ $group.title | urlize }}"
+      aria-label="Show the {{ $group.title }} path" aria-current="true"></a>
+    {{- else }}
+    <a class="start-here-dot" href="#start-here-slide-{{ $group.title | urlize }}"
+      aria-label="Show the {{ $group.title }} path"></a>
+    {{- end }}
+    {{- end }}
+  </div>
   <p class="start-here-cta">
     If any of these land, the <a href="/newsletter/">newsletter</a> brings the
     next ones to your inbox.
@@ -61,4 +79,50 @@
 </section>
 {{- /* Inside the partial on purpose: a disabled section must not leave a stray rule. */ -}}
 <hr class="home-divider"/>
+<script>
+(() => {
+  const c = document.querySelector('.start-here-carousel');
+  if (!c) return;
+  const dots = Array.from(document.querySelectorAll('.start-here-dot'));
+  const n = dots.length;
+  if (!n) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let auto = false, hovering = false, focused = false, paused = false, idleTimer;
+  const index = () => Math.round(c.scrollLeft / c.clientWidth);
+  const sync = () => {
+    const i = index();
+    dots.forEach((d, k) => (k === i) ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'));
+  };
+  const go = (i) => {
+    auto = true;
+    c.scrollTo({ left: i * c.clientWidth, behavior: reduced.matches ? 'auto' : 'smooth' });
+    window.setTimeout(() => { auto = false; }, reduced.matches ? 50 : 600);
+  };
+  const pause = () => {
+    window.clearTimeout(idleTimer);
+    idleTimer = window.setTimeout(() => { paused = false; }, 12000);
+    paused = true;
+  };
+  c.addEventListener('scroll', () => { sync(); if (!auto) pause(); }, { passive: true });
+  c.addEventListener('pointerenter', () => { hovering = true; });
+  c.addEventListener('pointerleave', () => { hovering = false; });
+  c.addEventListener('focusin', () => { focused = true; });
+  c.addEventListener('focusout', () => { focused = false; });
+  c.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    go((index() + (e.key === 'ArrowRight' ? 1 : n - 1)) % n);
+    pause();
+  });
+  dots.forEach((d, k) => d.addEventListener('click', (e) => {
+    e.preventDefault();
+    go(k);
+    pause();
+  }));
+  window.setInterval(() => {
+    if (paused || hovering || focused || reduced.matches || document.hidden) return;
+    go((index() + 1) % n);
+  }, 7000);
+})();
+</script>
 {{- end -}}

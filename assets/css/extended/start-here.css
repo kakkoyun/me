@@ -1,8 +1,8 @@
 /* "Start Here" homepage cards.
-   Three curated reading-path cards (Go, eBPF, agentic engineering),
-   rendered by layouts/partials/start-here.html from site.Params.startHere
-   (config.yaml). Placed between the compacted Recent Issues / Recent Notes
-   columns and the Recent Posts list.
+   Curated reading paths (Go, eBPF, open source) in a self-advancing
+   carousel, rendered by layouts/partials/start-here.html from
+   site.Params.startHere (config.yaml) and placed between the compacted
+   Recent Issues / Recent Notes columns and the Recent Posts list.
 
    Design notes:
    - Cards borrow PaperMod's post-entry vocabulary (var(--entry) bg,
@@ -13,7 +13,8 @@
    - Every link is underlined with a non-colour distinction, matching
      .recent-issues-container in newsletter.css — Lighthouse's
      link-in-text-block audit fails on colour-only links.
-   - No JS, no images. The site keeps a minimal JS footprint.
+   - JS is one small inline block (auto-advance + dot sync, ~30 lines);
+     CSS scroll-snap carries the movement. See the partial.
 */
 
 .start-here .page-header {
@@ -27,12 +28,54 @@
   color: var(--secondary);
 }
 
-.start-here-grid {
-  display: grid;
-  /* Fluid columns, no breakpoints: 3 across at the 672px measure,
-     2 on small tablets, 1 on phones. */
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
+/* The carousel: CSS scroll-snap does the movement, one card per view.
+   Scrollbars stay hidden — the dots below and swiping are the affordance.
+   Without the inline script this is still a swipeable scroller and the
+   dots still jump cards as anchor links. */
+.start-here-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.start-here-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.start-here-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  /* always: a swipe or dot press lands on exactly one card, never skips */
+  scroll-snap-stop: always;
+}
+
+/* Dot indicators. Active state carries both colour and fill so it never
+   relies on colour alone (same accessibility bar as the card links). */
+.start-here-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.start-here-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  padding: 0;
+  border: 1px solid var(--tertiary);
+  border-radius: 50%;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.start-here-dot[aria-current="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.start-here-dot:hover,
+.start-here-dot:focus-visible {
+  border-color: var(--accent);
 }
 
 .start-here-card {
