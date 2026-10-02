@@ -101,7 +101,7 @@ thing as "green in CI".
 - `layouts/partials/page-links.html` -- "Links to / Linked from" nav on posts/talks/newsletter singles, fed by the link index
 - `layouts/_default/graph.html` + `layouts/_default/graph.json.json` -- `/graph/` content-graph page and its JSON endpoint (`/graph/index.json`); rendering via dependency-free canvas force sim in `assets/js/graph.js` (~5.5 KB minified, loads only on that page; wheel/pinch zoom, background-drag pan, keyboard-accessible view controls)
 - `layouts/robots.txt` -- Explicitly welcomes AI crawlers, references llms.txt
-- `layouts/partials/start-here.html` -- Homepage "Start Here" cards (Go, eBPF, agentic engineering), driven by `params.startHere` in `config.yaml`; see Homepage Curation below
+- `layouts/partials/start-here.html` -- Homepage "Start Here" cards (Go, eBPF, open source), driven by `params.startHere` in `config.yaml`; see Homepage Curation below
 
 ### Homepage Curation
 
@@ -109,7 +109,7 @@ The homepage's three reading-path cards are driven by `params.startHere` in
 `config.yaml` and rendered by `layouts/partials/start-here.html`. Internal
 post paths resolve via `site.GetPage` and fail the build when stale; a
 `{title, url}` map entry links externally (guest posts on other blogs).
-Two rules:
+Three rules:
 
 - `content/start-here.md` is **additive-only**: keep its existing sections, append
   new ones. Every card's `pathUrl` anchor must match a heading on that page
@@ -120,6 +120,10 @@ Two rules:
   or the Plausible MCP tools in an agent session — and reorder. Traffic is
   advisory, not absolute: a new post with no traffic yet still belongs if it
   is the strongest on-topic piece.
+- The third card promotes whichever theme has the strongest current content
+  (open source today). Agentic engineering takes the slot back once it has
+  enough posts. The sections on `content/start-here.md` stay separate either
+  way; swapping a card is a config-only change.
 
 ### Custom Shortcodes
 

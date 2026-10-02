@@ -1,6 +1,6 @@
 ---
 title: Start Here
-description: "A curated map of the blog: reading paths through profiling and symbolization, eBPF and instrumentation, Go performance, AI-assisted engineering, and agentic and software engineering."
+description: "A curated map of the blog: reading paths through profiling and symbolization, eBPF and instrumentation, Go performance, AI-assisted engineering, open-source engineering, software engineering, and agentic engineering."
 date: 2026-07-03T00:00:00Z
 showToc: false
 comments: false
@@ -48,14 +48,26 @@ The newest thread. I'm figuring this out in public, same as everyone else.
 - [Stop Putting API Keys in Your Shell Config](/posts/stop-putting-api-keys-in-shell-config/). Every agent wants an API key, and your `.zshrc` is not a vault. A five-minute fix with the 1Password CLI.
 - [When Hustle Culture and Personal Values Collide](/posts/hustle-culture-startup-lessons/). What a short stint at an AI/ML startup taught me about pace, values, and knowing when to leave.
 
-## Agentic and software engineering
+## Open-source engineering
 
-The newest thread and the oldest one. Agents change how I build day to day; the engineering habits around them predate the hype and still decide what ships.
+Maintaining Prometheus, mentoring through CNCF programs, keeping projects the size of OpenTelemetry alive. The thread that predates the blog, and the one with the most posts that are not about a specific technology.
 
-- [My Second Brain System: PARA, Readwise, and an LLM captures my thoughts](/posts/second-brain-system/). Where an LLM earns its keep in my own workflow: it reads what I capture and writes the connections back, without editing the original notes.
 - [Why I Keep Mentoring in Open Source](/posts/mentorship-in-open-source/). The case for slow engineering relationships in a fast ecosystem, and the moment that keeps paying me back.
 - [Mentorship in Open Source — Part 2: The Mentee Playbook](/posts/mentorship-in-open-source-part-2-mentee-playbook/). How to be a mentee well: applying for LFX, GSoC, and GoBridge cohorts and getting the most out of them.
 - [Mentorship in Open Source — Part 3: Stewardship Inside OpenTelemetry](/posts/mentorship-in-open-source-part-3-stewardship/). The other side of the table: what a project the size of OpenTelemetry needs from the companies that depend on it.
+- [From talk to docs: The Zen of Prometheus](/posts/from-talk-to-docs-the-zen-of-prometheus/). A PromCon 2020 talk quietly became part of the official Prometheus documentation. The full story of how, and what it says about writing things down.
+
+## Software engineering
+
+Craft posts that are not about one language: measurement you can trust, and the discipline around it. Young path, more to come.
+
+- [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/). It sits on the Go and performance path above, and belongs to both: benchmarking discipline is not Go-specific. Opens with a loose cable that briefly broke physics, ends with practical advice on hardware noise and statistics.
+
+## Agentic engineering
+
+Agents that read, write, and act on my behalf. The [AI-assisted engineering](#ai-assisted-engineering) path above holds the Cursor-era experiments; this one is for the agentic present, and it is early days.
+
+- [My Second Brain System: PARA, Readwise, and an LLM captures my thoughts](/posts/second-brain-system/). Where an LLM earns its keep in my own workflow: it reads what I capture and writes the connections back, without editing the original notes.
 
 ## Keep going
 

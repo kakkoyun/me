@@ -269,16 +269,16 @@ params:
         moreUrl: /tags/ebpf/
         moreLabel: All eBPF posts
         pathUrl: /start-here/#ebpf-and-instrumentation
-      - title: Agentic Engineering
-        tagline: AI-assisted tooling and the engineering craft around it.
+      - title: Open Source
+        tagline: Maintainers, mentors, and keeping projects alive.
         posts:
-          - /posts/stop-putting-api-keys-in-shell-config/
           - /posts/mentorship-in-open-source-part-2-mentee-playbook/
-          - /posts/second-brain-system/
-          - /posts/2024-03-21-vibe-coding-with-cursor/
-        moreUrl: /tags/engineering/
-        moreLabel: All engineering posts
-        pathUrl: /start-here/#agentic-and-software-engineering
+          - /posts/mentorship-in-open-source/
+          - /posts/from-talk-to-docs-the-zen-of-prometheus/
+          - /posts/mentorship-in-open-source-part-3-stewardship/
+        moreUrl: /tags/open-source/
+        moreLabel: All open-source posts
+        pathUrl: /start-here/#open-source-engineering
   showShareButtons: true
   shareButtons:
     - bluesky
@@ -319,10 +319,7 @@ params:
     - name: "Mastodon"
       url: "https://hachyderm.io/@kakkoyun"
     - name: "YouTube"
-      # Backslash at end of line = zero-space YAML line continuation;
-      # the URL parses back to a single unbroken 71-char string.
-      url: "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDA\
-        EgTo5r9OnB"
+      url: "https://www.youtube.com/playlist?list=PL3P7-fer_ILLtH_ZtQDQhDAEgTo5r9OnB"
     - name: "Medium"
       url: "https://medium.com/@kakkoyun/"
     - name: "stackoverflow"
@@ -346,10 +343,7 @@ params:
     publications:
       - slug: the-unwind
         name: "The Unwind"
-        # Multi-line double-quoted scalar folds to a single space at each
-        # break, so the parsed value is unchanged from the old one-liner.
-        description: "A roughly-weekly dispatch of links and notes from
-          what I've read and built lately. Hand-curated, mixed signal."
+        description: "A roughly-weekly dispatch of links and notes from what I've read and built lately. Hand-curated, mixed signal."
         campaignId: "b350b0eb-605b-469c-8c49-8f0f33b1e78c"
   assets:
     favicon: "img/favicon.ico"
