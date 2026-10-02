@@ -42,9 +42,9 @@ use a subset (see the table at the end).
    > lie to us.
 4. **Thanks and disclosure** in one sentence each, then one pointer to the code
    ("All the code we'll write lives in a companion repository").
-5. **Climb a ladder.** Each section is one step harder than the last and opens
-   by connecting to the previous one, often with a question the reader is
-   already asking.
+5. **Climb a ladder.** Each section is one step harder than the last, ends
+   with a connection sentence that leads into the next one, and opens by
+   picking up from there, often with a question the reader is already asking.
    > We can get in front of every step of the build. Great! But what are those
    > steps?
 6. **Hand the toy to the real tool.** When the post builds a toy, the real-world
@@ -54,6 +54,21 @@ use a subset (see the table at the end).
 8. **Close with "Try it yourself" and a crescendo**, not a summary: what the
    reader can now do, why it matters, and a nudge to go build something. End on
    a short, punchy line.
+
+## Connection sentences
+
+End every section with a sentence that leads into the next one, right before
+the next heading. It looks back at what we now have and forward at what's
+still missing, so the reader is pulled across the heading instead of starting
+over. The host's examples: "Now that we have a clear vision about X, we can
+start exploring Y." and "But all this is useless unless we have <whatever>,
+let's take a look into that."
+
+> Now that we can bring in any package we like, there's one kind of code we
+> still can't reach: the code we didn't write. Let's go after it.
+
+A short one works too, especially before the last section: "Enough watching
+me do it. Your turn."
 
 ## A running thread
 

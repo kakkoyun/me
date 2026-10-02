@@ -40,6 +40,7 @@ A post can pass every vocabulary rule and still read as a schematic list of fact
 - **Opening.** Prose first, not a heading. Does it say what we'll do together and show a concrete experiment early?
 - **Togetherness.** "We" for the journey, "I" for opinions and jokes. Flag imperative, instruction-manual stretches ("Ask the `go` command to...").
 - **Code blocks.** Each one is introduced before it and explained after it. Flag any block the reader meets cold or is left to decode alone.
+- **Connection sentences.** Does every section end with a sentence that leads into the next heading? Flag sections that just stop.
 - **Running thread and callbacks.** Is there one thread through the post, and is every planted idea paid off explicitly?
 - **Distractions.** Flag capture captions, "see the full output" links, reference lists at the end, and asides that are true but don't move the story.
 - **Ending.** Something to try and a crescendo, not a summary.
