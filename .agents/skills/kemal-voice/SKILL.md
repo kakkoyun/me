@@ -11,7 +11,7 @@ This file is about words and tone. **Before drafting or restructuring a post, re
 
 ## Story and flow in one paragraph
 
-Tell it as something we do together, not as a list of facts. Open with prose and a concrete experiment, promise the journey, then climb one step per section, each opening from the last. Carry one running thread through the post, plant things early and pay them off out loud. Introduce every code block before it and explain it after. Link sources inline. Cut whatever is true but doesn't move the story, and keep it in a backup document instead. End with something to try and a crescendo, never a summary.
+Tell it as something we do together, not as a list of facts. Open with prose and a concrete experiment, promise the journey, then climb one step per section, ending each with a connection sentence that leads into the next. Carry one running thread through the post, plant things early and pay them off out loud. Introduce every code block before it and explain it after. Link sources inline. Cut whatever is true but doesn't move the story, and keep it in a backup document instead. End with something to try and a crescendo, never a summary.
 
 ## Tone target
 
