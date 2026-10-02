@@ -280,6 +280,8 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 
 - **[REVIEW.md](REVIEW.md)** -- voice and prose-quality criteria. Companion to the Vale rules and the `prose-review.yml` workflow.
 - **[.claude/skills/kemal-voice/SKILL.md](.claude/skills/kemal-voice/SKILL.md)** -- Anthropic-format skill. Auto-loads when editing files under `content/posts/`, `content/talks/`, `content/notes/`. Encodes tone, banned vocabulary, formulaic openers, patterns to scrutinize, and tone-by-category notes.
+- **[.agents/skills/kemal-voice/references/story-playbook.md](.agents/skills/kemal-voice/references/story-playbook.md)** -- how a post is built: the deep-dive arc, a running thread, foreshadowing and callbacks, introducing and explaining every code block, inline sources, what to cut, signature moves from earlier posts, a whimsy budget, and the tooling gotchas below. Read it before drafting or restructuring a post.
+- **[.claude/commands/write-blog.md](.claude/commands/write-blog.md)** -- `/write-blog <idea> [--guest <host>]`, the end-to-end pipeline from an idea to a draft PR: worktree, story shaping, evidence and real captures, drafting, independent reviews, the quality chain and mechanical gates, Hugo and difit previews, and the approval-gated draft PR. Each revision round is its own commit.
 - **Vale** (`.vale.ini` + `styles/Slop/`) -- runs automatically on every content PR via `prose.yml` (reviewdog inline annotations). Run locally with `make vale`.
 - **[.claude/commands/prose-review.md](.claude/commands/prose-review.md)** -- `/prose-review` slash command. Wraps the upstream `code-review` plugin with prose-specific priorities (banned vocab, formulaic openers, em-dash density, do-not-flag list, output format). Single source of truth for the procedure; `prose-review.yml` references it. Invoke locally as `/prose-review owner/repo/pull/N` to review a PR before merging.
 - **[.claude/commands/capture.md](.claude/commands/capture.md)** -- `/capture blogmentation [topic]` to draft a short-form solution post (300-800 words, `categories: [blogmentation]`). Use `--weekly` to scan recent Claude Code sessions and surface candidates. Skill at `.agents/skills/blogmentation/SKILL.md`.
@@ -291,6 +293,17 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 **Patterns to scrutinize, not preserve:** em-dash parenthetical asides (`— X —`), negative parallelism ("it's not X, it's Y" / "not just X, but Y"), and triadic rhythm all read as AI-flavored when overused. Vale flags the first two at `suggestion` (via `Slop.Density` and `Slop.Parallelism`). Triadic rhythm is review-by-eye. A single instance is fine; clusters are not.
 
 **Before opening a PR with a new post:** run `make prose`. First-time setup: `brew install vale && make vale-sync`.
+
+**Story over completeness.** A post that passes every vocabulary rule can still read as a schematic list of facts. Tell it as something we do together, introduce and explain every code block, link sources inline, and move true-but-distracting detail to a backup document. The story playbook above has the details.
+
+**Drafting gotchas** (all hit while writing a long post):
+
+- A markdownlint auto-fix (MD010) can turn tabs in code blocks into spaces after an edit. Restore tabs as the last step and check the staged blob: `git show :<path> | grep -c $'\t'`.
+- A footnote definition that starts with a link (`[^x]: [text](url)`) makes `layouts/partials/functions/link-index.html` fail the build. Start footnotes with a plain word.
+- The site has no Mermaid support; ship diagrams as images in `static/uploads/`.
+- `lychee` needs `--root-dir "$PWD/static"` for `/uploads/` links, and GitHub blob pages sometimes answer 503; confirm those with `gh api`.
+- macOS ships GNU Make 3.81, which can't parse this Makefile; use `gmake`.
+- `hugo server -D -F` previews drafts and future-dated posts.
 
 ## CI/CD
 
