@@ -1,0 +1,30 @@
+# yamllint config. pi-lens (the diagnostics tooling that lints YAML edits in
+# agent sessions) runs yamllint on this repo and respects this file, so the
+# rules are tuned to the repo's conventions here instead of per-file
+# workarounds.
+#
+# Disabled rules, and why they fight this repo rather than real problems:
+#   line-length    Pinned action hashes (40 chars), URLs and prose
+#                  descriptions cannot wrap without changing what they
+#                  parse to (config.yaml's YouTube URL is the canonical
+#                  example).
+#   document-start config.yaml and static/admin/config.yml omit the leading
+#                  `---` on purpose.
+#   truthy         GitHub workflow `on:`/`off:` keys trip YAML 1.1 booleans;
+#                  that syntax is required by Actions.
+#   comments       House style is long explanatory comments, often aligned
+#                  after values (see config.yaml).
+
+extends: default
+
+ignore: |
+  themes/
+  tools/
+  public/
+  .worktrees/
+
+rules:
+  line-length: disable
+  document-start: disable
+  truthy: disable
+  comments: disable

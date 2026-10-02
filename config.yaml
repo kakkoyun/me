@@ -233,9 +233,52 @@ params:
     - talks
   tocOpen: false
   showToc: false
+  # The "Most Recent Issues" / "Recent Notes" columns; either set to
+  # false drops that whole column from the homepage.
   showRecentNotes: true
   showRecentNewsletters: true
-  recentNewslettersCount: 5
+  recentNewslettersCount: 3
+
+  # Homepage "Start Here" cards, rendered by partials/start-here.html.
+  # enabled: false removes the section. Each group is a card: `posts` lists
+  # permalinks (a {title, url} map entry links out, e.g. a guest post),
+  # `moreUrl` points at an existing topic page, `pathUrl` at the matching
+  # /start-here/ anchor. Curation rules: CLAUDE.md, "Homepage Curation".
+  startHere:
+    enabled: true
+    intro: "New here? Three paths through the archive. Pick the one that
+      matches whatever dragged you in."
+    groups:
+      - title: Go
+        tagline: Making Go fast, and proving it with numbers.
+        posts:
+          - /posts/fosdem-2026-measuring-software-performance/
+          - /posts/fosdem-2026-auto-instrumenting-go/
+          - /posts/go-compile-time-instrumentation-v1/
+          - /posts/goproxy-fallback-behind-vpn/
+        moreUrl: /tags/go/
+        moreLabel: All Go posts
+        pathUrl: /start-here/#go-and-performance
+      - title: eBPF
+        tagline: Telemetry out of programs that were never asked politely.
+        posts:
+          - /posts/profiling-python-with-ebpf/
+          - /posts/otel-unplugged-eu-2026/
+          - /posts/ice-and-fire/
+          - /posts/profiling-python-and-ruby-using-ebpf/
+        moreUrl: /tags/ebpf/
+        moreLabel: All eBPF posts
+        pathUrl: /start-here/#ebpf-and-instrumentation
+      - title: Open Source
+        tagline: Maintainers, mentors, and keeping projects alive.
+        posts:
+          - /posts/mentorship-in-open-source-part-2-mentee-playbook/
+          - /posts/mentorship-in-open-source/
+          - /posts/from-talk-to-docs-the-zen-of-prometheus/
+          - /posts/mentorship-in-open-source-part-3-stewardship/
+        moreUrl: /tags/open-source/
+        moreLabel: All open-source posts
+        pathUrl: /start-here/#open-source-engineering
   showShareButtons: true
   shareButtons:
     - bluesky

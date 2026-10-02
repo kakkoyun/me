@@ -1,0 +1,216 @@
+/* "Start Here" homepage cards.
+   Curated reading paths (Go, eBPF, open source) in a self-advancing
+   carousel, rendered by layouts/partials/start-here.html from
+   site.Params.startHere (config.yaml) and placed between the compacted
+   Recent Issues / Recent Notes columns and the Recent Posts list.
+
+   Design notes:
+   - Cards borrow PaperMod's post-entry vocabulary (var(--entry) bg,
+     var(--border), var(--radius), hover lift) so they read as "entries"
+     while the de-boxed post list below (see reading.css) stays a clean
+     divided list. Prominence comes from being the only bordered things
+     in the reading flow.
+   - Every link is underlined with a non-colour distinction, matching
+     .recent-issues-container in newsletter.css — Lighthouse's
+     link-in-text-block audit fails on colour-only links.
+   - JS is one small inline block (auto-advance + dot sync, ~30 lines);
+     CSS scroll-snap carries the movement. See the partial.
+*/
+
+.start-here .page-header {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.start-here-intro {
+  margin: 0 0 1rem;
+  font-style: italic;
+  color: var(--secondary);
+}
+
+/* The carousel: CSS scroll-snap does the movement, one card per view.
+   Scrollbars stay hidden — the edge arrows and dots are the affordance.
+   overscroll-behavior contains swipe chaining at the carousel's ends.
+   The controls are hidden until the inline script boots; without JS the
+   first card renders as static content. */
+.start-here-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.start-here-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.start-here-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  /* always: a swipe or dot press lands on exactly one card, never skips */
+  scroll-snap-stop: always;
+}
+
+/* Arrows float over the carousel edges, outside the scroller so they do
+   not scroll away. Half-outside the card at desktop width; fully inside
+   on phones. Card horizontal padding (below) clears their footprint. */
+.start-here-viewport {
+  position: relative;
+}
+
+.start-here-arrow {
+  position: absolute;
+  top: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--theme);
+  border: 1px solid var(--tertiary);
+  border-radius: 50%;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.start-here-prev {
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.start-here-next {
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.start-here-arrow:hover,
+.start-here-arrow:focus-visible {
+  border-color: var(--accent);
+  color: var(--primary);
+}
+
+/* Dots. Active state carries both colour and fill so it never relies on
+   colour alone (same accessibility bar as the card links). */
+.start-here-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.start-here-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  padding: 0;
+  border: 1px solid var(--tertiary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.start-here-dot[aria-current="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.start-here-dot:hover,
+.start-here-dot:focus-visible {
+  border-color: var(--accent);
+}
+
+.start-here-card {
+  display: flex;
+  flex-direction: column;
+  /* Horizontal padding clears the edge arrows' footprint over the card. */
+  padding: 1rem 2.25rem 0.75rem;
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+/* On phones the half-outside arrows would be half off-screen; keep them
+   fully inside, smaller, and the card padding shrinks with them. Placed
+   after the base card rule so the longhand paddings win the cascade. */
+@media (max-width: 640px) {
+  .start-here-arrow {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .start-here-prev,
+  .start-here-next {
+    transform: translateY(-50%);
+  }
+
+  .start-here-card {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.start-here-card:hover,
+.start-here-card:focus-within {
+  transform: translateY(-2px);
+  border-color: var(--tertiary);
+}
+
+.start-here-card-title {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 1.2rem;
+}
+
+.start-here-card-tagline {
+  margin: 0.25rem 0 0.5rem;
+  font-style: italic;
+  font-size: 0.85em;
+  color: var(--secondary);
+}
+
+.start-here-card-posts {
+  flex: 1;
+  list-style-type: none;
+  margin: 0;
+  padding: 0.25rem 0 0;
+}
+
+.start-here-card-posts li {
+  padding: 0.3rem 0;
+}
+
+/* Underlined so the links never rely on colour alone (accessibility;
+   same treatment + reason as the recent-issues/recent-notes links). */
+.start-here-card-posts li a,
+.start-here-card-links a,
+.start-here-cta a {
+  text-decoration: underline;
+  text-decoration-color: var(--tertiary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.start-here-card-posts li a:hover,
+.start-here-card-posts li a:focus-visible,
+.start-here-card-links a:hover,
+.start-here-card-links a:focus-visible,
+.start-here-cta a:hover,
+.start-here-cta a:focus-visible {
+  text-decoration-color: var(--primary);
+}
+
+.start-here-card-links {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85em;
+}
+
+.start-here-cta {
+  margin: 1rem 0 0;
+  font-size: 0.9em;
+  color: var(--secondary);
+}
