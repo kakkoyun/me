@@ -29,13 +29,15 @@
 }
 
 /* The carousel: CSS scroll-snap does the movement, one card per view.
-   Scrollbars stay hidden — the dots below and swiping are the affordance.
-   Without the inline script this is still a swipeable scroller and the
-   dots still jump cards as anchor links. */
+   Scrollbars stay hidden — the edge arrows and dots are the affordance.
+   overscroll-behavior contains swipe chaining at the carousel's ends.
+   The controls are hidden until the inline script boots; without JS the
+   first card renders as static content. */
 .start-here-carousel {
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
 }
 
@@ -50,8 +52,47 @@
   scroll-snap-stop: always;
 }
 
-/* Dot indicators. Active state carries both colour and fill so it never
-   relies on colour alone (same accessibility bar as the card links). */
+/* Arrows float over the carousel edges, outside the scroller so they do
+   not scroll away. Half-outside the card at desktop width; fully inside
+   on phones. Card horizontal padding (below) clears their footprint. */
+.start-here-viewport {
+  position: relative;
+}
+
+.start-here-arrow {
+  position: absolute;
+  top: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--theme);
+  border: 1px solid var(--tertiary);
+  border-radius: 50%;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.start-here-prev {
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.start-here-next {
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.start-here-arrow:hover,
+.start-here-arrow:focus-visible {
+  border-color: var(--accent);
+  color: var(--primary);
+}
+
+/* Dots. Active state carries both colour and fill so it never relies on
+   colour alone (same accessibility bar as the card links). */
 .start-here-dots {
   display: flex;
   justify-content: center;
@@ -65,6 +106,7 @@
   padding: 0;
   border: 1px solid var(--tertiary);
   border-radius: 50%;
+  cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -81,11 +123,35 @@
 .start-here-card {
   display: flex;
   flex-direction: column;
-  padding: 1rem 1rem 0.75rem;
+  /* Horizontal padding clears the edge arrows' footprint over the card. */
+  padding: 1rem 2.25rem 0.75rem;
   background: var(--entry);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+/* On phones the half-outside arrows would be half off-screen; keep them
+   fully inside, smaller, and the card padding shrinks with them. Placed
+   after the base card rule so the longhand paddings win the cascade. */
+@media (max-width: 640px) {
+  .start-here-arrow {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .start-here-prev {
+    transform: translate(0, -50%);
+  }
+
+  .start-here-next {
+    transform: translate(0, -50%);
+  }
+
+  .start-here-card {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 .start-here-card:hover,

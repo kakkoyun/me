@@ -101,7 +101,7 @@ thing as "green in CI".
 - `layouts/partials/page-links.html` -- "Links to / Linked from" nav on posts/talks/newsletter singles, fed by the link index
 - `layouts/_default/graph.html` + `layouts/_default/graph.json.json` -- `/graph/` content-graph page and its JSON endpoint (`/graph/index.json`); rendering via dependency-free canvas force sim in `assets/js/graph.js` (~5.5 KB minified, loads only on that page; wheel/pinch zoom, background-drag pan, keyboard-accessible view controls)
 - `layouts/robots.txt` -- Explicitly welcomes AI crawlers, references llms.txt
-- `layouts/partials/start-here.html` -- Homepage "Start Here" cards (Go, eBPF, open source) as a self-advancing scroll-snap carousel (inline JS: auto-advance pauses on hover/focus/interaction, honors `prefers-reduced-motion`; dots work without JS as anchors), driven by `params.startHere` in `config.yaml`; see Homepage Curation below
+- `layouts/partials/start-here.html` -- Homepage "Start Here" cards (Go, eBPF, open source) as a self-advancing scroll-snap carousel (inline JS ~30 lines: auto-advance pauses on hover/focus/interaction, honors `prefers-reduced-motion`; controls are buttons, never anchors, so the page never scrolls; without JS the first card renders static), driven by `params.startHere` in `config.yaml`; see Homepage Curation below
 
 ### Homepage Curation
 

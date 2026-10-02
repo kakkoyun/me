@@ -10,9 +10,12 @@
   Self-guards when startHere.enabled is false.
 
   The carousel is CSS scroll-snap plus a small inline script (~30 lines,
-  below the markup): without JS the cards remain swipeable and the dots
-  still work as anchor links; with JS it also auto-advances every 7s,
-  pausing on hover, keyboard focus, tab-hidden and any user interaction,
+  below the markup). The controls (edge arrows, dots) are button elements —
+  never anchor links — so nothing in this widget can scroll the page;
+  anchor navigation is also what would force-align a slide to the viewport
+  top. They are hidden until the script boots: without JS the first card
+  renders as static content. With JS the carousel auto-advances every 7s,
+  pausing on hover, keyboard focus, hidden tabs and any user interaction,
   and never auto-advances under prefers-reduced-motion.
 */ -}}
 {{- $sh := site.Params.startHere -}}
@@ -24,51 +27,65 @@
   {{- with $sh.intro }}
   <p class="start-here-intro">{{ . }}</p>
   {{- end }}
-  <div class="start-here-carousel" role="region" aria-roledescription="carousel" aria-label="Start Here reading paths">
-    {{- range $i, $group := $sh.groups }}
-    <section class="start-here-card start-here-slide" id="start-here-slide-{{ $group.title | urlize }}"
-      aria-roledescription="slide" aria-label="{{ add $i 1 }} of {{ len $sh.groups }}: {{ $group.title }}">
-      <h3 class="start-here-card-title">{{ $group.title }}</h3>
-      {{- with $group.tagline }}
-      <p class="start-here-card-tagline">{{ . }}</p>
+  <div class="start-here-viewport">
+    <div class="start-here-carousel" role="region" aria-roledescription="carousel" aria-label="Start Here reading paths">
+      {{- range $i, $group := $sh.groups }}
+      <section class="start-here-card start-here-slide"
+        aria-roledescription="slide" aria-label="{{ add $i 1 }} of {{ len $sh.groups }}: {{ $group.title }}">
+        <h3 class="start-here-card-title">{{ $group.title }}</h3>
+        {{- with $group.tagline }}
+        <p class="start-here-card-tagline">{{ . }}</p>
+        {{- end }}
+        <ul class="start-here-card-posts">
+          {{- range $group.posts }}
+          {{- if reflect.IsMap . -}}
+          {{- if strings.HasPrefix .url "http" }}
+          <li><a href="{{ .url }}" rel="noopener">{{ .title }}</a></li>
+          {{- else }}
+          <li><a href="{{ .url }}">{{ .title }}</a></li>
+          {{- end -}}
+          {{- else -}}
+          {{- with site.GetPage . }}
+          <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+          {{- else -}}
+          {{- errorf "startHere: no page found for %q in the %q card (check config.yaml)" . $group.title -}}
+          {{- end -}}
+          {{- end -}}
+          {{- end }}
+        </ul>
+        <footer class="start-here-card-links">
+          {{- with $group.pathUrl }}
+          <a href="{{ . }}">Reading path</a>
+          {{- end -}}
+          {{- if and $group.pathUrl $group.moreUrl }} · {{ end -}}
+          {{- with $group.moreUrl }}
+          <a href="{{ . }}">{{ $group.moreLabel | default "All posts" }}</a>
+          {{- end }}
+        </footer>
+      </section>
       {{- end }}
-      <ul class="start-here-card-posts">
-        {{- range $group.posts }}
-        {{- if reflect.IsMap . -}}
-        {{- if strings.HasPrefix .url "http" }}
-        <li><a href="{{ .url }}" rel="noopener">{{ .title }}</a></li>
-        {{- else }}
-        <li><a href="{{ .url }}">{{ .title }}</a></li>
-        {{- end -}}
-        {{- else -}}
-        {{- with site.GetPage . }}
-        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-        {{- else -}}
-        {{- errorf "startHere: no page found for %q in the %q card (check config.yaml)" . $group.title -}}
-        {{- end -}}
-        {{- end -}}
-        {{- end }}
-      </ul>
-      <footer class="start-here-card-links">
-        {{- with $group.pathUrl }}
-        <a href="{{ . }}">Reading path</a>
-        {{- end -}}
-        {{- if and $group.pathUrl $group.moreUrl }} · {{ end -}}
-        {{- with $group.moreUrl }}
-        <a href="{{ . }}">{{ $group.moreLabel | default "All posts" }}</a>
-        {{- end }}
-      </footer>
-    </section>
-    {{- end }}
+    </div>
+    {{- /* Buttons, not anchors: nothing here may scroll the page. Hidden
+      until the script boots so a no-JS reader never sees dead controls. */ -}}
+    <button class="start-here-arrow start-here-prev" type="button" aria-label="Previous card" hidden>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+    <button class="start-here-arrow start-here-next" type="button" aria-label="Next card" hidden>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </button>
   </div>
-  <div class="start-here-dots">
+  <div class="start-here-dots" hidden>
     {{- range $i, $group := $sh.groups }}
     {{- if eq $i 0 }}
-    <a class="start-here-dot" href="#start-here-slide-{{ $group.title | urlize }}"
-      aria-label="Show the {{ $group.title }} path" aria-current="true"></a>
+    <button class="start-here-dot" type="button" aria-label="Show the {{ $group.title }} path" aria-current="true"></button>
     {{- else }}
-    <a class="start-here-dot" href="#start-here-slide-{{ $group.title | urlize }}"
-      aria-label="Show the {{ $group.title }} path"></a>
+    <button class="start-here-dot" type="button" aria-label="Show the {{ $group.title }} path"></button>
     {{- end }}
     {{- end }}
   </div>
@@ -81,9 +98,11 @@
 <hr class="home-divider"/>
 <script>
 (() => {
+  const sec = document.querySelector('.start-here');
   const c = document.querySelector('.start-here-carousel');
-  if (!c) return;
+  if (!sec || !c) return;
   const dots = Array.from(document.querySelectorAll('.start-here-dot'));
+  const arrows = { prev: document.querySelector('.start-here-prev'), next: document.querySelector('.start-here-next') };
   const n = dots.length;
   if (!n) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -93,6 +112,7 @@
     const i = index();
     dots.forEach((d, k) => (k === i) ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current'));
   };
+  /* scrollTo on the carousel only — the page never moves. */
   const go = (i) => {
     auto = true;
     c.scrollTo({ left: i * c.clientWidth, behavior: reduced.matches ? 'auto' : 'smooth' });
@@ -103,22 +123,27 @@
     idleTimer = window.setTimeout(() => { paused = false; }, 12000);
     paused = true;
   };
+  const show = (i) => { go(i); pause(); };
+  dots.forEach((d) => { d.hidden = false; });
+  if (arrows.prev && arrows.next) {
+    arrows.prev.hidden = false;
+    arrows.next.hidden = false;
+    arrows.prev.addEventListener('click', () => show((index() + n - 1) % n));
+    arrows.next.addEventListener('click', () => show((index() + 1) % n));
+  }
+  const dotRow = document.querySelector('.start-here-dots');
+  if (dotRow) dotRow.hidden = false;
   c.addEventListener('scroll', () => { sync(); if (!auto) pause(); }, { passive: true });
   c.addEventListener('pointerenter', () => { hovering = true; });
   c.addEventListener('pointerleave', () => { hovering = false; });
   c.addEventListener('focusin', () => { focused = true; });
   c.addEventListener('focusout', () => { focused = false; });
-  c.addEventListener('keydown', (e) => {
+  dots.forEach((d, k) => d.addEventListener('click', () => show(k)));
+  sec.addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
-    go((index() + (e.key === 'ArrowRight' ? 1 : n - 1)) % n);
-    pause();
+    show((index() + (e.key === 'ArrowRight' ? 1 : n - 1)) % n);
   });
-  dots.forEach((d, k) => d.addEventListener('click', (e) => {
-    e.preventDefault();
-    go(k);
-    pause();
-  }));
   window.setInterval(() => {
     if (paused || hovering || focused || reduced.matches || document.hidden) return;
     go((index() + 1) % n);
