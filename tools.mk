@@ -36,7 +36,7 @@ SHELLCHECK_VERSION=0.11.0
 ACTIONLINT_VERSION=1.7.12
 
 # renovate: datasource=github-releases depName=errata-ai/vale extractVersion=^v(?<version>.*)$
-VALE_VERSION=3.23.0
+VALE_VERSION=3.24.0
 
 # lychee tags its releases `lychee-vX.Y.Z`, not `vX.Y.Z`.
 # renovate: datasource=github-releases depName=lycheeverse/lychee extractVersion=^lychee-v(?<version>.*)$
