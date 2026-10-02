@@ -1,0 +1,22 @@
+# Images allowed to ship with AI-generation provenance in their C2PA manifest.
+#
+# One extended regex per line, matched against the image's repo-relative path.
+# Blank lines and #-comments are ignored.
+#
+# This file should stay empty. scripts/check-ai-provenance.sh fails the build on
+# any image whose Content Credentials say it was machine-generated, and the
+# point of that gate is that the site's images are photographed, screenshotted
+# or drawn rather than prompted.
+#
+# An entry here is a deliberate, documented exception — an illustration where a
+# generated image is the subject of the post rather than decoration for it, say
+# a screenshot of a model's output in a write-up about that model. Name what
+# generated it and why it belongs, so the next person reading this file does not
+# have to guess whether the exception still holds:
+#
+#   # static/uploads/dalle-failure-mode.png
+#   # DALL·E output, and the point of the post is what it got wrong.
+#   ^static/uploads/dalle-failure-mode\.png$
+#
+# A generated image that is merely decorative is not an allowlist case. Replace
+# it, or drop it — a post is not improved by a stock illustration nobody made.

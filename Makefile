@@ -26,7 +26,7 @@ export PATH := $(TOOLS_BIN):$(PATH):$(GO_INSTALL_BIN)
 .PHONY: tools bootstrap submodules vale-packages require-runtime require-netlify
 .PHONY: links links-external lighthouse
 .PHONY: print-shell-files print-tool-version print-tools-bin
-.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
+.PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate provenance
 
 # Default target
 help:
@@ -372,6 +372,16 @@ fmt-check: tool-shfmt
 	  echo "   Run: make fmt"; exit 1; \
 	else echo "✅ shfmt: all shell scripts formatted"; fi
 
+# The AI-provenance gate on its own. Part of `make test`, but broken out because
+# it is the check you want to re-run after dropping a new image into
+# static/uploads/, without sitting through the whole script suite.
+#
+# WATERMARK_DETECT_CMD is passed through rather than set here: the text half of
+# the check stays dormant until you have a detector to point it at. See
+# docs/ai-provenance.md.
+provenance:
+	@bash scripts/check-ai-provenance.sh
+
 # Run all linters
 lint: fmt-check shellcheck actionlint
 
@@ -389,9 +399,11 @@ test: require-runtime
 	@bash scripts/test-check-image-sizes.sh
 	@bash scripts/test-ensure-tool.sh
 	@bash scripts/test-lighthouse-summary.sh
+	@bash scripts/test-check-ai-provenance.sh
 	@bash scripts/check-cms-fields.sh
 	@bash scripts/check-frontmatter.sh
 	@bash scripts/check-admin-csp.sh
+	@bash scripts/check-ai-provenance.sh
 
 # Pre-commit gate: every static + dynamic check we run in CI.
 # Run this locally before pushing to catch issues before the PR opens.
