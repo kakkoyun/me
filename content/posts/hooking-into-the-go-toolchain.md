@@ -197,8 +197,19 @@ go build -o .bin/stopwatch ./cmd/stopwatch
 STOPWATCH_LOG=/tmp/sw.tsv go build -a -o /tmp/app -toolexec=$PWD/.bin/stopwatch ./app
 ```
 
-Counting the lines in the log by tool, and sorting the compiles by time, gives
-us this:
+Here are a few lines from the log, one per tool call:
+
+```text
+compile | runtime | 860 | files=182
+compile | fmt | 80 | files=5
+compile | github.com/kakkoyun/hooking-into-the-go-toolchain/app | 16 | files=1
+link | github.com/kakkoyun/hooking-into-the-go-toolchain/app | 59 | files=0
+```
+
+Each line is one tool call: which tool ran, which package it was working on,
+how many milliseconds it took, and how many source files it got. The whole log
+has 111 lines. Counting them by tool, and sorting the compiles by time, gives us
+this:
 
 ```text
 tool           runs    -V=full
@@ -365,11 +376,12 @@ startDecl := &ast.AssignStmt{
 
 That injector ended up at 306 lines for two log statements. Two. Log.
 Statements. 😩 Printing the tree
-back out has a catch too: as the [dst README](https://github.com/dave/dst#readme)
-explains, `go/ast` comments "are stored by their byte offset instead of attached
-to nodes, so re-arranging nodes breaks the output". That's why serious tools
-like otelc rewrite with dst, which keeps comments attached to the nodes they
-belong to.
+back out has a catch too: `go/ast` comments "are stored by their byte offset
+instead of attached to nodes, so re-arranging nodes breaks the output". That's
+straight from the README of [dst](https://github.com/dave/dst), a third-party Go
+package (the name stands for Decorated Syntax Tree) built to fix exactly this
+problem. It keeps comments attached to the nodes they belong to, which is why
+serious tools like otelc rewrite with it.
 
 Our toy takes a shortcut. It uses the tree only to find where each marked
 function's body starts, and inserts the new statement as plain text right after
