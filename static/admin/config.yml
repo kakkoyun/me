@@ -170,6 +170,19 @@ collections:
       - name: promotedAt
         widget: hidden
 
+      # aiAssisted is the disclosure field scripts/check-ai-provenance.sh reads:
+      # when the text-watermark half of that check is enabled and finds a mark,
+      # a post that declares this key passes and one that does not fails. Hidden
+      # rather than a list widget for the same reason as promote and substack —
+      # absence is meaningful, and a widget would write an empty list to every
+      # post that never set it, turning "not disclosed" into "disclosed nothing".
+      # Write it by hand:
+      #
+      #   aiAssisted:
+      #     - draft
+      - name: aiAssisted
+        widget: hidden
+
       - label: Body
         name: body
         widget: richtext
@@ -281,6 +294,19 @@ collections:
       # Raw mode only: every talk body embeds a YouTube <iframe>, and the
       # Lexical rich-text editor round-trips Markdown, not HTML. Rich-text mode
       # risks rewriting those embeds on save.
+      # aiAssisted is the disclosure field scripts/check-ai-provenance.sh reads:
+      # when the text-watermark half of that check is enabled and finds a mark,
+      # a post that declares this key passes and one that does not fails. Hidden
+      # rather than a list widget for the same reason as promote and substack —
+      # absence is meaningful, and a widget would write an empty list to every
+      # post that never set it, turning "not disclosed" into "disclosed nothing".
+      # Write it by hand:
+      #
+      #   aiAssisted:
+      #     - draft
+      - name: aiAssisted
+        widget: hidden
+
       - label: Body
         name: body
         widget: richtext
@@ -324,6 +350,19 @@ collections:
         widget: boolean
         default: false
         required: false
+
+      # aiAssisted is the disclosure field scripts/check-ai-provenance.sh reads:
+      # when the text-watermark half of that check is enabled and finds a mark,
+      # a post that declares this key passes and one that does not fails. Hidden
+      # rather than a list widget for the same reason as promote and substack —
+      # absence is meaningful, and a widget would write an empty list to every
+      # post that never set it, turning "not disclosed" into "disclosed nothing".
+      # Write it by hand:
+      #
+      #   aiAssisted:
+      #     - draft
+      - name: aiAssisted
+        widget: hidden
 
       - label: Body
         name: body
