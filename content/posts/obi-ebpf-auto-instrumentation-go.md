@@ -1,9 +1,9 @@
 ---
 title: "OBI: eBPF auto-instrumentation for Go in production"
-description: "OBI (OpenTelemetry eBPF Instrumentation) instruments Go services with zero code changes inside a specific, well-defined scope. Here is what that scope is and what it costs."
-date: 2026-09-06T00:00:00Z
-publishDate: 2026-09-06T00:00:00Z
-draft: true
+description: "OBI (OpenTelemetry eBPF Instrumentation) instruments Go services with no code changes, inside a defined scope. Here is that scope, what it requires and what it costs."
+date: 2026-07-09T00:00:00Z
+publishDate: 2026-07-09T00:00:00Z
+promote: false
 categories:
   - engineering
 tags:
@@ -12,90 +12,85 @@ tags:
   - observability
   - opentelemetry
   - ebpf
-series: "How to Instrument Go Without Changing a Single Line of Code"
+  - auto-instrumentation
+series:
+  - How to Instrument Go Without Changing a Single Line of Code
 showToc: true
 tocOpen: false
 ---
 
-"Zero code changes" is a phrase that travels far in conference talks and vendor docs. It needs a precise definition before it's useful. OBI (OpenTelemetry eBPF Instrumentation) delivers on the promise within a specific scope and with specific requirements. Understanding both is the point.
+Take one HTTP request, `GET /orders/42`, headed for a Go service nobody is going to rebuild this quarter. We want a span for it, another for its database call, and the trace context handed on to the next service, all without touching the service. "Zero code changes" travels far in conference talks and vendor docs. Today we watch that one request from the kernel and find out where the phrase holds.
+
+This is part 2 of 6 in the [How to Instrument Go Without Changing a Single Line of Code](/series/how-to-instrument-go-without-changing-a-single-line-of-code/) series, the written companion to my [GopherCon UK 2026 talk](/talks/instrument-go-without-changing-a-single-line/). [Part 1](/posts/why-go-cant-be-monkey-patched/) named three places to intervene: build time, process start and the kernel. We take the kernel route now, with OBI (OpenTelemetry eBPF Instrumentation): what it sees, what it costs, where it fits. The [FOSDEM 2026 post](/posts/fosdem-2026-auto-instrumenting-go/) has a wider first look at OBI next to the other eBPF options.
+
+Disclosure: I work at Datadog and I'm one of otelc's maintainers; I don't contribute to OBI, so read my comparisons with that in mind.
 
 ## What OBI is
 
-OBI is the direct successor to Grafana Beyla. Grafana Labs donated Beyla to the CNCF OpenTelemetry project in 2025, renamed it OBI, and moved all active development there. The current release is **v0.10.0 (2026-06-30)**, still in Development status. The project itself notes that breaking changes between minor releases are expected while it stays at `v0`.
+OBI is the direct successor to Grafana Beyla. Grafana Labs donated Beyla to the CNCF OpenTelemetry project in 2025, renamed it OBI, and moved its core development to the [`opentelemetry-ebpf-instrumentation`](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/tree/v0.10.0) repository. Beyla lives on as Grafana Labs' distribution of OBI.
 
-Grafana Beyla continues to exist as Grafana Labs' distribution of the upstream OBI project. If you're using Beyla today, you're running a downstream of OBI.
+The release pinned for the talk (13 August 2026) is [v0.10.0](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/releases/tag/v0.10.0) (2026-06-30), still in Development status. The project itself notes that breaking changes between minor releases are expected while it stays at `v0`, which is semver for "mind the gap".
 
-The GitHub repo is `open-telemetry/opentelemetry-ebpf-instrumentation`. Go module: `go.opentelemetry.io/obi`. Apache-2.0.
+How does OBI get a look at our request without being invited?
 
 ## How it works
 
-OBI places eBPF uprobes and kprobes at the kernel level. The eBPF programs are JIT-compiled by the Linux kernel to the host architecture (x86-64 or ARM64). For the Go case, OBI hooks into specific library functions, not generic network traffic, which is what gives it library-level span context rather than just raw packets.
+OBI places eBPF uprobes (probes on user-space binaries) in the target binaries and kprobes (the same for kernel code) in the kernel, and the kernel JIT-compiles those eBPF programs to the host architecture (x86-64 or ARM64). For Go, OBI hooks specific library functions, not generic network traffic, which is what gives it library-level span context rather than just raw packets. A probe already sits on the `net/http` code that will serve `GET /orders/42`. A uprobe on `runtime.newproc1` records which goroutine started which, and OBI walks up to six parents to find the request.
 
-For standard HTTP/gRPC RED metrics, OBI attaches without source changes, recompilation, restarts, or an in-process agent.
+For Go HTTP/gRPC RED metrics (rate, errors, duration), OBI attaches without source changes, recompilation, restarts, or an in-process agent. You deploy it as a DaemonSet (or a sidecar, or a host process), and spans and metrics start flowing to your OTel collector. Our service never gets a say, which is rather the point.
 
-You deploy OBI as a DaemonSet (or sidecar), it attaches to the target processes, and spans and metrics start flowing to your OTel collector.
-
-The official docs are explicit about the boundary:
-
-> "Use language agents or manual instrumentation when you need custom spans, application-specific attributes, business events, or other in-process telemetry."
-
-The SDK cost shows up where OBI cannot infer business context. OBI cannot generate a span for a specific business transaction, annotate a span with a database query string, or instrument logic that doesn't correspond to a known library call. For those, you still need either manual OTel SDK usage or a compile-time tool like otelc. OBI's value is in the cases where you want standard RED observability across all services on a node without coordinating with every application team.
+Being watched is one thing. What does the watcher write down?
 
 ## What it actually instruments in Go
 
-OBI provides Go-specific library-level uprobe instrumentation (distinct from just intercepting network traffic) for 13 named libraries as of v0.10.0. The list includes `net/http`, `golang.org/x/net/http2`, `gorilla/mux`, `gin-gonic/gin`, `google.golang.org/grpc`, `go-redis/redis` v8/v9, Kafka (sarama and confluent-kafka-go), and `database/sql`. Full version constraints are in the `SUPPORT_MATRIX.md` file in the v0.10.0 tag.
+For Go, OBI documents 13 library-level baselines as of v0.10.0. The list includes `net/http`, `golang.org/x/net/http2`, `gorilla/mux`, `gin-gonic/gin`, `google.golang.org/grpc`, `net/rpc/jsonrpc`, `database/sql` (with the `go-sql-driver/mysql` and `lib/pq` drivers), `redis/go-redis/v9`, Kafka (`segmentio/kafka-go` and `IBM/sarama`), and `go.mongodb.org/mongo-driver` v1 and v2. Full version constraints are in the [`SUPPORT_MATRIX.md`](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/blob/v0.10.0/SUPPORT_MATRIX.md) file in the v0.10.0 tag.
 
-The precise scope of "zero code changes" for Go:
+Say our service answers with `net/http`, queries MySQL through `database/sql`, and calls the next hop over gRPC. All three are on that list. Here is what "zero code changes" buys at each step:
 
-| Scenario | Zero code changes? |
+| Step of the request | Zero code changes? |
 |---|---|
-| HTTP/gRPC RED metrics | Yes |
-| Library-level spans for the 13 supported libraries | Yes |
-| Trace context propagation across services (for supported protocols) | Yes |
-| Custom spans or business-logic events | No; requires SDK or compile-time tool |
-| SQL query details or parameters | No; requires SDK or compile-time tool |
+| The request arrives: HTTP RED metrics | Yes |
+| The handler queries the database: a library-level span | Yes |
+| That span carries the SQL statement text | Yes, opt-in via `db.query.text`; bound parameters are not captured |
+| The gRPC call to the next service carries the trace context (for supported protocols) | Yes, once enabled (off by default, needs extra privileges) |
+| A span for "checkout", or an attribute like the customer's plan | No; requires SDK or compile-time tool |
 
-That is the library-bound visibility limit for production-safe, kernel-level instrumentation. The kernel can see function arguments and return values at library boundaries; it can't synthesize business context that doesn't exist at that level.
+The last row is the library-bound visibility limit of kernel-level instrumentation. The kernel sees function arguments and return values at library boundaries, and can't synthesize business context that isn't there. The Limitations section of the [official docs](https://opentelemetry.io/docs/zero-code/obi/) says so plainly:
+
+> "Use language agents or manual instrumentation when you need custom spans, application-specific attributes, business events, or other in-process telemetry that eBPF-based instrumentation cannot derive automatically."
+
+For business context you still need manual OTel SDK usage or a compile-time tool like [otelc](/posts/otelc-compile-time-go-traces/). The view is good. What does it charge for the ticket?
 
 ## What it requires
 
-The "zero changes to your application" claim comes with requirements on the infrastructure side.
+The "zero changes to your application" claim moves the bill from the app team to the node. (The docs pages I link are unversioned; I read them on 2026-10-02.)
 
-**Kernel version:** Linux 5.8+. There's a RHEL exception: 4.18+ for RHEL 8-family distros with the required eBPF backports. BTF (BPF Type Format) must be enabled; this has been the default on most distros since kernel 5.14.
+The kernel comes first: the [docs](https://opentelemetry.io/docs/zero-code/obi/) ask for Linux 5.8+, with a RHEL exception of 4.18+ for RHEL 8-family distros with the required eBPF backports. It must also expose BTF (BPF Type Format) information. Most current mainstream distros ship with it; check that `/sys/kernel/btf/vmlinux` exists. On macOS, eBPF is a Linux party, so bring a VM; [See it run: OBI and the eBPF profiler without Kubernetes](/posts/go-instrumentation-see-it-run/) does exactly that.
 
-If you're running macOS development environments, OBI requires Linux. You'll need a Linux VM or actual Linux nodes to test it.
+Then the capabilities. OBI has no single capability set, because the required access grows with the features you turn on. For plain application observability it needs six Linux capabilities when it runs unprivileged: `CAP_BPF`, `CAP_SYS_PTRACE`, `CAP_NET_RAW`, `CAP_CHECKPOINT_RESTORE`, `CAP_DAC_READ_SEARCH` and `CAP_PERFMON` (plus `CAP_SYS_RESOURCE` on kernels before 5.11, which the 5.8 floor still allows). The [security page](https://opentelemetry.io/docs/zero-code/obi/security/) explains why each one is needed and has the per-feature breakdown.
 
-**Capabilities:** OBI requires six Linux capabilities in unprivileged mode:
+More features need more capabilities. `CAP_NET_ADMIN` is added when context propagation is enabled, which is off by default: a socket-level eBPF program then adds a `traceparent` header to outgoing HTTP. `CAP_SYS_ADMIN` is required for Go library-level propagation, where a uprobe writes the header into Go's own request buffer with `bpf_probe_write_user`, and it stands in for `CAP_PERFMON` when `kernel.perf_event_paranoid` is set high (the AKS and EKS defaults need it). Running with `privileged: true` in Kubernetes works, but it's the sledgehammer option. Security teams will scrutinize this list, and that review is the operational cost to factor in.
 
-| Capability | Why |
-|---|---|
-| `CAP_BPF` | Core eBPF program loading |
-| `CAP_SYS_PTRACE` | Process inspection |
-| `CAP_NET_RAW` | Network-level probing |
-| `CAP_CHECKPOINT_RESTORE` | Process state access |
-| `CAP_DAC_READ_SEARCH` | Reading binaries |
-| `CAP_PERFMON` | Performance monitoring |
+On [Kubernetes](https://opentelemetry.io/docs/zero-code/obi/setup/kubernetes/), the preferred model for covering many services is a DaemonSet: one OBI pod per node, with `hostPID: true` so it can see every process and no changes to application pods. The sidecar model (one OBI container per pod, with `shareProcessNamespace: true` and `privileged: true`) gives finer control at the cost of efficiency at scale. I would start with the DaemonSet: deploy once, and every service on every node, ours included, gets baseline observability.
 
-A seventh capability, `CAP_SYS_ADMIN`, is required when Go trace propagation is enabled or when `perf_event_paranoid` is set high. Alternatively, `privileged: true` in Kubernetes works but is broader than necessary.
+What does it cost while running? I have no measurements of OBI v0.10.0 itself; the [FOSDEM post](/posts/fosdem-2026-auto-instrumenting-go/)'s benchmark is one demo workload. Every hit on an attached uprobe traps into the kernel, so a hot function pays per call ([What a uprobe costs, and what USDT buys](/posts/go-uprobe-vs-usdt/) takes that cost apart). The kernel's own BPF selftests recorded about 313 ns per hit on an uprobe over a NOP (3.190 M/s, one x86_64 run, CPU not stated, [commit 0c4fc6bd6105](https://github.com/torvalds/linux/commit/0c4fc6bd61054a9378bce149b3758f9b6e8fb5ab)); a [2023 bpftime paper](https://arxiv.org/pdf/2311.07923) measured 3,224 ns on older, unstated hardware. The two sources differ tenfold, and I haven't measured OBI's. I'm measuring it, with a reproduction kit, for a follow-up post. The rest is upkeep. OBI looks up Go struct-field offsets by Go and library version (`offsets.json`), and Go 1.26 removing `pcHeader.textStart` broke its symbol resolution in PIE and cgo binaries until [PR #1851](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/pull/1851).
 
-Security teams will scrutinize this list. That review is the operational cost to factor in.
-
-## Kubernetes deployment
-
-The recommended production model is a **DaemonSet**: one OBI pod per node, instrumenting all workloads on the node. This requires `hostPID: true` so OBI can access all processes. No changes to application pods.
-
-The sidecar model is also supported: one OBI container per application pod, with `shareProcessNamespace: true` and `privileged: true` on the sidecar. More granular control at the cost of efficiency at scale.
-
-For a single cluster of any reasonable size, the DaemonSet is the right choice. You deploy it once and every service on every node gets baseline observability.
-
-## Language scope
-
-OBI is multi-language at the network-protocol level. Beyond Go, it supports Java (with an embedded Java agent extracted at runtime), .NET, Node.js, Python, Ruby, C, C++, Rust, and GenAI provider SDKs. This means one DaemonSet can cover a polyglot services environment. Go gets special treatment with library-level uprobes; other languages may only get network-level visibility depending on the stack.
+Is that enough, or just a start?
 
 ## Where it fits
 
-The clearest use case for OBI is the "I need baseline observability across services I don't own or can't rebuild right now" scenario. Ship the DaemonSet, get RED metrics and trace spans for all your HTTP/gRPC services, and then decide which services need deeper instrumentation via otelc or the SDK.
+Back to `GET /orders/42`. With nobody touching the service, we got RED metrics for the request, library-level spans for its database and gRPC calls, and, with the right opt-ins and privileges, SQL text and trace context across services. We did not get what the on-call engineer asks first: which customer, which cart, which business step.
 
-OBI and compile-time tools are complementary, not competing. OBI gives you breadth across all languages and doesn't require touching CI pipelines. Compile-time tools like otelc give you depth: custom spans, business logic, and stdlib instrumentation. They require a rebuild and, for otelc specifically, Go 1.25+.
+That split shows where OBI fits: baseline observability across services you don't own or can't rebuild right now. Ship the DaemonSet, then decide which services deserve more.
 
-The caveat worth repeating: OBI is at v0.10.0 with Development status. The feature set is real and production-tested (Grafana Labs ran this in production as Beyla before the donation), but the API stability guarantees are explicitly not there yet. Budget for minor release changes while it matures toward v1.
+OBI and compile-time tools are complementary. OBI gives breadth without touching CI pipelines. Compile-time tools like otelc give depth (custom spans, business logic, stdlib instrumentation) at the price of a rebuild and, for otelc, Go 1.25+. [Part 6](/posts/zero-touch-go-observability-agent-actionable/) turns the choice into a decision rule.
+
+The caveat worth repeating: the feature set is real, since OBI is the same codebase as Beyla, which reached 1.0 in November 2023. The API stability guarantees, though, are explicitly not there yet, and the [v0.10.0 release notes](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/releases/tag/v0.10.0) carry a long security-hardening section. Budget for minor release changes, and canary before a fleet-wide rollout.
+
+"Zero code changes", then? For our request: yes, inside a defined scope, with a defined price list.
+
+Versions, links and commands checked on 2 October 2026.
+
+## Up next
+
+[Part 3, otelc: zero-touch Go traces at compile time](/posts/otelc-compile-time-go-traces/), moves the intervention to build time. The service gets rebuilt; in exchange, we get depth. Same promise, new vantage point. 👀

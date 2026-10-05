@@ -71,7 +71,7 @@ We walked through eBPF-based auto-instrumentation with OBI, compile-time manipul
 
 The core of the talk was practical: benchmark results and small realistic services, compared along three axes — **performance overhead**, **robustness across Go versions**, and **operational friction**. We showed the trade-offs honestly. eBPF gives you zero code changes but needs kernel privileges. Compile-time rewriting gives you the deepest instrumentation but requires a rebuild. The Injector abstracts complexity but is currently Kubernetes-only. There's no silver bullet, just choices with different costs.
 
-We also looked forward at how upcoming work in the Go runtime — flight recording, improved diagnostics primitives, USDT probe generation — could unlock cleaner hooks for future instrumentation. The room was full. The questions were sharp. Hannah handled the eBPF deep-dives while I covered the compile-time and operational integration angles. It worked.
+We also looked forward at how Go runtime work such as the flight recorder, and my own experiment with USDT probe generation, could unlock cleaner hooks for future instrumentation. The room was full. The questions were sharp. Hannah handled the eBPF deep-dives while I covered the compile-time and operational integration angles. It worked.
 
 If you want the full technical breakdown, I wrote a [companion blog post](/posts/fosdem-2026-auto-instrumenting-go/) and the [talk page has the slides and recording](/talks/how-to-instrument-go-without-changing-code/).
 

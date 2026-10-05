@@ -1,9 +1,9 @@
 ---
 title: "otelc: zero-touch Go traces at compile time"
-description: "otelc is the OTel SIG's compile-time instrumentation tool for Go: distinct from Orchestrion, built from scratch, and now at its first stable release."
-date: 2026-09-13T00:00:00Z
-publishDate: 2026-09-13T00:00:00Z
-draft: true
+description: "otelc is the OpenTelemetry SIG's compile-time instrumentation tool for Go: separate from Orchestrion, built from scratch, and stable since v1.0.1."
+date: 2026-07-16T00:00:00Z
+publishDate: 2026-07-16T00:00:00Z
+promote: false
 categories:
   - engineering
 tags:
@@ -12,89 +12,100 @@ tags:
   - observability
   - opentelemetry
   - compile-time-instrumentation
-series: "How to Instrument Go Without Changing a Single Line of Code"
+  - auto-instrumentation
+series:
+  - How to Instrument Go Without Changing a Single Line of Code
 showToc: true
 tocOpen: false
 ---
 
-Two separate compile-time Go instrumentation tools are regularly confused for each other. Getting that distinction right is the prerequisite for understanding either of them.
+We're going to instrument a Go program without touching its source, and the whole change fits in one build command. Here's the before and after:
 
-**Datadog Orchestrion** is Datadog's tool, CLI binary `orchestrion`, defaults to dd-trace-go/v2. It reached GA at v1.0.0 in November 2024 and is currently at v1.11.0 (2026-06-25). It is vendor-agnostic: you can configure it to use the OTel SDK, but Datadog maintains it.
+```bash
+go build -o myapp .
+otelc go build -o myapp .
+```
 
-**OpenTelemetry Go compile instrumentation** is the OTel SIG tool, CLI binary `otelc`. It was built from scratch by Datadog and Alibaba working together under the OpenTelemetry umbrella. It was inspired by Orchestrion, but it is a separate codebase with separate maintenance. v1.0.1 shipped on 2026-07-14. That's the first non-retracted stable release.
+Same flags, same package, one extra word in front. The binary that comes out has OpenTelemetry instrumentation compiled in for the libraries otelc knows about, `net/http` and gRPC among them, and nobody opened a handler file.
 
-Orchestrion was not donated to OpenTelemetry. It still lives at `github.com/DataDog/orchestrion`. The relationship between the two tools is: shared mechanism, shared inspiration, different codebases and sponsors.
+That extra word is what we'll follow through this post. This is part 3 of 6 in the [How to Instrument Go Without Changing a Single Line of Code](/series/how-to-instrument-go-without-changing-a-single-line-of-code/) series, the written companion to my [GopherCon UK 2026 talk](/talks/instrument-go-without-changing-a-single-line/). [Part 2](/posts/obi-ebpf-auto-instrumentation-go/) covered the kernel route. Here we move the intervention to build time and follow that one command: who built it and what it does to `go build`, then what it sees, what it costs and where it fits, and whether "without a single line" survives the trip.
 
-The confusion matters because the two tools make different promises: Orchestrion optimizes for Datadog APM users, while otelc optimizes for OTel-native builds. If you want the official project announcement, I also cross-posted the [OpenTelemetry blog's v1 post](/posts/go-compile-time-instrumentation-v1/) — that's the community-facing milestone story. This post is the practitioner take: what the mechanism actually is, what the constraints are, and when to reach for it.
+Disclosure: I work at Datadog, which maintains Orchestrion and dd-trace-go, and I'm one of otelc's maintainers. Read my comparisons with that in mind.
+
+## Why there are two tools
+
+Before we open the hood, a mix-up to clear: `otelc` has a lookalike. Naming is hard, and naming two tools that play the same trick is harder.
+
+Orchestrion is Datadog's tool, CLI binary `orchestrion`. The release pinned for the talk (13 August 2026) is [v1.12.0](https://github.com/DataDog/orchestrion/releases/tag/v1.12.0) (2026-07-30). Its [README](https://github.com/DataDog/orchestrion/blob/v1.12.0/README.md) says other vendors, OpenTelemetry among them, may provide alternate integrations, but the ones it defaults to (dd-trace-go/v2) are Datadog's.
+
+otelc is the OpenTelemetry Go compile-time instrumentation tool, CLI binary `otelc`. Why a second tool? The [SIG announcement](https://opentelemetry.io/blog/2025/go-compile-time-instrumentation/) (January 2025) says Alibaba and Datadog had each proposed donating a tool, Alibaba's `opentelemetry-go-auto-instrumentation` and Datadog's Orchestrion. Then the two organizations "decided to join forces" and set up a new SIG, with further contributions from Quesma. The goal was a unified, vendor-neutral approach that "picks the best aspects of each solution", and it "won't be Alibaba's or Datadog's solution that 'wins'". The SIG built otelc from scratch. Orchestrion was never donated and stays at `github.com/DataDog/orchestrion` as Datadog's own product.
+
+[v1.0.0 and v1.0.1](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/releases/tag/v1.0.1) both went out on 2026-07-14, four weeks before the talk. The [v1.0.0 release notes](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/releases/tag/v1.0.0) retract it because `otelc pin` wrote incorrect module paths, so v1.0.1 is the first usable stable release and the one pinned for the talk. [v1.1.0](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/releases/tag/v1.1.0) followed on 2026-08-24. The OpenTelemetry blog's [v1 announcement](https://opentelemetry.io/blog/2026/go-compile-time-instrumentation-v1/) tells the milestone story (I [cross-posted](/posts/go-compile-time-instrumentation-v1/) it).
+
+The two tools share a mechanism and differ in codebase and default tracer, so choosing is mostly about which tracer SDK you're committing to. The trick underneath is the same either way. Let's see what that extra word does to `go build`.
 
 ## The mechanism
 
-Both tools use the same core approach, which the Orchestrion maintainers describe as compile-time-woven Aspect-Oriented Programming. Here's how it works:
+Go's build system has a `-toolexec` flag. Normally `go build` invokes the compiler directly. With `-toolexec`, the go command runs each toolchain program (`compile`, `asm`, `link`, `vet`) through a wrapper binary first. `go help build` calls it "a program to use to invoke toolchain programs like vet and asm." That generic hook turns out to be exactly the right one for compile-time AOP: Orchestrion's maintainers describe their tool as, in some ways, a "compile-time-woven Aspect-oriented Programming (AoP) framework" ([golang/go#69887](https://github.com/golang/go/issues/69887)). My [guest post](https://internals-for-interns.com/posts/hooking-into-the-go-toolchain/) builds this `-toolexec` mechanism up step by step, cache included.
 
-Go's build system has a `-toolexec` flag. Normally, `go build` invokes the compiler directly. With `-toolexec`, every invocation of `go tool compile` passes through your wrapper binary first. `otelc` registers itself as that wrapper.
+Our extra word plugs into that hook. `otelc go build` adds the flag for us and registers `otelc` as the wrapper. When the wrapper intercepts a compile for a package one of its rules matches, it parses that package's `.go` files into an AST, applies the rules (which functions to wrap, which spans to inject, how to propagate context), and hands the rewritten source to the real compiler. Everything else passes through untouched. The compiler never sees the original, so as far as it knows you wrote the instrumentation yourself, and it's too polite to ask.
 
-When `otelc` intercepts a compile invocation, it parses each `.go` source file into an AST, applies instrumentation rules (which functions to wrap, which spans to inject, how to propagate context), and hands the rewritten source to the real compiler. The compiler never sees the original; from its perspective, you just wrote the instrumentation code yourself.
-
-From the OTel blog on otelc:
+How far does the rewriting reach? The [OpenTelemetry blog](https://opentelemetry.io/blog/2026/go-compile-time-instrumentation-v1/) says:
 
 > "hooks into the standard Go toolchain during the build (through its `-toolexec` mechanism) and injects OpenTelemetry instrumentation into your code, its dependencies, and the standard library as they are compiled."
 
-That last part matters: your code, dependencies, and the standard library. If `net/http` needs instrumentation, otelc can inject it at the point where `net/http` gets compiled into your binary.
+If `net/http` needs instrumentation, otelc can inject it as `net/http` gets compiled into your binary. The result has OTel spans baked in: no runtime agent, no sidecar, no dynamic injection. The rewrite injects a small trampoline (a generated stub in the target function) that calls a hook function, linked in with `//go:linkname`. The hooks are ordinary Go in otelc's instrumentation packages, and they call the OTel API and SDK, so at runtime the spans look like ones you'd have written by hand.
 
-The result is a binary with OTel spans baked in. No runtime agent, no sidecar, no dynamic injection. At runtime, the instrumented code calls the OTel SDK just as if you'd written the calls manually. After the AST rewrite, you effectively did.
+That's the whole trick, and it comes with a price tag. Let's read it before we buy.
 
-## Using it
+## The constraint you need to know
 
-Install:
+otelc needs a Go 1.25 or newer toolchain (its [`go.mod`](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/blob/v1.0.1/go.mod) says `go 1.25.0`). The toolchain is what counts: a service whose `go.mod` says `go 1.24` still builds with a newer toolchain, and otelc raises the directive with a warning. Builds pinned to a Go 1.23 or 1.24 toolchain can't use otelc, nor Orchestrion v1.12.0 ([`go.mod`](https://github.com/DataDog/orchestrion/blob/v1.12.0/go.mod)). For those, OBI ([part 2](/posts/obi-ebpf-auto-instrumentation-go/)) needs no rebuild.
+
+When I prepared the talk, Go 1.26 (February 2026) was current, and Go 1.27 arrived on 2026-08-19, which ends upstream support for 1.25. Toolchain pinning is a fine habit until a tool wants a newer one. In slow-upgrade environments that's the first question to answer. If the toolchain clears, the next question is what the rebuild buys us.
+
+## What it instruments
+
+The default rules cover a list of libraries; for your own functions you write a custom rule. A rule is a YAML entry naming a target package, a selector and an action such as `inject_hooks` ([schema](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/blob/v1.1.0/docs/rules.md)); its hooks are Go in a package of their own. At v1.0.1 the [getting-started guide](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/blob/v1.0.1/docs/getting-started.md) listed `net/http` (client and server), gRPC, `database/sql`, gin, go-redis v9, mongo-driver, Kubernetes client-go, the OpenAI Go SDK (v1 to v3) and segmentio/kafka-go. v1.1.0 added Anthropic, AWS SDK v2, linodego and mongo-driver v2; the [docs' supported-libraries page](https://opentelemetry.io/docs/zero-code/go/compile-time/supported-libraries/) has the current list.
+
+Orchestrion with dd-trace-go has its own list. Its [supported-integrations table](https://github.com/DataDog/dd-trace-go/blob/v2.9.1/contrib/supported_integrations.md) in dd-trace-go v2.9.1 (the version Orchestrion v1.12.0 pins) marks which integrations work with Orchestrion. They include HTTP frameworks (net/http, gin, gorilla/mux, chi, echo, fiber), gRPC, `database/sql` and the layers above it (pgx, gorm, mongo-driver), Redis (go-redis v6 to v9, redigo, rueidis), Kafka, AWS SDK v1 and v2, and Kubernetes client-go. Compare both lists against your own dependencies before choosing.
+
+Coverage is one axis. The other is whether to rebuild at all, so let's put otelc next to OBI.
+
+## Where it fits relative to OBI
+
+OBI and otelc attack the same problem, zero source code changes, from opposite ends. Which end do we pick?
+
+OBI attaches from outside the process at runtime. It needs no rebuild, works on deployed services, and covers other languages too. But it's bounded by what eBPF can observe at library boundaries: RED metrics and library-level spans for the Go libraries it supports ([13 in the OBI v0.10.0 support matrix](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/blob/v0.10.0/SUPPORT_MATRIX.md), the release pinned for the talk). It cannot generate custom spans or instrument business logic.
+
+otelc works at build time. It requires a rebuild and Go 1.25 or newer. In exchange, it can reach stdlib internals, your own functions, dependencies and business logic, with a custom rule for anything the default set doesn't cover. The injected spans have the fidelity of hand-written OTel calls, because the hooks call the same OTel API and SDK you would.
+
+My decision rule: deployed and can't rebuild, need baseline visibility across services? OBI. Building or rebuilding, want granular spans, on Go 1.25 or newer? otelc. Running Datadog APM with the widest framework coverage? Orchestrion. [Part 6](/posts/zero-touch-go-observability-agent-actionable/) turns this into a runbook. For now, time to run that command.
+
+## Try it
+
+Install otelc, pinned to a version. I ran v1.1.0; its runtime rules match v1.0.1, the version pinned for the talk:
 
 ```bash
-go install go.opentelemetry.io/otelc/tool/cmd/otelc@latest
+go install go.opentelemetry.io/otelc/tool/cmd/otelc@v1.1.0
 ```
 
-Build your service with otelc wrapping the build command:
+Then build the service with otelc wrapping the build command, exactly as in the opening:
 
 ```bash
 otelc go build -o myapp .
 ```
 
-That's the complete usage change. No `go:generate`, no build tags, no source modifications. The `-toolexec` flag is wired in by `otelc go build` automatically.
+That's the complete usage change. To see traces, run the binary with `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318` and `OTEL_SERVICE_NAME=my-go-service`. otelc exports OTLP over HTTP by default, so use 4318, not the gRPC port 4317 ([part 6](/posts/zero-touch-go-observability-agent-actionable/#what-otelc-covers) explains). In CI, put `otelc` in `$PATH` and prefix your existing build command. If you can't prefix it, the getting-started guide describes a second route: run `otelc setup` once, then set `GOFLAGS="'-toolexec=otelc toolexec'"` and use plain `go build`.
 
-For CI, you set `otelc` in `$PATH` and prefix your existing build command. It works with any build system that accepts custom `go build` invocations. No changes to `go.mod` required for the application itself; otelc manages its own dependencies.
+"Without a single line" sounds absolute, so here's the fine print. You don't edit `go.mod` yourself, but otelc does touch it. During the build it adds its hook modules as `replace` directives, runs `go mod tidy`, and may raise the `go` directive (it prints `Bumped go version` when it does), then restores `go.mod` and `go.sum` when the build finishes. A `.otelc-build/` directory stays behind. If a build is interrupted, the [troubleshooting guide](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation/blob/v1.0.1/docs/troubleshooting.md) says to run `otelc cleanup` and `git restore go.mod go.sum`.
 
-## The constraint you need to know
+Already using `otelhttp` and your own spans? I built a small server with `otelhttp.NewHandler` and one manual span using `otelc go build` (v1.1.0, Go 1.27.1, macOS arm64) and sent three requests to Jaeger. Each request was one trace: otelc's server span at the root, the `otelhttp` server span under it, and my manual span under that. Nothing is orphaned, but you get two server spans per request. I didn't test dd-trace-go.
 
-`otelc` requires **Go 1.25+**. This is confirmed from the README badge and is a genuine constraint: services on Go 1.23 or 1.24 cannot use otelc. For those, OBI (no rebuild required) or Orchestrion (check its `go.mod` for minimum version) are the options.
+Back to our one command, then. "Without a single line" really means one build command substitution and Go 1.25 on your toolchain. I'll take that trade most days. 🔧
 
-Go 1.25 isn't ancient. At time of writing it is current, but in environments with slow upgrade cycles or pinned toolchains, this will be the first question to answer.
+Versions, links and commands checked on 2 October 2026.
 
-## Why two tools
+## Up next
 
-It's a fair question. The OTel SIG blog post describes it as Datadog and Alibaba having "independently built compile-time Go instrumentation tools and converged." Orchestrion is Datadog's production-tested tool with broad dd-trace-go integration. The SIG decided the right move was to build a new OTel-native tool from scratch rather than donate Orchestrion wholesale, keeping Orchestrion as Datadog's supported product while the SIG owns the OTel-standard version.
-
-The practical implication for users: if you're on the OTel SDK and want vendor-neutral compile-time instrumentation, `otelc` is the right choice. If you're running Datadog APM and want the broadest integration coverage (51 libraries in dd-trace-go's `contrib/`), Orchestrion is battle-tested and default-wired to dd-trace-go/v2.
-
-The mechanism is identical. Choosing between them is mostly about which tracer SDK you're committing to.
-
-## What it instruments
-
-The OTel blog describes otelc as instrumenting "your code, its dependencies, and the standard library." The exact list of supported frameworks for v1.0.1 is in the repository's instrumentation packages. The Orchestrion + dd-trace-go side (which otelc is converging toward) covers HTTP frameworks (net/http, gin, gorilla/mux, chi, echo, fiber), gRPC, database/sql and ORM layers (sqlx, gorm, mongo-driver), Redis (go-redis v6-v9, redigo, rueidis), Kafka, AWS SDK v1/v2, and Kubernetes client-go.
-
-otelc's coverage is growing toward parity. Check the repo's current state for the exact list — it will have changed between when this was written and when you read it.
-
-## Where it fits relative to OBI
-
-OBI and otelc address the same underlying problem, zero source code changes, from opposite ends.
-
-OBI attaches from outside the process at runtime. It requires no rebuild, works immediately on deployed services, and handles multiple languages from a single DaemonSet. But it's bounded by what eBPF can observe at library boundaries: RED metrics and library-level spans for the 13 Go libraries it supports. It cannot generate custom spans or instrument business logic.
-
-otelc works at build time. It requires a rebuild and Go 1.25+. In exchange, it can instrument anything: stdlib internals, your own functions, dependencies, business logic. The injected spans have the same fidelity as manually written OTel SDK calls, because after the AST rewrite, they are manually written OTel SDK calls. The compiler just doesn't know you didn't type them.
-
-The decision rule I use:
-
-- Already deployed, can't rebuild, need baseline visibility across services → **OBI**
-- Building or rebuilding, want granular spans, on Go 1.25+ → **otelc**
-- Running Datadog APM with the widest framework coverage → **Orchestrion**
-
-For GopherCon UK 2026, otelc landing at v1.0.1 two weeks before the conference is the most timely piece of the story. The first stable release of an OTel-native compile-time Go instrumentation tool is a meaningful moment in the "Go without a single line of code" narrative, even if "without a single line" really means "with one build command substitution and Go 1.25 on your toolchain."
-
-The `-toolexec` mechanism is one of Go's least-discussed build features. Its documented purpose is generic: a program to invoke toolchain steps like `vet` and `asm` through, useful for cross-compile wrappers, emulators, and tools like garble. The Go team did not plan it as an instrumentation API. It turns out to be exactly the right hook for compile-time AOP anyway.
+[Part 4, The fourth signal: continuous profiling without code changes](/posts/continuous-profiling-go-without-code-changes/), goes back to the kernel to add profiles, and asks what a stripped binary still remembers. Next time, nobody rebuilds anything.

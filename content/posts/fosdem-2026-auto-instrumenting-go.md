@@ -177,7 +177,7 @@ For Go, this approach is more useful as a debugging tool than a production instr
 
 ### USDT Probes: The Novel Part
 
-USDT (User Statically-Defined Tracing) probes are a mechanism from the DTrace/SystemTap world. They are marker points compiled into a binary that external tooling (bpftrace, perf, DTrace) can attach to at runtime. The key property: **when no consumer is attached, the probe site is a NOP instruction with zero overhead.**
+USDT (User Statically-Defined Tracing) probes are a mechanism from the DTrace/SystemTap world. They are marker points compiled into a binary that external tooling (bpftrace, perf, DTrace) can attach to at runtime. The key properties: **the sites are stable and named, so a tool attaches without disassembling functions, and no uretprobe is needed**, which matters for Go because uretprobes and Go's moving stacks don't mix. When no consumer is attached, the probe site itself is a NOP instruction. The arguments it would pass can still cost something to compute, which the fork below hasn't benchmarked yet.
 
 We built two proof-of-concept implementations.
 
@@ -211,9 +211,10 @@ The more ambitious PoC is a [custom Go fork](https://github.com/kakkoyun/go/tree
 import "runtime/trace/usdt"
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
+    status := http.StatusOK
     usdt.Probe("myapp", "request_start")
-    defer usdt.Probe1("myapp", "request_end", int32(w.StatusCode))
-    // ... handle request
+    defer func() { usdt.Probe1("myapp", "request_end", int32(status)) }()
+    // ... handle request, setting status as needed
 }
 ```
 
@@ -236,16 +237,18 @@ This PoC proves that native USDT support in Go is technically feasible. The stan
 
 ### Go Runtime PoCs: Flight Recording
 
-Beyond USDT, we explored a [flight recorder PoC](https://github.com/kakkoyun/go/tree/poc_flight_recorder) based on [golang/go#63185](https://github.com/golang/go/issues/63185). The concept: always-on distributed tracing built into the Go runtime, with a bounded ring buffer and GODEBUG-based activation.
+Beyond USDT, we explored a [flight recorder PoC](https://github.com/kakkoyun/go/tree/1f6836932a219381e4088d61cafdfefadd0dd03c) based on [golang/go#63185](https://github.com/golang/go/issues/63185). The concept: always-on distributed tracing built into the Go runtime, as an extension of `runtime/trace` and its flight recorder. The fork adds an event filter, W3C Trace Context types, and HTTP, SQL, TLS and network span hooks, switched on through `GODEBUG` settings (`tracehttp`, `tracesql`, `tracetls`, `tracenet`).
 
 ```go
-import "runtime/trace/flight"
+import "runtime/trace"
 
-flight.Enable(flight.HTTP | flight.SQL | flight.Net)
-defer flight.Flush()  // Export on error or crash
+trace.SetEventFilter(trace.FilterHTTP | trace.FilterSQL | trace.FilterNet)
 ```
 
-The flight recorder PoC watches for trace files produced by the runtime, converts them to OTLP spans, and exports to a collector. If Go's runtime trace facilities eventually gain W3C Trace Context propagation, this could become the lowest-friction instrumentation path for Go — no SDK, no eBPF, no compile-time tools. Just the runtime doing what runtimes should do.
+`SetEventFilter` picks which event categories the runtime records. My hope was that this could become a low-friction path for Go; the note below says where I've landed.
+
+> [!note] Update, October 2026
+> Go 1.25 shipped the flight recorder as a diagnostics API you call from your own code. This fork is an experiment, and I don't expect the Go team to take it upstream. The direction I'd argue for instead is generic tracepoints that the standard library and runtime expose on purpose. The [GopherCon UK 2026 talk page](/talks/instrument-go-without-changing-a-single-line/) links the follow-up series.
 
 ---
 
@@ -262,7 +265,7 @@ We ran each scenario under identical load conditions using a Docker-based observ
 
 A few things stand out. The CPU and memory overhead across all approaches is negligible for this workload. The throughput differences are more interesting — Orchestrion's compile-time approach achieved the highest throughput, likely because the OTel code injected at compile time benefits from the same optimizations as the rest of the application. The eBPF approach showed lower throughput, consistent with the overhead of crossing the kernel boundary for each intercepted call.
 
-The USDT scenarios (`libstabst` and `usdt`) are not included in the table because they are proof-of-concept implementations with different exporter architectures. The core property of USDT — zero overhead when probes are not attached — was confirmed, but end-to-end benchmarking against the other approaches requires further work.
+The USDT scenarios (`libstabst` and `usdt`) are not included in the table because they are proof-of-concept implementations with different exporter architectures. The probe sites stay NOPs when nothing is attached, but the cost of computing their arguments hasn't been measured, and end-to-end benchmarking against the other approaches requires further work.
 
 Full benchmark data and reproduction instructions are in the [demo repository](https://github.com/kakkoyun/fosdem-2026).
 
@@ -282,7 +285,7 @@ These approaches are not competing. They serve different deployment scenarios an
 | **eBPF/OBI** | Kernel-level network hooks | Runtime flexibility, multi-language, no restart | Needs kernel privileges |
 | **eBPF Auto** | uprobe hooks on Go functions | Go-specific deep tracing without code changes | Maintenance mode, fragile across Go versions |
 | **Injector/SSI** | K8s operator + `LD_PRELOAD` | Lowest friction onboarding | Does not work for Go's static binaries |
-| **USDT** | Compiled probe points + bpftrace | Zero overhead when not tracing, future potential | Proof of concept, tooling still young |
+| **USDT** | Compiled probe points + bpftrace | Stable named sites, simpler attach, no uretprobes (an unattached site is a NOP; probe arguments are still computed and not yet benchmarked) | Proof of concept, tooling still young |
 
 The vision articulated at OTel Unplugged — `apt install opentelemetry` and everything works — requires all these layers coordinating. OBI detecting the Injector and backing off. Compile-time instrumentation detecting existing SDK usage. USDT probes coexisting with eBPF hooks. We are not there yet, but the direction is clear.
 
@@ -298,9 +301,9 @@ Several threads from the talk and surrounding conversations point forward:
 
 - **eBPF Tokens.** [BPF Tokens](https://fosdem.org/2026/schedule/event/3LLHG9-bpf-tokens-safe-userspace-ebpf/) could significantly reduce the privilege requirements for eBPF-based instrumentation. Instead of `CAP_SYS_ADMIN`, a token-based trust model would lower the bar for security teams.
 
-- **Native USDT in Go.** The PoC fork demonstrates feasibility. Whether the Go team would accept USDT probes into the standard library is an open question, but the pattern exists elsewhere — Postgres, MySQL, and the JVM all have static tracepoints behind flags.
+- **Native USDT in Go.** The PoC fork demonstrates feasibility, but it needs a lot more work from me, and it would need the Go runtime team to accept it. Nothing is proposed upstream. The pattern exists elsewhere — Postgres, MySQL, and the JVM all have static tracepoints behind flags.
 
-- **Flight recording.** The `golang/go#63185` proposal for always-on flight recording in the Go runtime could eventually provide the foundation for zero-touch distributed tracing without any external tooling.
+- **Flight recording.** The `golang/go#63185` proposal shipped in Go 1.25 as a diagnostics API. Extending it into always-on distributed tracing is my own experiment, and I don't expect it upstream.
 
 ---
 
@@ -310,6 +313,6 @@ The instrumentation tax is real and unavoidable. The question is not whether to 
 
 The slides are available as [Markdown](https://github.com/kakkoyun/fosdem-2026/blob/main/presentation.md) in the repository. The demo code, Docker setup, and benchmark scripts are all in the [FOSDEM-2026 repository](https://github.com/kakkoyun/fosdem-2026). The [recording is on YouTube](https://www.youtube.com/watch?v=0TvrSebuDPk).
 
-If you want to get involved: the [OTel Compile-time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://communityinviter.com/apps/cloud-native/cncf) are where the discussions happen.
+If you want to get involved: the [OTel Compile-time Instrumentation SIG](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation), [OBI](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation), and [OTel Go](https://github.com/open-telemetry/opentelemetry-go) repositories all accept contributions. The `#otel-go` and `#otel-ebpf-sig` channels on [CNCF Slack](https://slack.cncf.io/) are where the discussions happen.
 
 See also: [OTel Unplugged EU 2026 field notes](/posts/otel-unplugged-eu-2026/) for the broader community context.
