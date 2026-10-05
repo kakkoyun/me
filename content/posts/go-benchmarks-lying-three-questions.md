@@ -1,9 +1,9 @@
 ---
 title: "Three Questions Before You Trust a Benchmark"
-description: "A closing synthesis of the Why Your Go Benchmarks Are Lying series — the OPERA analogy, a real CI regression that turned out to be a speedup, and three questions you can answer with three CLIs before you merge."
-date: 2026-09-25T00:00:00Z
-publishDate: 2026-09-25T00:00:00Z
-draft: true
+description: "A CI regression that turned out to be a speedup, and three questions, each backed by a small CLI, that tell you whether a Go benchmark result deserves your trust."
+date: 2026-08-04T00:00:00Z
+publishDate: 2026-08-04T00:00:00Z
+promote: false
 categories:
   - engineering
 tags:
@@ -18,186 +18,161 @@ showToc: true
 tocOpen: false
 ---
 
-### A Loose Cable
+A benchmark bot once told me that one of my pull requests made a benchmark 6–9% slower. A same-machine comparison said the pull request made it faster. Both results were stable, and they disagreed. In this last part we'll find out how that happens, and leave with three questions and three small Go tools that tell us how far to trust a number.
 
-In September 2011, the OPERA collaboration announced that muon neutrinos appeared to travel faster than the speed of light. Months of rechecking (the math, the sensors, the calibration) found nothing wrong. The root cause, eventually, was an improperly seated fibre-optic connector in the GPS timing chain — which introduced a ~73 ns bias that made neutrinos appear to arrive early. There was also a second fault, an oscillator defect pushing in the opposite direction — partially masking the first. Once both were corrected, the July 2012 re-measurement showed neutrino speed consistent with the speed of light.
+## A loose cable
 
-The epistemological point is not about physics. A systematic measurement error can hide in plain sight, look exactly like signal, and survive review by people far more careful than you. An international collaboration of particle physicists rechecked that result for months — and found not one error but two, each partially cancelling the other.
+Physicists have been fooled the same way, at a much larger scale. In September 2011, the OPERA collaboration [announced](https://web.archive.org/web/20140222165941/http://press-archived.web.cern.ch/press-archived/PressReleases/Releases2011/PR19.11E.html) that muon neutrinos appeared to travel faster than the speed of light. Months of rechecking found nothing wrong. The root cause, eventually, was an improperly seated fibre-optic connector in the GPS timing chain, which introduced a ~73 ns bias that made neutrinos appear to arrive early ([Science](https://doi.org/10.1126/science.335.6072.1027) called it a loose cable). A second fault, an oscillator defect, pushed the other way and partly masked the first. Once both were corrected, the 2012 re-measurements showed neutrino speed consistent with the speed of light.
 
-Your Go benchmark has `testing.B`, a laptop, and background Chrome tabs. The cables are your compiler, your OS scheduler, and your statistics.
+A systematic measurement error can hide in plain sight, look exactly like signal, and survive review by people far more careful than we are. Our Go benchmarks have `testing.B`, a laptop, and background Chrome tabs. They have cables too: the compiler, the statistics, and the machine with its OS scheduler. We'll follow one loose cable through this post. I'll show you mine first, and then we'll see which question would have caught it.
 
----
+This is part 5 of 5 in the [Why Your Go Benchmarks Are Lying](/series/why-your-go-benchmarks-are-lying/) series, the written companion to the [GopherCon UK 2026 talk](/talks/why-your-go-benchmarks-are-lying/). [Part 4](/posts/go-benchmarks-lying-ci/) built benchmark CI that holds up (with the companions [A PR gate that actually fails](/posts/go-benchmarks-pr-gate-that-fails/) and [A/B is the wrong model for CI](/posts/go-benchmarks-ab-is-the-wrong-model/)); this part asks whether we should believe it. The [FOSDEM 2026 post on measuring software performance](/posts/fosdem-2026-measuring-software-performance/) is the prerequisite. The tools live in [benchlab](https://github.com/kakkoyun/benchlab/tree/v0.1.0) and the talk's demo results in [gopherconuk-26](https://github.com/kakkoyun/gopherconuk-26/tree/fdce88cc0ce129b7d2edfb1a20d02fe647c17eeb/talks/go-benchmarks-lying). Disclosure: I work at Datadog, which maintains dd-trace-go, so the story is about my employer's CI bot. The lesson holds for any repository.
 
-### The CI Regression That Was a Speedup
+Enough physics. Here is my loose cable.
 
-In June 2026, a restructure of `context.go` in the `ddtrace/tracer` package landed as [dd-trace-go #4891](https://github.com/DataDog/dd-trace-go/pull/4891). It was compile-time instrumentation plumbing — more files touched than a sibling two-line change, but structurally similar work. Shortly after pushing, the benchmark bot flagged `BenchmarkOTLPProtoSize` as **6–9% slower than main** and commented on the PR.
+## The CI regression that was a speedup
 
-First instinct: something in the restructure was hurting the OTLP encoding path. The right move before touching anything is to read what the benchmark actually measures.
+In June 2026 I pushed a change touching `context.go` in the `ddtrace/tracer` package, which landed as [dd-trace-go #4891](https://github.com/DataDog/dd-trace-go/pull/4891). The change was compile-time instrumentation plumbing. Shortly after the push, the benchmark bot commented that `BenchmarkOTLPProtoSize` was **6–9% slower than main**.
+
+My first instinct was to suspect my change. The better move is to read what the benchmark measures first, so here is its timed loop:
 
 ```go
 // The entire timed loop inside BenchmarkOTLPProtoSize:
-proto.Size(tracesData)
+for b.Loop() {
+	proto.Size(tracesData)
+}
 ```
 
-That is a protobuf size computation on a struct assembled entirely before `b.ResetTimer()`. It never calls `ContextWithSpan`, `SpanFromContext`, or any code the PR modified. So the reported regression had no plausible causal path through the diff — whatever the bot was measuring, it was not the changed code doing more work. Hold that thought; the mechanism turns out to be real, and stranger.
+That is a protobuf size computation on a struct assembled entirely before the loop (the [real benchmark](https://github.com/DataDog/dd-trace-go/blob/1a0c5e19b611f34f14c14531304973c89d2fb055/ddtrace/tracer/otlp_writer_bench_test.go#L144) still calls `b.ResetTimer()` there, which `b.Loop` makes redundant). It never calls `ContextWithSpan`, `SpanFromContext`, or any code the PR modified, so the diff had no believable path to the number. Hold that thought, because the likely mechanism is stranger.
 
-Step two: check local variance. Running `BenchmarkOTLPProtoSize` repeatedly on the development machine gave **<0.1% run-to-run variance**. The CI signal of 6–9% was not generic runner noise on this box — it was specific to CI.
-
-Step three: build `main` and `#4891` on the same machine and compare with `benchstat`:
+Did the regression show up on my own machine? Running the benchmark repeatedly there gave a **coefficient of variation (CV) under 0.1%**, so a 6–9% gap was not ordinary variance. I built `main` and `#4891` on that same machine, an Apple M4 Max (darwin/arm64), and compared them with `benchstat`. The table shows the medians:
 
 | Build | 1 span | 10 spans |
 |-------|--------|----------|
 | main | 883.3 ns/op | 7115 ns/op |
 | #4891 | 840.7 ns/op | 6775 ns/op |
 
-**#4891 was faster.** CI had flagged a regression; the same-machine A/B showed the opposite.
+**#4891 was faster.** CI had flagged a regression, and the same-machine A/B showed the opposite.
 
-The mechanism: restructuring `context.go` shifted function addresses across the `ddtrace/tracer` package. That moved the hot `proto.Size` loop's instruction fetch window relative to cache-line and branch-target buffer boundaries. At the sub-microsecond scale of this benchmark (the table above), small alignment shifts produce several-percent swings in either direction — enough to flip the verdict from "improvement" to "regression" on a shared runner that cannot lock CPU frequency.
+The likely mechanism is code layout. Changing `context.go` shifted function addresses in the test binary, which moved the hot `proto.Size` loop relative to cache-line and branch-target-buffer boundaries. At the sub-microsecond scale of the one-span case, a small alignment shift can swing a result by a few percent in either direction, enough to flip the verdict from "improvement" to "regression". Emery Berger's [Performance Matters](https://www.youtube.com/watch?v=r-TLSBdHe1A) (Strange Loop 2019) puts code layout alone at ±10%.
 
-The resolution: nothing. No code change. The PR shipped as written. Pushing a speculative "fix" to quiet the benchmark would have been chasing shadows.
+The evidence is circumstantial. A later comparison of symbol addresses in linux/amd64 test binaries, built from the base commit and from the PR's merge commit, shows the hot protobuf size functions (`proto.MarshalOptions.size`, `impl.(*MessageInfo).sizePointer`) each moved by 96 bytes, and the benchmark closure by 160. Those are amd64 binaries, not necessarily what CI ran, so the layout is indicative only, and no hardware-counter measurement ties the shift to the delta.
 
-The same benchmark triggered again on a subsequent PR eleven days later. That time it was dismissed in under a minute: "known `BenchmarkOTLPProtoSize` false positive: code-layout/alignment artifact; local A/B was ~+0.3%. No action." Documented false positives pay for themselves on every future PR that trips the same wire.
+The bot's own history on the PR fits the layout reading. From 12 June, each update of its comment said four regressions, 6–9% at every span count. On 19 June, after `main` had moved, the same comment said four improvements of 6–8% for the same benchmark. That is not noise around zero. The bias was stable and changed sign when `main` moved, the same shape as OPERA: a systematic error that looks like signal.
 
-The OPERA lesson and this story teach the same thing. A number from a noisy environment is not merely imprecise — it can be directionally wrong. A benchmark gate that is directionally wrong blocks good changes and waves bad ones through.
+The resolution: nothing. No code change for the benchmark. A speculative "fix" to quiet it would have been chasing shadows.
 
----
+At the time, these benchmarks ran on shared CI runners. We have since moved them to dedicated bare-metal machines, which takes the noisy neighbours out of the picture. It doesn't take code layout out, and neither does a same-machine A/B, since the two binaries still differ in layout. It removes the machine. CI said +6 to 9% and my machine about −5% for a benchmark whose loop the PR never touched; a sign that flips between machines points at layout more than at code. Neither machine is authoritative by default; the flip is the tell to go and look at layout. The same benchmark tripped again on [#4926](https://github.com/DataDog/dd-trace-go/pull/4926), eleven days after #4891 was opened, with +6.5–8.5% on the same four sub-benchmarks. That time the flag was dismissed on sight as a known false positive: a code-layout artifact, with a local A/B of about +0.3%.
 
-### Three Questions
+OPERA and #4891 teach the same thing. A number can be reproducible and still be directionally wrong, and a gate that is directionally wrong blocks good changes and waves bad ones through. One loose cable is bad luck. Knowing which cables to check is not, and the series gave us three.
 
-The earlier posts in this series each address one way a Go benchmark can mislead you. They collapse into a checklist you can run before merging anything that touches a hot path.
+## Three questions
 
-| # | Question | Post | What to verify |
-|---|----------|------|----------------|
+Each earlier part went after one way a Go benchmark can mislead us. Side by side, they make a checklist to run before merging anything on a hot path:
+
+| # | Question | Part | What to verify |
+| --- | ---------- | ------ | ---------------- |
 | 1 | Is the compiler measuring real work? | [Compiler honesty](/posts/go-benchmarks-lying-compiler-honesty/) | Sink pattern present; no discarded results; `allocs/op` > 0 when allocation is expected |
-| 2 | Is my sample stable enough? | [Statistics](/posts/go-benchmarks-lying-statistics/) | CV < ~5%; `benchstat` p-value < 0.05; `-count=10` minimum |
-| 3 | Is the difference large relative to the noise? | [Local reproduction](/posts/go-benchmarks-lying-local-reproduction/) & [CI](/posts/go-benchmarks-lying-ci/) | Environment diagnosed; A/B on the same controlled machine; CI used for detection, not as the primary measurement |
+| 2 | Is my sample stable enough? | [Statistics](/posts/go-benchmarks-lying-statistics/) | CV < ~5%; at least `-count=10` |
+| 3 | Is the difference large relative to the noise? | [Local reproduction](/posts/go-benchmarks-lying-local-reproduction/) & [CI](/posts/go-benchmarks-lying-ci/) | `benchstat` p-value < 0.05 and an effect that matters; environment diagnosed; A/B on the same machine, since a sub-10% micro delta can be code layout; CI used for detection, not as the primary measurement |
 
-Each question gates the next. A benchmark the compiler has optimised away answers question 2 with noise. A noisy environment makes question 3 unanswerable regardless of sample size.
+Each question gates the next. A benchmark the compiler has optimised away answers question 2 with noise, and a noisy environment makes question 3 unanswerable whatever the sample size. A checklist nobody runs is decoration, so each question gets a tool.
 
-> "Not all fast software is world-class, but all world-class software is fast. Performance is _the_ killer feature."
->
-> Tobi Lütke (@tobi), [X, 5 May 2024](https://x.com/tobi/status/1787139157078188180)
+## Wire it up this afternoon
 
-A Google experiment [reported by Marissa Mayer in 2006](http://glinden.blogspot.com/2006/11/marissa-mayer-at-web-20.html) found that a half-second increase in search result page generation time caused a 20% drop in traffic. They could act on it because they had measured it. Measurement errors work in both directions: they block improvements and wave through regressions.
-
----
-
-### Wire It Up This Afternoon
-
-The [talk repo](https://github.com/kakkoyun/gopherconuk-26) for "Why Your Go Benchmarks Are Lying (And How to Stop Them)" at GopherCon UK 2026 includes three CLIs, one per question. Each is a stdlib-only Go module (`go 1.24`), no external dependencies, buildable with a single `go build`. Each is also wrapped as a Claude Code skill so an agent running benchmark discipline uses the same tools as a human.
-
-| CLI | Answers | Skill |
-|-----|---------|-------|
-| `honestbench` | Is the compiler measuring real work? | `honest-benchmark` |
-| `benchgate` | Is my sample stable enough? | `benchstat-gate` |
-| `benchenv` | Is my environment controlled enough? | `diagnose-noisy-bench` |
-
-#### honestbench
-
-`honestbench` walks `*_test.go` files with `go/ast` and flags: results discarded after computation (dead-code elimination candidates), missing sink patterns, `StopTimer`/`StartTimer` misordering, and `b.N` loops that should migrate to `testing.B.Loop`, introduced in Go 1.24. Exit 1 on findings — usable as a CI gate.
+The three CLIs from the talk are in [benchlab](https://github.com/kakkoyun/benchlab/tree/v0.1.0), my own project, one per question. Everything here describes `v0.1.0`, the tag pinned for the talk on 12 August 2026. They share one stdlib-only Go module (`go 1.24`). Pin the tag, because unreleased work on `main` changes some of these flags:
 
 ```bash
-cd tools/cli/honestbench && go build -o honestbench .
-./honestbench -r ./...
+go install github.com/kakkoyun/benchlab/cmd/...@v0.1.0
 ```
 
-Flags: `-r` recurse into subdirectories, `-json` machine-readable output, `-q` quiet (findings only, no summary line). Exit codes: `0` clean, `1` findings, `2` error.
+We'll take them in question order, starting with the compiler.
 
-Run this before reading a single `ns/op` number. A benchmark with findings is not measuring what you think it is.
+### `honestbench`
 
-#### benchgate
-
-`benchgate` runs benchmarks N times, computes the coefficient of variation (CV) per benchmark, and fails if any benchmark exceeds a threshold. It optionally diffs against a saved baseline via `benchstat`.
+`honestbench` answers question 1. It walks `*_test.go` files with `go/ast` and flags results discarded after computation (dead-code elimination candidates), missing sink patterns, `StopTimer`/`StartTimer` misordering, and `b.N` loops that should migrate to `testing.B.Loop`, introduced in Go 1.24. It exits 1 on findings, so it works as a CI gate:
 
 ```bash
-cd tools/cli/benchgate && go build -o benchgate .
-./benchgate -pkg ./... -count 10 -cv-threshold 5.0
+honestbench -r ./...
 ```
 
-Key flags:
+`-r` recurses into subdirectories, `-json` prints machine-readable output and `-q` prints findings only. Exit codes are `0` for clean, `1` for findings and `2` for an error. We run it before reading a single `ns/op`, because a finding on a `b.N` loop means the benchmark probably measures something other than what we think.
 
-| Flag | Default | Purpose |
-|------|---------|---------|
-| `-pkg` | `./...` | Package pattern to benchmark |
-| `-count` | `10` | Number of runs |
-| `-cv-threshold` | `5.0` | Max acceptable CV % |
-| `-baseline` | (none) | Path to saved output for `benchstat` A/B |
-| `-save` | (none) | Write raw output to capture a baseline |
-| `-bench` | `.` | Benchmark regexp passed to `go test` |
-| `-json` | (none) | Machine-readable output |
+One caveat: `v0.1.0` also reports discarded results inside `for b.Loop()` bodies, where the `testing` package [documents](https://pkg.go.dev/testing#B.Loop) that call results are kept alive. That includes the `proto.Size` loop from my story. Treat a finding there as a prompt to look, not as proof. (Yes, my own linter flags my own story. Tools are measurements too.) Once the compiler is honest, the next question is whether the sample is.
 
-The CV threshold is the first honest signal. With SMT enabled on a shared cloud runner, CV on CPU-bound benchmarks runs around 23%; with SMT disabled it drops below 0.25% — roughly a 100× reduction. A gate at 5% catches environments that are too noisy to produce a reliable A/B signal before you waste time interpreting numbers.
+### `benchgate`
 
-To capture a baseline on the current branch and compare after a change:
+`benchgate` answers question 2. It runs benchmarks N times, computes the coefficient of variation (CV) per benchmark, and fails if any exceeds a threshold. It can also diff against a saved baseline through `benchstat`, which must be on your `PATH` (see [part 2](/posts/go-benchmarks-lying-statistics/)):
 
 ```bash
-./benchgate -pkg ./... -count 10 -save old.txt
+benchgate -pkg ./... -count 10 -cv-threshold 5.0
+```
+
+`-pkg` (default `./...`) and `-bench` (default `.`) pick what to run, `-count` (default 10) says how many times, and `-cv-threshold` (default 5.0, in percent) sets the bar. `-baseline` takes a saved file to diff against, `-save` writes one, and `-json` prints machine-readable output. A gate at 5% catches environments too noisy for a reliable A/B before we waste time interpreting numbers. [Part 4](/posts/go-benchmarks-lying-ci/#why-shared-runners-lie) shows what SMT and frequency scaling do to CV.
+
+To capture a baseline on the current branch and compare after a change, we run it twice:
+
+```bash
+benchgate -pkg ./... -count 10 -save old.txt
 # make your change
-./benchgate -pkg ./... -count 10 -baseline old.txt
+benchgate -pkg ./... -count 10 -baseline old.txt
 ```
 
-The `-baseline` flag runs `benchstat old.txt <new-output>` and prints the comparison automatically.
+The second run calls `benchstat old.txt <new-output>` for us and prints the comparison. The exit code comes from the CV check alone, so a +40% delta on a quiet sample still exits 0; gating on the delta is a step you write. A stable sample still says nothing about the machine that produced it, which is what the third tool is for.
 
-#### benchenv
+### `benchenv`
 
-`benchenv` diagnoses the measurement environment: SMT state, CPU frequency governor, Turbo Boost, system load average, and which of `perflock`, `benchstat`, and `benchdiff` are installed. It is cross-platform and degrades gracefully on macOS where sysfs controls are unavailable.
+`benchenv` helps with question 3. It diagnoses the measurement environment: SMT state, CPU frequency governor, Turbo Boost, system load average, and which of `perflock`, `benchstat` and `benchdiff` are installed. It works across platforms and degrades gracefully on macOS, where sysfs controls are unavailable. Its only flag is `-json`.
 
 ```bash
-cd tools/cli/benchenv && go build -o benchenv .
-./benchenv
+benchenv
 ```
 
-The only flag is `-json`. Run it once at the start of a benchmarking session. Every `[warn]` line is a noise source. Fix the warnings before reading any numbers.
-
-A typical output on a developer laptop:
+Here is one run, on one machine: an Apple M4 Max (darwin/arm64, Go 1.27.1) with `benchenv` from `v0.1.0`, on 2026-10-02. The load-average warning depends on what else the machine was doing, so yours will differ.
 
 ```text
-benchenv: benchmarking environment diagnosis (darwin/arm64, 10 CPUs)
+benchenv: benchmarking environment diagnosis (darwin/arm64, 16 CPUs)
 
-  [warn]          turbo-boost — Turbo Boost enabled: frequency varies per-core.
-  [warn]          perflock — perflock not found: go install github.com/aclements/perflock@latest
-  [ok]            benchstat — found
-  [ok]            benchdiff — found
-  [unavailable]   smt — smt control not available on this platform
+  [unavailable]   SMT control — macOS does not expose SMT control via sysfs — use a Linux machine or bare-metal CI runner for publication-quality numbers
+  [unavailable]   CPU frequency governor — macOS does not expose a CPU frequency governor — use a Linux machine or bare-metal CI runner for publication-quality numbers
+  [unavailable]   Turbo Boost — macOS does not expose Turbo Boost control from user space — use a Linux machine or bare-metal CI runner for publication-quality numbers
+  [warn]          load average — close background applications before benchmarking
+  [unavailable]   thermal pressure — macOS thermal state is not accessible from user space — watch for CPU throttling on sustained benchmark runs
+  [warn]          perflock not installed — go install github.com/aclements/perflock@latest
+  [ok]            benchstat installed — benchstat found on PATH
+  [warn]          benchdiff not installed — go install github.com/willabides/benchdiff/cmd/benchdiff@latest
+  [ok]            GOMAXPROCS / NumCPU — NumCPU=16 GOMAXPROCS=16
 
-Summary: 2 ok, 2 warn, 1 unavailable. Fix warnings before trusting benchmark numbers.
+Summary: 2 ok, 3 warn, 4 unavailable. Fix warnings before trusting benchmark numbers.
 ```
 
-Fix the warnings. Then run `benchgate`. Then compare with `benchstat`.
+Every `[warn]` line is a noise source or a missing tool, and the `[unavailable]` lines are macOS declining to say. The install hints print `@latest`; pin `perflock` and `benchdiff` the way [part 3](/posts/go-benchmarks-lying-local-reproduction/) does. We run `benchenv` once at the start of a benchmarking session, fix the warnings, then run `benchgate`, then compare with `benchstat`.
 
----
+## The minimum viable discipline
 
-### The Minimum Viable Discipline
-
-If you take one thing from this series: run benchmarks ten times, not once.
+If we keep one thing from this series, it should be this: run benchmarks ten times, not once. The whole loop needs only the Go toolchain and `benchstat`:
 
 ```bash
 # Baseline on the current branch
-go test -bench=. -count=10 ./... | tee old.txt
+go test -bench=. -benchmem -count=10 ./... | tee old.txt
 
 # After your change
-go test -bench=. -count=10 ./... | tee new.txt
+go test -bench=. -benchmem -count=10 ./... | tee new.txt
 
 # Compare
 benchstat old.txt new.txt
 ```
 
-Add all three: `honestbench -r .` before reading any numbers, `benchenv` on any new machine or CI runner, and `benchgate -cv-threshold 5.0` as a gate that fails early when the environment is too noisy to produce a reliable signal.
+`benchstat` then tells us whether the difference clears the noise. That is the floor. For anything you report, use `-count=20` (plus `-benchtime=2s` on a noisy Mac, [part 3](/posts/go-benchmarks-lying-local-reproduction/)), and for CI baselines consider a fixed count (`-benchtime=Nx`, [part 2](/posts/go-benchmarks-lying-statistics/)) over part 4's time-based 2s and 5s. Around that loop go all three tools: `honestbench -r ./...` before reading any numbers, `benchenv` on any new machine or CI runner, and `benchgate -cv-threshold 5.0` as a gate that fails early when the environment is too noisy for a reliable signal.
 
-Three tools, under an hour to wire up, applicable to any Go project. The benchmarks you write after this series will at minimum tell you what they are measuring, and tell you when the answer cannot be trusted.
+Three tools, under an hour to wire up, for any Go project. Time to check them against the cable from the start.
 
----
+Versions, links and commands checked on 2 October 2026.
 
-### Resources
+## Where to go from here
 
-- [Why Your Go Benchmarks Are Lying (And How to Stop Them)](https://github.com/kakkoyun/gopherconuk-26) — GopherCon UK 2026 talk repo, demo module, and CLIs
-- [The Go Benchmark That Measured Nothing: Compiler Honesty in testing.B](/posts/go-benchmarks-lying-compiler-honesty/) — post 1: dead-code elimination, inlining, the sink pattern
-- [A Single Benchmark Number Is a Lie](/posts/go-benchmarks-lying-statistics/) — post 2: distributions, `benchstat`, CV
-- [Before CI: Can You Trust a Benchmark on Your Own Laptop?](/posts/go-benchmarks-lying-local-reproduction/) — post 3: idle vs. saturated host, container CPU pinning, what isolation actually buys you locally
-- [Benchmark CI That Doesn't Lie](/posts/go-benchmarks-lying-ci/) — post 4: `benchdiff` workflow, statistical significance gates, bare-metal vs shared runners
-- [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/) — language-agnostic companion (FOSDEM 2026)
-- Tene, G. — [How NOT to Measure Latency](https://www.youtube.com/watch?v=lJ8ydIuPFeU) — coordinated omission and latency-measurement pitfalls beyond this series' scope
-- Gregg, B. — [Frequency Trails: Outliers](https://www.brendangregg.com/FrequencyTrails/outliers.html)
-- Bakhvalov, D. — [Performance Analysis and Tuning on Modern CPUs](https://github.com/dendibakh/perf-book)
-- CERN, [OPERA experiment reports anomaly in flight time of neutrinos from CERN to Gran Sasso](https://home.cern/opera-experiment-reports-anomaly-in-flight-time-of-neutrinos-from-cern-to-gran-sasso/) (press release, 23 September 2011)
-- Cartlidge, E., "Error Undoes Faster-Than-Light Neutrino Results," *Science* 335(6072):1027, doi:[10.1126/science.335.6072.1027](https://doi.org/10.1126/science.335.6072.1027) (2012)
+Back to the loose cable. Run #4891 through the questions. Question 1 passes: the loop sizes a real protobuf message. Question 2 passes too, with a CV under 0.1%, and that is the trap, because a stable sample is not the same as a right one. Question 3 is the one that failed. The CI delta said slower, the A/B on one machine said faster, and the sign flipped when `main` moved. The A/B on one machine took the machine out of the story, with CI as the smoke alarm rather than the judge.
+
+That is the series. The [talk page](/talks/why-your-go-benchmarks-are-lying/) has the slides and links, the CLIs are in [benchlab](https://github.com/kakkoyun/benchlab/tree/v0.1.0), and the demo results are in [gopherconuk-26](https://github.com/kakkoyun/gopherconuk-26/tree/fdce88cc0ce129b7d2edfb1a20d02fe647c17eeb/talks/go-benchmarks-lying).
+
+Go find your loose cable. Preferably before anyone calls a press conference.

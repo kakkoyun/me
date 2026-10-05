@@ -1,9 +1,9 @@
 ---
 title: "The Go Benchmark That Measured Nothing: Compiler Honesty in testing.B"
-description: "Dead-code elimination, constant folding, and inlining can silently gut a Go benchmark loop. Learn how to detect each transformation, why allocs/op is the honest signal, and how testing.B.Loop in Go 1.24 removes most of these footguns at the language level."
-date: 2026-09-01T00:00:00Z
-publishDate: 2026-09-01T00:00:00Z
-draft: true
+description: "Dead-code elimination, constant folding and inlining can silently empty a Go benchmark loop. Here is how to catch each one, and how testing.B.Loop removes most of them."
+date: 2026-07-07T00:00:00Z
+publishDate: 2026-07-07T00:00:00Z
+promote: false
 categories:
   - engineering
 tags:
@@ -18,254 +18,212 @@ showToc: true
 tocOpen: false
 ---
 
-### The Number That Felt Too Good
+We're going to chase down one benchmark result that looks suspiciously good. The function under test calls `make([]byte, 64)` every time it runs, and the benchmark reports `0.34 ns/op`, `0 B/op`, `0 allocs/op`. That is almost three billion heap allocations per second on a laptop, and the allocator counted none of them. (It comes from a real run, more on that below.) Keep it in your pocket; we'll follow it the whole way.
 
-You write a benchmark. You run it. `0.30 ns/op`. Zero allocations. The function executes a million times per second, apparently.
+Where did the allocations go? They were never there. The compiler looked at the benchmark loop, noticed that the return value was unused, and, once the call was inlined, could prove that the body had no observable effect. It removed the body. The loop still ran `b.N` times. It just ran empty. The fastest code is the code that never runs, and the least useful to benchmark. This is not a compiler bug: the optimizer did its job, and nobody told it we wanted to watch. The transformations that make production code fast make microbenchmarks adversarial.
 
-Then someone on the team points out that the function you just benchmarked allocates 64 bytes. Every time. That is not negotiable — it calls `make`. There is no path through the code that avoids it.
+This is part 1 of 5 in the [Why Your Go Benchmarks Are Lying](/series/why-your-go-benchmarks-are-lying/) series, the written companion to the [GopherCon UK 2026 talk](/talks/why-your-go-benchmarks-are-lying/) of the same name. The series asks three questions of every benchmark number: did the compiler let it measure real work, is the sample stable, and is the difference large relative to the noise? This part answers the first. We'll catch the compiler emptying a loop in two ways, find the one column of `go test` output it cannot fool, trip over the benchmark timer ourselves, and finish with `testing.B.Loop`, the standard library's fix for most of it. Part 2 takes on the sample, parts 3 and 4 the machine, and part 5 turns the three questions into a checklist. New to `testing.B`? The primer [Benchmarking Go, quickly](/posts/go-benchmarks-quickly/) covers writing and reading one first. A benchmark bot once flagged a pull request of mine as 6 to 9% slower; hold that thought for part 5.
 
-So where did the allocations go?
+The prerequisite is [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/), which covers why hardware noise and statistical method matter in any language. Here we deal with what the Go compiler does before the benchmark ever reaches a CPU. All the code comes from the [demo repository](https://github.com/kakkoyun/gopherconuk-26/tree/fdce88cc0ce129b7d2edfb1a20d02fe647c17eeb/talks/go-benchmarks-lying/demo) (`talks/go-benchmarks-lying/demo/`, at commit `fdce88c`).
 
-They were never there. The compiler looked at your benchmark loop, noticed that the return value of your function was unused, and decided — correctly, according to the language specification — that the entire call was dead code. It removed it. Your benchmark loop still ran `b.N` times. It just ran empty.
+## The compiler is not a neutral observer
 
-This is not a compiler bug. It is the optimizer doing exactly what it should. The problem is that the same transformations that make production code fast make microbenchmarks fundamentally adversarial. An earlier post, [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/), covers why hardware noise and statistical method matter in any language. This series is about a different category of problem: the ones the Go compiler introduces before the benchmark ever reaches a CPU.
+Our suspect is dead-code elimination, with inlining as its accomplice. Its cousin, constant folding, does the same damage by another route. We start with the suspect.
 
-This is post 1 of "Why Your Go Benchmarks Are Lying," a companion series to the talk of the same name at GopherCon UK 2026. All code shown is from the [demo repository](https://github.com/kakkoyun/gopherconuk-26) (`talks/go-benchmarks-lying/demo/`).
+### Dead-code elimination
 
----
+Dead-code elimination (DCE) follows a simple rule: if a computation produces a value that nothing ever reads, the compiler can remove it. In a benchmark we typically call a function and throw away the return value. Inlining is the accomplice: the compiler replaces a call to a small function with a copy of its body, nearly always a win in production. In a benchmark, once the body sits inside the loop, the compiler can see the result is unused and delete the lot (a call it cannot inline is kept).
 
-### The Compiler Is Not a Neutral Observer
-
-#### Dead-Code Elimination
-
-Dead-code elimination (DCE) is the compiler transformation most likely to produce a benchmark that measures nothing. The rule is simple: if a computation produces a value that nothing ever reads, the compiler can remove the computation. In a benchmark, you typically call a function and throw away the return value. From the compiler's perspective, that return value is unobserved — so the call is dead.
-
-Here is the exact pattern from `dce_bench_test.go`:
+Here is the pair behind our suspect, excerpted from `dce_bench_test.go` (long comments left out):
 
 ```go
 func makeBuffer(n int) []byte {
-    return make([]byte, n) // heap-escaping allocation
+	return make([]byte, n) // heap-escaping allocation
 }
 
-// Result of makeBuffer is unused → DCE fires.
-// Expected: allocs/op = 0 (the allocation never happens).
 func BenchmarkMakeBuffer_DCE(b *testing.B) {
-    for range b.N {
-        makeBuffer(64) // result discarded → compiler removes the call
-    }
+	for range b.N {
+		makeBuffer(64) // result discarded → compiler removes the call
+	}
 }
 ```
 
-The fix is the **sink pattern**: assign the result to a local variable inside the loop, then write that local to a package-level variable after the loop. Because the package-level variable is visible to other packages — the compiler cannot prove it is never read — it must keep the computation that produces the value assigned to it.
+`makeBuffer` really does put its buffer on the heap when called on its own. The benchmark discards the result, and because `makeBuffer` is small enough to inline, the compiler sees a `make` nobody reads and deletes it, allocation included.
+
+This reproduces on Go 1.25 and later (I tested 1.25.0, 1.26.0 and 1.27.1). On Go 1.24 the inlined `make` still escapes to the heap, so it allocates even with the result discarded. And the trick needs inlining: put `//go:noinline` on `makeBuffer` and the same benchmark reports `64 B/op, 1 allocs/op`.
+
+The fix is the **sink pattern**: assign the result to a local variable inside the loop, then write that local to a package-level variable after the loop. The compiler treats a store to a package-level variable as observable, so it must keep the computation behind it. Same file again:
 
 ```go
-var sink []byte // package-level sink defeats DCE
+// sink is the package-level variable that defeats DCE.
+var sink []byte
 
 func BenchmarkMakeBuffer_Correct(b *testing.B) {
-    var s []byte
-    for range b.N {
-        s = makeBuffer(64)
-    }
-    sink = s // one global write per benchmark run, not per iteration
+	var s []byte
+	for range b.N {
+		s = makeBuffer(64)
+	}
+	sink = s
 }
 ```
 
-The two-variable idiom matters. Writing to `sink` inside the loop would add one global memory write per iteration — measurable overhead. Writing `sink = s` after the loop costs almost nothing, and it is enough to keep the entire computation chain alive.
+The two-variable idiom matters: writing to `sink` inside the loop would add a global write per iteration, which is measurable, while one write after the loop costs almost nothing and still keeps the whole chain alive. Every iteration still runs: with the last buffer stored in `sink`, the `make` escapes, so each one allocates. `runtime.KeepAlive` is callable too, but forces no escape.
 
-#### Constant Folding
+A sink keeps a result alive, but it cannot help if the compiler already knows the answer before the program runs.
 
-If every input to an expression is a compile-time constant, the compiler evaluates the expression at compile time and replaces it with a literal. The benchmark then iterates over a constant load — which takes no time to compute at runtime, because it was already computed during compilation.
+### Constant folding
 
-The `bits.OnesCount` example from `dce_bench_test.go` illustrates this:
+If every input to an expression is a compile-time constant, the compiler evaluates the expression at compile time and replaces it with a literal. The benchmark then loads a constant, and the compiler already did the work. The `bits.OnesCount` pair in the same file shows it: the first function feeds in a constant, the second a package-level variable, which the compiler cannot constant-propagate because its value can change at run time:
 
 ```go
-// Constant input → folded at compile time.
-// Proof: "go build -gcflags='-S' ." shows MOVD $3, not a VCNT instruction.
+var sinkInt int
+
 func BenchmarkOnesCount_ConstantFolded(b *testing.B) {
-    var s int
-    for range b.N {
-        s = bits.OnesCount(0b10110) // constant → evaluated at compile time
-    }
-    sinkInt = s
+	var s int
+	for range b.N {
+		s = bits.OnesCount(0b10110) // constant → evaluated at compile time
+	}
+	sinkInt = s
 }
 
+// onesInput breaks the constant chain — compiler cannot prove this is 0b10110.
 var onesInput uint = 0b10110
 
-// Runtime value → actual OnesCount instruction.
 func BenchmarkOnesCount_Correct(b *testing.B) {
-    var s int
-    for range b.N {
-        s = bits.OnesCount(onesInput)
-    }
-    sinkInt = s
+	var s int
+	for range b.N {
+		s = bits.OnesCount(onesInput)
+	}
+	sinkInt = s
 }
 ```
 
-On Apple Silicon both versions report similar timings — `bits.OnesCount` is a single hardware instruction that runs near the timer floor regardless. But the assembly tells the real story. Run `make asm-dce` in the demo directory:
+On Apple Silicon both versions report similar timings, because `bits.OnesCount` compiles to a four-instruction NEON sequence that runs near the timer floor regardless. The timing can't tell them apart, so we ask the assembly instead (`make asm-dce` runs this). `XXX` matches nothing, so no benchmark runs, and plain `go build` would print nothing because it never compiles `_test.go` files:
 
 ```bash
-go build -gcflags='-S' . 2>&1 | grep -A5 "OnesCount_ConstantFolded"
+go test -gcflags='-S' -run XXX -bench XXX . 2>&1 | grep -A14 'OnesCount_ConstantFolded(SB)'
 ```
 
-The constant-folded version shows `MOVD $3, Rxx` — the compiler substituted the literal 3 for the entire `bits.OnesCount` call. The correct version shows `VCNT` and `UADDLV` — an actual popcount instruction pair. The timing looks similar; the code is entirely different.
+The constant-folded version shows `MOVD $3, Rxx`: the compiler substituted the literal 3 for the entire `bits.OnesCount` call. The correct version shows `VCNT` and `VUADDLV`, an actual popcount sequence (arm64 names; on amd64, widen the grep to `-A30` and look for `MOVL $3` against `POPCNTQ`). Similar timing, entirely different code.
 
-The fix is a package-level variable for inputs. The compiler cannot constant-propagate through a package-level variable because its value may change between compilation and runtime.
+Both tricks leave `ns/op` looking perfectly believable. If the time column can't be trusted, what can?
 
-#### Inlining and Its Aftermath
+## The honest signal
 
-The Go compiler inlines small functions by replacing each call site with a copy of the callee's body. Inlining is nearly always a good thing in production. In a benchmark, it interacts badly with DCE: once the callee's body is inlined into the loop, the compiler can see that the result is unused and eliminate the now-inlined body entirely.
+Back to our suspect. `0.34 ns/op` sits right next to the measurement floor on Apple Silicon, around 0.25 ns, about one loop iteration per cycle. An empty loop and a blazing-fast function look identical down there. `allocs/op` has no such floor. An allocation is a discrete event: the testing framework reads `runtime.ReadMemStats` at the start and end of the run, takes the delta, and divides by `b.N`. Either a heap allocation happened or it did not.
 
-The classic shape is a predicate like `isCond(201)` — a function whose conditional looks expensive but which the compiler, once it has inlined the body and seen a constant argument, can prove always returns `false`. The call disappears. The same `var sink T` pattern defeats it, with one addition: use a non-constant input *and* capture the result. Either alone is not enough.
-
-Check what the compiler will inline with `go build -gcflags='-m'`. Any function annotated `can inline X` will be inlined at every call site, which makes it a candidate for subsequent DCE if the result is unused.
-
----
-
-### The Honest Signal
-
-#### Why `allocs/op` Is Harder to Fool Than `ns/op`
-
-This brings us to the centerpiece of the talk.
-
-`ns/op` can be fooled. A benchmark loop that runs empty — because DCE eliminated the work — still reports a plausible-looking time. On a modern CPU the measurement floor is around 0.25 ns. An empty loop and a very fast function can look identical.
-
-`allocs/op` is different. An allocation is a discrete, observable event. The testing framework captures `runtime.ReadMemStats` at the start and end of the benchmark run, computes the delta, and divides by `b.N`. Either a heap allocation happened, or it did not. There is no timer floor to hide behind.
-
-Run the DCE demo yourself with `make bench-dce`:
+Let's run the DCE pair side by side (`make bench-dce` does it, after a one-time `make tools` to install `benchstat`):
 
 ```bash
-go test -bench=BenchmarkMakeBuffer -benchmem -count=10 ./...
+go test -run XXX -bench=BenchmarkMakeBuffer -benchmem -count=10 .
 ```
 
-Here is the actual output on an Apple M4 Max, six runs averaged:
+`benchstat` summarizes the ten runs as medians. This is one run on one machine: an Apple M4 Max (darwin/arm64) under background load (load average 8 to 11), Go 1.27.1. The `ns/op` column is noisy and `allocs/op` is exact, which is the point.
 
 | Benchmark | ns/op | B/op | allocs/op |
 |---|---|---|---|
-| `BenchmarkMakeBuffer_DCE` | 0.2532 | 0 | **0** |
-| `BenchmarkMakeBuffer_Correct` | 11.14 | 64 | **1** |
+| `BenchmarkMakeBuffer_DCE` | 0.3444 ± 96% | 0 | **0** |
+| `BenchmarkMakeBuffer_Correct` | 15.43 ± 29% | 64 | **1** |
 
-`BenchmarkMakeBuffer_DCE` reports zero bytes allocated and zero allocations. Not "very few" — zero. The `make([]byte, 64)` call that is unconditionally in the function body never executed. The allocation column is hardware-independent proof: you cannot have a 64-byte heap allocation that costs 0 bytes.
+I'm recapturing these on a quiet machine with a reproduction kit, and I'll update the table when the new numbers are in.
 
-`BenchmarkMakeBuffer_Correct` reports `64 B/op, 1 allocs/op`. The allocation happened. The measurement is trustworthy.
+`BenchmarkMakeBuffer_DCE` reports zero bytes and zero allocations. Not "almost none": zero. The `make([]byte, 64)` in the function body never executed, and no timer resolution or clock speed can change that column. `BenchmarkMakeBuffer_Correct` reports `64 B/op, 1 allocs/op`: the allocation happened, so that measurement is trustworthy. Mystery solved: the `0.34 ns/op` was an empty loop, and the honest cost is about 15 ns and one allocation. Remember that zero, though. It has one more trick left.
 
-This is why `-benchmem` should be the default invocation for any Go benchmark:
+This is why `-benchmem` belongs in every Go benchmark invocation (`go test -bench=. -benchmem ./...`). `0 allocs/op` for a function you know calls `make` is a red flag, and a result under 1 ns/op for anything non-trivial is the strongest hint that DCE or constant folding has struck. Two caveats apply. `allocs/op` is an integer average, so a loop that hits the heap on every fourth iteration rounds down to `0`, and `B/op` gives it away. And a zero can also mean the buffer stayed on the stack, so check `-gcflags=-m`: `inlining call to X` means it was inlined; `can inline X` only means it could be. And for a function that never allocates, `allocs/op` stays silent; check the assembly instead.
 
-```bash
-go test -bench=. -benchmem ./...
-```
+The compiler is not the only thing that can make a benchmark measure the wrong thing. We can do it to ourselves, with the timer.
 
-Allocation counts surface unexpected heap escapes, regressions from interface boxing, and missed pool opportunities. And when DCE strikes, they tell you immediately — because `0 allocs/op` for a function that provably allocates is impossible.
+## Timer traps
 
-A result under 1 ns/op for anything non-trivial is the strongest signal that DCE or constant folding has struck. Any result that does not scale with the computational complexity of the function under test deserves scrutiny.
+First, how `testing.B` keeps time. It runs the benchmark with a growing iteration count until one run fills `-benchtime`; `ns/op` is that run's duration divided by the count. Go compiles ahead of time, so there is no JIT warmup, and each `-count` line is one such mean, not a distribution.
 
----
+The `testing.B` timer starts when the benchmark function is called, so everything that runs before the loop is measured unless we reset it.
 
-### Timer Traps
+`b.ResetTimer()` zeros the elapsed time and the allocation counters, so we call it after one-time setup, just before the loop. It does not stop the timer: a running timer keeps running, from zero.
 
-The `testing.B` timer starts when the benchmark function is called. Everything that runs before the first iteration of the measurement loop is included in the measurement unless you explicitly reset it.
+### Per-iteration setup: `StopTimer` and `StartTimer`
 
-#### One-Time Setup: `ResetTimer`
-
-`b.ResetTimer()` zeros both the elapsed time and the allocation counters. Call it after any setup that should not be included in the measurement:
-
-```go
-func BenchmarkHash_BN_WithSetup_Correct(b *testing.B) {
-    data := make([]byte, 1024)
-    copy(data, payload)
-    b.ResetTimer() // exclude setup from timing
-    var s [32]byte
-    for range b.N {
-        s = sha256.Sum256(data)
-    }
-    _ = s
-}
-```
-
-`ResetTimer` does not stop the timer. If the timer was running, it keeps running after the reset — it just zeroes the accumulated time.
-
-#### Per-Iteration Setup: `StopTimer` and `StartTimer`
-
-When each iteration requires its own setup, use `b.StopTimer()` and `b.StartTimer()` around it. The order matters precisely:
+When each iteration needs its own setup, we bracket the setup with `b.StopTimer()` and `b.StartTimer()`, and the order matters. This one is from `timer_bench_test.go`, where `buildFixture`, `fixtureSize`, `processString` and `sinkStr` are helpers:
 
 ```go
 func BenchmarkProcess_PerIterSetup_Correct(b *testing.B) {
-    var s string
-    for range b.N {
-        b.StopTimer()
-        input := buildFixture(fixtureSize) // not timed
-        b.StartTimer()                     // restart before the work
-        s = processString(input)           // only this is measured
-    }
-    sinkStr = s
+	var s string
+	for range b.N {
+		b.StopTimer()
+		input := buildFixture(fixtureSize)
+		b.StartTimer() // ← timer restarts; only processString is measured
+		s = processString(input)
+	}
+	sinkStr = s
 }
 ```
 
-The `BenchmarkProcess_TimerOrder_BUG` in `timer_bench_test.go` shows what happens when you get the order wrong — `StartTimer` is called after the work, not before it. The timer measures fixture construction; `processString` runs while the timer is off. The reported ns/op is the cost of the wrong thing.
+The timer stops before the fixture is built and restarts before the work, so only `processString` is timed. Call `StartTimer` after the work instead, as `BenchmarkProcess_TimerOrder_BUG` in the same file does, and the timer measures fixture construction while `processString` runs with the timer off. The reported ns/op is then the cost of the wrong thing.
 
-#### The Benchmark That Never Terminates
+### The benchmark that reports nonsense
 
-There is a worse variant: `StopTimer` with no `StartTimer` at all.
+Worse: `StopTimer` with no `StartTimer` at all. The testing framework decides how long to run a benchmark by accumulating timed duration until it reaches the target time (default 1 second). If the timer is stopped and never restarted, the accumulated duration holds only the time up to the first `StopTimer`. The framework keeps growing `b.N` until it hits its cap of 1e9. For a trivial body with a single `StopTimer`, it reaches that cap in about 20 seconds and prints something like `0.0000007 ns/op`. Another number that looks suspiciously good.
 
-The testing framework determines how long to run a benchmark by accumulating timed duration until it reaches the target time (default 1 second). If the timer is stopped and never restarted, `b.duration` never accumulates. The framework keeps doubling `b.N` and calling the benchmark function again. The benchmark runs forever.
+The demo repository describes this case rather than demonstrating it. The comment in `timer_bench_test.go` reads "Don't run that live." We found out the direct way. If one of your own benchmarks seems to hang, look for a missing `b.StartTimer()`, or a stop/start pair left at the default `-benchtime`. `Ctrl-C`, fix it, run again. (Each `StopTimer`/`StartTimer` call runs `runtime.ReadMemStats`, which stops the world, which is why the demo pins these benchmarks to `-benchtime=50000x`, a fixed count with no ramp.)
 
-This is why the demo repository describes that case rather than demonstrating it — the comment in `timer_bench_test.go` reads "Don't run that live." We found out the direct way. If you run `make bench-timer` and a benchmark hangs, a missing `b.StartTimer()` is the likely cause. `Ctrl-C`, add the missing call, run again.
+Empty loops, forgotten resets, timers left off: all mistakes the testing package could make impossible. Since Go 1.24, it covers most of them.
 
----
+## `testing.B.Loop` in Go 1.24 removes most of this
 
-### `testing.B.Loop` (Go 1.24): The Form That Removes Most of This
-
-Austin Clements proposed `testing.B.Loop` in [Go issue #61515](https://github.com/golang/go/issues/61515) specifically because the `b.N` pattern has a cluster of failure modes that are easy to hit and hard to detect statically. It shipped in Go 1.24.
-
-The form is:
+Austin Clements proposed `testing.B.Loop` in [Go issue #61515](https://github.com/golang/go/issues/61515) because the `b.N` pattern has failure modes that are easy to hit and hard to detect statically. It shipped in [Go 1.24](https://go.dev/doc/go1.24). Here is the demo's hashing benchmark in the new form, from `bloop_bench_test.go` (`payload` is a package-level `[]byte` fixture):
 
 ```go
 func BenchmarkHash_BLoop(b *testing.B) {
-    // Setup: excluded from timing automatically.
-    data := make([]byte, 1024)
-    copy(data, payload)
+	// Setup: excluded from timing automatically.
+	data := make([]byte, 1024)
+	copy(data, payload)
 
-    var s [32]byte
-    for b.Loop() {
-        s = sha256.Sum256(data)
-    }
-    _ = s
+	var s [32]byte
+	for b.Loop() { // ← each call to Loop() is one measured iteration
+		s = sha256.Sum256(data)
+	}
+	_ = s
 }
 ```
 
-Setup before the loop is automatically excluded — no `b.ResetTimer()` needed. The benchmark function is called exactly once per `-count` value, so expensive setup does not re-execute across the ramp-up iterations that the framework uses to find a stable `b.N`. And in Go 1.24, the compiler detects loops whose condition is syntactically `b.Loop()` and disables inlining into the loop body — which severs the inlining-then-DCE chain described earlier.
+Notice what is missing: no `b.ResetTimer()`. [The first call to `Loop` resets the timer and the call that returns false stops it](https://pkg.go.dev/testing#B.Loop), so setup and cleanup are not measured. The benchmark function is called exactly once per `-count` value, so expensive setup does not re-execute while the framework ramps `b.N` up. And the compiler recognizes loops whose condition is syntactically `b.Loop()` and keeps the arguments, results and assigned variables of calls in the loop body alive (it wraps them in a `runtime.KeepAlive`), so inlining can no longer leave a dead body behind. Go 1.24 and 1.25 did this by [refusing to inline into the body](https://go.dev/blog/testing-b-loop), which could add heap allocations that production code would not have. [Go 1.26 keeps inlining and keeps the values alive instead](https://go.dev/doc/go1.26).
 
-| Behaviour | `for range b.N` | `for b.Loop()` |
-|---|---|---|
-| Automatic `ResetTimer` at loop start | No | Yes |
-| Automatic `StopTimer` at loop end | No | Yes |
-| Benchmark function called per ramp-up | Multiple times | Exactly once per `-count` |
-| Setup before loop re-executes on ramp-up | Yes | No |
-| DCE of loop body prevented by compiler | No | Yes |
-| Compatible with `StopTimer`/`StartTimer` inside | Yes | Yes |
+The DCE protection has limits. It had a bug in Go 1.26.0 to 1.26.2, where assigning a call's result to `_` inside the loop still let the compiler drop the body ([#77654](https://github.com/golang/go/issues/77654), fixed in Go 1.26.3 and 1.27). It applies only when the loop condition is written exactly as `b.Loop()`: assigning the method to a variable first (`loop := b.Loop; for loop()`) does not trigger the compiler transformation.
 
-One limitation: the DCE prevention applies only when the loop condition is written exactly as `b.Loop()`. Assigning the method to a variable first — `loop := b.Loop; for loop()` — does not trigger the compiler transformation. Write the condition literally.
+`b.Loop` protects the call, not its inputs: `bits.OnesCount(0b10110)` in a `for b.Loop()` body still folds to `MOVL $3` on amd64 (Go 1.27.1), so keep a non-constant input. `_ = s` after the loop only silences "declared and not used"; `-benchmem` remains the check.
 
-Per-iteration setup still requires `b.StopTimer` and `b.StartTimer` inside the loop — `B.Loop` does not change that. And there must be exactly one benchmark loop per function; `b.N` and `b.Loop` cannot coexist in the same benchmark.
+A `StartTimer` that never comes is a fatal error with `b.Loop` ("B.Loop called with timer stopped"), not a hang.
 
-For new benchmarks, prefer `b.Loop`. Migrating an existing benchmark is mechanical: replace `for n := 0; n < b.N; n++` (or `for range b.N`) with `for b.Loop()` and remove any `b.ResetTimer()` that existed only to exclude setup before the loop.
+For new benchmarks, prefer `b.Loop`. Migrating an old one is mechanical: swap `for range b.N` for `for b.Loop()` and drop any `b.ResetTimer()` that only excluded setup. Code that reads `b.N` inside the loop needs a second look: `b.N` is 0 until the loop ends.
 
----
+Now back to our number one last time. `0.34 ns/op` started as an empty loop, and the sink turned it into 15 ns and one allocation. On Go 1.26 and later, `for b.Loop() { makeBuffer(64) }` reports `0 B/op, 0 allocs/op` for the same buffer, and this time the zero is honest: the body runs, but the inlined buffer no longer escapes and lives on the stack, as it would in production code. Same digit, opposite meaning. Which `makeBuffer` number do we report? The `b.Loop` one. The sink version measures a heap escape that production code may not have, and `b.Loop` on Go 1.26 or later measures the function as the compiler would really treat it. If an allocation count surprises you, `-gcflags=-m` tells you which case you are in.
 
-### Where to Go From Here
+Enough reading. Let's run it.
 
-The transformations covered here — DCE, constant folding, inlining, timer misuse — are about whether the benchmark measures anything at all. The next problem is harder: assuming the benchmark does measure real work, what do you do with a single `ns/op` number?
+## Try it
 
-A single number is not a result. It is one sample from a distribution. Two benchmarks can share a mean and have completely different distributions. Post 2, [A Single Benchmark Number Is a Lie](/posts/go-benchmarks-lying-statistics/), covers how to read that distribution, how to use `benchstat` to compare results across commits, and when a measured difference is real rather than noise.
+Everything above runs from the [demo repository](https://github.com/kakkoyun/gopherconuk-26/tree/fdce88cc0ce129b7d2edfb1a20d02fe647c17eeb/talks/go-benchmarks-lying/demo). The module declares `go 1.26.5`, so Go fetches that toolchain if yours is older. The assembly step shows arm64 instructions.
 
----
+```console
+git clone https://github.com/kakkoyun/gopherconuk-26
+cd gopherconuk-26
+git checkout fdce88cc0ce129b7d2edfb1a20d02fe647c17eeb
+cd talks/go-benchmarks-lying/demo
 
-### Resources
+# DCE and the sink pattern: compare allocs/op
+go test -run XXX -bench='BenchmarkMakeBuffer' -benchmem -count=10 .
 
-- Demo code: [`talks/go-benchmarks-lying/demo/`](https://github.com/kakkoyun/gopherconuk-26/tree/main/talks/go-benchmarks-lying/demo) — `make bench-dce`, `make asm-dce`, `make bench-timer`
-- Talk: "Why Your Go Benchmarks Are Lying (And How to Stop Them)", GopherCon UK 2026
-- Prerequisite post: [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/)
-- Dave Cheney — [How to write benchmarks in Go](https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go)
-- Go Team — [More predictable benchmarking with testing.B.Loop](https://go.dev/blog/testing-b-loop) (the `testing.B.Loop` announcement post)
-- Austin Clements — [Go proposal #61515: testing: add testing.B.Loop for iteration](https://github.com/golang/go/issues/61515)
-- Go standard library — [`testing` package documentation](https://pkg.go.dev/testing)
-- Go 1.24 Release Notes — [testing.B.Loop](https://go.dev/doc/go1.24)
+# Constant folding: MOVD $3 against VCNT and VUADDLV
+go test -gcflags='-S' -run XXX -bench XXX . 2>&1 | grep -A14 'OnesCount_ConstantFolded(SB)'
+
+# Timer ordering (fixed iterations, as make bench-timer does)
+go test -run XXX -bench='BenchmarkProcess' -benchmem -count=3 -benchtime=50000x .
+```
+
+`BenchmarkMakeBuffer_DCE` should report `0 allocs/op`, and `BenchmarkMakeBuffer_Correct` should report `1`. Expect the ns/op column to wobble with whatever else your machine is doing. That wobble is the next part of the story.
+
+Versions, links and commands checked on 2 October 2026.
+
+## Up next
+
+[Part 2, A Single Benchmark Number Is a Lie](/posts/go-benchmarks-lying-statistics/), assumes the benchmark does real work and asks what one `ns/op` number is worth: how to read the distribution behind it, how to compare commits with `benchstat`, and when a difference is real. The compiler is out of the way. The statistics are not. 📊
