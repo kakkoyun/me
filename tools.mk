@@ -36,7 +36,7 @@ SHELLCHECK_VERSION=0.11.0
 ACTIONLINT_VERSION=1.7.12
 
 # renovate: datasource=github-releases depName=errata-ai/vale extractVersion=^v(?<version>.*)$
-VALE_VERSION=3.25.1
+VALE_VERSION=3.26.0
 
 # lychee tags its releases `lychee-vX.Y.Z`, not `vX.Y.Z`.
 # renovate: datasource=github-releases depName=lycheeverse/lychee extractVersion=^lychee-v(?<version>.*)$
@@ -45,7 +45,7 @@ LYCHEE_VERSION=0.24.2
 # Lighthouse CI, run via npx for `make lighthouse`. CI uses the
 # treosh/lighthouse-ci-action, which bundles its own copy.
 # renovate: datasource=npm depName=@lhci/cli
-LHCI_VERSION=0.15.1
+LHCI_VERSION=0.16.0
 
 # MJML compiler for `make email-validate`. Held on the v4 line on purpose:
 # v5 is a breaking rewrite and the templates have not been ported. Renovate
