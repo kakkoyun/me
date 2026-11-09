@@ -11,7 +11,7 @@ on:
       - 'assets/**'
       - 'archetypes/**'
       - 'config.yaml'
-      - '.hugo-version'
+      - 'mise.toml'
       - 'scripts/verify-build.sh'
       - '.lighthouserc.yml'
       - '.github/workflows/build.yml'
@@ -25,7 +25,7 @@ on:
       - 'assets/**'
       - 'archetypes/**'
       - 'config.yaml'
-      - '.hugo-version'
+      - 'mise.toml'
       - 'scripts/verify-build.sh'
       - '.lighthouserc.yml'
       - '.github/workflows/build.yml'
@@ -41,15 +41,18 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Read Hugo version
-        id: hugo-version
-        run: echo "version=$(cat .hugo-version)" >> "$GITHUB_OUTPUT"
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@2752ce1d29631191ea3f27c23495fa06139a5b78 # v3
+      # mise installs Hugo from mise.toml (hugo-extended, the same extended
+      # build Netlify runs) and puts its shims first on PATH, so the `hugo`
+      # below is the pinned build. Only hugo-extended is installed here so an
+      # npm or release-asset outage for an unrelated dev tool cannot fail a
+      # Hugo build. The mise CLI itself is pinned; Renovate updates the pin
+      # (the jdx/mise manager in renovate.json).
+      - name: Setup Hugo (mise)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
-          hugo-version: ${{ steps.hugo-version.outputs.version }}
-          extended: true
+          version: 2026.11.5
+          install_args: hugo-extended
+          cache_key_prefix: build-hugo
 
       # Covers are now Hugo resources: local ones get resized into a WebP
       # srcset, remote ones are fetched at build time and localised. Both are
@@ -84,15 +87,15 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Read Hugo version
-        id: hugo-version
-        run: echo "version=$(cat .hugo-version)" >> "$GITHUB_OUTPUT"
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@2752ce1d29631191ea3f27c23495fa06139a5b78 # v3
+      # Same subset as the build-verify job: hugo-extended only (see the
+      # comment there), and the same cache prefix — identical key, identical
+      # contents, so the two jobs share one cache entry.
+      - name: Setup Hugo (mise)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
-          hugo-version: ${{ steps.hugo-version.outputs.version }}
-          extended: true
+          version: 2026.11.5
+          install_args: hugo-extended
+          cache_key_prefix: build-hugo
 
       # Covers are now Hugo resources: local ones get resized into a WebP
       # srcset, remote ones are fetched at build time and localised. Both are
