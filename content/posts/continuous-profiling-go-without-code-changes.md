@@ -3,6 +3,7 @@ title: "The fourth signal: continuous profiling without code changes"
 description: "Stripped Go binaries still carry enough runtime metadata for eBPF profiling. Here is why, and where OpenTelemetry's profiles signal fits in a zero-touch stack."
 date: 2026-07-23T00:00:00Z
 publishDate: 2026-07-23T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -14,6 +15,7 @@ tags:
   - ebpf
   - profiling
   - auto-instrumentation
+  - ai-generated
 series:
   - How to Instrument Go Without Changing a Single Line of Code
 showToc: true

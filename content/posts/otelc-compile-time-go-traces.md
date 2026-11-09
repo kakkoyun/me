@@ -3,6 +3,7 @@ title: "otelc: zero-touch Go traces at compile time"
 description: "otelc is the OpenTelemetry SIG's compile-time instrumentation tool for Go: separate from Orchestrion, built from scratch, and stable since v1.0.1."
 date: 2026-07-16T00:00:00Z
 publishDate: 2026-07-16T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -13,6 +14,7 @@ tags:
   - opentelemetry
   - compile-time-instrumentation
   - auto-instrumentation
+  - ai-generated
 series:
   - How to Instrument Go Without Changing a Single Line of Code
 showToc: true

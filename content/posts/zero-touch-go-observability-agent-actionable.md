@@ -3,6 +3,7 @@ title: "Making zero-touch Go observability agent-actionable"
 description: "Turn the OBI vs. otelc decision into an agent-readable runbook, then make the Kubernetes path boring enough to run with one command."
 date: 2026-08-06T00:00:00Z
 publishDate: 2026-08-06T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -15,6 +16,7 @@ tags:
   - ai
   - tooling
   - auto-instrumentation
+  - ai-generated
 series:
   - How to Instrument Go Without Changing a Single Line of Code
 showToc: true

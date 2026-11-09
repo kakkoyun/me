@@ -3,6 +3,7 @@ title: "A Single Benchmark Number Is a Lie"
 description: "One benchmark run is one sample from a distribution you have not seen. benchstat and a short awk script tell you whether the result, and the machine, can be trusted."
 date: 2026-07-14T00:00:00Z
 publishDate: 2026-07-14T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - statistics
+  - ai-generated
 series:
   - Why Your Go Benchmarks Are Lying
 showToc: true

@@ -3,6 +3,7 @@ title: "A/B is the wrong model for CI"
 description: "A per-PR benchmark A/B compares two runs. A benchmark's history is a time series. A synthetic change-point toy, how the Go project tracks it, and a false-positive ledger."
 date: 2026-08-01T00:00:00Z
 publishDate: 2026-08-01T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - ci
+  - ai-generated
 showToc: true
 tocOpen: false
 ---

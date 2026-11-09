@@ -3,6 +3,7 @@ title: "A PR gate that actually fails"
 description: "One slow commit, one workflow, two real GitHub Actions runs: how a Go PR gate turns a benchstat table into a red check, and what it can't promise."
 date: 2026-07-31T00:00:00Z
 publishDate: 2026-07-31T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - ci
+  - ai-generated
 showToc: true
 tocOpen: false
 ---
