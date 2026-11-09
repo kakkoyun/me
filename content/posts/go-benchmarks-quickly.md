@@ -3,6 +3,7 @@ title: "Benchmarking Go, quickly"
 description: "A primer before the Go benchmarks series: write one small benchmark, run it, and read every column, flag and compiler hint the next five posts take for granted."
 date: 2026-06-30T00:00:00Z
 publishDate: 2026-06-30T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - testing
+  - ai-generated
 showToc: true
 tocOpen: false
 ---

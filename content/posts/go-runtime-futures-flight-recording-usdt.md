@@ -3,6 +3,7 @@ title: "Go runtime futures: flight recording, USDT, and the instrumentation hook
 description: "Go 1.25's flight recorder shipped and HTTP client tracing has gaps. My tracing and USDT forks are experiments, and context propagation is unsolved."
 date: 2026-07-30T00:00:00Z
 publishDate: 2026-07-30T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -15,6 +16,7 @@ tags:
   - usdt
   - ebpf
   - auto-instrumentation
+  - ai-generated
 series:
   - How to Instrument Go Without Changing a Single Line of Code
 showToc: true

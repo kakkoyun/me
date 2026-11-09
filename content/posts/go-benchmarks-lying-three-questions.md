@@ -3,6 +3,7 @@ title: "Three Questions Before You Trust a Benchmark"
 description: "A CI regression that turned out to be a speedup, and three questions, each backed by a small CLI, that tell you whether a Go benchmark result deserves your trust."
 date: 2026-08-04T00:00:00Z
 publishDate: 2026-08-04T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - tooling
+  - ai-generated
 series:
   - Why Your Go Benchmarks Are Lying
 showToc: true

@@ -3,6 +3,7 @@ title: "The Go Benchmark That Measured Nothing: Compiler Honesty in testing.B"
 description: "Dead-code elimination, constant folding and inlining can silently empty a Go benchmark loop. Here is how to catch each one, and how testing.B.Loop removes most of them."
 date: 2026-07-07T00:00:00Z
 publishDate: 2026-07-07T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - testing
+  - ai-generated
 series:
   - Why Your Go Benchmarks Are Lying
 showToc: true

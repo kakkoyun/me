@@ -3,6 +3,7 @@ title: "Benchmark CI That Doesn't Lie"
 description: "Shared CI runners add noise that swamps real regressions. Build a two-tier benchmark CI: a fast PR gate plus a nightly suite on bare metal."
 date: 2026-07-28T00:00:00Z
 publishDate: 2026-07-28T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - ci
+  - ai-generated
 series:
   - Why Your Go Benchmarks Are Lying
 showToc: true

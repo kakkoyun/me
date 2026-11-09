@@ -3,6 +3,7 @@ title: "Before CI: Can You Trust a Benchmark on Your Own Laptop?"
 description: "Same benchmark, three conditions: an idle Mac, a saturated one, and a container pinned to one vCPU. The numbers show what local isolation buys you and where it stops."
 date: 2026-07-21T00:00:00Z
 publishDate: 2026-07-21T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - docker
+  - ai-generated
 series:
   - Why Your Go Benchmarks Are Lying
 showToc: true

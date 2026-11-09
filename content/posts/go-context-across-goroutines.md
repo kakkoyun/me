@@ -3,6 +3,7 @@ title: "Context across goroutines and connections"
 description: "Three different jobs hide behind the word propagation in Go: copying goroutine storage, keeping context.Context, and carrying trace headers between connections."
 date: 2026-07-27T00:00:00Z
 publishDate: 2026-07-27T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -13,6 +14,7 @@ tags:
   - opentelemetry
   - tracing
   - auto-instrumentation
+  - ai-generated
 showToc: true
 tocOpen: false
 ---

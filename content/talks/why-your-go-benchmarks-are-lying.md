@@ -38,15 +38,4 @@ A war story from dd-trace-go ties the layers together. A benchmark measured code
 
 **Related**
 
-* [Why Your Go Benchmarks Are Lying](/series/why-your-go-benchmarks-are-lying/) — the five-part written series
-  * [The Go Benchmark That Measured Nothing: Compiler Honesty in testing.B](/posts/go-benchmarks-lying-compiler-honesty/) — part 1
-  * [A Single Benchmark Number Is a Lie](/posts/go-benchmarks-lying-statistics/) — part 2
-  * [Before CI: Can You Trust a Benchmark on Your Own Laptop?](/posts/go-benchmarks-lying-local-reproduction/) — part 3
-  * [Benchmark CI That Doesn't Lie](/posts/go-benchmarks-lying-ci/) — part 4
-  * [Three Questions Before You Trust a Benchmark](/posts/go-benchmarks-lying-three-questions/) — part 5
-  * Companion posts
-    * [Benchmarking Go, quickly](/posts/go-benchmarks-quickly/) — a primer on writing and reading one benchmark, before part 1
-    * [The laptop said 230%](/posts/go-benchmarks-laptop-said-230/) — a macrobenchmark where laptop and CI disagreed, between parts 3 and 4
-    * [A PR gate that actually fails](/posts/go-benchmarks-pr-gate-that-fails/) — a PR gate catching a slow commit, between parts 4 and 5
-    * [A/B is the wrong model for CI](/posts/go-benchmarks-ab-is-the-wrong-model/) — a benchmark's history as a time series, between parts 4 and 5
 * [Measuring Software Performance: Why Your Benchmarks Are Probably Lying](/posts/fosdem-2026-measuring-software-performance/) — full technical blog post expanding on this talk

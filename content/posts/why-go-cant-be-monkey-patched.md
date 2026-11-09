@@ -3,6 +3,7 @@ title: "Why Go can't be monkey-patched (and what people do about it)"
 description: "Go has no bytecode, no classloader and no runtime hook. That is why zero-touch instrumentation happens at build time, at process start or in the kernel."
 date: 2026-07-02T00:00:00Z
 publishDate: 2026-07-02T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -14,6 +15,7 @@ tags:
   - ebpf
   - compile-time-instrumentation
   - auto-instrumentation
+  - ai-generated
 series:
   - How to Instrument Go Without Changing a Single Line of Code
 showToc: true

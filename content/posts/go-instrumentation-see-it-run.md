@@ -3,6 +3,7 @@ title: "See it run: OBI and the eBPF profiler without Kubernetes"
 description: "Run OBI and the OpenTelemetry eBPF profiler against one untouched Go server with Docker Compose: a trace, CPU samples, and the errors I hit."
 date: 2026-07-25T00:00:00Z
 publishDate: 2026-07-25T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - observability
   - ebpf
   - profiling
+  - ai-generated
 showToc: true
 tocOpen: false
 ---

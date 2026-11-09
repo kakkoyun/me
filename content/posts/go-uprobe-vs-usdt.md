@@ -3,6 +3,7 @@ title: "What a uprobe costs, and what USDT buys"
 description: "One Go function, two ways to probe it: OBI's uprobes on entry and every RET, or a USDT site. What a hit costs, what OBI does for Go today, and what USDT would change."
 date: 2026-07-11T00:00:00Z
 publishDate: 2026-07-11T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -13,6 +14,7 @@ tags:
   - usdt
   - observability
   - auto-instrumentation
+  - ai-generated
 showToc: true
 tocOpen: false
 ---

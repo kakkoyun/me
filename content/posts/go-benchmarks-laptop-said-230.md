@@ -3,6 +3,7 @@ title: "The laptop said 230%"
 description: "One otelc change, two overhead numbers: 230% on my loaded machine and 81% in CI. The scenario that could not have moved is what gave the laptop away."
 date: 2026-07-24T00:00:00Z
 publishDate: 2026-07-24T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -12,6 +13,7 @@ tags:
   - performance
   - benchmarking
   - ci
+  - ai-generated
 showToc: true
 tocOpen: false
 ---

@@ -42,17 +42,6 @@ Zero-touch does not mean zero operational cost. Build-time instrumentation still
 
 **Related**
 
-* [How to Instrument Go Without Changing a Single Line of Code](/series/how-to-instrument-go-without-changing-a-single-line-of-code/) — the six-part written series
-  * [Why Go can't be monkey-patched (and what people do about it)](/posts/why-go-cant-be-monkey-patched/) — part 1
-  * [OBI: eBPF auto-instrumentation for Go in production](/posts/obi-ebpf-auto-instrumentation-go/) — part 2
-  * [otelc: zero-touch Go traces at compile time](/posts/otelc-compile-time-go-traces/) — part 3
-  * [The fourth signal: continuous profiling without code changes](/posts/continuous-profiling-go-without-code-changes/) — part 4
-  * [Go runtime futures: flight recording, USDT, and the instrumentation hook problem](/posts/go-runtime-futures-flight-recording-usdt/) — part 5
-  * [Making zero-touch Go observability agent-actionable](/posts/zero-touch-go-observability-agent-actionable/) — part 6
-  * Companion posts:
-    * [What a uprobe costs, and what USDT buys](/posts/go-uprobe-vs-usdt/) — between parts 2 and 3
-    * [See it run: OBI and the eBPF profiler without Kubernetes](/posts/go-instrumentation-see-it-run/) — after part 4
-    * [Context across goroutines and connections](/posts/go-context-across-goroutines/) — between parts 4 and 5
 * [Instrument Go Without Changing a Single Line](/talks/instrument-go-without-changing-a-single-line/) — the GopherCon UK 2026 version, with recording
 * [Why Your Go Benchmarks Are Lying (And How to Stop Them)](/talks/why-your-go-benchmarks-are-lying-golab-2026/) — the second talk, plugged at the end of this one
 * [Auto-Instrumenting Go: From eBPF to USDT Probes](/posts/fosdem-2026-auto-instrumenting-go/) — full technical blog post expanding on this talk

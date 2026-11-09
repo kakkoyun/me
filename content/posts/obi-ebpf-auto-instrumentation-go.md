@@ -3,6 +3,7 @@ title: "OBI: eBPF auto-instrumentation for Go in production"
 description: "OBI (OpenTelemetry eBPF Instrumentation) instruments Go services with no code changes, inside a defined scope. Here is that scope, what it requires and what it costs."
 date: 2026-07-09T00:00:00Z
 publishDate: 2026-07-09T00:00:00Z
+draft: true
 promote: false
 categories:
   - engineering
@@ -13,6 +14,7 @@ tags:
   - opentelemetry
   - ebpf
   - auto-instrumentation
+  - ai-generated
 series:
   - How to Instrument Go Without Changing a Single Line of Code
 showToc: true
