@@ -14,13 +14,15 @@
 set -uo pipefail
 
 # Anything outside this list (.github/, .claude/, the rest of scripts/,
-# docs/, Makefile, *.md at the repo root, .vale.ini, styles/,
+# docs/, Makefile, mise.toml, *.md at the repo root, .vale.ini, styles/,
 # renovate.json, tools/, .gitignore, .gitmodules, .lighthouserc.yml)
 # does not change what Hugo renders and does not need a preview.
+# mise.toml is deliberately absent: a dev-tool bump (shfmt, vale, …) must not
+# trigger a production build — Hugo version bumps still build because they
+# always touch netlify.toml (the Renovate Hugo group updates both files).
 # `scripts/netlify-ignore.sh` is itself included so a change to the
 # deploy gate triggers a verifying build.
 BUILD_PATHS=(
-  ".hugo-version"
   "archetypes/"
   "assets/"
   "config.yaml"

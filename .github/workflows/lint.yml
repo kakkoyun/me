@@ -6,11 +6,11 @@ on:
   pull_request:
     branches: [master]
 
-# Every job below runs the same binary a contributor runs locally: versions are
-# pinned in tools.mk and installed by scripts/ensure-tool.sh, which the `make`
-# targets invoke on first use. Before this, each linter was whatever version its
-# action wrapper happened to bundle, so "green locally" and "green in CI" were
-# not the same claim.
+# Every job below runs the same binary a contributor runs locally: versions
+# are pinned in mise.toml and installed by jdx/mise-action, and the `make`
+# targets the other jobs run wrap tools in `mise exec --`. Before this, each
+# linter was whatever version its action wrapper happened to bundle, so
+# "green locally" and "green in CI" were not the same claim.
 jobs:
   shellcheck:
     name: ShellCheck
@@ -19,6 +19,16 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # shellcheck only, from mise.toml — no other tool's outage can fail
+      # this job. The distinct cache_key_prefix keeps this job's cache entry
+      # separate from jobs that install a different subset from mise.toml.
+      - name: Install pinned ShellCheck (mise)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          version: 2026.11.5
+          install_args: shellcheck
+          cache_key_prefix: lint-shellcheck
 
       # Same binary and same file list as `make shellcheck`: the file list comes
       # from the Makefile itself (SHELL_FILES, discovered by shebang across the
@@ -29,27 +39,23 @@ jobs:
       #
       # Findings are emitted as native GitHub annotations, so they still appear
       # inline on the PR diff without a second tool choosing the binary.
-      # $GITHUB_PATH, not the Makefile's own PATH export: that one only reaches
-      # make's recipe shells, so the `run:` block below would fall through to
-      # the shellcheck preinstalled on ubuntu-latest. When it did, this job
-      # passed having linted nothing with the pinned binary.
-      - name: Install pinned ShellCheck
-        run: |
-          make -s tool-shellcheck
-          make -s print-tools-bin >> "$GITHUB_PATH"
-
       - name: ShellCheck
         run: |
           set -uo pipefail
           # Assert the pin actually won. A preinstalled tool shadowing it is a
           # silent false pass, which is worse than a red job.
-          want="$(make -s print-tools-bin)/shellcheck"
-          got="$(command -v shellcheck || true)"
+          want="$(mise current shellcheck)"
+          got="$(shellcheck --version | awk '/^version:/ {print $2}')"
           if [ "$got" != "$want" ]; then
-            echo "::error::expected the pinned shellcheck at $want, resolved $got"
+            echo "::error::expected the pinned shellcheck $want, resolved $got"
             exit 1
           fi
-          shellcheck --version | sed -n 's/^version: /shellcheck /p'
+          resolved="$(mise which shellcheck)"
+          case "$resolved" in
+            /home/runner/.local/share/mise/*) ;;
+            *) echo "::error::shellcheck resolved outside mise: $resolved"; exit 1 ;;
+          esac
+          echo "shellcheck $got (from $resolved)"
           mapfile -t files < <(make -s print-shell-files)
           rc=0
           out="$(mktemp)"
@@ -72,34 +78,36 @@ jobs:
 
       # Both tools, not just actionlint. actionlint shells out to whatever
       # `shellcheck` is on PATH to lint `run:` blocks, and ubuntu-latest ships
-      # its own — 0.10.0 at time of writing, against the 0.11.0 pinned in
-      # tools.mk. So this job silently linted with a different ShellCheck than
-      # the ShellCheck job beside it and than `make lint` locally, and findings
-      # that no dev machine could reproduce failed CI (SC2015, dropped in
-      # 0.11.0, did exactly that). Installing the pin puts .tools/bin ahead of
-      # /usr/bin and closes the hole.
-      - name: Install pinned actionlint and ShellCheck
-        run: |
-          make -s tool-actionlint tool-shellcheck
-          make -s print-tools-bin >> "$GITHUB_PATH"
+      # its own. A runner tool shadowing the pins once made this job lint with
+      # a different ShellCheck than the ShellCheck job beside it and than
+      # `make lint` locally — findings no dev machine could reproduce failed
+      # CI (SC2015, dropped in 0.11.0, did exactly that). mise installs both
+      # pins and puts its shims ahead of /usr/bin; the assertions below prove
+      # the pins won rather than trusting PATH order.
+      - name: Install pinned actionlint and ShellCheck (mise)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          version: 2026.11.5
+          install_args: "actionlint shellcheck"
+          cache_key_prefix: lint-actionlint
 
       - name: actionlint
         run: |
           set -uo pipefail
-          want="$(make -s print-tools-bin)/actionlint"
-          got="$(command -v actionlint || true)"
+          want="$(mise current actionlint)"
+          got="$(actionlint --version | head -1 | awk '{print $1}')"
           if [ "$got" != "$want" ]; then
-            echo "::error::expected the pinned actionlint at $want, resolved $got"
+            echo "::error::expected the pinned actionlint $want, resolved $got"
             exit 1
           fi
-          want_sc="$(make -s print-tools-bin)/shellcheck"
-          got_sc="$(command -v shellcheck || true)"
+          want_sc="$(mise current shellcheck)"
+          got_sc="$(shellcheck --version | awk '/^version:/ {print $2}')"
           if [ "$got_sc" != "$want_sc" ]; then
-            echo "::error::expected the pinned shellcheck at $want_sc, resolved $got_sc — actionlint would lint run: blocks with a different version than make lint does"
+            echo "::error::expected the pinned shellcheck $want_sc, resolved $got_sc — actionlint would lint run: blocks with a different version than make lint does"
             exit 1
           fi
-          echo "actionlint $(actionlint --version | head -1)"
-          echo "shellcheck $(shellcheck --version | awk '/^version:/ {print $2}')"
+          echo "actionlint $got (from $(mise which actionlint))"
+          echo "shellcheck $got_sc"
           rc=0
           # -oneline gives file:line:col: message, which maps to a GitHub
           # annotation with the same sed shape the ShellCheck job uses. The
@@ -122,11 +130,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      # No install step: `make fmt-check` fetches the pinned shfmt itself. The
-      # version used to be written here AND in the Makefile, with nothing
-      # keeping the two in step; it now lives only in tools.mk, which Renovate
-      # updates. Formatting rules come from .editorconfig, which shfmt reads
-      # itself — there are no flags here to drift out of sync.
+      # `make fmt-check` wraps the pinned shfmt in `mise exec --`, so the job
+      # installs mise plus shfmt and the target does the rest. The version
+      # used to be written here AND in the Makefile, with nothing keeping the
+      # two in step; it now lives only in mise.toml, which Renovate updates.
+      # Formatting rules come from .editorconfig, which shfmt reads itself —
+      # there are no flags here to drift out of sync.
+      - name: Install pinned shfmt (mise)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          version: 2026.11.5
+          install_args: shfmt
+          cache_key_prefix: lint-shfmt
+
       - name: Check formatting
         run: make fmt-check
 

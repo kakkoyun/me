@@ -6,18 +6,7 @@
   "pinDigests": true,
   "customManagers": [
     {
-      "customType": "regex",
-      "managerFilePatterns": [
-        ".hugo-version"
-      ],
-      "matchStrings": [
-        "(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "depNameTemplate": "gohugoio/hugo",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v(?<version>.*)$"
-    },
-    {
+      "description": "Hugo version mirrored into netlify.toml for Netlify's own Hugo build (all three contexts). Same depName as the mise.toml hugo-extended manager below, so Renovate updates both files in one PR.",
       "customType": "regex",
       "managerFilePatterns": [
         "netlify.toml"
@@ -30,24 +19,65 @@
       "extractVersionTemplate": "^v(?<version>.*)$"
     },
     {
-      "description": "Developer tool pins in tools.mk. The `# renovate:` comment above each pin carries its datasource and upstream repo, so adding a tool needs only that comment line.",
+      "description": "Hugo pin in mise.toml. The native mise manager cannot update hugo-extended: it resolves through the aqua backend to the nested package name gohugoio/hugo/hugo-extended, which is not a GitHub repo. This regex manager claims the line with the same depName as netlify.toml, so the Hugo group updates mise.toml and netlify.toml together.",
       "customType": "regex",
       "managerFilePatterns": [
-        "tools.mk"
+        "mise.toml"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+[A-Z_]+=(?<currentValue>\\S+)"
-      ]
+        "hugo-extended\\s*=\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "depNameTemplate": "gohugoio/hugo",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "description": "The mise CLI pinned in every workflow's mise-action step. CI and dev machines agree on the installer build; one PR bumps all occurrences.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        ".github/workflows/*.yml"
+      ],
+      "matchStrings": [
+        "version: (?<currentValue>\\d{4}\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "jdx/mise",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
     }
   ],
   "packageRules": [
     {
-      "description": "Group all Hugo version updates into one PR",
+      "description": "Group all Hugo version updates (mise.toml + netlify.toml) into one PR",
       "matchPackageNames": [
         "gohugoio/hugo"
       ],
       "groupName": "Hugo",
       "groupSlug": "hugo"
+    },
+    {
+      "description": "@lhci/cli frozen at 0.15.1: 0.16.0 fails mise's aube supply-chain check (its chromium-bidi dependency lost trusted-publisher evidence), and no CI job installs lhci, so an automerged bump would go green while breaking every local mise install. Drop this rule when upstream trust evidence is restored.",
+      "matchPackageNames": [
+        "@lhci/cli",
+        "npm:@lhci/cli"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Keep the native mise manager away from hugo-extended; its extraction cannot resolve a working lookup (nested aqua package). The regex manager above owns that line.",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "hugo-extended"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "No release-asset digests on the mise CLI pin: the value feeds mise-action's `version:` input, which cannot parse a `#digest` suffix, and pinDigests would otherwise try. Version-only updates are what we want.",
+      "matchDepNames": [
+        "jdx/mise"
+      ],
+      "pinDigests": false
     },
     {
       "description": "Group minor/patch GitHub Actions updates",
@@ -62,11 +92,18 @@
       "groupSlug": "gha-minor"
     },
     {
-      "description": "Group the tools.mk developer tooling into one PR",
+      "description": "Group the mise-pinned developer tooling into one PR. mise deps carry short names (shfmt, vale, npm:@lhci/cli); the owner/repo entries keep matching via packageName.",
       "matchPackageNames": [
+        "shfmt",
+        "shellcheck",
+        "actionlint",
+        "vale",
+        "lychee",
+        "npm:@lhci/cli",
         "mvdan/sh",
         "koalaman/shellcheck",
         "rhysd/actionlint",
+        "vale-cli/vale",
         "errata-ai/vale",
         "lycheeverse/lychee",
         "@lhci/cli"
@@ -75,7 +112,29 @@
       "groupSlug": "dev-tooling"
     },
     {
-      "description": "MJML majors are breaking (v5 is a rewrite): keep them separate from the tooling group",
+      "description": "Node from mise: minor/patch ride with the tooling group",
+      "matchPackageNames": [
+        "node"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "Dev tooling",
+      "groupSlug": "dev-tooling"
+    },
+    {
+      "description": "Node majors are a manual decision: mjml and @lhci/cli run on it, and a major can change both at once",
+      "matchPackageNames": [
+        "node"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "MJML minor/patch join the tooling group; majors stay separate",
       "matchPackageNames": [
         "mjml"
       ],
@@ -85,6 +144,16 @@
       ],
       "groupName": "Dev tooling",
       "groupSlug": "dev-tooling"
+    },
+    {
+      "description": "MJML majors are breaking (v5 is a rewrite the templates were ported to at the time): no automerge, human takes them with a full make email-validate pass",
+      "matchPackageNames": [
+        "mjml"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
     }
   ],
   "git-submodules": {

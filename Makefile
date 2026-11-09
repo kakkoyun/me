@@ -4,28 +4,22 @@
 # Variables
 HUGO_SITE_DIR := .
 PUBLIC_DIR := public
-HUGO_VERSION := $(shell cat .hugo-version)
 
-# Pinned versions of every tool the checks below run. CI reads this same file,
-# so a check that passes here runs the same binary CI runs. See tools.mk.
-include tools.mk
+# Hugo version comes from mise.toml, the single source of truth for tool
+# versions (https://mise.jdx.dev). A plain sed, not mise, so this variable
+# expands even on a machine without mise — the netlify build targets use it.
+HUGO_VERSION := $(shell sed -n 's/^hugo-extended *= *"\([^"]*\)".*/\1/p' mise.toml)
 
-# Where scripts/ensure-tool.sh installs the pinned tools. FIRST on PATH, so the
-# pin wins over a brew- or apt-installed copy of the same tool.
-TOOLS_BIN := $(CURDIR)/.tools/bin
-
-# Ensure go-installed binaries are visible in every recipe shell.
-# Prefer GOBIN when set; fall back to GOPATH/bin.
-GO_INSTALL_BIN := $(shell go env GOBIN 2>/dev/null)
-ifeq ($(GO_INSTALL_BIN),)
-  GO_INSTALL_BIN := $(shell go env GOPATH 2>/dev/null)/bin
-endif
-export PATH := $(TOOLS_BIN):$(PATH):$(GO_INSTALL_BIN)
+# Every tool the targets below run is pinned in mise.toml and run through
+# `mise exec --`, so recipes resolve the pinned build whether or not the
+# shell has mise activated. `make tools` (mise install) fetches everything
+# up front; see the require-mise target for the one-time mise install.
+MISE := mise exec --
 
 .PHONY: fmt fmt-check
 .PHONY: tools bootstrap submodules vale-packages require-runtime require-netlify
 .PHONY: links links-external lighthouse
-.PHONY: print-shell-files print-tool-version print-tools-bin
+.PHONY: print-shell-files require-mise
 .PHONY: build serve serve-draft clean minify production netlify-deploy netlify-preview netlify-open list version netlify-update netlify-dev netlify-status netlify-logs netlify-init netlify-env netlify-build netlify-build-preview netlify-build-branch netlify-redirects netlify-validate-config deploy-all check-hugo local-setup verify buffer-update humanizer-update shellcheck actionlint lint test check vale vale-sync prose email-validate
 
 # Default target
@@ -33,8 +27,8 @@ help:
 	@echo "Hugo Blog Makefile Commands:"
 	@echo ""
 	@echo "Setup Commands:"
-	@echo "  make bootstrap          - Install pinned tools + submodules + Vale packages"
-	@echo "  make tools              - Install pinned tools only (see tools.mk)"
+	@echo "  make bootstrap          - mise install + submodules + Vale packages"
+	@echo "  make tools              - Install pinned tools (see mise.toml)"
 	@echo "  make local-setup        - Bootstrap, then verify Hugo can build"
 	@echo ""
 	@echo "Build Commands:"
@@ -62,7 +56,6 @@ help:
 	@echo "  make netlify-update     - Update Netlify CLI"
 	@echo ""
 	@echo "Update Commands:"
-	@echo "  make hugo-update        - Update Hugo to latest version"
 	@echo "  make theme-update       - Update PaperMod theme"
 	@echo "  make buffer-update      - Update buffer-cli submodule"
 	@echo "  make humanizer-update   - Update humanizer skill submodule"
@@ -88,7 +81,7 @@ help:
 	@echo "  make links-external     - Full external link check (mirrors weekly cron)"
 	@echo "  make lighthouse         - Lighthouse CI against the local build"
 	@echo ""
-	@echo "Tool versions are pinned in tools.mk and installed on first use."
+	@echo "Tool versions are pinned in mise.toml; install mise, then 'make tools'."
 
 # Build the site
 build: check-hugo
@@ -160,20 +153,15 @@ netlify-redirects:
 	@grep -A 4 "redirects" netlify.toml
 	@echo "\nVerify Obsidian notes redirect at: https://kakkoyun.me/notes/"
 
-# Validate netlify.toml configuration
+# Validate netlify.toml configuration. Version consistency (mise.toml ==
+# netlify.toml, all three contexts) is asserted by check-hugo; this target
+# additionally exercises netlify-cli against the config.
 netlify-validate-config: check-hugo require-netlify
 	@echo "Validating netlify.toml configuration..."
-	@PINNED=$$(cat .hugo-version 2>/dev/null | tr -d '[:space:]'); \
-	TOML=$$(grep 'HUGO_VERSION' netlify.toml | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1); \
-	if [ "$$PINNED" != "$$TOML" ]; then \
-	  echo "❌ Version mismatch: .hugo-version=$$PINNED but netlify.toml=$$TOML"; \
-	  echo "   Run: make update-version"; \
-	  exit 1; \
-	fi; \
-	echo "✅ Hugo version consistent: $$PINNED (.hugo-version matches netlify.toml)"
+	@echo "✅ Hugo version consistent: mise.toml == netlify.toml (asserted by check-hugo)"
 	@cat netlify.toml
 	@echo "\nLocal Hugo version:"
-	@hugo version
+	@$(MISE) hugo version
 	@netlify sites:list
 	@echo "\nConfig validation complete."
 
@@ -212,9 +200,6 @@ version: check-hugo
 # Update commands
 update: update-version theme-update buffer-update humanizer-update
 
-hugo-update:
-	go install github.com/gohugoio/hugo@latest
-
 theme-update:
 	git submodule update --remote --merge
 
@@ -224,39 +209,39 @@ buffer-update:
 humanizer-update:
 	git submodule update --init --remote --merge -- tools/humanizer
 
-# Update Hugo to latest version and sync version across all files
-update-version:
-	@echo "🔄 Updating Hugo to the latest version..."
-	@$(MAKE) hugo-update
-	@echo "📖 Reading installed Hugo version..."
-	@# Ask the binary hugo-update just wrote, by path. A bare `hugo` would
-	@# resolve .tools/bin/hugo — the CURRENT pin — because that directory is
-	@# first on PATH, so this target would dutifully write the old version back
-	@# over itself and report success.
-	@INSTALLED_VERSION=$$($(GO_INSTALL_BIN)/hugo version 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/v//' || echo "unknown"); \
-	if [ "$$INSTALLED_VERSION" = "unknown" ]; then \
-		echo "❌ Could not detect Hugo version at $(GO_INSTALL_BIN)/hugo."; \
-		echo "   Run 'make hugo-update' first, or check that Go's bin directory is where you expect."; \
-		exit 1; \
-	fi; \
-	echo "✅ Detected Hugo version: $$INSTALLED_VERSION"; \
-	echo "🔄 Updating version files from $$(cat .hugo-version 2>/dev/null || echo 'unknown') to $$INSTALLED_VERSION"; \
-	echo "$$INSTALLED_VERSION" > .hugo-version; \
-	sed -i "s/HUGO_VERSION = \"[^\"]*\"/HUGO_VERSION = \"$$INSTALLED_VERSION\"/g" netlify.toml; \
-	echo "✅ Updated Hugo version to $$INSTALLED_VERSION in:"; \
-	echo "  - .hugo-version"; \
-	echo "  - netlify.toml (all contexts)"
-
-# Ensure Hugo is present, pinned, and the EXTENDED build.
+# Update Hugo to the latest release and sync the version everywhere.
 #
-# This used to `go install github.com/gohugoio/hugo@vX`, which builds the
-# STANDARD binary — no WebP, no libsass. CI (peaceiris/actions-hugo with
-# extended: true) and Netlify both build extended, so image processing behaved
-# differently locally than in CI and scripts/check-image-sizes.sh could pass on
-# one and fail on the other. scripts/ensure-tool.sh installs the extended
-# release asset at exactly the .hugo-version pin.
-check-hugo: tool-hugo submodules
-	@hugo version | awk '{print "✅ Hugo OK: " $$1, $$2}'
+# `--pin` is load-bearing: without it, mise writes the requested `latest`
+# into mise.toml instead of the resolved version, and a literal `latest`
+# stops both Renovate's Hugo manager and check-hugo from reading the pin.
+update-version: require-mise
+	@echo "🔄 Updating Hugo to the latest version..."
+	mise use --pin hugo-extended@latest
+	@:; \
+	pin="$$(sed -n 's/^hugo-extended *= *"\([^"]*\)".*/\1/p' mise.toml)"; \
+	sed -i.bak "s/HUGO_VERSION = \"[^\"]*\"/HUGO_VERSION = \"$$pin\"/g" netlify.toml; \
+	  rm -f netlify.toml.bak; \
+	  echo "✅ Hugo updated to $$pin in:"; \
+	  echo "  - mise.toml"; \
+	  echo "  - netlify.toml (all contexts)"; \
+	fi
+
+# Ensure Hugo is present, pinned, the EXTENDED build, and mirrored into
+# netlify.toml.
+#
+# Extended is non-negotiable: standard Hugo has no WebP or libsass, so image
+# processing differs from CI and Netlify and scripts/check-image-sizes.sh can
+# pass on one and fail on the other. mise installs hugo-extended at the
+# mise.toml pin. netlify.toml must mirror that pin in all three contexts
+# (production, deploy-preview, branch-deploy) because Netlify builds with its
+# own Hugo — Renovate updates both files in one PR; this check catches drift.
+check-hugo: require-mise submodules
+	@$(MISE) hugo version | awk '{print "✅ Hugo OK: " $$1, $$2}'; \
+	$(MISE) hugo version | grep -q extended || { echo "❌ Hugo is not the extended build"; exit 1; }; \
+	pin="$$(sed -n 's/^hugo-extended *= *"\([^"]*\)".*/\1/p' mise.toml)"; \
+	[ "$$pin" = "$$(mise exec -- hugo version | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 | tr -d v)" ] || { echo "❌ Hugo version mismatch: mise.toml=$$pin but installed=$$(mise exec -- hugo version | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 | tr -d v)"; echo "   Run: mise install"; exit 1; }; \
+	[ "3" = "$$(grep -c 'HUGO_VERSION = "'"$$pin"'"' netlify.toml || true)" ] || { echo "❌ netlify.toml must mirror the pin $$pin in all 3 contexts"; echo "   Run: make update-version"; exit 1; }; \
+	echo "✅ Version consistent: mise.toml == installed == netlify.toml ($$pin)"
 
 # Every shell script we own. Discovered by shebang across the whole repo, not
 # by extension and not rooted at scripts/, so two things stay covered for free:
@@ -267,20 +252,20 @@ SHELL_FILES = $(shell grep -rIl --exclude-dir=.git --exclude-dir=themes \
 	--exclude-dir=tools --exclude-dir=.tools --exclude-dir=public --exclude-dir=node_modules \
 	-E '^#!.*(bash|sh)$$' . 2>/dev/null | sed 's|^\./||' | sort)
 
-# ── Tooling ───────────────────────────────────────────────────────────────────
-# Every check target depends on the tools it needs, so a fresh checkout — a new
-# laptop, a worktree, an agent session on a sandbox VM — runs `make check` with
-# no manual install step. Versions come from tools.mk; the installer is
-# scripts/ensure-tool.sh. Set TOOLS_OFFLINE=1 to fail with a manual-install hint
-# instead of downloading.
-TOOLS := hugo shfmt shellcheck actionlint vale lychee
-.PHONY: $(addprefix tool-,$(TOOLS))
-
-tool-hugo tool-shfmt tool-shellcheck tool-actionlint tool-vale tool-lychee:
-	@bash scripts/ensure-tool.sh $(patsubst tool-%,%,$@)
+# ── Tooling ───────────────────────────────────────────────────────────────────────────
+# mise is the one prerequisite a fresh checkout does not install itself; every
+# tool and version lives in mise.toml and `make tools` (mise install) fetches
+# them all. Recipes run tools through `mise exec --`, so the pinned build wins
+# over any brew- or apt-installed copy on PATH.
+require-mise:
+	@command -v mise >/dev/null 2>&1 || { \
+		echo "❌ mise not found. Install it once per machine:"; \
+		echo "   brew install mise   (or: curl https://mise.run | sh)"; \
+		echo "   Then run: make tools"; exit 1; }
 
 # Install every pinned tool without running anything.
-tools: $(addprefix tool-,$(TOOLS))
+tools: require-mise
+	mise install
 
 # The theme is a submodule: a fresh clone has an empty themes/PaperMod and every
 # hugo target dies with a bare "found no layout file".
@@ -290,17 +275,16 @@ tools: $(addprefix tool-,$(TOOLS))
 # tools/humanizer — which a themes/PaperMod-only test would leave empty while
 # reporting the checkout ready.
 submodules:
-	@if git submodule status --recursive 2>/dev/null | grep -q '^-'; then \
-	  echo "➡️  Initializing git submodules..."; \
-	  git submodule update --init --recursive; \
-	fi
+	@git submodule status --recursive 2>/dev/null | grep -q '^-' || exit 0; \
+	echo "➡️  Initializing git submodules..."; \
+	git submodule update --init --recursive
 
 # Vale's third-party style packages are gitignored and fetched by `vale sync`,
 # so `make vale` on a fresh checkout fails on missing rules without this.
-vale-packages: tool-vale
+vale-packages: require-mise
 	@if [ ! -d styles/proselint ] || [ ! -d styles/write-good ]; then \
 	  echo "➡️  Syncing Vale style packages..."; \
-	  vale sync; \
+	  $(MISE) vale sync; \
 	fi
 
 # Everything a fresh checkout needs before any other target.
@@ -329,44 +313,32 @@ require-netlify:
 	  exit 1; }
 
 # Consumed by CI so the workflows never re-implement Makefile logic.
-#
-# print-tools-bin exists because the PATH export above only reaches make's own
-# recipe shells. A workflow `run:` block is a different shell, so it needs the
-# directory appended to $GITHUB_PATH — otherwise a tool that happens to be
-# preinstalled on the runner silently wins over the pin, which is the exact
-# drift this file is here to prevent.
-print-tools-bin:
-	@echo "$(TOOLS_BIN)"
-
 print-shell-files:
 	@printf '%s\n' $(SHELL_FILES)
-
-print-tool-version:
-	@echo "$($(TOOL)_VERSION)"
 
 # Run shellcheck on all shell scripts.
 # Source-following comes from .shellcheckrc (external-sources=true), which is
 # what makes the `# shellcheck source=` directives in scripts/ do anything.
-shellcheck: tool-shellcheck
-	shellcheck $(SHELL_FILES)
+shellcheck: require-mise
+	$(MISE) shellcheck $(SHELL_FILES)
 
 # Run actionlint on all GitHub Actions workflows
-actionlint: tool-actionlint
-	actionlint .github/workflows/*.yml
+actionlint: require-mise
+	$(MISE) actionlint .github/workflows/*.yml
 
 # Format shell scripts in place. Style comes from .editorconfig, which shfmt
 # reads directly — there are deliberately no formatting flags here to drift.
-fmt: tool-shfmt
-	shfmt -w $(SHELL_FILES)
+fmt: require-mise
+	$(MISE) shfmt -w $(SHELL_FILES)
 
 # Fail if anything is unformatted. This is the gate; `make fmt` is the fix.
 #
 # A formatter is only reproducible if everyone runs the same build: a different
-# version can reformat files that are already conformant, producing churn nobody
-# asked for. tool-shfmt installs the pinned build from tools.mk and puts it first
-# on PATH, so this is now guaranteed rather than warned about.
-fmt-check: tool-shfmt
-	@out=$$(shfmt -l $(SHELL_FILES)); \
+# version can reformat files that are already conformant, producing churn
+# nobody asked for. The pinned shfmt from mise.toml runs through `mise exec --`,
+# so this is guaranteed rather than warned about.
+fmt-check: require-mise
+	@out=$$($(MISE) shfmt -l $(SHELL_FILES)); \
 	if [ -n "$$out" ]; then \
 	  echo "❌ Not shfmt-formatted:"; echo "$$out" | sed 's/^/   /'; \
 	  echo "   Run: make fmt"; exit 1; \
@@ -387,7 +359,6 @@ test: require-runtime
 	@bash scripts/test-check-live-headers.sh
 	@bash scripts/test-check-repo-access.sh
 	@bash scripts/test-check-image-sizes.sh
-	@bash scripts/test-ensure-tool.sh
 	@bash scripts/test-lighthouse-summary.sh
 	@bash scripts/check-cms-fields.sh
 	@bash scripts/check-frontmatter.sh
@@ -398,24 +369,24 @@ test: require-runtime
 check: lint test
 
 # Fetch third-party Vale style packages declared in .vale.ini
-vale-sync: tool-vale
-	vale sync
+vale-sync: require-mise
+	$(MISE) vale sync
 
 # Run Vale prose linter on content/
 vale: vale-packages
-	vale content/
+	$(MISE) vale content/
 
 # Run Vale advisory (does not fail the build); shows findings + summary
 prose: vale-packages
 	@echo "📝 Running Vale on content/ ..."
-	@vale --no-exit content/
+	@$(MISE) vale --no-exit content/
 
 # Local equivalent of the links-internal job in .github/workflows/links.yml.
 # Everything both sides share lives in lychee.toml so the two cannot drift;
 # only the path-dependent flags are spelled out here. See that file for why
 # each setting is what it is.
-links: tool-lychee production
-	lychee --config lychee.toml \
+links: require-mise production
+	$(MISE) lychee --config lychee.toml \
 	  --offline \
 	  --root-dir "$(CURDIR)/$(PUBLIC_DIR)" \
 	  --index-files index.html,. \
@@ -424,8 +395,8 @@ links: tool-lychee production
 
 # Local equivalent of the links-external job (the weekly cron). Hits the
 # network; soft-fails in CI but not here, where you asked for it.
-links-external: tool-lychee
-	lychee --config lychee.toml \
+links-external: require-mise
+	$(MISE) lychee --config lychee.toml \
 	  --cache \
 	  --cache-exclude-status '429,500..=599' \
 	  --base 'https://kakkoyun.me' \
@@ -433,9 +404,9 @@ links-external: tool-lychee
 
 # Local equivalent of the lighthouse job in .github/workflows/build.yml, using
 # the same .lighthouserc.yml thresholds. Needs a Chrome or Chromium binary;
-# override the search with CHROME_PATH=/path/to/chrome.
-lighthouse: production
-	@command -v npx >/dev/null 2>&1 || { echo "❌ npx not found. Install Node.js"; exit 1; }
+# override the search with CHROME_PATH=/path/to/chrome. lhci comes from mise
+# (npm:@lhci/cli in mise.toml); CI's job uses the treosh action's bundled copy.
+lighthouse: require-mise production
 	@chrome="$(CHROME_PATH)"; \
 	if [ -z "$$chrome" ]; then \
 	  for c in google-chrome google-chrome-stable chromium chromium-browser; do \
@@ -459,16 +430,17 @@ lighthouse: production
 	  echo "   (running as root: adding --no-sandbox, which Chrome requires there)"; \
 	  flags="--collect.settings.chromeFlags=--no-sandbox"; \
 	fi; \
-	CHROME_PATH="$$chrome" npx --yes @lhci/cli@$(LHCI_VERSION) \
+	CHROME_PATH="$$chrome" $(MISE) lhci \
 	  autorun --config=.lighthouserc.yml $$flags
 
 # Validate every MJML email template under templates/emails/. Catches
 # both MJML syntax errors and a Hakanai-specific pitfall (Mustache
-# tokens inside HTML comments). Requires npx; fetches the pinned mjml
-# (tools.mk) on first run.
-email-validate:
-	@command -v npx >/dev/null 2>&1 || { echo "❌ npx not found. Install Node.js"; exit 1; }
-	@MJML_VERSION=$(MJML_VERSION) bash scripts/validate-emails.sh
+# tokens inside HTML comments). mjml comes from mise (npm:mjml in
+# mise.toml); the script itself calls a bare `mjml` from PATH, so the
+# Makefile wraps it in `mise exec --` and the script stays testable with
+# PATH-stubbed binaries.
+email-validate: require-mise
+	@$(MISE) bash scripts/validate-emails.sh
 
 local-setup: check-hugo ## Initialize local dev environment (Hugo + theme submodule + dry run)
 	@echo "🔧 Local development environment setup"

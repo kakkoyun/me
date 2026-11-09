@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Hugo static site (personal blog) using PaperMod theme, deployed to Netlify. Published at <https://kakkoyun.me>. Hugo version is pinned in `.hugo-version` and mirrored in `netlify.toml`.
+Hugo static site (personal blog) using PaperMod theme, deployed to Netlify. Published at <https://kakkoyun.me>. All tool versions are pinned in `mise.toml`; the Hugo version is mirrored into `netlify.toml` (`HUGO_VERSION`) because Netlify builds with its own Hugo.
 
 ## Build Commands
 
@@ -12,8 +12,8 @@ Every target below installs the tools it needs on first use — see Tool Version
 On a fresh checkout, `make bootstrap` gets you everything at once.
 
 ```bash
-make bootstrap          # Pinned tools + git submodules + Vale packages (start here)
-make tools              # Install the pinned tools only (see tools.mk)
+make bootstrap          # mise install + git submodules + Vale packages (start here)
+make tools              # mise install — every tool pinned in mise.toml
 make serve              # Local dev server (fast render disabled)
 make serve-draft        # Dev server with drafts and future-dated posts
 make production         # Production build: hugo --gc --minify --enableGitInfo
@@ -22,8 +22,8 @@ make verify             # Post-build SEO/analytics smoke tests + image-size chec
 make deploy-all         # Full pipeline: validate + clean + build + verify + deploy
 make netlify-preview    # Preview build with future posts included
 make local-setup        # First-time setup: install Hugo, init submodule, dry-run build
-make check-hugo         # Verify Hugo version matches .hugo-version (auto-installs via Go)
-make update-version     # Update Hugo to latest, sync .hugo-version + netlify.toml
+make check-hugo         # Verify Hugo pin is installed, extended, and mirrored in netlify.toml
+make update-version     # Update Hugo to latest, sync mise.toml + netlify.toml
 make theme-update       # Pull latest PaperMod theme submodule
 make buffer-update      # Pull latest buffer-cli submodule
 make humanizer-update   # Pull latest humanizer skill submodule
@@ -42,34 +42,29 @@ make lighthouse         # Lighthouse CI against the local build (needs Chrome)
 
 ### Tool Versions
 
-`tools.mk` pins every tool the checks run — shfmt, ShellCheck, actionlint, Vale,
-lychee, Lighthouse CI and the MJML compiler. Hugo is the one exception: it stays
-in `.hugo-version`, which `netlify.toml`, `make update-version` and two Renovate
-managers already read. **Do not add a second Hugo pin.**
+`mise.toml` pins every tool the checks run — Hugo (`hugo-extended`), shfmt,
+ShellCheck, actionlint, Vale, lychee, Node, and the two npm tools (MJML,
+@lhci/cli) — as the single source of truth. `mise install` (or `make tools`)
+fetches them; Makefile targets run every tool through `mise exec --`, so the
+pinned build wins over a brew- or apt-installed copy whether or not the shell
+has mise activated. CI installs per-job subsets via `jdx/mise-action` (with
+the mise CLI itself pinned and Renovate-updated); the lychee/vale wrapper
+actions read their version straight out of mise.toml.
 
-Three things read `tools.mk`, which is why it is plain `KEY=value` with `#`
-comments and no parser anywhere: the Makefile `include`s it, `scripts/ensure-tool.sh`
-`source`s it, and the workflows `grep` it into `$GITHUB_ENV`. So CI and a dev
-machine run the same build of the same tool, and "green locally" means the same
-thing as "green in CI".
-
-- `scripts/ensure-tool.sh <tool>` downloads the pinned release asset into
-  `.tools/bin` (gitignored) and stamps it under `.tools/stamps`. A warm run is a
-  stat, not a process spawn. Every check target depends on the tools it needs, so
-  there is nothing to install by hand.
-- `.tools/bin` goes **first** on `PATH`, so the pin wins over a brew- or
-  apt-installed copy. The shadowing is announced when it happens.
-- Hugo is installed as the **extended** build, matching CI and Netlify. The old
-  `go install` path built the standard binary, which has no WebP or libsass — so
-  covers were processed differently locally than in CI and
-  `scripts/check-image-sizes.sh` could pass on one and fail on the other.
-- Renovate keeps the pins current via the `tools.mk` custom manager. The
-  `# renovate:` comment above each pin carries its datasource and upstream repo,
-  so adding a tool means adding that comment line and nothing else. MJML majors
-  are deliberately excluded from the group — v5 is a breaking rewrite the
-  templates are not ported to.
-- `TOOLS_OFFLINE=1` makes every target fail with a manual-install hint instead of
-  downloading, for locked-down environments.
+- mise is the one manual install (`brew install mise`, or
+  `curl https://mise.run | sh`). Every tool-dependent target fails with that
+  hint via `require-mise` if it is missing.
+- `hugo-extended` on purpose: the extended build matches Netlify, so covers
+  process identically locally and in production.
+- Renovate keeps the pins current: the native `mise` manager handles the dev
+  tools, a regex manager owns the `hugo-extended` line with the same depName as
+  `netlify.toml`'s `HUGO_VERSION` (native mise cannot update it — nested aqua
+  package), so the Hugo group updates both files in one PR, and another regex
+  manager updates the pinned mise CLI in workflows. Updates are weekly
+  (Monday), skip releases younger than three days, and automerge once every
+  check on the PR is green — Renovate's own automerge, which waits for all
+  checks including the path-triggered build job. A red PR stays open for a
+  human. MJML majors and Node majors are deliberately excluded from automerge.
 
 ## Architecture
 
@@ -292,7 +287,7 @@ Three layered defenses against AI-slop prose. All advisory; none block merges.
 
 **Patterns to scrutinize, not preserve:** em-dash parenthetical asides (`— X —`), negative parallelism ("it's not X, it's Y" / "not just X, but Y"), and triadic rhythm all read as AI-flavored when overused. Vale flags the first two at `suggestion` (via `Slop.Density` and `Slop.Parallelism`). Triadic rhythm is review-by-eye. A single instance is fine; clusters are not.
 
-**Before opening a PR with a new post:** run `make prose`. First-time setup: `brew install vale && make vale-sync`.
+**Before opening a PR with a new post:** run `make prose`. First-time setup: `mise install` (fetches Vale) and `make vale-sync`.
 
 **Story over completeness.** A post that passes every vocabulary rule can still read as a schematic list of facts. Tell it as something we do together, introduce and explain every code block, link sources inline, and move true-but-distracting detail to a backup document. The story playbook above has the details.
 
@@ -318,7 +313,7 @@ GitHub Actions workflows:
 - **`main.yml`** -- Daily cron updates `content/notes/_index.md` from Obsidian Publish RSS feed. Do not hand-edit the area between `<!-- NOTE-LIST:START -->` comment tags. It does **not** push to master: `skip_commit: true` plus a branch → PR → squash-merge step, so the `master` ruleset needs no bypass actor. `enable_keepalive: false` is also deliberate — it defaults to **on** and makes a dummy commit straight to the default branch every ~50 days, a push that appears nowhere in the workflow file.
 - **`deploy-scheduled.yml`** -- Daily cron at `00:10 UTC` (+ manual `workflow_dispatch`) that POSTs the Netlify build hook so **future-dated posts go live on their publish day**. The production build omits `--buildFuture` (see `netlify.toml`), so a post merged ahead of its `publishDate` stays hidden until a build runs at/after that date; a push to master only rebuilds when something is pushed, so this cron is what flips scheduled posts visible. A pre-flight `check` job runs `scripts/posts-publishing-today.sh` and skips the Netlify hook entirely when nothing is due, so the cron only consumes a build minute on a publishing day; `workflow_dispatch` bypasses the gate (the human pressing it has already decided). After triggering the build it verifies a *today-dated* post actually went live (same `scripts/posts-publishing-today.sh` + `scripts/check-post-live.sh`) rather than blindly sleeping — Netlify's atomic deploys keep the homepage at 200 off the old build, so reachability alone wouldn't prove freshness. Needs the `NETLIFY_BUILD_HOOK_URL` secret. Use the manual dispatch as a "publish now" button. **This is the publishing mechanism — promotion (below) no longer rebuilds.**
 - **`lint.yml`** -- shfmt, ShellCheck, and actionlint, all at the versions pinned in
-  `tools.mk` and installed by `scripts/ensure-tool.sh`, plus `make test` (which includes `scripts/test-check-image-sizes.sh`). ShellCheck and actionlint emit native GitHub annotations, so findings still appear inline on the PR diff without an action wrapper choosing the binary. The ShellCheck job takes its file list from `make print-shell-files`, i.e. the Makefile's own `SHELL_FILES`; the previous reviewdog step globbed `scripts/*.sh`, so a shell script anywhere else was linted locally but not in CI. Any finding fails the job, matching `make lint`. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP.
+  `mise.toml` and installed per-job by `jdx/mise-action`, plus `make test` (which includes `scripts/test-check-image-sizes.sh`). Each job asserts the resolved tool version matches the mise pin, so a runner-preinstalled tool shadowing the pin fails loudly. ShellCheck and actionlint emit native GitHub annotations, so findings still appear inline on the PR diff without an action wrapper choosing the binary. The ShellCheck job takes its file list from `make print-shell-files`, i.e. the Makefile's own `SHELL_FILES`; the previous reviewdog step globbed `scripts/*.sh`, so a shell script anywhere else was linted locally but not in CI. Any finding fails the job, matching `make lint`. `make test` includes `scripts/check-admin-csp.sh`, which fails if `static/admin/index.html` is edited without recomputing the inline-script sha256 hashes pinned in the `/admin/*` CSP.
 - **`prose.yml`** -- Vale prose lint on `content/**/*.md` PRs. Advisory (does not block). Auto-fires on content paths.
 - **`prose-review.yml`** -- Claude prose review. Label-triggered only (apply `prose-review` to fire). Reads `REVIEW.md` and the `kemal-voice` skill. Advisory.
 - **`claude-code-review.yml`** -- Generic code reviewer. Label-triggered only (apply `claude-review` to fire). Advisory.
@@ -330,7 +325,7 @@ GitHub Actions workflows:
 - **Netlify:** Deployment platform. `/notes/*` is proxied (200 rewrite) to Obsidian Publish -- do not remove this redirect from `netlify.toml`. `static/_redirects` also exists for additional Netlify redirect rules; keep both files consistent. It carries the legacy-URL 301s too — the pre-Hugo `/blog/posts/YYYY/MM/DD/<slug>` permalinks and `/tags/.net` — which is what keeps Search Console's "Not found (404)" list from refilling.
 - **Giscus:** Comments via GitHub Discussions on `kakkoyun/me`. Config in `config.yaml` under `params.giscus`.
 - **Plausible + Hakanai:** Dual analytics. Extend via `params.analytics` in `config.yaml`.
-- **Renovate:** Auto-updates Hugo version (in `.hugo-version` + `netlify.toml`), GitHub Actions, and PaperMod submodule.
+- **Renovate:** Auto-updates tool pins in `mise.toml` (dev tools via the native mise manager, `hugo-extended` via a regex manager that pairs with `netlify.toml` so one PR updates both), the pinned mise CLI in workflows, GitHub Actions, and submodules. Weekly schedule (Monday), three-day release cooldown, and automerge once all checks on the PR are green — except MJML majors and Node majors, which wait for a human.
 - **Substack:** Blog posts are syndicated to Substack via a dedicated, Substack-tuned RSS feed at `/substack.xml` (output format `substack` in `config.yaml`, template `layouts/index.substack.xml`). Hugo stays canonical; Substack is a one-directional mirror you feed via `Settings → Import`. The feed emits full-text `<content:encoded>` with absolutised image/link URLs and a top "Originally published at" backlink (Substack supports no canonical tag). Opt a post out with `substack: false`. Setup and post-import steps are in [docs/substack-syndication.md](docs/substack-syndication.md).
 - **Sveltia CMS:** Git-based content editor served at `/admin/`. `static/admin/index.html` (pinned CDN bundle + matching SRI hash) and `static/admin/config.yml` are hand-maintained -- no Hugo module, no npm dependency, no build step. Auth is a **GitHub App** scoped to this repo alone, whose client ID and secret live in Netlify's OAuth provider (Site settings → Access control → OAuth), so `config.yml` needs no `base_url`. A GitHub App (not a classic OAuth App) on purpose: its user token carries only `app permissions ∩ signer's permissions ∩ where the app is installed`, so a stranger who completes the sign-in flow gets a token that can touch nothing. There is no allowlist inside Sveltia — the repo's push list *is* the allowlist. `netlify.toml` serves a CSP on `/admin/*` (the GitHub token sits in localStorage there); **never add `Cross-Origin-Opener-Policy` to that block** — sign-in is a popup that `postMessage`s the token to `window.opener` and COOP breaks it. **A new frontmatter key must also be declared in `static/admin/config.yml` or the CMS silently drops it on save**; `scripts/check-cms-fields.sh` enforces this via `make test` in CI. See [docs/sveltia-cms.md](docs/sveltia-cms.md).
 
@@ -418,7 +413,7 @@ ledger all run through it — so the scripts are linted and formatted as strictl
 as any other source.
 
 - **Formatting is enforced**, not advisory. `make fmt` formats, `make fmt-check`
-  gates, and CI runs the same target with the same pinned shfmt (`tools.mk`).
+  gates, and CI runs the same target with the same pinned shfmt (`mise.toml`).
   Style lives in `.editorconfig` (2-space, indented `case` branches, `||` at line
   start) which shfmt reads directly, so there are no formatter flags anywhere to
   drift out of sync with your editor.
@@ -438,10 +433,10 @@ as any other source.
   a fourth copy of the awk block — that duplication is what the library replaced.
 - Every script gets a `scripts/test-<name>.sh` companion wired into `make test`.
   The existing suites are self-contained: temp dirs, stubbed commands via env
-  seams (`LIVE_PROBE_CMD`, `TOOLS_FETCH_CMD`), pinned clocks (`TODAY_OVERRIDE`),
-  no network. `ensure-tool.sh` also takes `TOOLS_UNAME_S`/`TOOLS_UNAME_M`/
-  `TOOLS_PKGUTIL_CMD`, so a Linux runner covers the macOS asset names and the
-  Hugo `.pkg` path — branches that would otherwise only ever run on a laptop.
+  seams (`LIVE_PROBE_CMD`), pinned clocks (`TODAY_OVERRIDE`), no network. When a
+  script shells out to a tool (as `validate-emails.sh` does to `mjml`), it calls
+  the bare name so tests can stub it on `PATH` — the Makefile wraps the call in
+  `mise exec --` instead of the script knowing about mise.
 - A comment whose first word is `shellcheck` is parsed as a directive and fails
   the lint with SC1073. Reword it — this bites when writing about ShellCheck.
 
