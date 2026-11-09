@@ -12,7 +12,6 @@
 # mjml and @lhci/cli are npm packages installed through mise's npm backend;
 # node is pinned so they run on a known runtime. Renovate updates node
 # minor/patch only — majors are a manual decision (renovate.json).
-min_version = "2026.11.5"
 
 [tools]
 hugo-extended = "0.169.0"
