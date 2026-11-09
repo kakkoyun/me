@@ -4,6 +4,15 @@
     "config:recommended"
   ],
   "pinDigests": true,
+
+  "description": "Dependency cadence: look weekly (Monday 06:00-11:00 UTC), skip releases younger than 3 days, and automerge once every check on the PR is green. Renovate's own automerge waits for ALL checks, including the path-triggered build-verify job that must gate Hugo bumps; GitHub's platform auto-merge only waits for required status checks, and none are configured, so platformAutomerge stays off. A red job leaves the PR open for a human.",
+  "schedule": ["after 6am and before 11am on monday"],
+  "minimumReleaseAge": "3 days",
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": false,
+
   "customManagers": [
     {
       "description": "Hugo version mirrored into netlify.toml for Netlify's own Hugo build (all three contexts). Same depName as the mise.toml hugo-extended manager below, so Renovate updates both files in one PR.",
