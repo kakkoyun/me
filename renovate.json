@@ -4,6 +4,15 @@
     "config:recommended"
   ],
   "pinDigests": true,
+
+  "description": "Dependency cadence: look weekly (Monday 06:00-11:00 UTC), skip releases younger than 3 days, and automerge once every check on the PR is green. Renovate's own automerge waits for ALL checks, including the path-triggered build-verify job that must gate Hugo bumps; GitHub's platform auto-merge only waits for required status checks, and none are configured, so platformAutomerge stays off. A red job leaves the PR open for a human.",
+  "schedule": ["after 6am and before 11am on monday"],
+  "minimumReleaseAge": "3 days",
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": false,
+
   "customManagers": [
     {
       "description": "Hugo version mirrored into netlify.toml for Netlify's own Hugo build (all three contexts). Same depName as the mise.toml hugo-extended manager below, so Renovate updates both files in one PR.",
@@ -90,6 +99,23 @@
       ],
       "groupName": "GitHub Actions (minor/patch)",
       "groupSlug": "gha-minor"
+    },
+    {
+      "description": "GitHub Actions majors stay manual: several workflows (deploy-scheduled, main, merge-schedule, promote-post) only ever run on cron or dispatch, so on their PRs nothing but actionlint executes — not enough signal to automerge a major that can break publishing",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Submodule updates stay manual: no CI path covers tools/** (humanizer is third-party prompt text loaded by a contents:write job), and a PaperMod digest bump deserves a human glance before it renders the whole site",
+      "matchManagers": [
+        "git-submodules"
+      ],
+      "automerge": false
     },
     {
       "description": "Group the mise-pinned developer tooling into one PR. mise deps carry short names (shfmt, vale, npm:@lhci/cli); the owner/repo entries keep matching via packageName.",
