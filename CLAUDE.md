@@ -172,7 +172,7 @@ substack: false               # optional; exclude from the Substack syndication 
 - For multi-part posts, add `series:` field with the human-readable series title (e.g., `series: "Fantastic Symbols and Where to Find Them"`)
 - Do not quote scalar YAML values (dates, booleans) — only quote strings that contain special characters
 - Use `draft: true` for WIP content; use a future `publishDate` (with `draft` omitted) for scheduled posts
-- Set `promote: false` to publish a post but opt it out of the social-media promotion pipeline (`scripts/find-promotable-posts.sh`)
+- Set `promote: false` to publish a post but opt it out of both social-media promotion paths: the Claude+Buffer workflow (`scripts/find-promotable-posts.sh`) and the `/feed.xml` promotion feed
 - `promotedAt` is the promotion ledger, appended by `scripts/record-promotion.sh` after each successful run and read back by `find-promotable-posts.sh` to avoid re-promoting. Do not edit it by hand; deleting an entry re-promotes the post on the next cron, which is occasionally what you want
 - `date` may be earlier than `publishDate` — writing over months and publishing later is the normal shape. Nothing in the publishing or promotion pipeline reads `date`, so there is no need to bump it before merging. It does still drive list/archive **ordering** and, on a post where the two differ, the single-post page shows both ("Written … · Published …", see `layouts/partials/post_meta_single.html`)
 - Set `substack: false` to publish a post but exclude it from the Substack syndication feed (`/substack.xml`, see [docs/substack-syndication.md](docs/substack-syndication.md))
@@ -348,37 +348,48 @@ The wrapper pattern means the upstream skill's `buffer get-account` / `buffer po
 
 ### Social Media Promotion Pipeline
 
-Automated via `.github/workflows/promote-post.yml` with two triggers:
+Two paths can promote a post, one active at a time. **See
+[docs/promotion.md](docs/promotion.md) for the full runbook.**
 
-- **Nightly cron (6 AM UTC)**: promotes every live post published within the last
-  `PROMOTE_LOOKBACK_DAYS` (default 30) that has no `promotedAt` stamp yet
-- **Manual dispatch**: the "promote now / again" button — give a `post_path` to promote
-  one specific post, which ignores both the window and the ledger, or leave it blank to
-  promote everything due
+- **External feed consumer (active)**: a full-text promotion feed is served at
+  `/feed.xml` (`feed` output format in `config.yaml`, template
+  `layouts/index.feed.xml`). It lists every `content/posts` post with `promote`
+  not false — the same flag `find-promotable-posts.sh` reads. An external system
+  consumes it and posts to social media. The feed is stateless: no `promotedAt`,
+  no date window; the consumer dedupes.
+- **Claude + Buffer workflow (paused)**: `.github/workflows/promote-post.yml`.
+  Its nightly `schedule` trigger is commented out (see the `on:` block); the
+  manual `workflow_dispatch` stays live. Use the "Run workflow" button to
+  promote on demand — blank `post_path` promotes everything due inside the 30-day
+  lookback, a specific `post_path` re-promotes one post and ignores the ledger,
+  `dry_run` installs a stub `buffer-cli`. Re-enabling the cron is documented in
+  the workflow file and in docs/promotion.md.
 
-There is **no push trigger**: `claude-code-action` rejects the `push` event type
-("Unsupported event type: push"), so promotion runs only on supported automation
-events (`schedule`, `workflow_dispatch`).
+There is **no push trigger** on the workflow: `claude-code-action` rejects the
+`push` event type ("Unsupported event type: push"), so promotion runs only on
+`schedule` and `workflow_dispatch` events.
 
-**The window and the `promotedAt` ledger are one mechanism.** The cron used to match
-`publishDate == today` exactly, which gave every post a single one-day window: a post
-merged after its publish day had passed — written in May, merged in July, published in
-September is the normal shape here — or merged after the 6 AM cron on its own publish
-day, was never promoted and was not even logged as skipped. The window is now 30 days,
-which is only safe because `scripts/record-promotion.sh` appends a timestamp to the
-post's `promotedAt` list after a successful run and `find-promotable-posts.sh` skips
-anything that has one. Widening the window without the ledger would re-post the same
-link every morning for a month; keeping the ledger without the window would still miss
-late merges. Both, or neither.
+**The window and the `promotedAt` ledger are one mechanism** (Claude + Buffer
+path only). The cron used to match `publishDate == today` exactly, which gave
+every post a single one-day window: a post merged after its publish day had
+passed — written in May, merged in July, published in September is the normal
+shape here — or merged after the 6 AM cron on its own publish day, was never
+promoted and was not even logged as skipped. The window is now 30 days, which
+is only safe because `scripts/record-promotion.sh` appends a timestamp to the
+post's `promotedAt` list after a successful run and `find-promotable-posts.sh`
+skips anything that has one. Widening the window without the ledger would
+re-post the same link every morning for a month; keeping the ledger without the
+window would still miss late merges. Both, or neither. **The external consumer
+never stamps `promotedAt`** — so a re-enabled cron will see posts the external
+system already promoted as still un-promoted (see docs/promotion.md for the
+re-enable checklist).
 
-A post merged after the 6 AM cron is now picked up the following morning. Use the manual
-dispatch when you want it out the same day.
-
-Promotion does **not** rebuild the site — publishing is owned by `deploy-scheduled.yml`
-(00:10 UTC). The 6 AM promotion cron is deliberately later so the post is already live.
 Before posting, a **liveness guard** (`Verify posts are live`) maps each candidate to its
 public URL (`content/posts/<slug>.md` → `/posts/<slug>/`) and polls it; a post that is not
-reachable is dropped with a warning, so promotion never posts a link to a 404.
+reachable is dropped with a warning, so the workflow never posts a link to a 404. The
+`/feed.xml` consumer has no equivalent guard: `deploy-scheduled.yml` (00:10 UTC) publishes
+before any normal consumer schedule, but a consumer polling right after a merge should
+tolerate a not-yet-live link.
 
 All date/draft/ledger validation is deterministic bash in `scripts/find-promotable-posts.sh`,
 and the `promotedAt` stamp is written by `scripts/record-promotion.sh` — the workflow needs

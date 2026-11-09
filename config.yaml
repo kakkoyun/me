@@ -99,6 +99,21 @@ outputFormats:
     noUgly: true
     rel: alternate
     notAlternative: true
+  # Promotion feed (served at /feed.xml). Full-text <content:encoded>, same
+  # body treatment as the substack feed, but filtered by the promotion
+  # pipeline's own semantics: content/posts only, `promote: false` excluded.
+  # Consumed by the external system that posts to social media. The feed is
+  # stateless — it never reads promotedAt — so the consumer dedupes itself.
+  # See docs/promotion.md.
+  feed:
+    name: feed
+    baseName: feed
+    mediaType: application/rss+xml
+    isPlainText: false
+    isHTML: false
+    noUgly: true
+    rel: alternate
+    notAlternative: true
 
 outputs:
   home:
@@ -107,6 +122,7 @@ outputs:
     - JSON
     - llms
     - substack
+    - feed
   page:
     - HTML
     - MARKDOWN
