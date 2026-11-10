@@ -15,10 +15,14 @@ tags:
   - otelc
 showToc: true
 tocOpen: false
-draft: true
 promote: false
 substack: false
+showCanonicalLink: true
+canonicalUrl: https://internals-for-interns.com/posts/hooking-into-the-go-toolchain/
 ---
+
+> [!NOTE]
+> This post was originally published on [Internals for Interns](https://internals-for-interns.com/posts/hooking-into-the-go-toolchain/) on 2026-10-05, as a guest post in Jesús Espino's series on Go internals. This is a mirror on my personal blog. If you want to share it, please link the original post.
 
 Today we're going to take a look at the Go toolchain, and more specifically at
 how we can take part in the compilation process with our own code. We won't
