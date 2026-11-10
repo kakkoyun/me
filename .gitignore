@@ -68,9 +68,13 @@ content/newsletter/the-unwind/.brief-*.md
 # this covers the paths netlify.toml's cache plugin restores into the tree.
 .cache/
 
-# Pinned developer tools, installed on demand by scripts/ensure-tool.sh.
-# Binaries, not sources — see tools.mk for the versions.
+# Transitional: .tools/ held the pre-mise ensure-tool.sh binaries. Keep the
+# entry one cycle so existing checkouts do not show them as untracked noise;
+# then delete it (and `rm -rf .tools` on machines that still have it).
 .tools/
+
+# mise local override file (uncommitted per-machine tweaks).
+mise.local.toml
 
 # lychee link-check result cache (`make links-external`).
 .lycheecache

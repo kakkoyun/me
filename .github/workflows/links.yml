@@ -32,23 +32,25 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Read Hugo version
-        id: hugo-version
-        run: echo "version=$(cat .hugo-version)" >> "$GITHUB_OUTPUT"
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@2752ce1d29631191ea3f27c23495fa06139a5b78 # v3
+      # hugo-extended only, from mise.toml — same subset and cache key as the
+      # build.yml jobs, so all Hugo jobs share one mise cache entry.
+      - name: Setup Hugo (mise)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
-          hugo-version: ${{ steps.hugo-version.outputs.version }}
-          extended: true
+          version: 2026.11.5
+          install_args: hugo-extended
+          cache_key_prefix: build-hugo
 
       - name: Build site
         run: hugo --gc --minify --enableGitInfo
         env:
           HUGO_ENV: production
 
-      - name: Load pinned tool versions
-        run: grep -E '^[A-Z_]+=' tools.mk >> "$GITHUB_ENV"
+      # lychee-action downloads its own binary at this version; the pin lives
+      # in mise.toml (the single source of truth), read with a plain sed so
+      # this job needs neither mise nor a full tool install for one number.
+      - name: Read pinned lychee version
+        run: echo "LYCHEE_VERSION=$(sed -n 's/^lychee *= *"\([^"]*\)".*/\1/p' mise.toml)" >> "$GITHUB_ENV"
 
       # Shared settings (accept codes, retries, timeout, concurrency, the
       # exclude list) live in lychee.toml, which `make links` reads too — they
@@ -120,8 +122,11 @@ jobs:
             echo "files=${new_files[*]}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Load pinned tool versions
-        run: grep -E '^[A-Z_]+=' tools.mk >> "$GITHUB_ENV"
+      # The pin lives in mise.toml (single source of truth); lychee-action
+      # downloads its own binary at this version, so a plain sed read keeps
+      # this job free of a mise install for one number.
+      - name: Read pinned lychee version
+        run: echo "LYCHEE_VERSION=$(sed -n 's/^lychee *= *"\([^"]*\)".*/\1/p' mise.toml)" >> "$GITHUB_ENV"
 
       # Shared settings come from lychee.toml, the same file `make links` uses,
       # so a passing PR check guarantees the cron will pass on that file too.
@@ -165,8 +170,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Load pinned tool versions
-        run: grep -E '^[A-Z_]+=' tools.mk >> "$GITHUB_ENV"
+      # Same as the other jobs in this file: the pin lives in mise.toml,
+      # lychee-action fetches its own binary, no mise install needed.
+      - name: Read pinned lychee version
+        run: echo "LYCHEE_VERSION=$(sed -n 's/^lychee *= *"\([^"]*\)".*/\1/p' mise.toml)" >> "$GITHUB_ENV"
 
       - name: Restore lychee cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6

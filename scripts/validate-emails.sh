@@ -20,10 +20,9 @@
 #   scripts/validate-emails.sh                   # all templates
 #   scripts/validate-emails.sh path/to/foo.mjml  # one template
 #
-# Tunables (env):
-#   MJML_VERSION  exact mjml version to compile with (default: 4).
-#                 `make email-validate` passes the pin from tools.mk.
-#
+# mjml comes from PATH: `make email-validate` wraps this script in
+# `mise exec --`, and CI runs it after mise installs npm:mjml from mise.toml.
+# A bare `mjml` keeps the script stubbable in tests via a PATH fake.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -82,12 +81,12 @@ for tpl in "${targets[@]}"; do
     continue
   fi
 
-  # Pinned exactly, via MJML_VERSION from tools.mk. `@latest` would make CI
-  # non-deterministic: a new release could break validation without any repo
-  # change. `@4` was better but still floated within the major, so CI and a dev
-  # machine could compile with different builds. Renovate bumps the pin.
+  # mjml is the build pinned in mise.toml (npm:mjml). `npx mjml@latest`
+  # made CI non-deterministic — a new release could break validation without
+  # any repo change — and a floating major let CI and a dev machine compile
+  # with different builds. Renovate bumps the pin.
   rc=0
-  out=$(npx --yes "mjml@${MJML_VERSION:-4}" --validate strict "$tpl" -o /dev/null 2>&1) || rc=$?
+  out=$(mjml --validate strict "$tpl" -o /dev/null 2>&1) || rc=$?
   if ((rc != 0)) || grep -qE 'Line [0-9]+|ValidationError|^Error' <<<"$out"; then
     echo "  FAILED: $tpl"
     if [[ -n "$out" ]]; then

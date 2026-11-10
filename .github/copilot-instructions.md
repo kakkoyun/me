@@ -3,7 +3,7 @@
 Purpose: This repo builds the personal static site (Hugo + PaperMod submodule) deployed to Netlify. Optimize for fast, accessible, content-focused iteration while preserving existing conventions.
 
 ## Architecture & Key Paths
-- Static site generator: Hugo (version pinned in `.hugo-version`, mirrored in `netlify.toml`).
+- Static site generator: Hugo (version pinned in `mise.toml` as `hugo-extended`, mirrored into `netlify.toml` for Netlify's build).
 - Theme: Git submodule at `themes/PaperMod/` – never edit theme files directly; override via `layouts/` or `assets/`.
 - Content roots: `content/posts/`, `content/notes/`, `content/talks/`, plus single pages (`about.md`, `archives.md`, etc.).
 - Custom layouts: `layouts/_default/`, partials in `layouts/partials/` (e.g. `extend_head.html`, `comments.html`).
@@ -50,7 +50,7 @@ Purpose: This repo builds the personal static site (Hugo + PaperMod submodule) d
 1. Pull & init submodules: `git submodule update --init --recursive`.
 2. Branch, make content/layout change.
 3. Run `make serve` to preview; for production parity run `make production` locally.
-4. If Hugo upgraded: run `make update-version` then commit `.hugo-version` + `netlify.toml` diff.
+4. If Hugo upgraded: run `make update-version` then commit the `mise.toml` + `netlify.toml` diff.
 5. Commit with concise message (prefix with content type when relevant, e.g., `post: add profiling guide`).
 
 ## PR Guidance for Agents
