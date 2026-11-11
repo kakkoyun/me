@@ -1,9 +1,9 @@
 Hot out of my brain unfiltered! See [notes](/notes/) for more.
 
 <!-- NOTE-LIST:START -->
- - [Claude Focus Remote Workspaces](https://kakkoyun.me/notes/resources/documentation/claude-focus-remote-workspaces) 
+ - [Go Instrumentation - OpenTelemetry SDK and Bridge Pitfalls](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/opentelemetry-sdk-and-bridge-pitfalls) 
 
- - [Atlassian CLI Configuration](https://kakkoyun.me/notes/resources/documentation/Atlassian+CLI+Configuration) 
+ - [Go Instrumentation - otelc Internals](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/otelc-internals) 
 
- - [Claude Focus Sandbox Auth](https://kakkoyun.me/notes/resources/documentation/claude-focus-sandbox-auth) 
+ - [Go - Concurrency, Locks, and checklocks](https://kakkoyun.me/notes/resources/documentation/Go/concurrency-locks-and-checklocks) 
 <!-- NOTE-LIST:END -->
