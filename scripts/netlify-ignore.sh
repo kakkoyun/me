@@ -17,15 +17,21 @@ set -uo pipefail
 # docs/, Makefile, *.md at the repo root, .vale.ini, styles/,
 # renovate.json, tools/, .gitignore, .gitmodules, .lighthouserc.yml)
 # does not change what Hugo renders and does not need a preview.
+#
+# mise.toml IS in the list, deliberately: Netlify's build image runs its own
+# mise against it (probe-verified on PR #406), so a pin Netlify cannot
+# install must fail this PR's preview instead of the next unrelated
+# production deploy — which could be the publish-day force build. That
+# costs about one extra build per week of Renovate dev-tool bumps.
 # `scripts/netlify-ignore.sh` is itself included so a change to the
 # deploy gate triggers a verifying build.
 BUILD_PATHS=(
-  ".hugo-version"
   "archetypes/"
   "assets/"
   "config.yaml"
   "content/"
   "layouts/"
+  "mise.toml"
   "netlify.toml"
   "scripts/netlify-ignore.sh"
   "static/"
@@ -48,19 +54,34 @@ fi
 #   git commit --allow-empty -m "[netlify] preview please"
 # Scoped to non-production contexts so Renovate-merged commits landing on
 # master still deploy.
+#
+# EXCEPTION — mise.toml: GitHub-side CI installs per-job subsets from
+# mise.toml, so only a Netlify build proves the pins install under Netlify's
+# own mise. A bot PR touching mise.toml therefore still gets a preview:
+# skip only when mise.toml is provably unchanged against the cached ref.
+# When the comparison is unavailable (first build on the branch) or the
+# diff itself fails, BUILD — never skip on doubt.
 if [[ "${CONTEXT:-}" != "production" ]]; then
   head_subject=$(git log -1 --format='%s' HEAD 2>/dev/null || echo "")
   head_author=$(git log -1 --format='%ae' HEAD 2>/dev/null || echo "")
   if [[ "${head_subject}" != *'[netlify]'* ]]; then
+    bot=0
     case "${HEAD:-}" in
-      renovate/* | dependabot/*)
+      renovate/* | dependabot/*) bot=1 ;;
+    esac
+    if [[ "$bot" -eq 0 ]]; then
+      case "${head_author}" in
+        *renovate* | *dependabot*) bot=1 ;;
+      esac
+    fi
+    if [[ "$bot" -eq 1 ]]; then
+      if [[ -n "${CACHED_COMMIT_REF:-}" ]] && [[ "${CACHED_COMMIT_REF}" != "${COMMIT_REF:-}" ]] \
+        && git diff --quiet "${CACHED_COMMIT_REF}" "${COMMIT_REF}" -- mise.toml; then
         echo "netlify-ignore: bot branch ${HEAD}, skipping preview (build.yml validates this). Override with [netlify] in commit subject."
         exit 0
-        ;;
-    esac
-    if [[ "${head_author}" == *renovate* ]] || [[ "${head_author}" == *dependabot* ]]; then
-      echo "netlify-ignore: bot author ${head_author}, skipping preview (build.yml validates this). Override with [netlify] in commit subject."
-      exit 0
+      fi
+      echo "netlify-ignore: bot branch, but mise.toml changed or comparison unavailable — building so Netlify proves the pins install."
+      exit 1
     fi
   fi
 fi

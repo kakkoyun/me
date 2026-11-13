@@ -291,9 +291,6 @@ collections:
             value_type: int
             hint: 'Set together with Width, or not at all'
 
-      # Raw mode only: every talk body embeds a YouTube <iframe>, and the
-      # Lexical rich-text editor round-trips Markdown, not HTML. Rich-text mode
-      # risks rewriting those embeds on save.
       # aiAssisted is the disclosure field scripts/check-ai-provenance.sh reads:
       # when the text-watermark half of that check is enabled and finds a mark,
       # a post that declares this key passes and one that does not fails. Hidden
@@ -307,6 +304,9 @@ collections:
       - name: aiAssisted
         widget: hidden
 
+      # Raw mode only: every talk body embeds a YouTube <iframe>, and the
+      # Lexical rich-text editor round-trips Markdown, not HTML. Rich-text mode
+      # risks rewriting those embeds on save.
       - label: Body
         name: body
         widget: richtext

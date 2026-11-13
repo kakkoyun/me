@@ -103,7 +103,7 @@ is_allowed() { # <path>
 #
 # c2patool is strictly better when available (it validates the signature chain
 # and resolves the manifest we would otherwise only pattern-match), so use it
-# when it happens to be installed. It is not pinned in tools.mk on purpose: the
+# when it happens to be installed. It is not pinned in mise.toml on purpose: the
 # byte scan is the contract, and requiring a Rust binary to run `make test`
 # would buy accuracy this check does not depend on.
 

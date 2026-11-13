@@ -13,11 +13,13 @@ on:
     paths:
       - 'templates/emails/**'
       - 'scripts/validate-emails.sh'
+      - 'mise.toml' # mjml/node pins: a Renovate bump must run email validation before it automerges
       - '.github/workflows/email-templates.yml'
   pull_request:
     paths:
       - 'templates/emails/**'
       - 'scripts/validate-emails.sh'
+      - 'mise.toml'
       - '.github/workflows/email-templates.yml'
 
 jobs:
@@ -31,9 +33,15 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      # node + npm:mjml from mise.toml — the same pinned versions
+      # `make email-validate` resolves locally, instead of a floating Node
+      # major with npx fetching mjml at run time.
+      - name: Install pinned node and mjml (mise)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
-          node-version: '22'
+          version: 2026.11.5
+          install_args: "node npm:mjml"
+          cache_key_prefix: email-validate
 
       - name: Validate email templates
         run: make email-validate

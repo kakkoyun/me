@@ -18,3 +18,50 @@
 # `/tags/.net/` and Netlify drops dot-prefixed directories from the publish
 # directory, so the old path 404'd while sitemap.xml still advertised it.
 /tags/.net  /tags/dotnet/  301
+
+# ---------------------------------------------------------------------------
+# Go benchmarks and Go instrumentation article sets. They were live from
+# 2026-10-05 to 2026-11-09 and now live as reference notes on the Obsidian
+# Publish site under /notes/. The 301s keep the search ranking they collected.
+# The /* rule covers the /index.md markdown alternates.
+# ---------------------------------------------------------------------------
+/posts/go-benchmarks-quickly                           /notes/resources/documentation/go/benchmarks/quickstart  301
+/posts/go-benchmarks-quickly/*                         /notes/resources/documentation/go/benchmarks/quickstart  301
+/posts/go-benchmarks-lying-compiler-honesty            /notes/resources/documentation/go/benchmarks/compiler-honesty  301
+/posts/go-benchmarks-lying-compiler-honesty/*          /notes/resources/documentation/go/benchmarks/compiler-honesty  301
+/posts/go-benchmarks-lying-statistics                  /notes/resources/documentation/go/benchmarks/statistics-benchstat  301
+/posts/go-benchmarks-lying-statistics/*                /notes/resources/documentation/go/benchmarks/statistics-benchstat  301
+/posts/go-benchmarks-lying-local-reproduction          /notes/resources/documentation/go/benchmarks/local-reproduction  301
+/posts/go-benchmarks-lying-local-reproduction/*        /notes/resources/documentation/go/benchmarks/local-reproduction  301
+/posts/go-benchmarks-laptop-said-230                   /notes/resources/documentation/go/benchmarks/laptop-said-230-percent  301
+/posts/go-benchmarks-laptop-said-230/*                 /notes/resources/documentation/go/benchmarks/laptop-said-230-percent  301
+/posts/go-benchmarks-lying-ci                          /notes/resources/documentation/go/benchmarks/ci-noise  301
+/posts/go-benchmarks-lying-ci/*                        /notes/resources/documentation/go/benchmarks/ci-noise  301
+/posts/go-benchmarks-ab-is-the-wrong-model             /notes/resources/documentation/go/benchmarks/ab-wrong-model-for-ci  301
+/posts/go-benchmarks-ab-is-the-wrong-model/*           /notes/resources/documentation/go/benchmarks/ab-wrong-model-for-ci  301
+/posts/go-benchmarks-pr-gate-that-fails                /notes/resources/documentation/go/benchmarks/pr-gate  301
+/posts/go-benchmarks-pr-gate-that-fails/*              /notes/resources/documentation/go/benchmarks/pr-gate  301
+/posts/go-benchmarks-lying-three-questions             /notes/resources/documentation/go/benchmarks/three-questions  301
+/posts/go-benchmarks-lying-three-questions/*           /notes/resources/documentation/go/benchmarks/three-questions  301
+/posts/why-go-cant-be-monkey-patched                   /notes/resources/documentation/go/instrumentation/monkey-patching  301
+/posts/why-go-cant-be-monkey-patched/*                 /notes/resources/documentation/go/instrumentation/monkey-patching  301
+/posts/otelc-compile-time-go-traces                    /notes/resources/documentation/go/instrumentation/otelc-compile-time  301
+/posts/otelc-compile-time-go-traces/*                  /notes/resources/documentation/go/instrumentation/otelc-compile-time  301
+/posts/obi-ebpf-auto-instrumentation-go                /notes/resources/documentation/go/instrumentation/obi-ebpf  301
+/posts/obi-ebpf-auto-instrumentation-go/*              /notes/resources/documentation/go/instrumentation/obi-ebpf  301
+/posts/go-uprobe-vs-usdt                               /notes/resources/documentation/go/instrumentation/uprobe-vs-usdt  301
+/posts/go-uprobe-vs-usdt/*                             /notes/resources/documentation/go/instrumentation/uprobe-vs-usdt  301
+/posts/go-runtime-futures-flight-recording-usdt        /notes/resources/documentation/go/instrumentation/flight-recording-usdt  301
+/posts/go-runtime-futures-flight-recording-usdt/*      /notes/resources/documentation/go/instrumentation/flight-recording-usdt  301
+/posts/continuous-profiling-go-without-code-changes    /notes/resources/documentation/go/instrumentation/continuous-profiling  301
+/posts/continuous-profiling-go-without-code-changes/*  /notes/resources/documentation/go/instrumentation/continuous-profiling  301
+/posts/go-context-across-goroutines                    /notes/resources/documentation/go/instrumentation/context-propagation  301
+/posts/go-context-across-goroutines/*                  /notes/resources/documentation/go/instrumentation/context-propagation  301
+/posts/zero-touch-go-observability-agent-actionable    /notes/resources/documentation/go/instrumentation/agent-actionable-observability  301
+/posts/zero-touch-go-observability-agent-actionable/*  /notes/resources/documentation/go/instrumentation/agent-actionable-observability  301
+/posts/go-instrumentation-see-it-run                   /notes/resources/documentation/go/instrumentation/obi-ebpf-profiler-demo  301
+/posts/go-instrumentation-see-it-run/*                 /notes/resources/documentation/go/instrumentation/obi-ebpf-profiler-demo  301
+/series/why-your-go-benchmarks-are-lying                                     /notes/resources/documentation/go/benchmarks       301
+/series/why-your-go-benchmarks-are-lying/*                                   /notes/resources/documentation/go/benchmarks       301
+/series/how-to-instrument-go-without-changing-a-single-line-of-code          /notes/resources/documentation/go/instrumentation  301
+/series/how-to-instrument-go-without-changing-a-single-line-of-code/*        /notes/resources/documentation/go/instrumentation  301

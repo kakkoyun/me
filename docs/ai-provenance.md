@@ -46,7 +46,7 @@ is container-agnostic for free.
 
 If `c2patool` happens to be on `PATH`, the check prefers it and uses its output
 instead, because it validates the signing chain rather than pattern-matching
-bytes. It is **not** pinned in `tools.mk` on purpose: the byte scan is the
+bytes. It is **not** pinned in `mise.toml` on purpose: the byte scan is the
 contract, and making `make test` depend on a Rust binary would buy accuracy the
 check does not rest on. Install it if you want the stronger read:
 

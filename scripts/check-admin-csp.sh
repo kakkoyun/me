@@ -61,9 +61,11 @@ fi
 
 # The policy value, under either header name. Report-Only is the pre-flip state;
 # both are accepted here — scripts/check-live-headers.sh is what asserts which
-# one production is actually serving.
+# one production is actually serving. sed -E, because `\?` in BRE is a GNU
+# extension that BSD sed (macOS) does not match — this exact pattern made the
+# whole suite fail locally while CI's GNU sed passed.
 CSP=$(printf '%s\n' "$ADMIN_BLOCK" \
-  | sed -n 's/^[[:space:]]*Content-Security-Policy\(-Report-Only\)\?[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\2/p' \
+  | sed -nE 's/^[[:space:]]*Content-Security-Policy(-Report-Only)?[[:space:]]*=[[:space:]]*"(.*)"[[:space:]]*$/\2/p' \
   | head -1)
 
 if [ -z "$CSP" ]; then

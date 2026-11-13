@@ -23,8 +23,8 @@ log line and redeploy. Wrong place. You do it again. An agent alone does not
 fix this: it still has to pick a mechanism, and it has to know what that
 mechanism costs.
 
-This talk is about three open-source approaches that take the rebuild out of
-that loop. Each acts at a different point in the software lifecycle, and each
+This talk is about three approaches that take the source edit out of that
+loop. Each acts at a different point in the software lifecycle, and each
 inherits the strengths and constraints of its intervention point.
 
 **Build time.** [otelc](https://opentelemetry.io/docs/zero-code/go/compile-time/)
@@ -32,7 +32,8 @@ rewrites Go code during the build via `-toolexec`, preserving Go-level semantics
 across platforms. The rebuild is the cost.
 
 **Process start.** An injector loads a shared library at startup via
-`LD_PRELOAD`. No source change, no rebuild. The binary is the constraint.
+`LD_PRELOAD`. No source change, no rebuild. The binary is the constraint. The
+Go injector I showed is in development and not released.
 
 **Kernel.** [OBI](https://opentelemetry.io/docs/zero-code/obi/) (OpenTelemetry
 eBPF Instrumentation) observes running processes from the Linux kernel without
@@ -69,3 +70,4 @@ operational cost.
 **Related**
 
 * [Auto-Instrumenting Go: From eBPF to USDT Probes](/posts/fosdem-2026-auto-instrumenting-go/) — full technical blog post expanding on this talk
+* [Hooking into the Go Toolchain](https://internals-for-interns.com/posts/hooking-into-the-go-toolchain/) — `-toolexec` from a stopwatch to otelc, a guest post on Internals for Interns

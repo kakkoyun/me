@@ -19,3 +19,5 @@ Disallow: /search/
 Disallow: /admin/
 
 Sitemap: {{ "sitemap.xml" | absURL }}
+{{- /* Obsidian Publish generates this sitemap. Netlify proxies /notes/* to it. */}}
+Sitemap: {{ "notes/sitemap.xml" | absURL }}

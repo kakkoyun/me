@@ -101,6 +101,12 @@ should never meet a block cold or be left to decode it alone.
   marker is one").
 - **Show the command, then the output.** If a step changes the program's
   behaviour, show the run. Don't claim a result the reader can't see.
+- **Show a sample before the summary.** Before a table of counts, totals or
+  "the five slowest", show a few raw lines of the data it was computed from and
+  name the columns. The host's note on the first stopwatch draft: it "jumps
+  too quickly to the counting of lines in the log without even showing how the
+  log would look like". Pick lines that show variety, and don't spoil a reveal
+  that comes later.
 - Trim long output and say so in the prose ("That's almost 800 lines for our
   little program, so I've kept just two of them. You're welcome.").
 - Code and output are copied from a real run, byte for byte. Tabs stay tabs.
@@ -126,6 +132,9 @@ should never meet a block cold or be left to decode it alone.
   release notes, talk pages.
 - Every quote is verbatim and links to where it was said. Paraphrase instead of
   stretching a quote to fit a new referent.
+- Introduce every third-party package or tool at its first mention: say what
+  it is ("dst, a third-party Go package") and link its repository. A bare name
+  like "rewrite with dst" reads as jargon.
 - No "see the full output" captions under blocks. Mention the companion repo
   once near the start and once in "Try it yourself".
 - Footnotes are still fine for a long-form version on this blog, but they must

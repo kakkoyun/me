@@ -101,10 +101,10 @@ Run `make help` to see all available commands.
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
 | Blank site / theme templates missing | Theme submodule not initialized | `make local-setup` or `git submodule update --init --recursive` |
-| Broken styles / missing CSS | Using non-extended Hugo build | Install extended binary matching `.hugo-version` (see `make check-hugo` output) |
+| Broken styles / missing CSS | Using non-extended Hugo build | Run `mise install` — `hugo-extended` in `mise.toml` is the extended build `make check-hugo` asserts |
 | Base URL links point to production domain when testing | `baseurl` + `canonifyUrls: true` in `config.yaml` | Run with a local override: `hugo server -D --baseURL http://localhost:1313 --canonifyURLs=false` if needed |
 | 404s for newly added content | Draft or future-dated content | Use `make serve-draft` |
-| Version mismatch warning | Installed Hugo != `.hugo-version` | Reinstall correct version or run `make update-version` |
+| Version mismatch warning | Installed Hugo != the `mise.toml` pin | Run `mise install`, or `make update-version` to bump the pin |
 
 ### Verifying Hugo & Theme
 
@@ -129,7 +129,7 @@ make clean && make serve
 make update-version
 ```
 
-This updates `.hugo-version` and synchronizes `netlify.toml`.
+This updates the `hugo-extended` pin in `mise.toml` and synchronizes `netlify.toml`.
 
 ## What open source tools I have used to build this?
 

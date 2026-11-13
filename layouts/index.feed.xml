@@ -1,0 +1,115 @@
+{{- /*
+  Promotion feed for kakkoyun.me (served at /feed.xml).
+
+  Full-text RSS consumed by the external system that posts to social media.
+  The body treatment is shared with the substack feed (layouts/index.substack.xml):
+  absolutised image/link URLs, flattened chroma tables, folded sidenotes and
+  tooltips, cover image prepended. Differences from the substack feed are all
+  about what "eligible" means here:
+
+    - Only `promote: false` opts a post out. Absence means eligible, which is
+      exactly how scripts/find-promotable-posts.sh reads the same flag.
+    - Cross-posts (canonicalUrl pointing at a third party) are KEPT: the
+      Claude+Buffer pipeline promotes them too, so the feed must not disagree.
+    - No promotedAt, date-window, or draft logic: the production build already
+      omits drafts and future-dated posts, and the feed is stateless on purpose.
+      The consumer tracks what it already posted; anything else would fork the
+      ledger semantics of the (currently disabled) cron path.
+
+  See docs/promotion.md for the runbook covering both promotion paths.
+*/ -}}
+{{- $authorEmail := "" }}
+{{- $authorName := "" }}
+{{- with site.Params.author }}
+  {{- if reflect.IsMap . }}
+    {{- with .email }}{{ $authorEmail = . }}{{ end }}
+    {{- with .name }}{{ $authorName = . }}{{ end }}
+  {{- else }}
+    {{- $authorName = . }}
+  {{- end }}
+{{- end }}
+{{- $base := site.BaseURL | strings.TrimSuffix "/" }}
+{{- $pages := where site.RegularPages "Section" "posts" }}
+{{- $pages = where $pages "Params.promote" "!=" false }}
+{{- $pages = $pages.ByPublishDate.Reverse }}
+{{- $rfc822 := "Mon, 02 Jan 2006 15:04:05 -0700" -}}
+{{- $now := now.Format $rfc822 -}}
+{{- $lastBuildDate := $now -}}
+{{- $pubDate := $now -}}
+{{- with $pages -}}
+{{- $lastBuildDate = (index .ByLastmod.Reverse 0).Lastmod.Format $rfc822 -}}
+{{- $pubDate = (index .ByPublishDate.Reverse 0).PublishDate.Format $rfc822 -}}
+{{- end -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{{ site.Title }}</title>
+    <link>{{ $base }}/</link>
+    <description>Posts from {{ site.Title }}, eligible for social media promotion.</description>
+    {{- with site.Params.images }}
+    <image>
+      <title>{{ site.Title }}</title>
+      <url>{{ index . 0 | absURL }}</url>
+      <link>{{ index . 0 | absURL }}</link>
+    </image>
+    {{- end }}
+    <generator>Hugo</generator>
+    <language>{{ site.Language.Locale }}</language>{{ with $authorEmail }}
+    <managingEditor>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</managingEditor>{{ end }}{{ with $authorEmail }}
+    <webMaster>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</webMaster>{{ end }}{{ with site.Copyright }}
+    <copyright>{{ . | markdownify | plainify | strings.TrimPrefix "© " }}</copyright>{{ end }}
+    <lastBuildDate>{{ $lastBuildDate | safeHTML }}</lastBuildDate>
+    <pubDate>{{ $pubDate | safeHTML }}</pubDate>
+    {{- with .OutputFormats.Get "feed" }}
+    {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{- end }}
+    {{- range $pages }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{- with $authorEmail }}<author>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</author>{{ end }}
+      <guid>{{ .Permalink }}</guid>
+      <description>{{ with .Description | html }}{{ . }}{{ else }}{{ .Summary | html }}{{ end -}}</description>
+      {{- /* Absolutise root-relative URLs so the consumer can fetch images and
+             internal links resolve. Same passes and same rationale as
+             layouts/index.substack.xml — see the comment there for the details
+             of each pass. */ -}}
+      {{- $c := .Content }}
+      {{- /* Flatten Hugo/chroma syntax-highlighted code blocks into a clean
+             <pre><code>, dropping the line-number tables and inline styles.
+             Same passes as layouts/index.substack.xml. */ -}}
+      {{- $c = $c | replaceRE "(?s)<div class=\"highlight\">.*?<td[^>]*width:100%[^>]*>\\s*(<pre[^>]*>.*?</pre>)\\s*</td>\\s*</tr>\\s*</table>\\s*</div>\\s*</div>" `${1}` }}
+      {{- $c = $c | replaceRE "(?s)<div class=\"highlight\">\\s*(<pre[^>]*>.*?</pre>)\\s*</div>" `${1}` }}
+      {{- $c = $c | replaceRE `<pre[^>]*>` `<pre>` }}
+      {{- $c = $c | replaceRE `<span style="[^"]*">` `<span>` }}
+      {{- /* Fold sidenotes and tooltips into plain prose, as in the substack
+             feed: consumers without the class-scoped CSS would render them as
+             stray text. */ -}}
+      {{- $c = $c | replaceRE `(?s)<span class="sidenote-ref"[^>]*>.*?</span>` "" }}
+      {{- $c = $c | replaceRE `(?s)<aside class="sidenote[^>]*>.*?<span class="sidenote-content">(.*?)</span>.*?</aside>` ` (<em>${1}</em>)` }}
+      {{- $c = $c | replaceRE `(?s)<span class="tooltip"[^>]*>\s*<span class="tooltip-term"[^>]*>(.*?)</span>\s*<span role="tooltip"[^>]*>(.*?)</span>\s*</span>` `${1} (${2})` }}
+      {{- $c = $c | replaceRE `(<[^>]+\shref=")(/[^/"][^"]*)` (printf `${1}%s${2}` $base) }}
+      {{- $c = $c | replaceRE `(<[^>]+\ssrc=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- $c = $c | replaceRE `(<[^>]+\ssrcset=")(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- range seq 3 }}
+      {{- $c = $c | replaceRE `([0-9][wx],\s*)(/[^/"][^"\s,]*)` (printf `${1}%s${2}` $base) }}
+      {{- end }}
+      {{- /* Cover image prepended as the first image, so a consumer that picks
+             a featured image finds one: Hugo keeps the cover in frontmatter,
+             not the body. */ -}}
+      {{- $cover := "" }}
+      {{- with .Params.cover }}
+        {{- $alt := .alt | default "" | replaceRE `"` "&quot;" }}
+        {{- with .image }}
+          {{- $src := . }}
+          {{- if hasPrefix $src "/" }}{{ $src = printf "%s%s" $base $src }}{{ end }}
+          {{- $cover = printf `<p><img src="%s" alt="%s"></p>` $src $alt }}
+        {{- end }}
+      {{- end }}
+      {{- $body := printf "%s\n%s" $cover $c }}
+      <content:encoded>{{ printf "<![CDATA[%s]]>" $body | safeHTML }}</content:encoded>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

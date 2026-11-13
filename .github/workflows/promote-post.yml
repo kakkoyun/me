@@ -19,13 +19,30 @@ name: Promote New Post
 # `Automation Smoke Test` is the way to check without risking a real post: it
 # runs this exact branch → PR → squash-merge sequence against a throwaway file.
 # It reproduced the refusal above on 2026-08-27, and passed on run 33103680988
-# once the required checks were removed, which is why this schedule is live.
+# once the required checks were removed, which is why this schedule could be
+# trusted.
+#
+# STATUS: the schedule below is currently commented out — the Claude+Buffer
+# route is disabled in favor of an external system reading /feed.xml (see
+# docs/promotion.md). The workflow itself is unchanged and still works via
+# workflow_dispatch; re-enable by uncommenting the cron line.
 on:
-  schedule:
-    # Every day at 6 AM UTC. Promotes any live post published within the last
-    # PROMOTE_LOOKBACK_DAYS (30) that has no promotedAt stamp yet — not just
-    # posts published today. See scripts/find-promotable-posts.sh.
-    - cron: '0 6 * * *'
+  # DISABLED: no automatic trigger. Social promotion runs through the external
+  # system that reads /feed.xml. This workflow stays dispatch-only so the
+  # Claude+Buffer path is always one manual "Run workflow" click away.
+  #
+  # To re-enable: uncomment the cron lines below. Before doing that, either
+  # stop the external consumer or make sure the two paths do not both post the
+  # same links — and note that promotedAt only records what THIS workflow
+  # posted, so the first re-enabled run will re-promote anything the external
+  # system already published inside the lookback window. Stamp those posts'
+  # promotedAt by hand first if that matters.
+  #
+  # Every day at 6 AM UTC. Promotes any live post published within the last
+  # PROMOTE_LOOKBACK_DAYS (30) that has no promotedAt stamp yet — not just
+  # posts published today. See scripts/find-promotable-posts.sh.
+  # schedule:
+  #   - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       post_path:
@@ -58,14 +75,15 @@ jobs:
   # Promotion here instead guards on liveness (see "Verify posts are live"
   # below): it will not post a social link to a page that is not yet reachable.
   #
-  # Triggers: the daily cron promotes any live post published within the last
-  # PROMOTE_LOOKBACK_DAYS (30) that has not been promoted yet; workflow_dispatch
-  # is the manual "promote now / again" button (one post via post_path, which
-  # ignores both the window and the ledger, or everything due when left blank).
+  # Triggers: workflow_dispatch is the manual "promote now / again" button (one
+  # post via post_path, which ignores both the window and the ledger, or
+  # everything due when left blank). The daily cron is currently disabled — see
+  # the `on:` block; when it comes back, it promotes any live post published
+  # within the last PROMOTE_LOOKBACK_DAYS (30) that has not been promoted yet.
   # There is no push trigger — claude-code-action rejects the push event type
-  # ("Unsupported event type: push"), which is exactly why the cron cannot rely
-  # on a single publish-day window: a post merged after the 06:00 cron, or after
-  # its publishDate had already passed, used to be missed permanently.
+  # ("Unsupported event type: push"), which is exactly why the cron could never
+  # rely on a single publish-day window: a post merged after the 06:00 cron, or
+  # after its publishDate had already passed, used to be missed permanently.
   promote:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -181,7 +199,7 @@ jobs:
 
       - name: Promote with Claude
         if: steps.live.outputs.should_run == 'true'
-        uses: anthropics/claude-code-action@97c53473391bff1901034d4b454b5bac7ab7a029 # v1
+        uses: anthropics/claude-code-action@61a9c274fa7110a66dfafc1bbbced03833eb25fe # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
