@@ -1,9 +1,9 @@
 Hot out of my brain unfiltered! See [notes](/notes/) for more.
 
 <!-- NOTE-LIST:START -->
- - [Claude Focus Remote Workspaces](https://kakkoyun.me/notes/resources/documentation/claude-focus-remote-workspaces) 
+ - [Continuous Profiling for Go Without Code Changes](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/continuous-profiling) 
 
- - [Atlassian CLI Configuration](https://kakkoyun.me/notes/resources/documentation/Atlassian+CLI+Configuration) 
+ - [Go Context Propagation Across Goroutines](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/context-propagation) 
 
- - [Claude Focus Sandbox Auth](https://kakkoyun.me/notes/resources/documentation/claude-focus-sandbox-auth) 
+ - [Go Flight Recorder, USDT Probes, and Missing Runtime Hooks](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/flight-recording-usdt) 
 <!-- NOTE-LIST:END -->
