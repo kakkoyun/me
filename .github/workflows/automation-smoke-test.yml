@@ -18,10 +18,20 @@ name: Automation Smoke Test
 # use, against a file that exists only to be changed. Run it after any change to
 # the ruleset, to those workflows, or to the token permissions they rely on.
 #
-# It is dispatch-only. It never runs on a schedule and never runs on a push.
+# It also runs weekly, for the case that proved it necessary: the ruleset gained
+# a code-scanning rule on 5 Oct 2026, and because the RSS feed had nothing new
+# until 11 Nov, the first five weeks of runs were no-ops — the landing path was
+# broken the whole time and nothing surfaced it. A weekly marker merge bounds
+# that blindness to days. It never runs on a push.
 
 on:
   workflow_dispatch:
+  schedule:
+    # Sunday 06:30 UTC: off the on-the-hour cron rush, clear of main.yml
+    # (00:00), promote-post.yml (06:00) and deploy-scheduled.yml (00:10),
+    # and the merge-schedule.yml sweep (every 6h at :30) has an hour to
+    # settle before it.
+    - cron: "30 6 * * 0"
 
 permissions:
   contents: write # commit the marker onto a branch
