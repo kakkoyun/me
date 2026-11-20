@@ -4,23 +4,24 @@ name: Promote New Post
 # failure is expensive: it double-posts to social media rather than going red.
 #
 # This workflow lands its promotedAt stamp by opening a PR and merging it (see
-# "Record promotion"). A PR opened with GITHUB_TOKEN triggers no `pull_request`
-# workflows, so any *required status check* on the `master` ruleset never
-# reports and the merge is refused — "4 of 4 required status checks are
-# expected". The Buffer posts go out BEFORE the stamp is written, so a refused
-# merge means posts promoted but not recorded, and the next cron promotes them a
-# second time. That is why the master ruleset requires a PR but requires no
-# checks.
+# "Record promotion"). Two things about that have bitten before:
 #
-# So if you ever add a required status check to master, disable the schedule
-# below at the same time. Nothing is lost by disabling it — the 30-day lookback
-# window picks the missed posts up on the first run after it comes back.
+#   1. (History, fixed by the Oct 2026 ruleset edit) a *required status check*
+#      never reports on a GITHUB_TOKEN-opened PR, so the merge is refused —
+#      "4 of 4 required status checks are expected". That is why the ruleset
+#      used to require a PR but no checks; the required checks were removed and
+#      the smoke test passed on run 33103680988.
+#   2. (Current) the ruleset's code-scanning rule refuses a merge until CodeQL
+#      has analyzed the PR's head commit, a minute or two after the PR opens —
+#      merging sooner gets "the base branch policy prohibits the merge".
+#      "Record promotion" now waits for the PR's checks before merging, which
+#      handles this.
 #
-# `Automation Smoke Test` is the way to check without risking a real post: it
-# runs this exact branch → PR → squash-merge sequence against a throwaway file.
-# It reproduced the refusal above on 2026-08-27, and passed on run 33103680988
-# once the required checks were removed, which is why this schedule could be
-# trusted.
+# The Buffer posts go out BEFORE the stamp is written, so a refused merge means
+# posts promoted but not recorded, and the next cron promotes them a second
+# time. If the stamp merge ever fails again, dispatch `Automation Smoke Test`
+# first — it runs this exact branch → PR → squash-merge sequence against a
+# throwaway file, without risking a real post.
 #
 # STATUS: the schedule below is currently commented out — the Claude+Buffer
 # route is disabled in favor of an external system reading /feed.xml (see
@@ -248,6 +249,20 @@ jobs:
             exit 0
           fi
 
+          # A run that fails to merge leaves its stamp PR open. The next run
+          # re-stamps everything still unstamped in its own window, so an older
+          # open PR carries a subset of what the new one will, and is strictly
+          # superseded: close it and drop its branch rather than letting them
+          # accumulate. The delete is swallowed for the reason drop_branch
+          # below spells out — branch deletion is cosmetic.
+          gh pr list --state open --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("automation/promotion-stamp-")) | "\(.number) \(.headRefName)"' |
+            while read -r stale_pr stale_branch; do
+              echo "Closing superseded stamp PR #$stale_pr ($stale_branch) from an earlier failed run."
+              gh pr close "$stale_pr"
+              git push origin --delete "$stale_branch" >/dev/null 2>&1 || true
+            done
+
           # The stamp lands through a PR, not a push to master: the `master`
           # ruleset requires every change to arrive that way, and routing this
           # cron through a PR is what lets that ruleset carry no bypass actor —
@@ -266,6 +281,34 @@ jobs:
             --base master --head "$branch" \
             --title "ci: record promotion timestamps" \
             --body "Automated: promotedAt stamps for the posts promoted by this run. Opened and merged by \`promote-post.yml\`."
+
+          # Wait for the PR's checks to finish before merging. The master
+          # ruleset's code-scanning rule refuses a merge until CodeQL has
+          # analyzed the head commit — a minute or two after the PR opens.
+          # Merging sooner runs into "the base branch policy prohibits the
+          # merge", which this workflow has hit before against required status
+          # checks; the ~30s retry loop cannot outlast the analysis.
+          # `gh pr checks` exits 0 all passed, 8 pending, and 1 when one
+          # failed or none registered yet. Settle before polling: within ~20s
+          # Netlify and CodeQL have both registered, so the loop never reads
+          # the empty state as a failed check. A check that fails or hangs now
+          # fails the run loudly — with the posts already on social — instead
+          # of leaving an open PR and an unstamped ledger behind.
+          sleep 20
+          deadline=$(( $(date +%s) + 900 ))
+          while :; do
+            checks_rc=0
+            gh pr checks "$branch" >/dev/null 2>&1 || checks_rc=$?
+            if [ "$checks_rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$checks_rc" -eq 1 ] || [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::Checks on the stamp PR did not pass — not merged. The posts below were POSTED but NOT stamped, so the next cron promotes them again (see the checks on $branch):"
+              echo "${{ steps.live.outputs.posts }}"
+              exit 1
+            fi
+            sleep 15
+          done
 
           # The cron and a human merge can race for master. A PR that is briefly
           # unmergeable — GitHub still computing, or master moving underneath —

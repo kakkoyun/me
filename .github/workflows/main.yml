@@ -45,17 +45,25 @@ jobs:
       # and merged in the same step: there is nothing for a human to review in a
       # generated list, and leaving it open would just accumulate.
       #
-      # This update gets NO GitHub Actions run — not on the PR, and not on the
-      # push that follows the merge. GitHub suppresses workflow events produced
-      # with GITHUB_TOKEN, which covers both. So build.yml, links.yml, lint.yml
-      # and cms-sync.yml all stay silent here; do not rely on them to catch a
-      # bad notes update. cms-sync.yml notes the same thing about its own pushes.
+      # This update gets NO GitHub Actions run from the repo's own workflows —
+      # not on the PR, and not on the push that follows the merge. GitHub
+      # suppresses workflow events produced with GITHUB_TOKEN, which covers
+      # both, so build.yml, links.yml, lint.yml and cms-sync.yml all stay
+      # silent here; do not rely on them to catch a bad notes update.
+      # cms-sync.yml notes the same thing about its own pushes.
+      #
+      # CodeQL default setup and Netlify are not repo workflows and DO report
+      # on these PRs. That matters below: the master ruleset carries a
+      # code-scanning rule, so those results gate the merge.
       #
       # That is pre-existing rather than a cost of routing through a PR: the
       # direct push this replaced used the same token and was equally silent.
-      # It is also why the ruleset requires a PR but no status checks — a check
-      # that never reports would hang this merge forever. Netlify still deploys,
-      # since that runs off its own webhook. See docs/sveltia-cms.md.
+      # The ruleset no longer carries "no status checks": since its Oct 2026
+      # edit it requires CodeQL code-scanning results for the head commit, so
+      # the merge waits for the PR's checks to finish first, and a required
+      # check that never reports fails the run loudly instead of hanging the
+      # merge forever. Netlify still deploys, since that runs off its own
+      # webhook. See docs/sveltia-cms.md.
       - name: Land the notes update through a PR
         env:
           GH_TOKEN: ${{ github.token }}
@@ -66,6 +74,22 @@ jobs:
             echo "No notes changes to land."
             exit 0
           fi
+
+          # A run that fails to merge leaves its PR open, and the next day's run
+          # would stack another identical one on top of it — that is how nine
+          # open "update recent notes" PRs piled up in November 2026. This
+          # run's branch carries the same regenerated list cut from a newer
+          # master, so any older open PR is strictly superseded: close it and
+          # drop its branch before making a new one. The delete is swallowed
+          # for the reason drop_branch below spells out: branch deletion is
+          # cosmetic, a red ref message on a green run is not.
+          gh pr list --state open --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("automation/notes-")) | "\(.number) \(.headRefName)"' |
+            while read -r stale_pr stale_branch; do
+              echo "Closing superseded PR #$stale_pr ($stale_branch) from an earlier failed run."
+              gh pr close "$stale_pr"
+              git push origin --delete "$stale_branch" >/dev/null 2>&1 || true
+            done
 
           branch="automation/notes-${GITHUB_RUN_ID}"
           git config user.name "github-actions[bot]"
@@ -80,6 +104,37 @@ jobs:
             --base master --head "$branch" \
             --title "ci: update recent notes" \
             --body "Automated: the notes list regenerated from the Obsidian Publish RSS feed. Opened and merged by \`main.yml\`."
+
+          # Wait for the PR's checks to finish before merging. The master
+          # ruleset's code-scanning rule refuses a merge until CodeQL has
+          # analyzed the head commit, which takes a minute or two after the
+          # PR opens. Merging seconds after `gh pr create` runs inside that
+          # pending window: every attempt gets "the base branch policy
+          # prohibits the merge", the ~30s retry loop below exhausts itself
+          # against it, and the run fails with the PR left open — once per
+          # day, until a human notices. `gh pr checks` exits 0 when all
+          # checks passed, 8 while checks are pending, and 1 when one failed
+          # or none have registered yet — so settle before polling: within ~20s
+          # Netlify and CodeQL have both registered, and the loop below never
+          # reads the empty state as a failed check.
+          sleep 20
+          deadline=$(( $(date +%s) + 900 ))
+          while :; do
+            checks_rc=0
+            gh pr checks "$branch" >/dev/null 2>&1 || checks_rc=$?
+            if [ "$checks_rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$checks_rc" -eq 1 ]; then
+              echo "::error::A check failed on the notes PR — not merged. See the checks on $branch."
+              exit 1
+            fi
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::Checks on the notes PR did not finish within 15 minutes — not merged. The branch $branch is pushed and its PR is open."
+              exit 1
+            fi
+            sleep 15
+          done
 
           # GitHub can briefly report mergeability as unknown right after the PR
           # is created; retry rather than failing on that race.
