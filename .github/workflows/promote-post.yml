@@ -287,10 +287,13 @@ jobs:
           # Merging sooner runs into "the base branch policy prohibits the
           # merge", which this workflow has hit before against required status
           # checks; the ~30s retry loop cannot outlast the analysis.
-          # `gh pr checks` exits 0 all passed, 1 some failed, 8 pending or
-          # none registered yet, so poll it. A check that fails or hangs now
+          # `gh pr checks` exits 0 all passed, 8 pending, and 1 when one
+          # failed or none registered yet. Settle before polling: within ~20s
+          # Netlify and CodeQL have both registered, so the loop never reads
+          # the empty state as a failed check. A check that fails or hangs now
           # fails the run loudly — with the posts already on social — instead
           # of leaving an open PR and an unstamped ledger behind.
+          sleep 20
           deadline=$(( $(date +%s) + 900 ))
           while :; do
             checks_rc=0

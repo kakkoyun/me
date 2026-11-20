@@ -113,8 +113,11 @@ jobs:
           # prohibits the merge", the ~30s retry loop below exhausts itself
           # against it, and the run fails with the PR left open — once per
           # day, until a human notices. `gh pr checks` exits 0 when all
-          # checks passed, 1 when one failed, 8 while checks are pending or
-          # none have registered yet, so poll it.
+          # checks passed, 8 while checks are pending, and 1 when one failed
+          # or none have registered yet — so settle before polling: within ~20s
+          # Netlify and CodeQL have both registered, and the loop below never
+          # reads the empty state as a failed check.
+          sleep 20
           deadline=$(( $(date +%s) + 900 ))
           while :; do
             checks_rc=0
