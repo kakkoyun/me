@@ -248,6 +248,20 @@ jobs:
             exit 0
           fi
 
+          # A run that fails to merge leaves its stamp PR open. The next run
+          # re-stamps everything still unstamped in its own window, so an older
+          # open PR carries a subset of what the new one will, and is strictly
+          # superseded: close it and drop its branch rather than letting them
+          # accumulate. The delete is swallowed for the reason drop_branch
+          # below spells out — branch deletion is cosmetic.
+          gh pr list --state open --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("automation/promotion-stamp-")) | "\(.number) \(.headRefName)"' |
+            while read -r stale_pr stale_branch; do
+              echo "Closing superseded stamp PR #$stale_pr ($stale_branch) from an earlier failed run."
+              gh pr close "$stale_pr"
+              git push origin --delete "$stale_branch" >/dev/null 2>&1 || true
+            done
+
           # The stamp lands through a PR, not a push to master: the `master`
           # ruleset requires every change to arrive that way, and routing this
           # cron through a PR is what lets that ruleset carry no bypass actor —
@@ -266,6 +280,31 @@ jobs:
             --base master --head "$branch" \
             --title "ci: record promotion timestamps" \
             --body "Automated: promotedAt stamps for the posts promoted by this run. Opened and merged by \`promote-post.yml\`."
+
+          # Wait for the PR's checks to finish before merging. The master
+          # ruleset's code-scanning rule refuses a merge until CodeQL has
+          # analyzed the head commit — a minute or two after the PR opens.
+          # Merging sooner runs into "the base branch policy prohibits the
+          # merge", which this workflow has hit before against required status
+          # checks; the ~30s retry loop cannot outlast the analysis.
+          # `gh pr checks` exits 0 all passed, 1 some failed, 8 pending or
+          # none registered yet, so poll it. A check that fails or hangs now
+          # fails the run loudly — with the posts already on social — instead
+          # of leaving an open PR and an unstamped ledger behind.
+          deadline=$(( $(date +%s) + 900 ))
+          while :; do
+            checks_rc=0
+            gh pr checks "$branch" >/dev/null 2>&1 || checks_rc=$?
+            if [ "$checks_rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$checks_rc" -eq 1 ] || [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::Checks on the stamp PR did not pass — not merged. The posts below were POSTED but NOT stamped, so the next cron promotes them again (see the checks on $branch):"
+              echo "${{ steps.live.outputs.posts }}"
+              exit 1
+            fi
+            sleep 15
+          done
 
           # The cron and a human merge can race for master. A PR that is briefly
           # unmergeable — GitHub still computing, or master moving underneath —

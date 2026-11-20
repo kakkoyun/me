@@ -69,6 +69,19 @@ jobs:
             exit 1
           fi
 
+          # A smoke test that fails to merge leaves its marker PR open; close
+          # any earlier one so a broken run cannot accumulate them. The marker
+          # carries only this run's id, so the old PR is superseded. The delete
+          # is swallowed for the reason drop_branch below spells out — branch
+          # deletion is cosmetic.
+          gh pr list --state open --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("automation/smoke-test-")) | "\(.number) \(.headRefName)"' |
+            while read -r stale_pr stale_branch; do
+              echo "Closing superseded smoke-test PR #$stale_pr ($stale_branch) from an earlier failed run."
+              gh pr close "$stale_pr"
+              git push origin --delete "$stale_branch" >/dev/null 2>&1 || true
+            done
+
           branch="automation/smoke-test-${GITHUB_RUN_ID}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -82,6 +95,32 @@ jobs:
             --base master --head "$branch" \
             --title "ci: automation smoke test" \
             --body "Automated: proves a workflow can still land a commit on \`master\` through a PR under the current ruleset. Opened and merged by \`automation-smoke-test.yml\`."
+
+          # Wait for the PR's checks to finish before merging. The master
+          # ruleset's code-scanning rule refuses a merge until CodeQL has
+          # analyzed the head commit, a minute or two after the PR opens —
+          # merging sooner gets "the base branch policy prohibits the merge",
+          # which is exactly the failure this workflow exists to detect
+          # clearly, so it must not trip over it itself.
+          # `gh pr checks` exits 0 all passed, 1 some failed, 8 pending or
+          # none registered yet, so poll it.
+          deadline=$(( $(date +%s) + 900 ))
+          while :; do
+            checks_rc=0
+            gh pr checks "$branch" >/dev/null 2>&1 || checks_rc=$?
+            if [ "$checks_rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$checks_rc" -eq 1 ]; then
+              echo "::error::A check failed on the smoke-test PR — not merged. See the checks on $branch."
+              exit 1
+            fi
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::Checks on the smoke-test PR did not finish within 15 minutes — not merged. See $branch."
+              exit 1
+            fi
+            sleep 15
+          done
 
           # Mirrors main.yml and promote-post.yml exactly, including the
           # --match-head-commit pin that stops anything appending to this branch
@@ -131,5 +170,5 @@ jobs:
             sleep $(( attempt * 5 ))
           done
 
-          echo "::error::Could not merge $branch into master. This is the failure main.yml and promote-post.yml would hit on their next cron — check the master ruleset for required status checks (they never report on a GITHUB_TOKEN-opened PR) or required approvals."
+          echo "::error::Could not merge $branch into master after checks passed. This is the failure main.yml and promote-post.yml would hit on their next cron — check the master ruleset for rules that gate merges beyond what checks show (the Oct 2026 code-scanning rule is what the wait above handles) or required approvals."
           exit 1
