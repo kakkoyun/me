@@ -1,9 +1,9 @@
 Hot out of my brain unfiltered! See [notes](/notes/) for more.
 
 <!-- NOTE-LIST:START -->
- - [Go Instrumentation - OpenTelemetry SDK and Bridge Pitfalls](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/opentelemetry-sdk-and-bridge-pitfalls) 
+ - [Continuous Profiling for Go Without Code Changes](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/continuous-profiling) 
 
- - [Go Instrumentation - otelc Internals](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/otelc-internals) 
+ - [Go Context Propagation Across Goroutines](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/context-propagation) 
 
- - [Go - Concurrency, Locks, and checklocks](https://kakkoyun.me/notes/resources/documentation/Go/concurrency-locks-and-checklocks) 
+ - [Go Flight Recorder, USDT Probes, and Missing Runtime Hooks](https://kakkoyun.me/notes/resources/documentation/go/instrumentation/flight-recording-usdt) 
 <!-- NOTE-LIST:END -->
