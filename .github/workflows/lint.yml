@@ -26,7 +26,7 @@ jobs:
       - name: Install pinned ShellCheck (mise)
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
-          version: 2026.11.5
+          version: 2026.11.11
           install_args: shellcheck
           cache_key_prefix: lint-shellcheck
 
@@ -87,7 +87,7 @@ jobs:
       - name: Install pinned actionlint and ShellCheck (mise)
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
-          version: 2026.11.5
+          version: 2026.11.11
           install_args: "actionlint shellcheck"
           cache_key_prefix: lint-actionlint
 
@@ -139,7 +139,7 @@ jobs:
       - name: Install pinned shfmt (mise)
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
-          version: 2026.11.5
+          version: 2026.11.11
           install_args: shfmt
           cache_key_prefix: lint-shfmt
 
