@@ -24,9 +24,9 @@ hugo-extended = "0.169.0"
 shfmt = "3.14.1"
 shellcheck = "0.11.0"
 actionlint = "1.7.12"
-vale = "3.26.0"
+vale = "3.28.1"
 lychee = "0.24.2"
-node = "22.23.4"
+node = "22.23.5"
 "npm:mjml" = "5.4.1"
 # Frozen at 0.15.1: 0.16.0 depends on a chromium-bidi release that
 # fails mise's aube trust policy (it lost the trusted-publisher evidence
